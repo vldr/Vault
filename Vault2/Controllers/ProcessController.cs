@@ -46,13 +46,13 @@ namespace Vault2.Controllers
         public IActionResult Logout()
         {
             if (!IsLoggedIn())
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Clear out all our sessions...
             HttpContext.Session.Clear();
 
             // Redirect out of there...
-            return Redirect("/");
+            return Redirect("/manager/");
         }
 
         /**
@@ -678,7 +678,7 @@ namespace Vault2.Controllers
             string thumbnailPath = file.Path + ".thumb";
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath)) return StatusCode(500);
+            if (!System.IO.File.Exists(thumbnailPath)) return Redirect("/manager/images/image-icon.png");
 
             // Setup some simple client side caching for the thumbnails!
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
@@ -696,14 +696,14 @@ namespace Vault2.Controllers
         {
             // Check if our share id given is null!
             if (shareId == null)
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Get the file...
             Objects.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
@@ -721,18 +721,18 @@ namespace Vault2.Controllers
         {
             // Check if our share id given is null!
             if (shareId == null)
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Get the file...
             Objects.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Check if the file even exists on the disk...
             if (!System.IO.File.Exists(file.Path))
-                return Redirect("/");
+                return Redirect("/manager/");
 
             // Increment our file hits so we can know how many times the file was downloaded!
             _processService.IncrementFileHit(file);

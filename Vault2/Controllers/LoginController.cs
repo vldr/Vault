@@ -131,7 +131,7 @@ namespace Vault2.Controllers
         public IActionResult Control()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect("/");
+            if (!IsLoggedIn()) return Redirect("/manager/");
 
             // Save our id...
             int id = SessionExtension.Get(HttpContext.Session, _sessionName).Id;

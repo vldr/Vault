@@ -51,7 +51,7 @@ namespace Vault2
             {
                 OnPrepareResponse = ctx =>
                 {
-                    ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
+                    //ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
                 }
             });
 
