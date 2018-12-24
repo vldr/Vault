@@ -15,7 +15,7 @@ namespace Vault.Objects
         }
 
         public static UserSession Get(this ISession session, string key)
-        {
+        { 
             var value = session.GetString(key);
 
             return value == null ? null : JsonConvert.DeserializeObject<UserSession>(value);
