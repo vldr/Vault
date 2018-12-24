@@ -377,6 +377,34 @@ namespace Vault2.Controllers
                 return Json(0);
         }
 
+        /**
+         * Toggle the share of a file!
+         */
+        [HttpPost]
+        [Route("process/toggleshare")]
+        public IActionResult ToggleShare(int? fileId, int? option)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return Json(0);
+
+            // Check for nulls...
+            if (fileId == null || option == null || option < 0 || option > 1)
+                return Json(0);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our user id...
+            int id = userSession.Id;
+
+            // Update our file's shareablity!
+            if (_processService.ShareFile(userSession.Id, fileId.GetValueOrDefault(), option == 1 ? true : false))
+                return Json(1);
+            else
+                return Json(0);
+        }
+
 
         /**
          * Move a file...
@@ -564,6 +592,11 @@ namespace Vault2.Controllers
 
                 // Full path to file in temp location
                 string filePath = _storageLocation + randomString(30);
+
+                // Check if our file already exists with that name!
+                if (System.IO.File.Exists(filePath))
+                    // Respond with zero since something bad happened...
+                    return Json(0);
 
                 // Setup our file name...
                 string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);

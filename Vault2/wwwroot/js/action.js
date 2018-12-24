@@ -127,6 +127,38 @@ function processListFilesSilent()
 	xmlhttp.send();
 }
 
+function processListFilesSilentShare(id) {
+    var xmlhttp;
+    var timer = null;
+    if (window.XMLHttpRequest) {
+        xmlhttp = new XMLHttpRequest();
+    }
+    else {
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+    }
+
+    xmlhttp.onreadystatechange = function () {
+
+        timer = setTimeout(function () {
+            if (xmlhttp.readyState < 4) {
+                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
+            }
+        }, 200);
+
+
+        if (xmlhttp.readyState === 4) {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300) {
+                clearTimeout(timer);
+                document.getElementById("myfiles").innerHTML = xmlhttp.responseText;
+                processShareFile(id);
+            }
+        }
+    }
+
+    xmlhttp.open("POST", "/manager/process/list", true);
+    xmlhttp.send();
+}
+
 function processDelete(str) {
 	swal({
         title: "Are you sure?",
@@ -248,8 +280,60 @@ function contextMenuFile(event)
 
     menuOptions.innerHTML = `<li class="menu-option" data-file-id="${fileId}" onclick="processDownload(event)">Download</li>`
         + `<li class="menu-option" data-file-id="${fileId}" onclick="processRenameFile(event)">Rename</li>`
-        + `<li class="menu-option" data-file-id="${fileId}" onclick="processShareFile(event)">Share</li>`
+        + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
+}
+
+function processToggleSharing(id)
+{
+    var checkBox = document.getElementById("share-checkbox-input");
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4) {
+            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
+            if (xhr.status === 200 && xhr.status < 300) {
+                if (xhr.responseText.trim() === "1") { processListFilesSilentShare(id); }
+                else if (xhr.responseText.trim() === "0")
+                    swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
+            }
+        }
+    }
+
+    xhr.open('POST', '/manager/process/toggleshare');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    
+    if (checkBox.checked === true)
+        xhr.send("fileid=" + id + "&option=1");
+    else
+        xhr.send("fileid=" + id + "&option=0");
+
+}
+
+function processShareFile(id)
+{
+    var isShared = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-shared");
+    var shareId = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-share");
+    
+    swal({
+        title: "Share",
+        html: true,      
+        showConfirmButton: true, 
+        
+        text: `<p style="text-align: left;">You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p><br>` + (isShared === "True" ? `
+            <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
+                <span class="checkmark"></span>
+            </label>
+            <div class="share-box">${shareId}</div>
+            <br><br>`
+            : `<label id="share-checkbox">Enable
+                <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">
+                <span class="checkmark"></span>
+            </label>`)
+    });
 }
 
 function processRenameFile(event)
