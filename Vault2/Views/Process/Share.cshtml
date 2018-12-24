@@ -74,8 +74,9 @@
     <meta charset="UTF-8">
     <title>@ViewBag.File.Name - Vault</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/login.css">
-    <link rel="stylesheet" type="text/css" href="/css/share.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/share.css">
 
     <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -84,7 +85,7 @@
     <div class="topbar">
         <h3><img src="@ViewBag.Icon" class="topbar-icon" /> @ViewBag.File.Name</h3>
     </div>
-    <div class="btn-info"></div>
+    <div class="btn-info" onclick="fileInfo();"></div>
     <div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
 
     <center>
@@ -110,6 +111,27 @@
     </center>
 </body>
 
-<script type="text/javascript" src="/js/action.js"></script>
-<script>@Html.Raw(ViewBag.PreviewAction);</script>
+<script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
+<script type="text/javascript" src="/manager/js/action.js"></script>
+<script>
+    @Html.Raw(ViewBag.PreviewAction)
+
+    function fileInfo()
+    {
+        swal({
+            title: null,
+            html: true,
+            showConfirmButton: false,
+            animation: "pulse",
+
+            text: `<h1>Name:</h1>
+                <b>@ViewBag.File.Name</b>
+
+                <h1>Size:</h1>
+                <b>@ViewBag.File.Size byte(s)</b>
+                <br><br>
+                <div class="close-info-button" onclick="swal.close();">Close</div>`
+        });
+    }
+</script>
 </html>
