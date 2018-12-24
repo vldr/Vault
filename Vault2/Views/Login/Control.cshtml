@@ -1,0 +1,196 @@
+﻿@{
+    Layout = null;
+}
+
+@model Vault2.Controllers.LoginController
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vault</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="/manager/css/usercp.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/dialog.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/nprogress.css">
+</head>
+
+<body ondragover='highLight(event)' onclick="resetContextMenu()" onresize="resetContextMenu()" ondragleave='deLight(event)' ondrop='deLight(event)'>
+    <div class="content">
+        <div class="topbar">
+            <span class="logo">
+                <img src="/manager/images/ui/logo.png" />
+            </span>
+
+            <a onclick="showSettings()"><div class="btnSettings"></div></a>
+            <a onclick="showLogout()"><div class="btnLogout"></div></a>
+            <a onclick="showHelp()"><div class="btnHelp"></div></a>
+            <a onclick="showSort()"><div class="btnSort"></div></a>
+            <a><div class="btnUpload"></div></a>
+        </div>
+
+        <div id="myfiles" class="dropzone-previews " action="Process/upload"
+             method="post" enctype="multipart/form-data" class="dropzone" id="dropzone"></div>
+        <br>
+    </div>
+
+    <div id="previewNoThanks" style="display:none"></div>
+    <div id="myModal" onclick="document.getElementById('myModal').style.display='none';" class="myImg-modal" style="display:none;">
+        <div id="modelLoading"><center><progress id="progressbar" value="0" max="100"></progress></center></div>
+        <span class="closeThis" onclick="document.getElementById('myModal').style.display='none'; ">&times;</span>
+        <div id="captionTag"></div>
+        <img class="myImg-modal-content" onclick="" id="imgObject">
+    </div>
+
+    <div id="context-menu" class="menu" oncontextmenu="event.preventDefault()">
+        <ul id="context-menu-options" class="menu-options"></ul>
+    </div>
+
+    <br><br>
+
+    <script type="text/javascript" src="/manager/js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="/manager/js/zip.js"></script>
+    <script type="text/javascript" src="/manager/js/crc32.js"></script>
+    <script type="text/javascript" src="/manager/js/dropzone.js"></script>
+    <script type="text/javascript" src='/manager/js/nprogress.js'></script>
+    <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
+    <script type="text/javascript" src="/manager/js/action.js"></script>
+
+    <script>processListFilesFirst();</script>
+    <script>
+        new Dropzone(document.body,
+        {
+            paramName: "file",
+		    maxFilesize: 30,
+		    url: "process/upload",
+		    clickable: ".btnUpload",
+		    previewsContainer: "#previewNoThanks",
+            addedfile: function (file) {
+
+                console.log(file.fullPath + " " + file );
+		    },
+		    success: function(file, response) {
+			    processListFilesSilent();
+
+			    if (response == "1")
+				    swal({title: "Success!", text: "The file has been successfully uploaded!", type: "success", timer: 700, showConfirmButton: false});
+			    else
+				    swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
+		    },
+            error: function (file, response)
+            {
+			    processListFilesSilent();
+			    swal("Error!", response, "error");
+		    },
+		    uploadprogress: function(file, progress, bytesSent) {
+			    if (progress != 0){
+				    NProgress.set(progress/100);
+			    }
+			    console.log(progress/100);
+		    }
+	    });
+
+        function showHelp()
+        {
+		    var captionText = document.getElementById("captionTag");
+		    var modal = document.getElementById('myModal');
+		    var modalImg = document.getElementById("imgObject");
+		    var modelLoading = document.getElementById("modelLoading");
+
+		    modelLoading.style.display = "none";
+		    modalImg.style.display = "none";
+
+		    modal.style.display = "block";
+		    captionText.style.display = "block";
+		    captionText.innerHTML = `<div class="alert-body"><h3>About</h3>
+			    <p>Vault is a simple file-storage system. Simply upload files and Vault will take care of them.
+			    This eliminates the possiblity of losing files or running out of storage...</p>
+
+			    <h3>Icons</h3>
+			    <p>
+			    Almost all icons used here are made by
+			    Freepik from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>, and is licensed by CC BY 3.0
+			    </p></div>`;
+	    }
+
+	    function showSettings()
+        {
+		    var captionText = document.getElementById("captionTag");
+		    var modal = document.getElementById('myModal');
+		    var modalImg = document.getElementById("imgObject");
+		    var modelLoading = document.getElementById("modelLoading");
+
+		    modelLoading.style.display = "none";
+		    modalImg.style.display = "none";
+
+		    modal.style.display = "block";
+		    captionText.style.display = "block";
+            captionText.innerHTML = `<div class="alert-body">
+            <h3>Settings</h3>
+            <b style="font-size:18px;">User Identification:</b><br>
+            <em style="font-size:25px;">@ViewBag.User.Id</em><br><br>
+
+            <b style="font-size:18px;">Email:</b><br>
+            <em style="font-size:25px;">@ViewBag.User.Email</em><br><br>
+
+            <b style="font-size:18px;">Name:</b><br>
+            <em style="font-size:25px;">@ViewBag.User.Name</em><br>
+
+            <hr style="margin-bottom: 30px;">
+            <p>You can update your password from here...</p>
+		    <a onclick="processChangePassword()" style="cursor:pointer;" class="btn">Change Password</a>
+            </div>`;
+	    }
+
+        function showLogout()
+        {
+		    var captionText = document.getElementById("captionTag");
+		    var modal = document.getElementById('myModal');
+		    var modalImg = document.getElementById("imgObject");
+		    var modelLoading = document.getElementById("modelLoading");
+
+		    modelLoading.style.display = "none";
+		    modalImg.style.display = "none";
+
+		    modal.style.display = "block";
+		    captionText.style.display = "block";
+		    captionText.innerHTML = `<div class="alert-body">
+			    <h1 style='font-size:30px; margin-bottom:0;'>Are you sure want to logout?</h1>
+			    <p>Are you sure you want to log out of this computer?</p>
+			    <a href="process/logout" class="btn">Logout</a>
+			    <a href="#" class="btn black">Cancel</a>
+			    </div>`;
+	    }
+
+        function showSort()
+        {
+		    var captionText = document.getElementById("captionTag");
+		    var modal = document.getElementById('myModal');
+		    var modalImg = document.getElementById("imgObject");
+		    var modelLoading = document.getElementById("modelLoading");
+
+		    modelLoading.style.display = "none";
+		    modalImg.style.display = "none";
+
+		    modal.style.display = "block";
+		    captionText.style.display = "block";
+            captionText.innerHTML = `<div class="alert-body">
+			    <h1 style='font-size:30px; margin-bottom:0;'>Sort and create folders</h1>
+			    <center>
+				    <p>You can create folders to organise your files...</p>
+				    <a onclick="processFolderCreate()" style="cursor:pointer;" class="btn black">Create a Folder</a>
+                    <hr>
+                    <p>You can sort files to orangize your files...</p>
+                    <a onclick="processSortBy(0)" style="cursor:pointer;" class="btn">Extension</a>
+                    <a onclick="processSortBy(1)" style="cursor:pointer;" class="btn">Size</a>
+                    <a onclick="processSortBy(2)" style="cursor:pointer;" class="btn">Name</a>
+                    <a onclick="processSortBy(3)" style="cursor:pointer;" class="btn">Date</a>
+			    </center>
+			    </div>`;
+        }
+    </script>
+</body>
+</html>
