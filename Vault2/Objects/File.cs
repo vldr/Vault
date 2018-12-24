@@ -26,5 +26,17 @@ namespace Vault2.Objects
         public int Owner { get; set; }
 
         public int Folder { get; set; }
+
+        public int Hits { get; set; }
+
+        // Share Related
+
+        public bool IsSharing { get; set; }
+
+        public string ShareId { get; set; }
+
+        public string ShareKey { get; set; }
+
+        public DateTime ShareDate { get; set; }
     }
 }

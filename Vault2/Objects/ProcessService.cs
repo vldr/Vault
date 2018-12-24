@@ -70,6 +70,12 @@ namespace Vault2.Objects
         /**
          * Checks if a folder can move there...
          */
+        public bool IsShareIdTaken(int ownerId, int fileId, string shareId)
+            => _context.Files.Any(b => b.Id == fileId && b.Owner == ownerId && b.ShareId == shareId);
+
+        /**
+         * Checks if a folder can move there...
+         */
         public bool CanFolderMove(int ownerId, int id, int folderId) 
             => _context.Folders.Any(b => b.Id == id && b.Owner == ownerId && b.FolderId == folderId);
         
@@ -103,12 +109,93 @@ namespace Vault2.Objects
         }
 
         /**
+         * Increment our file hits!
+         */
+        public void IncrementFileHit(File file)
+        {
+            file.Hits++;
+
+            _context.SaveChanges();
+        }
+
+
+        /**
          * Adds a new folder to the dataset...
          */
         public void AddNewFolder(Folder folder)
         {
             _context.Folders.Add(folder);
             _context.SaveChanges();
+        }
+
+        /**
+        * Share our file!
+        */
+        public bool ShareFile(int id, int fileId, bool option)
+        {
+            // Setup function to generate random string...
+            Func<int, string> randomString = count =>
+            {
+                string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                var stringChars = new char[count];
+                var random = new Random();
+
+                for (int i = 0; i < stringChars.Length; i++)
+                {
+                    stringChars[i] = chars[random.Next(chars.Length)];
+                }
+
+                return new string(stringChars);
+            };
+
+            // Catch any exceptions...
+            try
+            {
+                // Get our actual user...
+                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == id).FirstOrDefault();
+
+                // Check if our user is null!
+                if (file == null)
+                    return false;
+
+                // If we want to toggle off our share, then it is simple!
+                if (option == false)
+                {
+                    // Set our is sharing accordingly!
+                    file.IsSharing = false;
+
+                    // Empty our share id!
+                    file.ShareId = String.Empty;
+                }
+                // Otherwise, turn everything on!
+                else
+                {
+                    // Set our is sharing accordingly!
+                    file.IsSharing = true;
+
+                    // Setup a variable to store our share id!
+                    string shareId = randomString(32);
+
+                    // Check if our share id is taken!
+                    if (IsShareIdTaken(id, fileId, shareId))
+                        // Return false if it is taken!
+                        return false;
+
+                    // Generate our random string for our share id!
+                    file.ShareId = shareId;
+                }
+
+                // Save our changes!
+                _context.SaveChanges();
+
+                // Return true as it was successful...
+                return true;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
         }
 
         /**
