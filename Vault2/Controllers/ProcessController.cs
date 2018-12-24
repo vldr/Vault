@@ -606,7 +606,7 @@ namespace Vault2.Controllers
                 {
                     await file.CopyToAsync(stream);
                 }
-
+                 
                 //////////////////////////////////////////////////////////////////
 
                 // Call our generate thumbnail which will generate a thumbnail 
@@ -680,10 +680,68 @@ namespace Vault2.Controllers
             // Check if the file even exists on the disk...
             if (!System.IO.File.Exists(thumbnailPath)) return StatusCode(500);
 
+            // Setup some simple client side caching for the thumbnails!
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
              
             // Return the file...
             return File(new FileStream(thumbnailPath, FileMode.Open), "image/*", file.Name);
+        }
+
+        /**
+         * Displays the share page for a shared file...
+         */
+        [HttpGet]
+        [Route("share/{shareId}")]
+        public IActionResult Share(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null)
+                return Redirect("/");
+
+            // Get the file...
+            Objects.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null)
+                return Redirect("/");
+
+            // Setup our shared file variable in our viewbag!
+            ViewBag.File = file;
+
+            // Return our view!
+            return View();
+        }
+
+        /**
+         * Downloads the shared file...
+         */
+        [HttpPost]
+        [Route("share/{shareId}")]
+        public IActionResult DownloadSharedFile(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null)
+                return Redirect("/");
+
+            // Get the file...
+            Objects.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null)
+                return Redirect("/");
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path))
+                return Redirect("/");
+
+            // Increment our file hits so we can know how many times the file was downloaded!
+            _processService.IncrementFileHit(file);
+
+            // Add a custom header to find the filename easier... (For our javascript parser)
+            HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
+
+            // Return the file...
+            return File(new FileStream(file.Path, FileMode.Open), "application/octet-stream", file.Name);
         }
 
 

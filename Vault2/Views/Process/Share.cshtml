@@ -1,0 +1,115 @@
+﻿@{
+    Layout = null;
+    ViewBag.IsPreview = false;
+    ViewBag.PreviewAction = "";
+}
+
+@model Vault2.Controllers.ProcessController
+
+@switch (ViewBag.File.Ext)
+{
+    case ".zip":
+    case ".rar":
+    case ".tar":
+    case ".gz":
+    case ".zipx":
+        ViewBag.Icon = "/manager/images/zip-icon.png";
+        break;
+    case ".mov":
+    case ".mp4":
+    case ".webm":
+        ViewBag.Icon = "/manager/images/video-icon.png";
+        break;
+    case ".docx":
+    case ".asd":
+    case ".dotx":
+    case ".dotm":
+    case ".wbk":
+    case ".docm":
+        ViewBag.Icon = "/manager/images/word-icon.png";
+        break;
+    case ".pptx":
+    case ".pps":
+        ViewBag.Icon = "/manager/images/PowerPoint-icon.png";
+        break;
+    case ".pub":
+        ViewBag.Icon = "/manager/images/Publisher-icon.png";
+        break;
+    case ".exe":
+    case ".app":
+    case ".dmg":
+    case ".bat":
+    case ".elf":
+    case ".sys":
+    case ".msi":
+    case ".sh":
+    case ".deb":
+    case ".com":
+        ViewBag.Icon = "/manager/images/shell-icon.png";
+        break;
+    case ".xlsx":
+    case ".xls":
+        ViewBag.Icon = "/manager/images/Excel-icon.png";
+        break;
+    case ".png":
+    case ".jpg":
+    case ".jpeg":
+    case ".bmp":
+    case ".pjpeg":
+    case ".gif":
+    {
+        ViewBag.IsPreview = true;
+        ViewBag.PreviewAction = $"viewImageShared('{@ViewBag.File.ShareId}');";
+        ViewBag.Icon = "/manager/images/image-icon.png";
+        break;
+    }
+    default:
+        ViewBag.Icon = "/manager/images/unknown-icon.png";
+        break;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewBag.File.Name - Vault</title>
+
+    <link rel="stylesheet" type="text/css" href="/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/css/share.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="topbar">
+        <h3><img src="@ViewBag.Icon" class="topbar-icon" /> @ViewBag.File.Name</h3>
+    </div>
+    <div class="btn-info"></div>
+    <div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
+
+    <center>
+        @if (ViewBag.IsPreview)
+        {
+            <div id="share-box" style="margin-top: 75px;">
+                <div class="loader"></div>
+            </div>
+
+            <form id="download-form" action="/manager/share/@ViewBag.File.ShareId" method="post"></form>
+        }
+        else
+        {
+            <div class="content">
+                <p>No preview is available for this file type.</p>
+                <form id="download-form" action="/manager/share/@ViewBag.File.ShareId" method="post">
+                    <input type="submit" value="Download">
+                </form>
+            </div>
+        }
+
+        <br /><br />
+    </center>
+</body>
+
+<script type="text/javascript" src="/js/action.js"></script>
+<script>@Html.Raw(ViewBag.PreviewAction);</script>
+</html>

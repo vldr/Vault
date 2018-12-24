@@ -93,10 +93,16 @@ namespace Vault2.Objects
         
         
         /**
-         * Gets a folder when asked for one...
+         * Gets a file when asked for one...
          */
         public File GetFile(int ownerId, int fileId) 
             => _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+
+        /**
+         * Gets a file using the shareId, only works if it is being shared!
+         */
+        public File GetSharedFile(string shareId)
+            => _context.Files.Where(b => b.IsSharing == true && b.ShareId == shareId).FirstOrDefault();
 
 
         /**
