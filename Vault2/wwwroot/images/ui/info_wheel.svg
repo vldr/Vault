@@ -1,44 +1,50 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 19.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 65 65" style="enable-background:new 0 0 65 65;" xml:space="preserve">
-<g>
-	<g>
-		<path d="M32.5,0C14.58,0,0,14.579,0,32.5S14.58,65,32.5,65S65,50.421,65,32.5S50.42,0,32.5,0z M32.5,61C16.785,61,4,48.215,4,32.5
-			S16.785,4,32.5,4S61,16.785,61,32.5S48.215,61,32.5,61z"/>
-		<circle cx="33.018" cy="19.541" r="3.345"/>
-		<path d="M32.137,28.342c-1.104,0-2,0.896-2,2v17c0,1.104,0.896,2,2,2s2-0.896,2-2v-17C34.137,29.237,33.241,28.342,32.137,28.342z
-			"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65" width="65" height="65">
+	<defs>
+		<filter id="flt1"> <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 1 0" /> </filter>
+		<filter id="flt2"> <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 1 0" /> </filter>
+		<filter id="flt3"> <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 1 0" /> </filter>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+		.shp0 { filter: url(#flt1);fill: #0f0f0f } 
+		.shp1 { filter: url(#flt2);fill: #0f0f0f } 
+		.shp2 { filter: url(#flt3);fill: #0f0f0f } 
+	</style>
+	<g id="Layer">
+		<g id="Layer">
+			<path id="Layer" class="shp0" d="M65,32.5c0,17.92 -14.58,32.5 -32.5,32.5c-17.92,0 -32.5,-14.58 -32.5,-32.5c0,-17.92 14.58,-32.5 32.5,-32.5c17.92,0 32.5,14.58 32.5,32.5zM61,32.5c0,-15.71 -12.78,-28.5 -28.5,-28.5c-15.71,0 -28.5,12.78 -28.5,28.5c0,15.72 12.79,28.5 28.5,28.5c15.72,0 28.5,-12.78 28.5,-28.5z" />
+			<path id="Layer" class="shp1" d="M36.36,19.54c0,-1.85 -1.5,-3.34 -3.34,-3.34c-1.85,0 -3.34,1.5 -3.34,3.34c0,1.85 1.5,3.34 3.34,3.34c1.85,0 3.34,-1.5 3.34,-3.34z" />
+			<path id="Layer" class="shp2" d="M32.14,28.34c-1.1,0 -2,0.9 -2,2v17c0,1.1 0.9,2 2,2c1.1,0 2,-0.9 2,-2v-17c0,-1.11 -0.9,-2 -2,-2z" />
+		</g>
 	</g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
 </svg>
