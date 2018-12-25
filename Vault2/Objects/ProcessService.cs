@@ -301,19 +301,23 @@ namespace Vault2.Objects
         /**
          * Returns the string representation of the folder's location
          */
-        public string GetFolderLocation(Folder folder, StringBuilder location = null)
+        public string GetFolderLocation(Folder folder, int limit = 0, StringBuilder location = null)
         {
             // If our location parameter is null then initialize it.
             if (location == null) location = new StringBuilder();
 
-            // Easy case, check if we're on the root folder.
-            if (folder.FolderId == 0) return location.ToString();
-
             // Insert our folder's name at the start of the string builder.
             location.Insert(0, folder.Name + "/");
 
+            // Easy case, check if we're on the root folder.
+            if (folder.FolderId == limit)
+            {
+                // Return the final location string!
+                return location.ToString();
+            }
+
             // Call our get folder location once more to get the next folder!
-            return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), location);
+            return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), limit, location);
         }
 
         /**
