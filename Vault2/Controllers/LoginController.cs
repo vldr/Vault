@@ -15,6 +15,7 @@ namespace Vault2.Controllers
     {
         // Save our little session tag...
         private string _sessionName;
+        private string _relativeDirectory;
 
         // Instance of our login service...
         private LoginService _loginService;
@@ -35,6 +36,7 @@ namespace Vault2.Controllers
             _configuration = configuration;
 
             _sessionName = configuration["SessionTagId"];
+            _relativeDirectory = configuration["RelativeDirectory"];
         }
 
         // Called when someone logs in to the website...
@@ -131,7 +133,7 @@ namespace Vault2.Controllers
         public IActionResult Control()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect("/manager/");
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
 
             // Save our id...
             int id = SessionExtension.Get(HttpContext.Session, _sessionName).Id;

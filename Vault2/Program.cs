@@ -45,7 +45,6 @@ namespace Vault2
                      options.EnableResponseCaching = true;
                      options.MaxConnections = null;  
                      options.MaxRequestBodySize = 90000000; 
-                     
                      //options.UrlPrefixes.Add("http://vldr.org:80/manager/");
                      //options.UrlPrefixes.Add("https://vldr.org:443/manager/");
 
