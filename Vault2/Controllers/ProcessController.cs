@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Vault2.Objects;
@@ -9,12 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Vault.Objects;
 using ImageMagick;
-using System.Threading;
-using System.Net.Http.Headers;
-using System.IO.Compression;
-using System.Net.Http;
 using Ionic.Zip;
-using System.Net;
 using System.Text;
 
 namespace Vault2.Controllers
@@ -643,9 +637,7 @@ namespace Vault2.Controllers
                 string fileExtension = Path.GetExtension(fileName);
 
                 // Check if our file is a PNG, JPEG, or JPG....
-                if (fileExtension == ".png" 
-                    || fileExtension == ".jpeg"
-                    || fileExtension == ".jpg")
+                if (fileExtension == ".png" || fileExtension == ".jpeg" || fileExtension == ".jpg")
                     // Call our generate thumbnail which will generate a thumbnails...
                     GenerateThumbnails(filePath);
 
@@ -675,52 +667,11 @@ namespace Vault2.Controllers
                 // Respond with a successful message...
                 return Json(1);
             }
-            catch (Exception)
+            catch
             {
                 // Respond with zero since something bad happened...
                 return Json(0);
             }
-        }
-
-        /**
-         * Downloads the thumbnail for the file!
-         */
-        [HttpGet]
-        [Route("process/thumbnail/{id}")]
-        public IActionResult Thumbnail(int? id)
-        {
-            // Check if we're logged in...
-            if (!IsLoggedIn())
-                return StatusCode(500);
-
-            // Check if the file id is not null...
-            if (id == null)
-                return StatusCode(500);
-
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Get our current user id...
-            int userId = userSession.Id;
-
-            // Get the file...
-            Objects.File file = _processService.GetFile(userId, id.GetValueOrDefault());
-
-            // Check if the file exists....
-            if (file == null)
-                return StatusCode(500);
-
-            // Setup our thumbnails path!
-            string thumbnailPath = file.Path + ".thumb";
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
-
-            // Setup some simple client side caching for the thumbnails!
-            HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
-             
-            // Return the file...
-            return File(new FileStream(thumbnailPath, FileMode.Open), "image/*", file.Name);
         }
 
         /**
@@ -749,43 +700,6 @@ namespace Vault2.Controllers
         }
 
         /**
-         * Downloads the shared file...
-         */
-        [HttpPost]
-        [Route("share/{shareId}")]
-        public IActionResult DownloadSharedFile(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null)
-                return StatusCode(500);
-
-            // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null)
-                return StatusCode(500);
-
-            // Setup our file's path as a variable...
-            string filePath = file.Path;
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath))
-                return StatusCode(500);
-
-            // Check if we were given a x-preview header and that the preview file exists!
-            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
-                // If so, then append .preview to the file path...
-                filePath += ".preview";
-
-            // Increment our file hits so we can know how many times the file was downloaded!
-            _processService.IncrementFileHit(file);
-
-            // Return the file...
-            return new FileStreamResult(new FileStream(filePath, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
-        }
-
-        /**
          * Uses recursion to zip files!
          */ 
         private async Task ZipFiles(int folderId, int userId, ZipOutputStream zipStream, int limit = 0)
@@ -807,7 +721,7 @@ namespace Vault2.Controllers
                 zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder, limit)}{file.Name}");
 
                 // Setup a filestream and stream contents to the zip stream!
-                using (var stream = new FileStream(file.Path, FileMode.Open))
+                using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     await stream.CopyToAsync(zipStream);
             }
 
@@ -871,11 +785,89 @@ namespace Vault2.Controllers
         }
 
         /**
+         * Downloads the thumbnail for the file!
+         */
+        [HttpGet]
+        [Route("process/thumbnail/{id}")]
+        public IActionResult Thumbnail(int? id)
+        {
+            // Check if we're logged in...
+            if (!IsLoggedIn())
+                return StatusCode(500);
+
+            // Check if the file id is not null...
+            if (id == null)
+                return StatusCode(500);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our current user id...
+            int userId = userSession.Id;
+
+            // Get the file...
+            Objects.File file = _processService.GetFile(userId, id.GetValueOrDefault());
+
+            // Check if the file exists....
+            if (file == null)
+                return StatusCode(500);
+
+            // Setup our thumbnails path!
+            string thumbnailPath = file.Path + ".thumb";
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
+
+            // Setup some simple client side caching for the thumbnails!
+            HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
+
+            // Return the file...
+            return File(new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "image/*", file.Name);
+        }
+
+        /**
+         * Downloads the shared file...
+         */
+        [HttpPost]
+        [Route("share/{shareId}")]
+        public IActionResult DownloadSharedFile(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null)
+                return StatusCode(500);
+
+            // Get the file...
+            Objects.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null)
+                return StatusCode(500);
+
+            // Setup our file's path as a variable...
+            string filePath = file.Path;
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(filePath))
+                return StatusCode(500);
+
+            // Check if we were given a x-preview header and that the preview file exists!
+            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
+                // If so, then append .preview to the file path...
+                filePath += ".preview";
+
+            // Increment our file hits so we can know how many times the file was downloaded!
+            _processService.IncrementFileHit(file);
+
+            // Return an empty result.
+            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
+        }
+
+        /**
          * Downloads a file given an id...
          */
         [HttpGet]
         [Route("process/download/{id}")]
-        public async Task<IActionResult> Download(int? id)
+        public IActionResult Download(int? id)
         {
             // Check if we're logged in...
             if (!IsLoggedIn())
@@ -913,8 +905,8 @@ namespace Vault2.Controllers
             // Add a custom header to find the filename easier...
             HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
 
-            // Return the file...
-            return new FileStreamResult(new FileStream(filePath, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
+            // Return an empty result.
+            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
         }
 
 

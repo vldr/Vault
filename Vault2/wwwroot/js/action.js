@@ -906,7 +906,7 @@ function viewImage(event)
 				modalImg.src = window.URL.createObjectURL(blob);
                 captionText.innerHTML = "<h1 style='word-wrap: break-word;color:white;font-size:50px;'>" + xhr.getResponseHeader("x-filename").substring(0, 24)
                     + (xhr.getResponseHeader("x-filename").length > 24 ? "..." : "") + "</h1>" +
-							'<a id="dl-img" href="' + blobObj + '" class="btn black">Download</a><br><br>' + 
+                    `<a id="dl-img" href="/manager/process/download/${event.target.getAttribute('data-file-id')}" class="btn black">Download</a><br><br>` + 
 							"<br>";
 				
 				var dl = document.getElementById("dl-img");

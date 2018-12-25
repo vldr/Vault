@@ -832,27 +832,7 @@ progress::-moz-progress-bar {
 }
 
 .gridItem.launch {
-	animation: fadein 0.4s;
-	/* -moz-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -webkit-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -o-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -ms-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);*/
-}
-
-.gridItem.first {
-	/* -moz-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -webkit-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -o-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    -ms-transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);
-    transform: scale(0.25) rotate(0deg) translateX(0px) translateY(0px) skewX(0deg) skewY(0deg);*/
-}
-
-.gridItem:hover {
-	/*cursor: move;
-    cursor: grab;
-    cursor: -moz-grab;
-    cursor: -webkit-grab;*/	
+    animation: fadein 0.2s
 }
 
 .gridItem img {
