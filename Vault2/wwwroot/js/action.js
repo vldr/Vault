@@ -241,6 +241,7 @@ function contextMenuFolder(event)
 
     menuOptions.innerHTML = `<li class="menu-option" data-folder-id="${folderId}" onclick="processMove(event)">Open</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processRenameFolder(event)">Rename</li>`
+        + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
         + `<li class="menu-option-color-picker">
                 <div onclick="processFolderColour(${folderId}, 0)" class="color-circle orange"></div>
@@ -249,6 +250,11 @@ function contextMenuFolder(event)
                 <div onclick="processFolderColour(${folderId}, 3)" class="color-circle red"></div>
                 <div onclick="processFolderColour(${folderId}, 4)" class="color-circle blue"></div>
             </li>`;   
+}
+
+function processDownloadFolder(id)
+{
+    window.location.href = "/manager/process/download/folder/" + id;
 }
 
 function contextMenuFile(event)
@@ -313,6 +319,20 @@ function processToggleSharing(id)
 
 }
 
+function selectText()
+{
+    if (document.selection) {
+        var range = document.body.createTextRange();
+        range.moveToElementText(document.getElementById("share-box"));
+        range.select();
+    } else if (window.getSelection) {
+        var rangeC = document.createRange();
+        rangeC.selectNode(document.getElementById("share-box"));
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(rangeC);
+    }
+}
+
 function processShareFile(id)
 {
     var isShared = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-shared");
@@ -327,7 +347,7 @@ function processShareFile(id)
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
                 <span class="checkmark"></span>
             </label>
-            <div class="share-box">${shareId}</div>
+            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/manager/share/${shareId}</div>
             <br><br>`
             : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">

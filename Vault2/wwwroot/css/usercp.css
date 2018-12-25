@@ -752,6 +752,7 @@ div .button {
     padding: 10px;
     border-radius: 10px;
     text-align: left;
+    overflow: hidden;
 }
 
 .checkmark {

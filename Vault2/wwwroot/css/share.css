@@ -29,9 +29,9 @@
 }
 
 .close-info-button {
-    background: #313131;
-    border: 1px solid #525252;
-    padding: 10px;
+    background: #131313;
+    border: 1px solid #232323;
+    padding: 10px 35px;
     border-radius: 4px;
     color: #b9b9b9;
     cursor: pointer;
@@ -39,9 +39,9 @@
     text-align: center;
 }
 
-.close-info-button:hover {
-    border: 1px solid #828282;
-}
+    .close-info-button:hover {
+        border: 1px solid #828282;
+    }
 
 input[type=submit] {
     background: #313131;
@@ -49,13 +49,12 @@ input[type=submit] {
     padding: 10px;
     border-radius: 4px;
     color: #b9b9b9;
-    cursor:pointer;
+    cursor: pointer;
 }
 
-input[type=submit]:hover 
-{
-    border: 1px solid #828282;
-}
+    input[type=submit]:hover {
+        border: 1px solid #828282;
+    }
 
 .topbar {
     position: absolute;
@@ -80,7 +79,7 @@ input[type=submit]:hover
     border-radius: 4px;
     top: 15px;
     right: 20px;
-    cursor:pointer;
+    cursor: pointer;
     background: url(../images/ui/info.svg);
     background-size: 20px;
     background-color: #1b1b1b;
@@ -88,9 +87,9 @@ input[type=submit]:hover
     background-position: center;
 }
 
-.btn-info:hover {
-    background-color: #2b2b2b;
-}
+    .btn-info:hover {
+        background-color: #2b2b2b;
+    }
 
 
 .btn-download {
@@ -112,9 +111,9 @@ input[type=submit]:hover
     background-position: center;
 }
 
-.btn-download:hover {
-    background-color: #2b2b2b;
-}
+    .btn-download:hover {
+        background-color: #2b2b2b;
+    }
 
 .image-preview {
     max-width: 80%;
@@ -131,9 +130,9 @@ input[type=submit]:hover
 }
 
 .rotate6 {
-    transform: rotate(90deg);
-    -webkit-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
+    transform: rotate(90deg) translate(12%);
+    -webkit-transform: rotate(90deg) translate(12%);
+    -ms-transform: rotate(90deg) translate(12%);
 }
 
 .rotate3 {
@@ -156,16 +155,16 @@ input[type=submit]:hover
     background-color: transparent;
 }
 
-.loader:before {
-    display: block;
-    position: absolute;
-    content: "";
-    left: -500px;
-    width: 30%;
-    height: 4px;
-    background-color: white;
-    animation: loading 1s linear infinite;
-}
+    .loader:before {
+        display: block;
+        position: absolute;
+        content: "";
+        left: -500px;
+        width: 30%;
+        height: 4px;
+        background-color: white;
+        animation: loading 1s linear infinite;
+    }
 
 @keyframes loading {
     from {
@@ -218,12 +217,14 @@ input[type=submit]:hover
 
 
 .sweet-alert p {
-    color: #f5f5f5;
+    color: #cecece;
 }
 
 .sweet-alert {
-    background-color: #2b2b2b;
-    border-radius: 25px;
+    background-color: #171717e0;
+    border: 1px solid #232323;
+    border-radius: 5px;
     text-align: left;
-    padding: 45px;
+    padding-left: 51px;
+    padding-top: 35px;
 }
