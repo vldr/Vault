@@ -24,6 +24,7 @@ namespace Vault2.Controllers
         // Save our little session tag...
         private string _sessionName;
         private string _storageLocation;
+        private string _relativeDirectory;
 
         // Instance of our process service...
         private ProcessService _processService;
@@ -45,6 +46,7 @@ namespace Vault2.Controllers
 
             _sessionName = configuration["SessionTagId"];
             _storageLocation = configuration["VaultStorageLocation"];
+            _relativeDirectory = configuration["RelativeDirectory"];
         }
 
         [HttpGet]
@@ -52,13 +54,13 @@ namespace Vault2.Controllers
         public IActionResult Logout()
         {
             if (!IsLoggedIn())
-                return Redirect("/manager/");
+                return Redirect(_relativeDirectory);
 
             // Clear out all our sessions...
             HttpContext.Session.Clear();
 
             // Redirect out of there...
-            return Redirect("/manager/");
+            return Redirect(_relativeDirectory);
         }
 
         /**
@@ -489,35 +491,26 @@ namespace Vault2.Controllers
             return Json(1);
         }
 
-
         /**
-         * Upload Files
+         * Generates thumbnails to be used to display images
          */
-        [HttpPost("UploadFiles")]
-        [Route("process/upload")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        private void GenerateThumbnails(string path)
         {
-            Action<string> generateThumbnail = path =>
+            // Setup a magick image and see if this file is an image!
+            var magickImage = new MagickImage(path);
+
+            // Check if the file is loosely a png, jpg, or jpeg!
+            if (magickImage.Format == MagickFormat.Jpeg || magickImage.Format == MagickFormat.Jpg
+                || magickImage.Format == MagickFormat.Png || magickImage.Format == MagickFormat.Gif)
             {
-                // Setup a magick image and see if this file is an image!
-                var magickImage = new MagickImage(path);
-
-                // Check if the file is loosely a png, jpg, or jpeg!
-                if (magickImage.Format == MagickFormat.Jpeg || magickImage.Format == MagickFormat.Jpg
-                    || magickImage.Format == MagickFormat.Png || magickImage.Format == MagickFormat.Gif)
+                // Put this into a try statement untested code!!
+                try
                 {
-
-                    // Full path to the file image thumbnail...
-                    string filePathThumbnail = path + ".thumb";
-
-                    // Put this into a try statement untested code!!
-                    try
-                    {
-                        // Constant variables to help us figure out what is going on!
-                        const int NONE = 0;
-                        const int HORIZONTAL = 1;
-                        const int VERTICAL = 2;
-                        int[][] OPERATIONS = new int[][] {
+                    // Constant variables to help us figure out what is going on!
+                    const int NONE = 0;
+                    const int HORIZONTAL = 1;
+                    const int VERTICAL = 2;
+                    int[][] OPERATIONS = new int[][] {
                                 new int[] {  0, NONE},
                                 new int[] {  0, HORIZONTAL},
                                 new int[] {180, NONE},
@@ -528,46 +521,79 @@ namespace Vault2.Controllers
                                 new int[] {-90, NONE},
                             };
 
+                    // Get the index from the attribute EXIF:Orientation...
+                    int index = int.Parse(magickImage.GetAttribute("EXIF:Orientation")) - 1;
 
-                        // Get the index from the attribute EXIF:Orientation...
-                        int index = int.Parse(magickImage.GetAttribute("EXIF:Orientation")) - 1;
+                    // Translate that into degrees!
+                    int degrees = OPERATIONS[index][0];
 
-                        // Translate that into degrees!
-                        int degrees = OPERATIONS[index][0];
-
-                        // If the degrees exist then actually rotate the image!
-                        if (degrees != 0)
-                        {
-                            magickImage.Rotate(degrees);
-                        }
-
-                        // Figure out if we need to flip or flop the image!
-                        switch (OPERATIONS[index][1])
-                        {
-                            case HORIZONTAL:
-                                magickImage.Flop();
-                                break;
-                            case VERTICAL:
-                                magickImage.Flip();
-                                break;
-                        }
+                    // If the degrees exist then actually rotate the image!
+                    if (degrees != 0)
+                    {
+                        magickImage.Rotate(degrees);
                     }
-                    catch { }
 
-                    // Use MagickImage to resize it!
-                    magickImage.Resize(32, 32);
+                    // Figure out if we need to flip or flop the image!
+                    switch (OPERATIONS[index][1])
+                    {
+                        case HORIZONTAL:
+                            magickImage.Flop();
+                            break;
+                        case VERTICAL:
+                            magickImage.Flip();
+                            break;
+                    }
+                }
+                catch { }
+
+                ///////////////////////////////////////////////
+
+                // Don't create a preview for gifs!
+                if (magickImage.Format != MagickFormat.Gif)
+                {
+                    // Full path to the file image thumbnail...
+                    string filePathPreview = $"{path}.preview";
 
                     // Strip all the metadata...
                     magickImage.Strip();
 
-                    // Set to the lowest quality possible...
-                    magickImage.Quality = 25;
+                    // Set the quality to around 50%...
+                    magickImage.Quality = 50;
+
+                    // Set our format to be a jpeg for that amazing compression...
+                    magickImage.Format = MagickFormat.Jpeg;
 
                     // Write the file!
-                    magickImage.Write(filePathThumbnail);
+                    magickImage.Write(filePathPreview);
                 }
-            };
 
+                ///////////////////////////////////////////////
+
+                // Full path to the file image thumbnail...
+                string filePathThumbnail = $"{path}.thumb";
+
+                // Use MagickImage to resize it!
+                magickImage.Resize(32, 32);
+
+                // Strip all the metadata...
+                magickImage.Strip();
+
+                // Set to the lowest quality possible...
+                magickImage.Quality = 25;
+
+                // Write the file!
+                magickImage.Write(filePathThumbnail);
+
+            }
+        }
+
+        /**
+         * Upload Files
+         */
+        [HttpPost("UploadFiles")]
+        [Route("process/upload")]
+        public async Task<IActionResult> Upload(IFormFile file)
+        {
             try
             {
                 // Check if we're logged in...
@@ -612,12 +638,11 @@ namespace Vault2.Controllers
                 {
                     await file.CopyToAsync(stream);
                 }
-                 
+
                 //////////////////////////////////////////////////////////////////
 
-                // Call our generate thumbnail which will generate a thumbnail 
-                // in the background ONLY IF it is a proper image!
-                Task.Run(() => generateThumbnail(filePath));
+                // Call our generate thumbnail which will generate a thumbnails...
+                GenerateThumbnails(filePath);
 
                 // Get our user's session, it is safe to do so because we've checked if we're logged in!
                 UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -684,7 +709,7 @@ namespace Vault2.Controllers
             string thumbnailPath = file.Path + ".thumb";
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath)) return Redirect("/manager/images/image-icon.png");
+            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
 
             // Setup some simple client side caching for the thumbnails!
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
@@ -702,14 +727,14 @@ namespace Vault2.Controllers
         {
             // Check if our share id given is null!
             if (shareId == null)
-                return Redirect("/manager/");
+                return Redirect(_relativeDirectory);
 
             // Get the file...
             Objects.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)
-                return Redirect("/manager/");
+                return Redirect(_relativeDirectory);
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
@@ -727,27 +752,32 @@ namespace Vault2.Controllers
         {
             // Check if our share id given is null!
             if (shareId == null)
-                return Redirect("/manager/");
+                return StatusCode(500);
 
             // Get the file...
             Objects.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)
-                return Redirect("/manager/");
+                return StatusCode(500);
+
+            // Setup our file's path as a variable...
+            string filePath = file.Path;
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path))
-                return Redirect("/manager/");
+            if (!System.IO.File.Exists(filePath))
+                return StatusCode(500);
+
+            // Check if we were given a x-preview header and that the preview file exists!
+            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
+                // If so, then append .preview to the file path...
+                filePath += ".preview";
 
             // Increment our file hits so we can know how many times the file was downloaded!
             _processService.IncrementFileHit(file);
 
-            // Add a custom header to find the filename easier... (For our javascript parser)
-            HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
-
             // Return the file...
-            return new FileStreamResult(new FileStream(file.Path, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
+            return new FileStreamResult(new FileStream(filePath, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
         }
 
         /**
@@ -863,15 +893,23 @@ namespace Vault2.Controllers
             if (file == null)
                 return StatusCode(500);
 
+            // Setup our file's path as a variable...
+            string filePath = file.Path;
+
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path))
+            if (!System.IO.File.Exists(filePath))
                 return StatusCode(500);
+
+            // Check if we were given a x-preview header and that the preview file exists!
+            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
+                // If so, then append .preview to the file path...
+                filePath += ".preview";
 
             // Add a custom header to find the filename easier...
             HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
 
             // Return the file...
-            return new FileStreamResult(new FileStream(file.Path, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
+            return new FileStreamResult(new FileStream(filePath, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
         }
 
 

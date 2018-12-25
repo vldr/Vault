@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +13,16 @@ namespace Vault2.Objects
         // Our vault database context...
         private VaultContext _context { get; set; }
 
+        // Instance of our configuration...
+        private IConfiguration _configuration;
+
         /**
          * Constructor...
          */
-        public ProcessService(VaultContext context) => _context = context;
+        public ProcessService(VaultContext context, IConfiguration configuration) {
+            _context = context;
+            _configuration = configuration;
+        }
 
         /**
         * Checks if the userid even exists
@@ -438,16 +446,8 @@ namespace Vault2.Objects
                 // Iterate through all our files in the folder...
                 foreach (var file in files)
                 {
-                    // Delete the file from disk...
-                    System.IO.File.Delete(file.Path);
-
-                    // Setup our thumbnail path!
-                    string thumbnailPath = file.Path + ".thumb";
-
-                    // Check if our thumbnail file exists!
-                    if (System.IO.File.Exists(thumbnailPath))
-                        // Delete it if it does!
-                        System.IO.File.Delete(thumbnailPath);
+                    // Dispose all our related files off of the disk!
+                    DisposeFileOnDisk(file.Path);
 
                     // Remove each file from the dataset...
                     _context.Files.Remove(file);
@@ -484,6 +484,30 @@ namespace Vault2.Objects
         }
 
         /**
+         * Disposes all the files to the file path!
+         */
+        public void DisposeFileOnDisk(string filePath)
+        {
+            try
+            {
+                // Get our files inside our vault storage location and starting with  the file path...
+                var files = Directory.GetFiles(_configuration["VaultStorageLocation"], "*")
+                    .Where(x => x.StartsWith(filePath));
+
+                // For every file iterate throughout!
+                foreach (var file in files)
+                {
+                    // If the file exists!
+                    if (System.IO.File.Exists(file))
+                        // Delete it!
+                        System.IO.File.Delete(file);
+                }
+                
+            }
+            catch { }
+        }
+
+        /**
          * Deletes a file from the dataset...
          */
         public bool DeleteFile(int ownerId, int fileId)
@@ -498,21 +522,17 @@ namespace Vault2.Objects
                 if (file == null)
                     return false;
 
-                // Ask our file io to delete the from disk...
-                System.IO.File.Delete(file.Path);
+                ///////////////////////////////////////////
 
-                // Setup our thumbnail path!
-                string thumbnailPath = file.Path + ".thumb";
+                // Dispose all our related files off of the disk!
+                DisposeFileOnDisk(file.Path);
 
-                // Check if our thumbnail file exists!
-                if (System.IO.File.Exists(thumbnailPath))
-                    // Delete it if it does!
-                    System.IO.File.Delete(thumbnailPath);
+                ///////////////////////////////////////////
 
                 // Remove our file...
                 _context.Files.Remove(file);
 
-                // Remove our file...
+                // Save our changes.
                 _context.SaveChanges();
 
                 // Return true as it was successful...
