@@ -39,9 +39,9 @@
     text-align: center;
 }
 
-    .close-info-button:hover {
-        border: 1px solid #828282;
-    }
+.close-info-button:hover {
+    border: 1px solid #828282;
+}
 
 input[type=submit] {
     background: #313131;
@@ -52,9 +52,9 @@ input[type=submit] {
     cursor: pointer;
 }
 
-    input[type=submit]:hover {
-        border: 1px solid #828282;
-    }
+input[type=submit]:hover {
+    border: 1px solid #828282;
+}
 
 .topbar {
     position: absolute;
@@ -111,9 +111,9 @@ input[type=submit] {
     background-position: center;
 }
 
-    .btn-download:hover {
-        background-color: #2b2b2b;
-    }
+.btn-download:hover {
+    background-color: #2b2b2b;
+}
 
 .image-preview {
     max-width: 80%;
@@ -155,16 +155,16 @@ input[type=submit] {
     background-color: transparent;
 }
 
-    .loader:before {
-        display: block;
-        position: absolute;
-        content: "";
-        left: -500px;
-        width: 30%;
-        height: 4px;
-        background-color: white;
-        animation: loading 1s linear infinite;
-    }
+.loader:before {
+    display: block;
+    position: absolute;
+    content: "";
+    left: -500px;
+    width: 30%;
+    height: 4px;
+    background-color: white;
+    animation: loading 1s linear infinite;
+}
 
 @keyframes loading {
     from {
@@ -227,4 +227,8 @@ input[type=submit] {
     text-align: left;
     padding-left: 51px;
     padding-top: 35px;
+}
+
+.sa-button-container {
+    display:none;
 }

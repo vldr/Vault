@@ -124,11 +124,14 @@
             showConfirmButton: false,
             animation: "pulse",
 
-            text: `<h1>Name:</h1>
+            text: `<h3>Name:</h3>
                 <b>@ViewBag.File.Name</b>
 
-                <h1>Size:</h1>
+                <h3>Size:</h3>
                 <b>@ViewBag.File.Size byte(s)</b>
+
+                <h3>Type:</h3>
+                <b>@ViewBag.File.Ext</b>
                 <br><br>
                 <div class="close-info-button" onclick="swal.close();">Close</div>`
         });

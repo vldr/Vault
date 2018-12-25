@@ -753,7 +753,7 @@ namespace Vault2.Controllers
         /**
          * Uses recursion to zip files!
          */ 
-        private async Task ZipFiles(int folderId, int userId, ZipOutputStream zipStream)
+        private async Task ZipFiles(int folderId, int userId, ZipOutputStream zipStream, int limit = 0)
         {
             // Get our folder!
             var folder = _processService.GetFolder(userId, folderId);
@@ -765,7 +765,7 @@ namespace Vault2.Controllers
             foreach (var file in files)
             {
                 // Set the file name as the next entry...
-                zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder)}{file.Name}");
+                zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder, limit)}{file.Name}");
 
                 // Setup a filestream and stream contents to the zip stream!
                 using (var stream = new FileStream(file.Path, FileMode.Open))
@@ -779,7 +779,7 @@ namespace Vault2.Controllers
             foreach (var folderItem in folders)
             {
                 // Zip those files up!
-                await ZipFiles(folderItem.Id, userId, zipStream);
+                await ZipFiles(folderItem.Id, userId, zipStream, limit);
             }
         }
 
@@ -824,7 +824,7 @@ namespace Vault2.Controllers
             // Setup our zip stream to point to our response body!
             using (var zipStream = new ZipOutputStream(Response.Body, leaveOpen: true))
             {
-                await ZipFiles(folderId, userId, zipStream);
+                await ZipFiles(folderId, userId, zipStream, folder.FolderId);
             }
 
             // Return an empty result.
