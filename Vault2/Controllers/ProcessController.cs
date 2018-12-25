@@ -764,6 +764,10 @@ namespace Vault2.Controllers
             // For every file compress it!
             foreach (var file in files)
             {
+                // If the file doesn't exist, continue...
+                if (!System.IO.File.Exists(file.Path))
+                    continue;
+
                 // Set the file name as the next entry...
                 zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder, limit)}{file.Name}");
 
