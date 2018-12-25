@@ -39,17 +39,17 @@ namespace Vault2
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                  .UseHttpSys(options =>
-                 {
+                 { 
                      options.Authentication.Schemes = AuthenticationSchemes.None; 
                      options.Authentication.AllowAnonymous = true;
                      options.EnableResponseCaching = true;
                      options.MaxConnections = null;  
                      options.MaxRequestBodySize = 90000000; 
-                     //options.UrlPrefixes.Add("http://vldr.org:80/manager/");
-                     //options.UrlPrefixes.Add("https://vldr.org:443/manager/");
+                     options.UrlPrefixes.Add("http://vldr.org:80/manager/");
+                     options.UrlPrefixes.Add("https://vldr.org:443/manager/");
 
-                     options.UrlPrefixes.Add("http://127.0.0.1:6969");
-                     options.UrlPrefixes.Add("http://127.0.0.1:6969/manager/");
+                     //options.UrlPrefixes.Add("http://127.0.0.1:6969");
+                     //options.UrlPrefixes.Add("http://127.0.0.1:6969/manager/");
                  })
                 .UseStartup<Startup>();
                
