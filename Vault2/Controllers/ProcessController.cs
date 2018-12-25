@@ -499,30 +499,32 @@ namespace Vault2.Controllers
             // Setup a magick image and see if this file is an image!
             var magickImage = new MagickImage(path);
 
-            // Check if the file is loosely a png, jpg, or jpeg!
-            if (magickImage.Format == MagickFormat.Jpeg || magickImage.Format == MagickFormat.Jpg
-                || magickImage.Format == MagickFormat.Png || magickImage.Format == MagickFormat.Gif)
-            {
-                // Put this into a try statement untested code!!
-                try
-                {
-                    // Constant variables to help us figure out what is going on!
-                    const int NONE = 0;
-                    const int HORIZONTAL = 1;
-                    const int VERTICAL = 2;
-                    int[][] OPERATIONS = new int[][] {
-                                new int[] {  0, NONE},
-                                new int[] {  0, HORIZONTAL},
-                                new int[] {180, NONE},
-                                new int[] {  0, VERTICAL},
-                                new int[] { 90, HORIZONTAL},
-                                new int[] { 90, NONE},
-                                new int[] {-90, HORIZONTAL},
-                                new int[] {-90, NONE},
-                            };
+            ///////////////////////////////////////////////
 
-                    // Get the index from the attribute EXIF:Orientation...
-                    int index = int.Parse(magickImage.GetAttribute("EXIF:Orientation")) - 1;
+            try
+            {
+                // Constant variables to help us figure out what is going on!
+                const int NONE = 0;
+                const int HORIZONTAL = 1;
+                const int VERTICAL = 2;
+                int[][] OPERATIONS = new int[][] {
+                        new int[] {  0, NONE},
+                        new int[] {  0, HORIZONTAL},
+                        new int[] {180, NONE},
+                        new int[] {  0, VERTICAL},
+                        new int[] { 90, HORIZONTAL},
+                        new int[] { 90, NONE},
+                        new int[] {-90, HORIZONTAL},
+                        new int[] {-90, NONE},
+                    };
+
+                // Get our files attribute!
+                string exifAttribute = magickImage.GetAttribute("EXIF:Orientation");
+
+                // Get the index from the attribute EXIF:Orientation...
+                if (exifAttribute != null)
+                {
+                    int index = int.Parse(exifAttribute) - 1;
 
                     // Translate that into degrees!
                     int degrees = OPERATIONS[index][0];
@@ -543,48 +545,44 @@ namespace Vault2.Controllers
                             magickImage.Flip();
                             break;
                     }
+
                 }
-                catch { }
-
-                ///////////////////////////////////////////////
-
-                // Don't create a preview for gifs!
-                if (magickImage.Format != MagickFormat.Gif)
-                {
-                    // Full path to the file image thumbnail...
-                    string filePathPreview = $"{path}.preview";
-
-                    // Strip all the metadata...
-                    magickImage.Strip();
-
-                    // Set the quality to around 50%...
-                    magickImage.Quality = 50;
-
-                    // Set our format to be a jpeg for that amazing compression...
-                    magickImage.Format = MagickFormat.Jpeg;
-
-                    // Write the file!
-                    magickImage.Write(filePathPreview);
-                }
-
-                ///////////////////////////////////////////////
-
-                // Full path to the file image thumbnail...
-                string filePathThumbnail = $"{path}.thumb";
-
-                // Use MagickImage to resize it!
-                magickImage.Resize(32, 32);
-
-                // Strip all the metadata...
-                magickImage.Strip();
-
-                // Set to the lowest quality possible...
-                magickImage.Quality = 25;
-
-                // Write the file!
-                magickImage.Write(filePathThumbnail);
-
             }
+            catch { }
+            
+            ///////////////////////////////////////////////
+
+            // Full path to the file image thumbnail...
+            string filePathPreview = $"{path}.preview";
+
+            // Strip all the metadata...
+            magickImage.Strip();
+
+            // Set the quality to around 50%...
+            magickImage.Quality = 50;
+
+            // Set our format to be a jpeg for that amazing compression...
+            magickImage.Format = MagickFormat.Jpeg;
+
+            // Write the file!
+            magickImage.Write(filePathPreview);
+
+            ///////////////////////////////////////////////
+
+            // Full path to the file image thumbnail...
+            string filePathThumbnail = $"{path}.thumb";
+
+            // Use MagickImage to resize it!
+            magickImage.Resize(32, 32);
+
+            // Strip all the metadata...
+            magickImage.Strip();
+
+            // Set to the lowest quality possible...
+            magickImage.Quality = 25;
+
+            // Write the file!
+            magickImage.Write(filePathThumbnail);   
         }
 
         /**
@@ -641,8 +639,15 @@ namespace Vault2.Controllers
 
                 //////////////////////////////////////////////////////////////////
 
-                // Call our generate thumbnail which will generate a thumbnails...
-                GenerateThumbnails(filePath);
+                // Get the file's extension...
+                string fileExtension = Path.GetExtension(fileName);
+
+                // Check if our file is a PNG, JPEG, or JPG....
+                if (fileExtension == ".png" 
+                    || fileExtension == ".jpeg"
+                    || fileExtension == ".jpg")
+                    // Call our generate thumbnail which will generate a thumbnails...
+                    GenerateThumbnails(filePath);
 
                 // Get our user's session, it is safe to do so because we've checked if we're logged in!
                 UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -659,7 +664,7 @@ namespace Vault2.Controllers
                     Owner = id,
                     Size = size,
                     Name = System.Net.WebUtility.HtmlEncode(fileName),
-                    Ext = Path.GetExtension(fileName),
+                    Ext = fileExtension,
                     Folder = folderId,
                     Path = filePath
                 };

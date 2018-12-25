@@ -484,7 +484,7 @@ namespace Vault2.Objects
         }
 
         /**
-         * Disposes all the files to the file path!
+         * Disposes all the files related to the file path!
          */
         public void DisposeFileOnDisk(string filePath)
         {
