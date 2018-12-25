@@ -10,6 +10,12 @@ using System.IO;
 using Vault.Objects;
 using ImageMagick;
 using System.Threading;
+using System.Net.Http.Headers;
+using System.IO.Compression;
+using System.Net.Http;
+using Ionic.Zip;
+using System.Net;
+using System.Text;
 
 namespace Vault2.Controllers
 {
@@ -741,9 +747,89 @@ namespace Vault2.Controllers
             HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
 
             // Return the file...
-            return File(new FileStream(file.Path, FileMode.Open), "application/octet-stream", file.Name);
+            return new FileStreamResult(new FileStream(file.Path, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
         }
 
+        /**
+         * Uses recursion to zip files!
+         */ 
+        private async Task ZipFiles(int folderId, int userId, ZipOutputStream zipStream)
+        {
+            // Get our folder!
+            var folder = _processService.GetFolder(userId, folderId);
+
+            // Get our files!
+            var files = _processService.GetFiles(userId, folderId);
+
+            // For every file compress it!
+            foreach (var file in files)
+            {
+                // Set the file name as the next entry...
+                zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder)}{file.Name}");
+
+                // Setup a filestream and stream contents to the zip stream!
+                using (var stream = new FileStream(file.Path, FileMode.Open))
+                    await stream.CopyToAsync(zipStream);
+            }
+
+            // Get all the folders inside our folder!
+            var folders = _processService.GetFolders(userId, folderId);
+
+            // Iterate throughout all our folders!
+            foreach (var folderItem in folders)
+            {
+                // Zip those files up!
+                await ZipFiles(folderItem.Id, userId, zipStream);
+            }
+        }
+
+        /**
+         * Downloads a folder given an id...
+         */
+        [HttpGet]
+        [Route("process/download/folder/{id}")]
+        public async Task<IActionResult> DownloadFolder(int? id)
+        {
+            // Check if we're logged in...
+            if (!IsLoggedIn())
+                return StatusCode(500);
+
+            // Check if the file id is not null...
+            if (id == null)
+                return StatusCode(500);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our current user id...
+            int userId = userSession.Id;
+
+            // Get the file...
+            Folder folder = _processService.GetFolder(userId, id.GetValueOrDefault());
+
+            // Check if the folder exists....
+            if (folder == null)
+                return StatusCode(500);
+
+            int folderId = id.GetValueOrDefault();
+
+            // Register our encoding provider...
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            // Setup our response!
+            Response.StatusCode = 200;
+            Response.ContentType = "application/octet-stream";
+            Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(folder.Name)}.zip");
+
+            // Setup our zip stream to point to our response body!
+            using (var zipStream = new ZipOutputStream(Response.Body, leaveOpen: true))
+            {
+                await ZipFiles(folderId, userId, zipStream);
+            }
+
+            // Return an empty result.
+            return new EmptyResult();
+        }
 
         /**
          * Downloads a file given an id...
@@ -781,7 +867,7 @@ namespace Vault2.Controllers
             HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
 
             // Return the file...
-            return File(new FileStream(file.Path, FileMode.Open), "application/octet-stream", file.Name);
+            return new FileStreamResult(new FileStream(file.Path, FileMode.Open), "application/octet-stream") { FileDownloadName = file.Name };
         }
 
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Vault2.Objects
@@ -295,6 +296,24 @@ namespace Vault2.Objects
                 // Exception, false...
                 return false;
             }
+        }
+
+        /**
+         * Returns the string representation of the folder's location
+         */
+        public string GetFolderLocation(Folder folder, StringBuilder location = null)
+        {
+            // If our location parameter is null then initialize it.
+            if (location == null) location = new StringBuilder();
+
+            // Easy case, check if we're on the root folder.
+            if (folder.FolderId == 0) return location.ToString();
+
+            // Insert our folder's name at the start of the string builder.
+            location.Insert(0, folder.Name + "/");
+
+            // Call our get folder location once more to get the next folder!
+            return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), location);
         }
 
         /**
