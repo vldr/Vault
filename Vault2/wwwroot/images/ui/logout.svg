@@ -1,57 +1,59 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
-<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 384.971 384.971" style="enable-background:new 0 0 384.971 384.971;" xml:space="preserve">
-<g>
-	<g id="Sign_Out">
-		<path d="M180.455,360.91H24.061V24.061h156.394c6.641,0,12.03-5.39,12.03-12.03s-5.39-12.03-12.03-12.03H12.03
-			C5.39,0.001,0,5.39,0,12.031V372.94c0,6.641,5.39,12.03,12.03,12.03h168.424c6.641,0,12.03-5.39,12.03-12.03
-			C192.485,366.299,187.095,360.91,180.455,360.91z"/>
-		<path d="M381.481,184.088l-83.009-84.2c-4.704-4.752-12.319-4.74-17.011,0c-4.704,4.74-4.704,12.439,0,17.179l62.558,63.46H96.279
-			c-6.641,0-12.03,5.438-12.03,12.151c0,6.713,5.39,12.151,12.03,12.151h247.74l-62.558,63.46c-4.704,4.752-4.704,12.439,0,17.179
-			c4.704,4.752,12.319,4.752,17.011,0l82.997-84.2C386.113,196.588,386.161,188.756,381.481,184.088z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 385 385" width="385" height="385">
+	<defs>
+		<filter id="flt1"> <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 1 0" /> </filter>
+		<filter id="flt2"> <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 0 0.059   0 0 0 1 0" /> </filter>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+		.shp0 { filter: url(#flt1);fill: #0f0f0f } 
+		.shp1 { filter: url(#flt2);fill: #0f0f0f } 
+	</style>
+	<g id="Layer">
+		<g id="Sign_Out">
+			<path id="Layer" class="shp0" d="M180.46,360.91h-156.39v-336.85h156.39c6.64,0 12.03,-5.39 12.03,-12.03c0,-6.64 -5.39,-12.03 -12.03,-12.03h-168.42c-6.64,0 -12.03,5.39 -12.03,12.03v360.91c0,6.64 5.39,12.03 12.03,12.03h168.42c6.64,0 12.03,-5.39 12.03,-12.03c0,-6.64 -5.39,-12.03 -12.03,-12.03z" />
+			<path id="Layer" class="shp1" d="M381.48,184.09l-83.01,-84.2c-4.7,-4.75 -12.32,-4.74 -17.01,0c-4.7,4.74 -4.7,12.44 0,17.18l62.56,63.46h-247.74c-6.64,0 -12.03,5.44 -12.03,12.15c0,6.71 5.39,12.15 12.03,12.15h247.74l-62.56,63.46c-4.7,4.75 -4.7,12.44 0,17.18c4.7,4.75 12.32,4.75 17.01,0l83,-84.2c4.64,-4.68 4.69,-12.51 0.01,-17.18z" />
+		</g>
+		<g id="Layer">
+		</g>
+		<g id="Layer">
+		</g>
+		<g id="Layer">
+		</g>
+		<g id="Layer">
+		</g>
+		<g id="Layer">
+		</g>
+		<g id="Layer">
+		</g>
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-	<g>
+	<g id="Layer">
 	</g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
-<g>
-</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
+	<g id="Layer">
+	</g>
 </svg>
