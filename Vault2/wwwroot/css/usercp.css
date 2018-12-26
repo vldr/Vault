@@ -1085,6 +1085,19 @@ p {
     border: 2px solid #ffb6b6;
 }
 
+.folder-path {
+    position: absolute;
+    left: 100px;
+    top: 22px;
+    font-size: 15px;
+    color: #d4d4d4;
+}
+
+.folder-path a {
+    color: #cccccc;
+    text-decoration: none;
+}
+
 #snack-bar-upload {
     padding: 15px;
     max-width: 500px;

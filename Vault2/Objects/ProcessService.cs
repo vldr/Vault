@@ -100,7 +100,6 @@ namespace Vault2.Objects
         public Folder GetFolder(int ownerId, int folderId)
             => _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
         
-        
         /**
          * Gets a file when asked for one...
          */
@@ -133,13 +132,15 @@ namespace Vault2.Objects
             _context.SaveChanges();
         }
 
-
         /**
          * Adds a new folder to the dataset...
          */
         public void AddNewFolder(Folder folder)
         {
+            // Add our folder to the context...
             _context.Folders.Add(folder);
+
+            // Save our changes!
             _context.SaveChanges();
         }
 
@@ -307,7 +308,7 @@ namespace Vault2.Objects
         }
 
         /**
-         * Returns the string representation of the folder's location
+         * Returns the string representation of the folder's location...
          */
         public string GetFolderLocation(Folder folder, int limit = 0, StringBuilder location = null)
         {
@@ -326,6 +327,28 @@ namespace Vault2.Objects
 
             // Call our get folder location once more to get the next folder!
             return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), limit, location);
+        }
+
+        /**
+         * Returns the string representation of the folder's location in html format...
+         */
+        public string GetFolderLocationFormatted(Folder folder, int limit = 0, StringBuilder location = null)
+        {
+            // If our location parameter is null then initialize it.
+            if (location == null) location = new StringBuilder();
+
+            // Loop until we've hit our limit folder!
+            while (folder.FolderId != limit)
+            {
+                // Insert our folder's name at the start of the string builder.
+                location.Insert(0, $"<a href='#' data-folder-id='{folder.Id}' onclick='processMove(event)'>{folder.Name}</a> / ");
+
+                // Get the next folder in the chain!
+                folder = GetFolder(folder.Owner, folder.FolderId);
+            }
+
+            // Return the final location string!
+            return location.ToString();
         }
 
         /**
