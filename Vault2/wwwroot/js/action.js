@@ -821,7 +821,7 @@ function processFolderCreate() {
 	
 	swal
 	({
-		title: "What would like to name it?",
+		title: "New Folder",
 		text: null,
 		type: "input",
 		showCancelButton: true,
