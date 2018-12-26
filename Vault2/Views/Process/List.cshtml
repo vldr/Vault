@@ -40,27 +40,27 @@ else
     {
         case 1:
             ViewBag.FolderIcon = "/manager/images/folder-icon2.png";
-            ViewBag.FolderStyle = "background-color: #efd1ff;border: 2px solid #ffb6fd;";
+            ViewBag.FolderStyle = "purple-icon";
             break;
         case 2:
             ViewBag.FolderIcon = "/manager/images/folder-icon3.png";
-            ViewBag.FolderStyle = "background-color: #d1ffe1;border: 2px solid #b6ffbf;";
+            ViewBag.FolderStyle = "green-icon";
             break;
         case 3:
             ViewBag.FolderIcon = "/manager/images/folder-icon4.png";
-            ViewBag.FolderStyle = "background-color: #ffd1d1;border: 2px solid #ffb6b6;";
+            ViewBag.FolderStyle = "red-icon";
             break;
         case 4:
             ViewBag.FolderIcon = "/manager/images/folder-icon5.png";
-            ViewBag.FolderStyle = "background-color: #d1f7ff;border: 2px solid #b6e4ff;";
+            ViewBag.FolderStyle = "blue-icon";
             break;
         default:
             ViewBag.FolderIcon = "/manager/images/folder-icon.png";
-            ViewBag.FolderStyle = "background-color: #ffffd1;border: 2px solid #fff6b6;";
+            ViewBag.FolderStyle = "orange-icon";
             break;
     }
 
-    <div class='gridItem' 
+    <div class='gridItem @ViewBag.FolderStyle' 
          data-folder-id='@folder.Id'
          data-folder-title='@folder.Name'
          ondragend='dragEnd(event)'
@@ -68,8 +68,7 @@ else
          ondrop='drop(event)'
          onclick='processMove(event)'
          oncontextmenu="contextMenuFolder(event)"
-         draggable='true'
-         style='@ViewBag.FolderStyle'>
+         draggable='true'>
 
         <div data-folder-id="@folder.Id"
              ondragstart="dragStart(event)"

@@ -1,3 +1,66 @@
+new Dropzone(document.body,
+{
+    paramName: "file",
+    maxFilesize: 30,
+    parallelUploads: 1,
+    url: "process/upload",
+    clickable: ".btnUpload",
+    previewsContainer: "#previewNoThanks",
+    processing: function (file)
+    {
+        document.getElementById("snack-bar-upload").style.display = "block";
+        document.getElementById("snack-bar-upload").style.animation = "fadein 0.4s";
+        document.getElementById("snack-bar-upload").style.opacity = "1";
+            
+        document.getElementById("snack-bar-loader").style.display = "block";
+        document.getElementById("snack-bar-checkmark").style.display = "none";
+
+        document.getElementById("snack-bar-progress").style.borderColor = "#2c80ff";
+        document.getElementById("snack-bar-progress").style.width = "0%";
+
+        document.getElementById("snack-bar-text").innerHTML = "Uploading " + file.name;
+    },
+    success: function (file, response)
+    {
+        if (response === "0")
+            swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
+    },
+    error: function (file, response)
+    {
+        processListFilesSilent();
+
+        swal("Error!", response, "error");
+    },
+    totaluploadprogress: function (totalProgress, totalBytes, totalBytesSent)
+    {
+        document.getElementById("snack-bar-progress").style.width = `${totalProgress}%`;
+    },
+    queuecomplete: function ()
+    {
+        processListFilesSilent();
+
+        setTimeout(function ()
+        {
+            document.getElementById("snack-bar-upload").style.animation = "fadeout 0.6s";
+            document.getElementById("snack-bar-upload").style.opacity = "0";
+
+            setTimeout(function ()
+            {
+                document.getElementById("snack-bar-upload").style.display = "none";
+            }, 600);
+
+        }, 3000);
+    },
+    complete: function (file)
+    {
+        document.getElementById("snack-bar-loader").style.display = "none";
+        document.getElementById("snack-bar-checkmark").style.display = "block";
+
+        document.getElementById("snack-bar-progress").style.borderColor = "#7ac142";
+        document.getElementById("snack-bar-text").innerHTML = `Uploaded ${this.getAcceptedFiles().length} file${this.getAcceptedFiles().length > 1 ? 's' : ''}...`;
+    }
+});
+
 function createCookie(name, value, expires, path, domain) {
 	var cookie = name + "=" + escape(value) + ";";
 
@@ -164,6 +227,7 @@ function processDelete(str) {
         title: "Are you sure?",
         text: "You will not be able to recover this file ever!",
         type: "warning",
+        animation: "fadein",
         showCancelButton: true,
         dangerMode: true,
         confirmButtonColor: "#DD6B55",
@@ -340,7 +404,9 @@ function processShareFile(id)
     
     swal({
         title: "Share",
-        html: true,      
+        html: true,
+        animation: false,
+        customClass: 'fadein',
         showConfirmButton: true, 
         
         text: `<p style="text-align: left;">You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p><br>` + (isShared === "True" ? `
@@ -368,7 +434,7 @@ function processRenameFile(event)
         type: "input",
         showCancelButton: true,
         closeOnConfirm: false,
-        animation: "pop",
+        animation: "fadein",
         inputPlaceholder: "John's File"
     }, function (newName) {
         if (newName === false) return false;
@@ -410,7 +476,7 @@ function processRenameFolder(event)
         type: "input",
         showCancelButton: true,
         closeOnConfirm: false,
-        animation: "pop",
+        animation: "fadein",
         inputPlaceholder: "John's Folder"
     }, function (newName) {
         if (newName === false) return false;
@@ -449,6 +515,7 @@ function processDeleteFolder(event) {
         title: "Are you sure?",
         text: "You will not be able to recover this folder!",
         type: "warning",
+        animation: "fadein",
         showCancelButton: true,
         dangerMode: true,
         confirmButtonColor: "#DD6B55",
@@ -502,7 +569,7 @@ function processChangePassword()
         inputType: "password",
         showCancelButton: true,
         closeOnConfirm: false,
-        animation: "pop",
+        animation: "fadein",
         inputPlaceholder: "Current Password"
     },
     function (currentPassword) 
@@ -522,7 +589,7 @@ function processChangePassword()
             inputType: "password",
             showCancelButton: true,
             closeOnConfirm: false,
-            animation: "pop",
+            animation: "fadein",
             inputPlaceholder: "New Password"
         },
         function (newPassword)
@@ -759,7 +826,7 @@ function processFolderCreate() {
 		type: "input",
 		showCancelButton: true,
 		closeOnConfirm: false,
-		animation: "pop",
+		animation: "fadein",
 		inputPlaceholder: "Documents, Applications, et al."
 	},
 	function(inputValue){
