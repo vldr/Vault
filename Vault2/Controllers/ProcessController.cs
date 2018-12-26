@@ -77,12 +77,16 @@ namespace Vault2.Controllers
 
             // Get the folder id from the user's session!
             int folderId = userSession.Folder;
+
+            // Get our folder!
+            Folder folder = _processService.GetFolder(id, folderId);
             
             // Get the user's sortby requirement...
             int sortBy = userSession.SortBy;
 
             ViewBag.HomeFolder = _loginService.GetUser(id).Folder;
-            ViewBag.CurrentFolder = _processService.GetFolder(id, folderId);
+            ViewBag.CurrentFolder = folder;
+            ViewBag.Path = _processService.GetFolderLocationFormatted(folder);
             ViewBag.Folders = _processService.GetFolders(id, folderId);
             ViewBag.Files = _processService.GetFiles(id, folderId, sortBy);
             ViewBag.IsEmpty = !_processService.GetFolders(id, folderId).Any() && !_processService.GetFiles(id, folderId).Any();

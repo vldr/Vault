@@ -4,6 +4,10 @@
 
 @model Vault2.Controllers.ProcessController
 
+<div class="folder-path">
+    <a href='#' data-folder-id='@ViewBag.HomeFolder' onclick='processMove(event)'>~</a> / @Html.Raw(ViewBag.Path)
+</div>
+
 @if (ViewBag.HomeFolder != ViewBag.CurrentFolder.Id)
 {
     <div class='gridItem' data-folder-id='@ViewBag.CurrentFolder.FolderId'
@@ -60,11 +64,11 @@ else
             break;
     }
 
-    <div class='gridItem @ViewBag.FolderStyle' 
+    <div class='gridItem @ViewBag.FolderStyle'
          data-folder-id='@folder.Id'
          data-folder-title='@folder.Name'
          ondragend='dragEnd(event)'
-         ondragstart='dragStart(event)' 
+         ondragstart='dragStart(event)'
          ondrop='drop(event)'
          onclick='processMove(event)'
          oncontextmenu="contextMenuFolder(event)"

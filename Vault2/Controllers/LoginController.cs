@@ -135,11 +135,11 @@ namespace Vault2.Controllers
             // Check if not logged in!
             if (!IsLoggedIn()) return Redirect(_relativeDirectory);
 
-            // Save our id...
-            int id = SessionExtension.Get(HttpContext.Session, _sessionName).Id;
+            // Setup a user session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
             // Save our user to the view bag...
-            ViewBag.User = _loginService.GetUser(id);
+            ViewBag.User = _loginService.GetUser(userSession.Id);
 
             // Return our control view...
             return View();
