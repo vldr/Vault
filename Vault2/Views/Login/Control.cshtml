@@ -49,50 +49,25 @@
         <ul id="context-menu-options" class="menu-options"></ul>
     </div>
 
+    <div id="snack-bar-upload">
+        <div id="snack-bar-loader"></div>
+        <svg id="snack-bar-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+            <circle id="snack-bar-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+            <path id="snack-bar-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+        </svg>
+        <div id="snack-bar-text"></div>    
+        <div id="snack-bar-progress"></div>
+    </div>
+
     <br><br>
 
     <script type="text/javascript" src="/manager/js/jquery-1.10.2.min.js"></script>
-    <script type="text/javascript" src="/manager/js/zip.js"></script>
-    <script type="text/javascript" src="/manager/js/crc32.js"></script>
     <script type="text/javascript" src="/manager/js/dropzone.js"></script>
-    <script type="text/javascript" src='/manager/js/nprogress.js'></script>
     <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
     <script type="text/javascript" src="/manager/js/action.js"></script>
 
     <script>processListFilesFirst();</script>
     <script>
-        new Dropzone(document.body,
-        {
-            paramName: "file",
-		    maxFilesize: 30,
-		    url: "process/upload",
-		    clickable: ".btnUpload",
-		    previewsContainer: "#previewNoThanks",
-            addedfile: function (file) {
-
-                console.log(file.fullPath + " " + file );
-		    },
-		    success: function(file, response) {
-			    processListFilesSilent();
-
-			    if (response == "1")
-				    swal({title: "Success!", text: "The file has been successfully uploaded!", type: "success", timer: 700, showConfirmButton: false});
-			    else
-				    swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
-		    },
-            error: function (file, response)
-            {
-			    processListFilesSilent();
-			    swal("Error!", response, "error");
-		    },
-		    uploadprogress: function(file, progress, bytesSent) {
-			    if (progress != 0){
-				    NProgress.set(progress/100);
-			    }
-			    console.log(progress/100);
-		    }
-	    });
-
         function showHelp()
         {
 		    var captionText = document.getElementById("captionTag");
@@ -111,8 +86,8 @@
 
 			    <h3>Icons</h3>
 			    <p>
-			    Freepik from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>.
-			    <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>.
+			    Freepik from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>.<br>
+			    <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>.<br>
 			    <a href="https://www.flaticon.com/authors/google" title="Google">Google</a> from <a target="_blank" href="http://flaticon.com">www.flaticon.com</a>.
 			    </p>
                 </div>`;

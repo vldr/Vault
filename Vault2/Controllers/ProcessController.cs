@@ -717,8 +717,19 @@ namespace Vault2.Controllers
                 if (!System.IO.File.Exists(file.Path))
                     continue;
 
+                // Setup our folder location.
+                string folderLocation = _processService.GetFolderLocation(folder, limit);
+
+                // Setup our entry name...
+                string entryName = $"{folderLocation}{file.Name}";
+
+                // Loop until we've found an entry that doesn't exist!
+                for (int count = 1; zipStream.ContainsEntry(entryName);)
+                    // Setup entry name to include count!
+                    entryName = $"{folderLocation}({count++}){file.Name}";
+
                 // Set the file name as the next entry...
-                zipStream.PutNextEntry($"{_processService.GetFolderLocation(folder, limit)}{file.Name}");
+                zipStream.PutNextEntry(entryName);
 
                 // Setup a filestream and stream contents to the zip stream!
                 using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
@@ -815,11 +826,11 @@ namespace Vault2.Controllers
             // Setup our thumbnails path!
             string thumbnailPath = file.Path + ".thumb";
 
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
-
             // Setup some simple client side caching for the thumbnails!
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
 
             // Return the file...
             return File(new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "image/*", file.Name);
