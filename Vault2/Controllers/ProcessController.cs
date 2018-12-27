@@ -9,6 +9,8 @@ using System.IO;
 using Vault.Objects;
 using ImageMagick;
 using System.IO.Compression;
+using Ionic.Zip;
+using System.Text;
 
 namespace Vault2.Controllers
 {
@@ -712,7 +714,7 @@ namespace Vault2.Controllers
         /**
          * Uses recursion to zip files!
          */
-        private async Task ZipFiles(int folderId, int userId, ZipArchive zip, int limit = 0)
+        private async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
         {
             // Get our folder!
             var folder = _processService.GetFolder(userId, folderId);
@@ -733,15 +735,17 @@ namespace Vault2.Controllers
                 // Setup our entry name...
                 string entryName = $"{folderLocation}{file.Name}";
 
-                // Set the file name as the next entry...
-                var zipEntry = zip.CreateEntry(entryName);
+                // Loop until we've found an entry that doesn't exist!
+                for (int count = 1; zip.ContainsEntry(entryName);)
+                    // Setup entry name to include count!
+                    entryName = $"{folderLocation}({count++}){file.Name}";
 
-                // Use a file stream and async...
-                using (var zipStream = zipEntry.Open())
+                // Set the file name as the next entry...
+                zip.PutNextEntry(entryName);
+
+                // Setup a filestream and stream contents to the zip stream!
                 using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
-                {
-                    await stream.CopyToAsync(zipStream);
-                }
+                    await stream.CopyToAsync(zip);
             }
 
             // Get all the folders inside our folder!
@@ -790,13 +794,16 @@ namespace Vault2.Controllers
             if (folder.FolderId == 0)
                 return Json(0);
 
+            // Register our encoding provider...
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
             // Setup our response...
             Response.StatusCode = 200;
             Response.ContentType = "application/octet-stream";
             Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(folder.Name)}.zip");
 
             // Setup our zip stream to point to our response body!
-            using (var zip = new ZipArchive(Response.Body, ZipArchiveMode.Create))
+            using (var zip = new ZipOutputStream(Response.Body))
             {
                 await ZipFiles(folderId, userId, zip, folder.FolderId);
             }
