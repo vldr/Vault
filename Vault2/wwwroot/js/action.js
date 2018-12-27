@@ -1,3 +1,5 @@
+var fadeOutTimer;
+
 new Dropzone(document.body,
 {
     paramName: "file",
@@ -8,6 +10,8 @@ new Dropzone(document.body,
     previewsContainer: "#previewNoThanks",
     processing: function (file)
     {
+        clearTimeout(fadeOutTimer);
+
         document.getElementById("snack-bar-upload").style.display = "block";
         document.getElementById("snack-bar-upload").style.animation = "fadein 0.4s";
         document.getElementById("snack-bar-upload").style.opacity = "1";
@@ -39,12 +43,12 @@ new Dropzone(document.body,
     {
         processListFilesSilent();
 
-        setTimeout(function ()
+        fadeOutTimer = setTimeout(function ()
         {
             document.getElementById("snack-bar-upload").style.animation = "fadeout 0.6s";
             document.getElementById("snack-bar-upload").style.opacity = "0";
 
-            setTimeout(function ()
+            fadeOutTimer = setTimeout(function ()
             {
                 document.getElementById("snack-bar-upload").style.display = "none";
             }, 600);

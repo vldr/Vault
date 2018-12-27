@@ -42,7 +42,7 @@ namespace Vault2.Objects
         public bool IsFolderValid(int ownerId, int id)
             => _context.Folders.Any(b => b.Id == id && b.Owner == ownerId);
 
-        /*
+        /**
          * Gets a folder given an id...
          */
         public IEnumerable<Folder> GetFolders(int ownerId, int folderId) 
@@ -53,6 +53,22 @@ namespace Vault2.Objects
          */ 
         public IEnumerable<File> GetFiles(int ownerId, int folderId) 
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId);
+
+        /**
+         * Gives all the files inside a folder using a List...
+         */
+        public List<File> GetFilesList(int ownerId, int folderId)
+        {
+            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).ToList();
+        }
+
+        /**
+         * Gets a folder given an id using a list...
+         */
+        public List<Folder> GetFoldersList(int ownerId, int folderId)
+        {
+            return _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).ToList();
+        }
 
         /**
          * Gives all the files inside a folder... (Sorted)
@@ -460,7 +476,7 @@ namespace Vault2.Objects
             try
             {
                 // Get our file...
-                IEnumerable<File> files = GetFiles(ownerId, folderId);
+                var files = GetFiles(ownerId, folderId);
 
                 // Check if the file even exists...
                 if (files == null)
@@ -483,7 +499,7 @@ namespace Vault2.Objects
                 int newFolderId = currentFolder.FolderId;
 
                 // Get all folders inside our folder...
-                IEnumerable<Folder> folders = GetFolders(ownerId, folderId);
+                var folders = GetFolders(ownerId, folderId);
 
                 // Replace all their folder id's with the new folder id...
                 foreach (var folder in folders)
