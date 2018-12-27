@@ -720,13 +720,13 @@ namespace Vault2.Controllers
             // Get our files!
             var files = _processService.GetFilesList(userId, folderId);
 
-            // For every file compress it!
+            // For every file compress it! 
             foreach (var file in files)
             {
                 // If the file doesn't exist, continue...
                 if (!System.IO.File.Exists(file.Path))
                     continue;
-
+                 
                 // Setup our folder location.
                 string folderLocation = _processService.GetFolderLocation(folder, limit);
 
