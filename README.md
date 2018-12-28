@@ -11,8 +11,8 @@ Currently there is support for true on the fly zipping, image viewer/image proce
 I'm (vldr) planning on developing it until I feel that it is finished. I initially planned this to be a simple hobby project so keep that in mind...
 
 ### Demo
+Here's a little GIF showing how some things look and feel:
 
-Here is a demo gif showing how the system looks and feels...
 <img src=https://i.imgur.com/8d5ecGa.gif />
 
 ### Contribute
