@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Vault.Objects;
 
 namespace Vault2.Objects
 {
@@ -15,6 +16,17 @@ namespace Vault2.Objects
 
         // Instance of our configuration...
         private IConfiguration _configuration;
+
+        /// <summary>
+        /// Sets up a simple enum to represent attribute types....
+        /// </summary>
+        public enum AttributeTypes
+        {
+            FolderIcon = 1,
+            FolderStyle = 2,
+            FileIcon = 3,
+            FileAction = 4,
+        }
 
         /**
          * Constructor...
@@ -49,8 +61,36 @@ namespace Vault2.Objects
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId);
 
         /**
+         * Gets a list of folder listings with matching owners and folder id...
+         */
+        public List<FolderListing> GetFolderListings(int ownerId, int folderId)
+            => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId)
+            .Select(x => new FolderListing
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
+                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle)
+            }).ToList();
+
+        /**
+         * Gets a list of file listings with matching owners and folder id...
+         */
+        public List<FileListing> GetFileListings(int ownerId, int folderId)
+            => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId)
+            .Select(x => new FileListing
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Icon = GetFileAttribute(x.Id, x.Ext, AttributeTypes.FileIcon),
+                Action = GetFileAttribute(x.Id, x.Ext, AttributeTypes.FileAction),
+                IsSharing = x.IsSharing,
+                ShareId = x.ShareId
+            }).ToList();
+
+        /**
          * Gives all the files inside a folder...
-         */ 
+         */
         public IEnumerable<File> GetFiles(int ownerId, int folderId) 
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId);
 
@@ -60,6 +100,126 @@ namespace Vault2.Objects
         public List<File> GetFilesList(int ownerId, int folderId)
         {
             return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).ToList();
+        }
+
+        /**
+         * Gets a folders unique attribute depending on its colour...
+         */
+        public string GetFolderAttribute(int colour, AttributeTypes type = AttributeTypes.FolderIcon)
+        {
+            switch (colour)
+            {
+                case 1:
+                    if (type == AttributeTypes.FolderIcon)
+                        return "/manager/images/folder-icon2.png";
+                    else
+                        return "purple-icon";
+                case 2:
+                    if (type == AttributeTypes.FolderIcon)
+                        return "/manager/images/folder-icon3.png";
+                    else
+                        return "green-icon";
+                case 3:
+                    if (type == AttributeTypes.FolderIcon)
+                        return "/manager/images/folder-icon4.png";
+                    else
+                        return "red-icon";
+                case 4:
+                    if (type == AttributeTypes.FolderIcon)
+                        return "/manager/images/folder-icon5.png";
+                    else
+                        return "blue-icon";
+                default:
+                    if (type == AttributeTypes.FolderIcon)
+                        return "/manager/images/folder-icon.png";
+                    else
+                        return "orange-icon";
+            }
+        }
+
+        /**
+        * Gets a folders unique attribute depending on its colour...
+        */
+        public string GetFileAttribute(int id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
+        {
+            // Setup our default action so we don't repeat ourselves...
+            var defaultAction = "processDownload(event)";
+
+            switch (ext)
+            {
+                case ".zip":
+                case ".rar":
+                case ".tar":
+                case ".gz":
+                case ".zipx":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/zip-icon.png";
+                    else
+                        return defaultAction;
+                case ".mov":
+                case ".mp4":
+                case ".webm":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/video-icon.png";
+                    else
+                        return defaultAction;
+                case ".docx":
+                case ".asd":
+                case ".dotx":
+                case ".dotm":
+                case ".wbk":
+                case ".docm":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/word-icon.png";
+                    else
+                        return defaultAction;
+                case ".pptx":
+                case ".pps":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/PowerPoint-icon.png";
+                    else
+                        return defaultAction;
+                case ".pub":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/Publisher-icon.png";
+                    else
+                        return defaultAction;
+                case ".exe":
+                case ".app":
+                case ".dmg":
+                case ".bat":
+                case ".elf":
+                case ".sys":
+                case ".msi":
+                case ".sh":
+                case ".deb":
+                case ".com":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/shell-icon.png";
+                    else
+                        return defaultAction;
+                case ".xlsx":
+                case ".xls":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/Excel-icon.png";
+                    else
+                        return defaultAction;
+                case ".png":
+                case ".jpg":
+                case ".jpeg":
+                case ".bmp":
+                case ".pjpeg":
+                case ".gif":
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/process/thumbnail/" + id;
+                    else
+                        return "viewImage(event)";
+                default:
+                    if (type == AttributeTypes.FileIcon)
+                        return "/manager/images/unknown-icon.png";
+                    else
+                        return defaultAction;
+            }
         }
 
         /**
