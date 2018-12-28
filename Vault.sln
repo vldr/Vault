@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vault", "Vault\Vault.csproj", "{083764E1-6A56-4F10-882A-CBD24D37F30B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vault", "Vault\Vault.csproj", "{B0DC6516-F9B4-4322-8188-18B99E9ABB68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{083764E1-6A56-4F10-882A-CBD24D37F30B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{083764E1-6A56-4F10-882A-CBD24D37F30B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{083764E1-6A56-4F10-882A-CBD24D37F30B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{083764E1-6A56-4F10-882A-CBD24D37F30B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0DC6516-F9B4-4322-8188-18B99E9ABB68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0DC6516-F9B4-4322-8188-18B99E9ABB68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0DC6516-F9B4-4322-8188-18B99E9ABB68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0DC6516-F9B4-4322-8188-18B99E9ABB68}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DC971398-708A-46EE-AA0D-54591EC96AD2}
+		SolutionGuid = {4529DB72-D40C-490C-B03B-3F9754AA7FDE}
 	EndGlobalSection
 EndGlobal
