@@ -81,18 +81,24 @@ namespace Vault2.Controllers
 
             // Get our folder!
             Folder folder = _processService.GetFolder(id, folderId);
-            
+
+            // Get our folder!
+            User user = _loginService.GetUser(id);
+
             // Get the user's sortby requirement...
             int sortBy = userSession.SortBy;
 
-            ViewBag.HomeFolder = _loginService.GetUser(id).Folder;
-            ViewBag.CurrentFolder = folder;
-            ViewBag.Path = _processService.GetFolderLocationFormatted(folder);
-            ViewBag.Folders = _processService.GetFolders(id, folderId);
-            ViewBag.Files = _processService.GetFiles(id, folderId, sortBy);
-            ViewBag.IsEmpty = !_processService.GetFolders(id, folderId).Any() && !_processService.GetFiles(id, folderId).Any();
+            // Setup a new listing...
+            Listing listing = new Listing()
+            {
+                Previous = folder.FolderId,
+                IsHome = (user.Folder == folder.Id),
+                Path = _processService.GetFolderLocationFormatted(folder),
+                Folders = _processService.GetFolderListings(id, folderId),
+                Files = _processService.GetFileListings(id, folderId)
+            };
 
-            return PartialView();
+            return Json(listing);
         }
 
         /**

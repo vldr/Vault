@@ -20,7 +20,6 @@ new Dropzone(document.body,
         document.getElementById("snack-bar-checkmark").style.display = "none";
 
         document.getElementById("snack-bar-progress").style.borderColor = "#2c80ff";
-        document.getElementById("snack-bar-progress").style.width = "0%";
 
         document.getElementById("snack-bar-text").innerHTML = "Uploading " + file.name;
     },
@@ -31,7 +30,7 @@ new Dropzone(document.body,
     },
     error: function (file, response)
     {
-        processListFilesSilent();
+        processListFiles(true);
 
         swal("Error!", response, "error");
     },
@@ -41,7 +40,9 @@ new Dropzone(document.body,
     },
     queuecomplete: function ()
     {
-        processListFilesSilent();
+        processListFiles(true);
+
+        document.getElementById("snack-bar-progress").style.width = "0%";
 
         fadeOutTimer = setTimeout(function ()
         {
@@ -87,143 +88,133 @@ function createCookie(name, value, expires, path, domain) {
 	document.cookie = cookie;
 }
 
-function processListFiles()
+function processListFiles(isSilent = false, callback)
 {
-	var xmlhttp;
-	var timer = null;
-	if (window.XMLHttpRequest)
-	{
-		xmlhttp=new XMLHttpRequest();
-	}
-	else
-	{
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-		
-	xmlhttp.onreadystatechange=function()
-	{
-		
-		timer = setTimeout(function() {
-			if (xmlhttp.readyState < 4) {
-                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;	
-			}
-		}, 200);
-		
-		
-		if (xmlhttp.readyState === 4) {
-			if (xmlhttp.status === 200 && xmlhttp.status < 300) {
-				clearTimeout(timer);
-				document.getElementById("myfiles").innerHTML = xmlhttp.responseText;
-				$('.gridItem').addClass('launch');
-			}
-		}
-	}
-		
-	xmlhttp.open("POST", "process/list", true);
-	xmlhttp.send();
-}
+    var xmlhttp = new XMLHttpRequest();
+    var loadingTimer;
 
-function processListFilesFirst()
-{
-	var xmlhttp;
-	var timer = null;
-	if (window.XMLHttpRequest)
-	{
-		xmlhttp=new XMLHttpRequest();
-	}
-	else
-	{
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-		
-	xmlhttp.onreadystatechange=function()
-	{
-		
-		timer = setTimeout(function() {
-			if (xmlhttp.readyState < 4) {
-                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;	
-			}
-		}, 200);
-		
-		
-		if (xmlhttp.readyState === 4) {
-			if (xmlhttp.status === 200 && xmlhttp.status < 300) {
-				clearTimeout(timer);
-				document.getElementById("myfiles").innerHTML = xmlhttp.responseText;
-				$('.gridItem').addClass('launch');
-			}
-		}
-	}
-		
-    xmlhttp.open("POST", "process/list", true);
-	xmlhttp.send();
-}
-
-function processListFilesSilent()
-{
-	var xmlhttp;
-	var timer = null;
-	if (window.XMLHttpRequest)
-	{
-		xmlhttp=new XMLHttpRequest();
-	}
-	else
-	{
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-		
-	xmlhttp.onreadystatechange=function()
-	{
-		
-		timer = setTimeout(function() {
-			if (xmlhttp.readyState < 4) {
-                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;		
-			}
-		}, 200);
-		
-		
-		if (xmlhttp.readyState === 4) {
-			if (xmlhttp.status === 200 && xmlhttp.status < 300) {
-				clearTimeout(timer);
-				document.getElementById("myfiles").innerHTML = xmlhttp.responseText;
-			}
-		}
-	}
-		
-    xmlhttp.open("POST", "/manager/process/list", true);
-	xmlhttp.send();
-}
-
-function processListFilesSilentShare(id) {
-    var xmlhttp;
-    var timer = null;
-    if (window.XMLHttpRequest) {
-        xmlhttp = new XMLHttpRequest();
-    }
-    else {
-        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-    }
-
-    xmlhttp.onreadystatechange = function () {
-
-        timer = setTimeout(function () {
-            if (xmlhttp.readyState < 4) {
+    xmlhttp.onreadystatechange = function ()
+    {
+        loadingTimer = setTimeout(function () {
+            if (xmlhttp.readyState < 4)
+            {
                 document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
             }
         }, 200);
 
 
-        if (xmlhttp.readyState === 4) {
-            if (xmlhttp.status === 200 && xmlhttp.status < 300) {
-                clearTimeout(timer);
-                document.getElementById("myfiles").innerHTML = xmlhttp.responseText;
-                processShareFile(id);
+        if (xmlhttp.readyState === 4)
+        {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300)
+            {
+                clearTimeout(loadingTimer);
+                document.getElementById("myfiles").innerHTML = "";
+
+                var json = JSON.parse(xmlhttp.responseText);
+
+                if (!json.isHome)
+                {
+                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
+                        `<div class="gridItem" data-folder-id="${json.previous}"
+                         ondrop="drop(event)"
+                         onclick="processMove(event)"
+                         style="background-color: rgba(255, 255, 255, 0.27);border: 2px solid rgba(255, 246, 182, 0);">
+
+                        <div data-folder-id="${json.previous}"
+                             ondragstart="dragStart(event)"
+                             draggable="true" class="grid-icon"
+                             style="background-image: url('/manager/images/folder-icon.png');">
+
+                            <br /><br /><br /><br />
+                            ...
+                            <br>
+                        </div>
+                    </div>`);
+                }
+
+                for (i in json.folders)
+                {
+                    var folder = json.folders[i];
+
+                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
+                        `<div class='gridItem ${folder.style}'
+                             data-folder-id='${folder.id}'
+                             data-folder-title='${folder.name}'
+                             ondragend='dragEnd(event)'
+                             ondragstart='dragStart(event)'
+                             ondrop='drop(event)'
+                             onclick='processMove(event)'
+                             oncontextmenu="contextMenuFolder(event)"
+                             draggable='true'>
+
+                            <div data-folder-id="${folder.id}"
+                                 ondragstart="dragStart(event)"
+                                 draggable="true" class="grid-icon"
+                                 style="background-image: url('${folder.icon}');">
+
+                                <br /><br /><br /><br />
+                                ${folder.name.substring(0, 10)}
+                                <br>
+
+                                <a data-folder-id="${folder.id}" data-delete="1" class="x-button" onclick="processDeleteFolder(event);">
+                                    <img data-folder-id="${folder.id}" data-delete="1"
+                                         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
+                                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
+                                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
+                                </a>
+                            </div>
+                        </div>`);
+                }
+
+
+                for (i in json.files)
+                {
+                    var file = json.files[i];
+                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
+                    `<div class='gridItem'
+                         data-file-id='${file.id}'
+                         data-file-title='${file.name}'
+                         data-file-shared='${file.isSharing}'
+                         data-file-share='${file.shareId}'
+                         ondragend='dragEnd(event)'
+                         ondragstart='dragStart(event)'
+                         ondrop='drop(event)'
+                         oncontextmenu="contextMenuFile(event)"
+                         onclick='${file.action}'
+                         draggable='true'>
+
+                        <div class="grid-icon"
+                             data-file-id="${file.id}"
+                             ondragstart="dragStart(event)"
+                             draggable="true"
+                             style="background-image: url('${file.icon}');margin-bottom:10px;">
+
+                            <br /><br /><br /><br />
+
+                            ${file.name.substring(0, 10)}
+
+                            <br>
+
+                            <a data-file-id="${file.id}" data-delete="1" class="x-button" onclick="processDelete(${file.id});">
+                                <img data-file-id="${file.id}" data-delete="1"
+                                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
+                                    DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
+                                    3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
+                            </a>
+                        </div>
+                    </div>`);
+                }
+
+                if (!isSilent)
+                    $('.gridItem').addClass('launch');
+
+                callback();
             }
         }
-    }
-
-    xmlhttp.open("POST", "/manager/process/list", true);
-    xmlhttp.send();
+    };
+		
+    xmlhttp.open("POST", "process/list", true);
+	xmlhttp.send();
 }
 
 function processDelete(str) {
@@ -259,7 +250,7 @@ function processDelete(str) {
 						swal({title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false});
 					}
 					
-					processListFilesSilent();
+                    processListFiles(true);
 				}
 			}
 		}
@@ -370,7 +361,12 @@ function processToggleSharing(id)
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") { processListFilesSilentShare(id); }
+                if (xhr.responseText.trim() === "1") {
+                    processListFiles(true, function ()
+                    {
+                        processShareFile(id);
+                    });
+                }
                 else if (xhr.responseText.trim() === "0")
                     swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
             }
@@ -413,7 +409,8 @@ function processShareFile(id)
         customClass: 'fadein',
         showConfirmButton: true, 
         
-        text: `<p style="text-align: left;">You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p><br>` + (isShared === "True" ? `
+        text: `<p style="text-align: left;">You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p><br>`
+            + (isShared === "true" ? `
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
                 <span class="checkmark"></span>
             </label>
@@ -455,7 +452,7 @@ function processRenameFile(event)
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
                 if (xhr.status === 200 && xhr.status < 300) {
-                    if (xhr.responseText.trim() === "1") { processListFilesSilent(); swal.close(); }
+                    if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
                     else if (xhr.responseText.trim() === "0")
                         swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
                 }
@@ -499,7 +496,7 @@ function processRenameFolder(event)
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
                 if (xhr.status === 200 && xhr.status < 300) {
-                    if (xhr.responseText.trim() === "1") { processListFilesSilent(); swal.close(); }
+                    if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
                     else if (xhr.responseText.trim() === "0")
                         swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
                 }
@@ -549,7 +546,7 @@ function processDeleteFolder(event) {
 						swal({title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false});
 					}
 					
-					processListFilesSilent();
+					processListFiles(true);
 					
 				}
 			}
@@ -639,7 +636,7 @@ function processFolderColour(id, colour) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") { processListFilesSilent(); }
+                if (xhr.responseText.trim() === "1") { processListFiles(true); }
                 else if (xhr.responseText.trim() === "0")
                     swal({ title: "Error!", text: "Something went wrong! Error!", type: "error", timer: 1000, showConfirmButton: false });
             }
@@ -666,7 +663,7 @@ function processSortBy(sortby) {
         {
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") { processListFilesSilent(); swal.close(); }
+                if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
                 else if (xhr.responseText.trim() === "0")
                     swal({ title: "Error!", text: "Something went wrong! Error!", type: "error", timer: 1000, showConfirmButton: false });
             }
@@ -775,7 +772,7 @@ function processMovingFileToFolder(str, str2)
 					swal("Error!", "Failed to connect to master server.", "error");
 				}
 				
-				processListFilesSilent();
+				processListFiles(true);
             }
         }
     }
@@ -811,7 +808,7 @@ function processMovingFolderToFolder(str, str2)
 					swal("Error!", "Failed to connect to master server.", "error");
 				}
 				
-				processListFilesSilent();
+				processListFiles(true);
             }
         }
     }
@@ -861,7 +858,7 @@ function processFolderCreate() {
 						swal.close();
 					}
 					
-					processListFilesSilent();
+					processListFiles(true);
 				}
 			}
 		}
