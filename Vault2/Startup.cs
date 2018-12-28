@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Vault2.Objects;
 using Microsoft.Net.Http.Headers;
 using System;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.IO.Compression;
 
 namespace Vault2
 {
@@ -21,6 +23,14 @@ namespace Vault2
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
+
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+                options.EnableForHttps = true;
+            });
+
             services.AddMvc();
             services.AddSingleton(Configuration);
 
@@ -39,11 +49,13 @@ namespace Vault2
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
+        { 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseResponseCompression();
 
             app.UseSession();
             app.UseDefaultFiles();
