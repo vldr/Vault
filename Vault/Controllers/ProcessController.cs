@@ -68,7 +68,7 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json("Please login to use the service...");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -91,6 +91,7 @@ namespace Vault2.Controllers
             // Setup a new listing...
             Listing listing = new Listing()
             {
+                Success = true,
                 Previous = folder.FolderId,
                 IsHome = (user.Folder == folder.Id),
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
@@ -471,7 +472,7 @@ namespace Vault2.Controllers
         /**
          * Goes to a folder, doesn't matter if it's visible or not...
          */
-        [HttpPost]
+        [HttpPost] 
         [Route("process/goto")]
         public IActionResult GotoFolder(int? folderId)
         {
@@ -500,7 +501,7 @@ namespace Vault2.Controllers
             SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
             // Return a successful response...
-            return Json(new { Success = true });
+            return List();
         }
 
         /**

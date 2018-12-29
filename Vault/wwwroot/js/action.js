@@ -86,36 +86,16 @@ function createCookie(name, value, expires, path, domain) {
 	document.cookie = cookie;
 }
 
-function processListFiles(isSilent = false, callback)
+function renderFiles(json, isSilent = false)
 {
-    var xmlhttp = new XMLHttpRequest();
-    var loadingTimer;
+    var elem = document.getElementById('myfiles');
 
-    xmlhttp.onreadystatechange = function ()
-    {
-        loadingTimer = setTimeout(function ()
-        {
-            if (xmlhttp.readyState < 4)
-            {
-                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
-            }
-        }, 200);
+    elem.innerHTML = "";
+    document.getElementById("folder-path").innerHTML = json.path;
 
-        if (xmlhttp.readyState === 4)
-        {
-            if (xmlhttp.status === 200 && xmlhttp.status < 300)
-            {
-                clearTimeout(loadingTimer);
-                document.getElementById("myfiles").innerHTML = "";
-
-                var json = JSON.parse(xmlhttp.responseText);
-
-                document.getElementById("folder-path").innerHTML = json.path;
-
-                if (!json.isHome)
-                {
-                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
-                        `<div class="gridItem" data-folder-id="${json.previous}"
+    if (!json.isHome) {
+        elem.insertAdjacentHTML("beforeend",
+            `<div class="gridItem" data-folder-id="${json.previous}"
                          ondrop="drop(event)"
                          onclick="processMove(event)"
                          style="background-color: rgba(255, 255, 255, 0.27);border: 2px solid rgba(255, 246, 182, 0);">
@@ -130,14 +110,13 @@ function processListFiles(isSilent = false, callback)
                             <br>
                         </div>
                     </div>`);
-                }
+    }
 
-                for (i in json.folders)
-                {
-                    var folder = json.folders[i];
+    for (i in json.folders) {
+        var folder = json.folders[i];
 
-                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
-                        `<div class='gridItem ${folder.style}'
+        elem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem ${folder.style}'
                              data-folder-id='${folder.id}'
                              data-folder-title='${folder.name}'
                              ondragend='dragEnd(event)'
@@ -164,14 +143,13 @@ function processListFiles(isSilent = false, callback)
                                 </a>
                             </div>
                         </div>`);
-                }
+    }
 
 
-                for (i in json.files)
-                {
-                    var file = json.files[i];
-                    document.getElementById('myfiles').insertAdjacentHTML("beforeend",
-                    `<div class='gridItem'
+    for (i in json.files) {
+        var file = json.files[i];
+        elem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem'
                          data-file-id='${file.id}'
                          data-file-title='${file.name}'
                          data-file-shared='${file.isSharing}'
@@ -203,10 +181,35 @@ function processListFiles(isSilent = false, callback)
                             </a>
                         </div>
                     </div>`);
-                }
+    }
 
-                if (!isSilent)
-                    $('.gridItem').addClass('launch');
+    if (!isSilent) elem.classList.add("launch");
+}
+
+function processListFiles(isSilent = false, callback)
+{
+    var xmlhttp = new XMLHttpRequest();
+    var loadingTimer;
+
+    xmlhttp.onreadystatechange = function ()
+    {
+        loadingTimer = setTimeout(function ()
+        {
+            if (xmlhttp.readyState < 4)
+            {
+                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
+            }
+        }, 200);
+
+        if (xmlhttp.readyState === 4)
+        {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300)
+            {
+                clearTimeout(loadingTimer);
+                
+                var json = JSON.parse(xmlhttp.responseText);
+
+                renderFiles(json);
 
                 if (callback !== undefined)
                     callback();
@@ -859,10 +862,9 @@ function processMove(event)
             {
                 var json = JSON.parse(xhr.responseText);
 
-                if (!json.success)
-                    swal("Error!", json.reason, "error");
+                if (!json.success) swal("Error!", json.reason, "error");
 
-                processListFiles();
+                renderFiles(json);
             }
             else
             {

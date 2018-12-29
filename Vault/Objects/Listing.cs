@@ -7,6 +7,7 @@ namespace Vault.Objects
 {
     public class Listing
     {
+        public bool Success { get; set; }
         public string Path { get; set; }
         public bool IsHome { get; set; }
         public int Previous { get; set; }
