@@ -1,4 +1,5 @@
 var fadeOutTimer;
+var fileListCount = 0;
 
 new Dropzone(document.body,
 {
@@ -145,43 +146,65 @@ function renderFiles(json, isSilent = false)
                         </div>`);
     }
 
+    var renderFiles = function (files, offset = 0)
+    {
+        for (var i = offset; i < files.length; i++)
+        {
+            var file = files[i];
 
-    for (i in json.files) {
-        var file = json.files[i];
-        elem.insertAdjacentHTML("beforeend",
+            if (i === (offset + 100))
+            {
+                return i;
+            }
+
+            elem.insertAdjacentHTML("beforeend",
             `<div class='gridItem'
-                         data-file-id='${file.id}'
-                         data-file-title='${file.name}'
-                         data-file-shared='${file.isSharing}'
-                         data-file-share='${file.shareId}'
-                         ondragend='dragEnd(event)'
-                         ondragstart='dragStart(event)'
-                         ondrop='drop(event)'
-                         oncontextmenu="contextMenuFile(event)"
-                         onclick='${file.action}'
-                         draggable='true'>
+                data-file-id='${file.id}'
+                data-file-title='${file.name}'
+                data-file-shared='${file.isSharing}'
+                data-file-share='${file.shareId}'
+                ondragend='dragEnd(event)'
+                ondragstart='dragStart(event)'
+                ondrop='drop(event)'
+                oncontextmenu="contextMenuFile(event)"
+                onclick='${file.action}'
+                draggable='true'>
 
-                        <div class="grid-icon"
-                             data-file-id="${file.id}"
-                             ondragstart="dragStart(event)"
-                             draggable="true"
-                             style="background-image: url('${file.icon}');margin-bottom:10px;">
+            <div class="grid-icon"
+                    data-file-id="${file.id}"
+                    ondragstart="dragStart(event)"
+                    draggable="true"
+                    style="background-image: url('${file.icon}');margin-bottom:10px;">
 
-                            <br /><br /><br /><br />
+                <br /><br /><br /><br />
 
-                            ${file.name.substring(0, 10)}
+                ${file.name.substring(0, 10)}
 
-                            <br>
+                <br>
 
-                            <a data-file-id="${file.id}" data-delete="1" class="x-button" onclick="processDelete(${file.id});">
-                                <img data-file-id="${file.id}" data-delete="1"
-                                     src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
-                                    DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
-                                    3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
-                            </a>
-                        </div>
-                    </div>`);
-    }
+                <a data-file-id="${file.id}" data-delete="1" class="x-button" onclick="processDelete(${file.id});">
+                    <img data-file-id="${file.id}" data-delete="1"
+                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
+                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
+                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
+                </a>
+            </div>
+            </div>`);
+        }
+
+        return files.length;
+    };
+
+    fileListCount = renderFiles(json.files);
+
+    window.onscroll = function (ev, count)
+    {
+        if ( (window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)
+             && fileListCount < json.files.length )
+        {
+            fileListCount = renderFiles(json.files, fileListCount);
+        }
+    };
 
     if (!isSilent) elem.classList.add("launch");
 }
@@ -1008,17 +1031,6 @@ function drop(event) {
 	if ( res[1] !== "null" && res[1] !== "") {
         processMovingFolderToFolder(res[1], event.target.getAttribute('data-folder-id'));
 	}
-}
-
-function highLight(event) {
-    event.preventDefault();
-	document.body.style.transition = "box-shadow 0.3s ease-in-out";
-	document.body.style.boxShadow = 'inset 0px 0px 49px 1px rgba(156,156,156,1)';
-}
-
-function deLight(event) {
-    event.preventDefault();
-	document.body.style.boxShadow = 'none';
 }
 
 function processDownload(event)

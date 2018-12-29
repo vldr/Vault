@@ -46,7 +46,7 @@ namespace Vault2
             services.AddDbContext<Objects.VaultContext>(options => 
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
-        }
+        } 
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         { 
