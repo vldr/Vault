@@ -44,30 +44,27 @@ namespace Vault2.Controllers
         [Route("login")]
         public IActionResult LoginPost(string Email, string Password)
         {
+            // Check if all the parameters were given...
             if (Email == null || Password == null)
-                return StatusCode(200);
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
-            // Check if not logged in!
-            if (IsLoggedIn()) return Redirect("/control");
+            // Check if already logged in...
+            if (IsLoggedIn())
+                return Json(new { Success = true });
 
-            // Attempt to log our user into the database...
-            LoginService.ErrorCodes response = _loginService.Login(Email, Password);
+            // Attempt to find the user and login...
+            User user = _loginService.Login(Email, Password);
 
-            // If our response was an OK, then proceed to generate a session...
-            if (response == LoginService.ErrorCodes.OK)
+            // Check if we logged in sucessfully...
+            if (user != null)
             {
-                int? id = _loginService.GetUserId(Email);
-
-                if (id == null) return Json(LoginService.ErrorCodes.Error);
-
-                User user = _loginService.GetUser(id.GetValueOrDefault());
-
-                _loginService.AppendIPAddress(id.GetValueOrDefault(), HttpContext.Connection.RemoteIpAddress.ToString());
+                // Append our logged in user's ip address...
+                _loginService.AppendIPAddress(user.Id, HttpContext.Connection.RemoteIpAddress.ToString());
 
                 // Setup our user's session!
                 UserSession userSession = new UserSession
                 {
-                    Id = id.GetValueOrDefault(),
+                    Id = user.Id,
                     Folder = user.Folder,
                     SortBy = user.SortBy
                 };
@@ -75,11 +72,12 @@ namespace Vault2.Controllers
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                return Json(response);
+                // Return a successful response...
+                return Json(new { Success = true });
             }
-
-            // Return our response to the outer world...
-            return Json(response);
+            else
+                // Return an error response...
+                return Json(new { Success = false, Reason = "The username or password is invalid..." });
         }
 
         // Called when someone registers on the website...
@@ -92,19 +90,19 @@ namespace Vault2.Controllers
             {
                 // Check if our input is null...
                 if (email == null || password == null || name == null || invite == null)
-                    return Json(LoginService.ErrorCodes.MissingInformation);
-
-                // Check that if our invite key matches...
-                if (invite != _configuration["VaultInviteKey"])
-                    return Json(LoginService.ErrorCodes.Error);
+                    return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
                 // Check if the password is greater than 4 characters...
                 if (password.Length < 6)
-                    return Json(LoginService.ErrorCodes.PasswordTooShort);
+                    return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
 
                 // Check if the name is a decent length...
                 if (name.Length < 4)
-                    return Json(LoginService.ErrorCodes.NameTooShort);
+                    return Json(new { Success = false, Reason = "The name must be at least 4 characters long..." });
+
+                // Check that if our invite key matches...
+                if (invite != _configuration["VaultInviteKey"])
+                    return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
 
                 // Setup our user...
                 User user = new User()
@@ -116,12 +114,15 @@ namespace Vault2.Controllers
                 };
 
                 // Return the response from our login service...
-                return Json(_loginService.Register(user));
+                if (_loginService.Register(user))
+                    return Json(new { Success = true });
+                else
+                    return Json(new { Success = false, Reason = "Transaction error..." });
             }
             catch
             {
                 // Return zero for an exception...
-                return Json(LoginService.ErrorCodes.Error);
+                return Json(new { Success = false, Reason = "Transaction error..." });
             }
         }
 

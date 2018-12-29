@@ -42,8 +42,6 @@ new Dropzone(document.body,
     {
         processListFiles(true);
 
-        document.getElementById("snack-bar-progress").style.width = "0%";
-
         fadeOutTimer = setTimeout(function ()
         {
             document.getElementById("snack-bar-upload").style.animation = "fadeout 0.6s";
@@ -95,13 +93,13 @@ function processListFiles(isSilent = false, callback)
 
     xmlhttp.onreadystatechange = function ()
     {
-        loadingTimer = setTimeout(function () {
+        loadingTimer = setTimeout(function ()
+        {
             if (xmlhttp.readyState < 4)
             {
                 document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
             }
         }, 200);
-
 
         if (xmlhttp.readyState === 4)
         {
@@ -111,6 +109,8 @@ function processListFiles(isSilent = false, callback)
                 document.getElementById("myfiles").innerHTML = "";
 
                 var json = JSON.parse(xmlhttp.responseText);
+
+                document.getElementById("folder-path").innerHTML = json.path;
 
                 if (!json.isHome)
                 {
@@ -208,7 +208,8 @@ function processListFiles(isSilent = false, callback)
                 if (!isSilent)
                     $('.gridItem').addClass('launch');
 
-                callback();
+                if (callback !== undefined)
+                    callback();
             }
         }
     };
@@ -229,31 +230,28 @@ function processDelete(str) {
         confirmButtonText: "Yes, delete it!",
         closeOnConfirm: false
 	},
-	function(){
-		var xhr;
-		if (window.XMLHttpRequest) {
-			xhr = new XMLHttpRequest();
-		} else if (window.ActiveXObject) {
-			xhr = new ActiveXObject("Msxml2.XMLHTTP");
-		} else {
-			throw new Error("Ajax is not supported by this browser");
-		}
+    function ()
+    {
+        var xhr = new XMLHttpRequest();
 
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200 && xhr.status < 300) {
-					if (xhr.responseText.trim() === "0") {
-						swal("Error!", "Transaction error!", "error");
-					} else if (xhr.responseText.trim() === "2") {
-						swal("Error!", "Failed to connect to master server.", "error");
-					} else if (xhr.responseText.trim() === "1")  {
-						swal({title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false});
-					}
-					
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 && xhr.status < 300)
+                {
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success)
+                        swal({ title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false });
+                    else
+                        swal("Error!", json.reason, "error");
+
                     processListFiles(true);
-				}
-			}
-		}
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+        };
 
         xhr.open('POST', '/manager/process/deletefile');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -355,23 +353,25 @@ function processToggleSharing(id)
 
     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function ()
-    {
-        if (xhr.readyState === 4) {
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4)
+        {
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-            if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") {
-                    processListFiles(true, function ()
-                    {
-                        processShareFile(id);
-                    });
-                }
-                else if (xhr.responseText.trim() === "0")
-                    swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+
+                if (json.success)
+                    processListFiles(true, function () { processShareFile(id); });
+                else
+                    swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/process/toggleshare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -447,17 +447,29 @@ function processRenameFile(event)
 
         var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
+        xhr.onreadystatechange = function ()
+        {
+            if (xhr.readyState === 4)
+            {
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-                if (xhr.status === 200 && xhr.status < 300) {
-                    if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
-                    else if (xhr.responseText.trim() === "0")
-                        swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
+                if (xhr.status === 200 && xhr.status < 300)
+                {
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success)
+                    {
+                        processListFiles(true);
+                        swal.close();
+                    }
+                    else
+                        swal("Error!", json.reason, "error");
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
                 }
             }
-        }
+        };
 
         xhr.open('POST', '/manager/process/renamefile');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -495,10 +507,20 @@ function processRenameFolder(event)
             {
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-                if (xhr.status === 200 && xhr.status < 300) {
-                    if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
-                    else if (xhr.responseText.trim() === "0")
-                        swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false });
+                if (xhr.status === 200 && xhr.status < 300)
+                {
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success)
+                    {
+                        processListFiles(true);
+                        swal.close();
+                    }
+                    else
+                        swal("Error!", json.reason, "error");
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
                 }
             }
         }
@@ -524,33 +546,27 @@ function processDeleteFolder(event) {
         closeOnConfirm: false
 	},
 	function(){
-		var xhr;
-		if (window.XMLHttpRequest) {
-			xhr = new XMLHttpRequest();
-		} else if (window.ActiveXObject) {
-			xhr = new ActiveXObject("Msxml2.XMLHTTP");
-		} else {
-			throw new Error("Ajax is not supported by this browser");
-		}
+        var xhr = new XMLHttpRequest();
 
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState < 4)                         // while waiting response from server
-				swal({title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false});
-			else if (xhr.readyState === 4) {
-				if (xhr.status === 200 && xhr.status < 300) {
-					if (xhr.responseText.trim() === "0") {
-						swal("Error!", "Transaction error!", "error");
-					} else if (xhr.responseText.trim() === "2") {
-						swal("Error!", "Failed to connect to master server.", "error");
-					} else if (xhr.responseText.trim() === "1")  {
-						swal({title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false});
-					}
-					
-					processListFiles(true);
-					
-				}
-			}
-		}
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState < 4)
+                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+            else if (xhr.readyState === 4) {
+                if (xhr.status === 200 && xhr.status < 300) {
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success) swal({ title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false });
+                    else
+                        swal("Error!", json.reason, "error");
+
+                    processListFiles(true);
+
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+        };
 
         xhr.open('POST', '/manager/process/deletefolder');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -605,16 +621,21 @@ function processChangePassword()
             var xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
+                if (xhr.readyState === 4)
+                {
                     swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
                     if (xhr.status === 200 && xhr.status < 300) {
-                        if (xhr.responseText.trim() === "1")
-                            swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
-                        else if (xhr.responseText.trim() === "0")
-                            swal({ title: "Error!", text: "Error! Make sure everything is correct...", type: "error", timer: 1500, showConfirmButton: false }, processChangePassword);
+
+                        var json = JSON.parse(xhr.responseText);
+
+                        if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
+                        else swal("Error!", json.reason, "error");
+                    }
+                    else {
+                        swal("Error!", "Failed to connect!", "error");
                     }
                 }
-            }
+            };
 
             xhr.open('POST', '/manager/process/changepassword');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -624,24 +645,21 @@ function processChangePassword()
 }
 
 function processFolderColour(id, colour) {
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") { processListFiles(true); }
-                else if (xhr.responseText.trim() === "0")
-                    swal({ title: "Error!", text: "Something went wrong! Error!", type: "error", timer: 1000, showConfirmButton: false });
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+                if (json.success) processListFiles(true);
+                else swal("Error!", json.reason, "error");
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/process/setcolour');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -649,26 +667,22 @@ function processFolderColour(id, colour) {
 }
 
 function processSortBy(sortby) {
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4)
-        {
+        if (xhr.readyState === 4) {
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-            if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1") { processListFiles(true); swal.close(); }
-                else if (xhr.responseText.trim() === "0")
-                    swal({ title: "Error!", text: "Something went wrong! Error!", type: "error", timer: 1000, showConfirmButton: false });
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+                if (json.success) { processListFiles(true); swal.close(); }
+                else swal("Error!", json.reason, "error");
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/process/sortby');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -677,34 +691,29 @@ function processSortBy(sortby) {
 
 function processRegister(str, str2, str3, str4)
 {
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4)
+        {
             document.getElementById('txtHint').innerHTML = "Loading...<br><br>";
-            if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1")
-					window.location = "/";
-                else if (xhr.responseText.trim() === "2")
-                    document.getElementById('txtHint').innerHTML = "EMail already exists...<br><br>";
-                else if (xhr.responseText.trim() === "3")
-                    document.getElementById('txtHint').innerHTML = "Error!<br><br>";
-                else if (xhr.responseText.trim() === "4")
-                    document.getElementById('txtHint').innerHTML = "Password is too short!<br><br>";
-                else if (xhr.responseText.trim() === "5")
-                    document.getElementById('txtHint').innerHTML = "You're missing some information.<br><br>";
-                else if (xhr.responseText.trim() === "6")
-                    document.getElementById('txtHint').innerHTML = "Name is too short!<br><br>";
+
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+
+                if (json.success)
+                    window.location = "/";
+                else
+                    document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
+            }
+            else
+            {
+                document.getElementById('txtHint').innerHTML = "Failed to connect!<br><br>";
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/register');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -713,33 +722,24 @@ function processRegister(str, str2, str3, str4)
 
 function processLogin(str, str2) {
 
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "1")
-                {		
-					document.getElementById("txtHint").style.color = "#000";
-					document.getElementById('txtHint').innerHTML = "Logged in, successfully.<br><br>";
-					
-					window.location.href = "control";
-                }
-                else if (xhr.responseText.trim() === "3")
-                {
-                    document.getElementById('txtHint').innerHTML = "Incorrect credentials.<br><br>";
-                }
+                var json = JSON.parse(xhr.responseText);
 
+                if (json.success)
+                    window.location = "control";
+                else
+                    document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
+            }
+            else
+            {
+                document.getElementById('txtHint').innerHTML = "Failed to connect!<br><br>";
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -754,28 +754,18 @@ function processMovingFileToFolder(str, str2)
         return;
     }
 
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "0") {
-                    swal("Error!", "Transaction error! Moving a file...", "error");
-                } else if (xhr.responseText.trim() === "2") {
-					swal("Error!", "Failed to connect to master server.", "error");
-				}
-				
-				processListFiles(true);
+                var json = JSON.parse(xhr.responseText);
+                if (!json.success) swal("Error!", json.reason, "error");
+
+                processListFiles(true);
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -790,28 +780,18 @@ function processMovingFolderToFolder(str, str2)
         return;
     }
 
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 && xhr.status < 300) {
-                if (xhr.responseText.trim() === "0") {
-                    swal("Error!", "Transaction error! Moving a folder...", "error");
-                } else if (xhr.responseText.trim() === "2") {
-					swal("Error!", "Failed to connect to master server.", "error");
-				}
-				
-				processListFiles(true);
+                var json = JSON.parse(xhr.responseText);
+                if (!json.success) swal("Error!", json.reason, "error");
+
+                processListFiles(true);
             }
         }
-    }
+    };
 
     xhr.open('POST', '/manager/process/movefolder');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -837,31 +817,26 @@ function processFolderCreate() {
             return false;
 		}
 		
-		var xhr;
-		if (window.XMLHttpRequest) {
-			xhr = new XMLHttpRequest();
-		} else if (window.ActiveXObject) {
-			xhr = new ActiveXObject("Msxml2.XMLHTTP");
-		} else {
-			throw new Error("Ajax is not supported by this browser");
-		}
+        var xhr = new XMLHttpRequest();
 
-		xhr.onreadystatechange = function() {
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200 && xhr.status < 300) {
-					
-					if (xhr.responseText.trim() === "0") {
-						swal("Error!", "Transaction error!", "error");
-					} else if (xhr.responseText.trim() === "2") {
-						swal("Error!", "Failed to connect to master server.", "error");
-					} else if (xhr.responseText.trim() === "1") {
-						swal.close();
-					}
-					
-					processListFiles(true);
-				}
-			}
-		}
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200 && xhr.status < 300) {
+
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success)
+                        swal.close();
+                    else
+                        swal("Error!", json.reason, "error");
+
+                    processListFiles(true);
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+        };
 
         xhr.open('POST', '/manager/process/newfolder');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -876,22 +851,21 @@ function processMove(event)
 
 	var str = event.target.getAttribute('data-folder-id');
 
-    var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
+    var xhr = new XMLHttpRequest();
 	
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
-				$('.gridItem').addClass('hidden');
-				setTimeout(function(){ processListFiles(); }, 100);
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+
+                if (!json.success)
+                    swal("Error!", json.reason, "error");
+
+                processListFiles();
             }
-			else {
+            else
+            {
 				swal("Error!", "Failed to connect!", "error");
 			}
         } 

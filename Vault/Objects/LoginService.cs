@@ -5,17 +5,6 @@ namespace Vault2.Objects
 {
     public class LoginService
     {
-        // Our error codes...
-        public enum ErrorCodes
-        {
-            OK = 1,
-            Taken = 2,
-            Error = 3,
-            PasswordTooShort = 4,
-            MissingInformation = 5,
-            NameTooShort = 6,
-        }
-
         // Our vault database context...
         private VaultContext _context { get; set; }
 
@@ -27,23 +16,26 @@ namespace Vault2.Objects
         /**
          * Attempts to log the user in the system...
          */
-        public ErrorCodes Login(string email, string hash)
+        public User Login(string email, string hash)
         {
 
             // Catch all our exceptions...
             try
             {
-                string password = _context.Users
-                    .Where(b => b.Email == email)
-                    .FirstOrDefault()?.Password;
+                // Attempt to find the user matching the email address...
+                var user = _context.Users.Where(b => b.Email == email).FirstOrDefault();
+
+                // Check if our password is null...
+                if (user == null)
+                    return null;
 
                 // Check if our passwords match...
-                return BCrypt.BCryptHelper.CheckPassword(hash, password) ? ErrorCodes.OK : ErrorCodes.Error;
+                return BCrypt.BCryptHelper.CheckPassword(hash, user.Password) ? user : null;
             }
-            catch (Exception)
+            catch
             {
                 // If theres an exception, return an error...
-                return ErrorCodes.Error;
+                return null;
             }
         }
 
@@ -77,7 +69,7 @@ namespace Vault2.Objects
          * Register
          * Registers a user to the database...
          */
-        public ErrorCodes Register(User user)
+        public bool Register(User user)
         {
             // Catch all our exceptions...
             try
@@ -88,7 +80,8 @@ namespace Vault2.Objects
                     .FirstOrDefault()) != null;
 
                 // If it does, quit here...
-                if (exists) return ErrorCodes.Taken;
+                if (exists)
+                    return false;
 
                 // Hash our user's password using BCrypt...
                 user.Password = BCrypt.BCryptHelper.HashPassword(user.Password, BCrypt.BCryptHelper.GenerateSalt());
@@ -120,11 +113,11 @@ namespace Vault2.Objects
             catch (Exception)
             {
                 // If theres an exception, return an error...
-                return ErrorCodes.Error;
+                return false;
             }
 
             // Otherwise, return OK...
-            return ErrorCodes.OK;
+            return true;
         }
     }
 }

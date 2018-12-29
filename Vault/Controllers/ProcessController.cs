@@ -93,7 +93,7 @@ namespace Vault2.Controllers
             {
                 Previous = folder.FolderId,
                 IsHome = (user.Folder == folder.Id),
-                Path = _processService.GetFolderLocationFormatted(folder),
+                Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
                 Files = _processService.GetFileListings(id, folderId)
             };
@@ -110,11 +110,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check if our folder name is null...
             if (folderName == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -137,7 +137,7 @@ namespace Vault2.Controllers
             _processService.AddNewFolder(folderObj);
 
             // Return a sucessful response...
-            return Content("1");
+            return Json(new { Success = true });
         }
 
         /**
@@ -149,11 +149,11 @@ namespace Vault2.Controllers
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls and limits!
             if (fileId == null || newName == null || newName.Length == 0)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -161,10 +161,10 @@ namespace Vault2.Controllers
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
                 // Return that our operation was sucessful!
-                return Content("1");
+                return Json(new { Success = true });
             else
                 // Otherwise, return stating the operation failed!
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -176,11 +176,11 @@ namespace Vault2.Controllers
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls and limits!
             if (folderId == null || newName == null || newName.Length == 0)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -190,15 +190,15 @@ namespace Vault2.Controllers
 
             // Make sure you don't rename the home folder...
             if (folderId == homeFolder)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You cannot rename the home folder..." });
 
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
                 // Return that our operation was sucessful!
-                return Content("1");
+                return Json(new { Success = true });
             else
                 // Otherwise, return stating the operation failed!
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -210,11 +210,11 @@ namespace Vault2.Controllers
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls and limits!
             if (folderId == null || colour == null || colour < 0 || colour > 10)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -222,10 +222,10 @@ namespace Vault2.Controllers
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
                 // Return that our operation was sucessful!
-                return Content("1");
+                return Json(new { Success = true });
             else
                 // Otherwise, return stating the operation failed!
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -237,11 +237,11 @@ namespace Vault2.Controllers
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls and limits!
             if (sortBy == null || sortBy < 0 || sortBy > 10)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -256,11 +256,11 @@ namespace Vault2.Controllers
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
                 // Return that our operation was sucessful!
-                return Content("1");
+                return Json(new { Success = true });
             }
-            
-            // Return that we failed to perform the operation!
-            return Content("0");
+            else
+                // Return that we failed to perform the operation!
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -272,11 +272,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (from == null || to == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -292,21 +292,21 @@ namespace Vault2.Controllers
 
             // Don't move the same folder inside of itself...
             if (from == to)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You cannot move the same folder inside of itself..." });
 
             // Make sure you can't move the home folder anywhere...
             if (from == homeFolder)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You can't move the home folder anywhere..." });
 
             // If our from doesn't exist in our list folders then do not allow to move it...
             if (!_processService.CanFolderMove(id, from.GetValueOrDefault(), currentFolder))
-                return Content("0");
+                return Json(new { Success = false, Reason = "The folder isn't inside the scope..." });
 
             // Move the actual folder...
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -318,11 +318,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (folder == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -335,13 +335,13 @@ namespace Vault2.Controllers
 
             // Make sure you don't delete the home folder...
             if (folder == homeFolder)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You cannot delete the home folder..." });
 
             // Move the actual folder...
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
         
         /**
@@ -353,11 +353,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (file == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -367,9 +367,9 @@ namespace Vault2.Controllers
 
             // Move the actual folder...
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -381,20 +381,20 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (currentPassword == null || newPassword == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
             // Update our user's password!
             if (_processService.UpdatePassword(userSession.Id, currentPassword, newPassword))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -406,11 +406,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (fileId == null || option == null || option < 0 || option > 1)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -420,9 +420,9 @@ namespace Vault2.Controllers
 
             // Update our file's shareablity!
             if (_processService.ShareFile(userSession.Id, fileId.GetValueOrDefault(), option == 1 ? true : false))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
 
@@ -435,11 +435,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check for nulls...
             if (file == null || folder == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -455,17 +455,17 @@ namespace Vault2.Controllers
 
             // If our from doesn't exist in our list folders then do not allow to move it...
             if (parentFolder != folder && !_processService.CanFolderMove(id, folder.GetValueOrDefault(), currentFolder))
-                return Content("0");
+                return Json(new { Success = false, Reason = "Invalid operation, folder not in scope..." });
 
             // If our from doesn't exist in our list folders then do not allow to move it...
             if (!_processService.CanFileMove(id, file.GetValueOrDefault(), currentFolder))
-                return Content("0");
+                return Json(new { Success = false, Reason = "Invalid operation, file not in scope..." });
 
             // Move the actual folder...
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
-                return Content("1");
+                return Json(new { Success = true });
             else
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /**
@@ -477,11 +477,11 @@ namespace Vault2.Controllers
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
             // Check if our input is null...
             if (folderId == null)
-                return Content("0");
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -491,7 +491,7 @@ namespace Vault2.Controllers
 
             // Check if the folder is even valid...
             if (!_processService.IsFolderValid(id, folderId.GetValueOrDefault()))
-                return Content("0");
+                return Json(new { Success = false, Reason = "Invalid folder..." });
 
             // Set our new folder up!
             userSession.Folder = folderId.GetValueOrDefault();
@@ -500,7 +500,7 @@ namespace Vault2.Controllers
             SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
             // Return a successful response...
-            return Content("1");
+            return Json(new { Success = true });
         }
 
         /**
@@ -608,14 +608,14 @@ namespace Vault2.Controllers
             {
                 // Check if we're logged in...
                 if (!IsLoggedIn())
-                    return Content("0");
+                    return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
 
                 // Store our file size...
                 long size = file.Length;
 
                 // File too big!
                 if (size > int.Parse(_configuration["MaxVaultFileSize"]))
-                    return Content("0");
+                    return Json(new { Success = false, Reason = "The file size is too large..." });
 
                 // Setup function to generate random string...
                 Func<int, string> randomString = count =>
@@ -683,12 +683,12 @@ namespace Vault2.Controllers
                 _processService.AddNewFile(fileObj);
 
                 // Respond with a successful message...
-                return Content("1");
+                return Json(new { Success = true });
             }
             catch
             {
                 // Respond with zero since something bad happened...
-                return Content("0");
+                return Json(new { Success = false, Reason = "Transaction error..." });
             }
         }
 
