@@ -9,6 +9,7 @@ using Microsoft.Net.Http.Headers;
 using System;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using Vault.Objects;
 
 namespace Vault2
 {
@@ -30,7 +31,7 @@ namespace Vault2
                 options.Providers.Add<GzipCompressionProvider>();
                 options.EnableForHttps = true;
             });
-
+            
             services.AddMvc();
             services.AddSingleton(Configuration);
 
@@ -42,6 +43,8 @@ namespace Vault2
                 options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.Name = ".vault";
             });
+
+            services.AddSignalR();
 
             services.AddDbContext<Objects.VaultContext>(options => 
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
@@ -65,6 +68,11 @@ namespace Vault2
                 {
                     ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
                 }
+            });
+
+            app.UseSignalR(route =>
+            {
+                route.MapHub<VaultHub>("/notifications");
             });
 
             app.UseMvcWithDefaultRoute();

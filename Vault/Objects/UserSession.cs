@@ -7,10 +7,8 @@ namespace Vault.Objects
 {
     public class UserSession
     {
-        public int Id;
-
-        public int Folder;
-
-        public int SortBy;
+        public int Id { get; set; }
+        public int Folder { get; set; }
+        public int SortBy { get; set; }
     }
 }

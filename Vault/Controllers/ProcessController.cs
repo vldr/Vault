@@ -11,6 +11,8 @@ using ImageMagick;
 using System.IO.Compression;
 using Ionic.Zip;
 using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using System.Collections.Concurrent;
 
 namespace Vault2.Controllers
 {
@@ -30,18 +32,44 @@ namespace Vault2.Controllers
         // Instance of our configuration...
         private IConfiguration _configuration;
 
+        // Instance of our hub...
+        private IHubContext<VaultHub> _hubContext;
+
         /**
          * Contructor
          */
-        public ProcessController(ProcessService processService, LoginService loginService, IConfiguration configuration)
+        public ProcessController(ProcessService processService, 
+            LoginService loginService,
+            IConfiguration configuration, 
+            IHubContext<VaultHub> hubContext)
         {
             _processService = processService;
             _loginService = loginService;
             _configuration = configuration;
+            _hubContext = hubContext;
 
             _sessionName = configuration["SessionTagId"];
             _storageLocation = configuration["VaultStorageLocation"];
             _relativeDirectory = configuration["RelativeDirectory"];
+        }
+
+        /// <summary>
+        /// Updates the listings for all our user sessions...
+        /// </summary>
+        /// <param name="userId"></param>
+        private void UpdateListings(int userId)
+        {
+            // Let all our connections know of what happened...
+            foreach (var item in VaultHub.Connections)
+            {
+                // If our user id matches then we've found the right client...
+                if (item.Value.Id == userId)
+                {
+                    // Send a message to the client telling him to update their listings...
+                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
+                }
+            }
+
         }
 
         [HttpGet]
@@ -142,6 +170,9 @@ namespace Vault2.Controllers
             // Call our add new folder to add a brand new folder...
             _processService.AddNewFolder(folderObj);
 
+            // Let all our sessions know that our listings have been updated...
+            UpdateListings(id);
+
             // Return a sucessful response...
             return Json(new { Success = true });
         }
@@ -166,8 +197,13 @@ namespace Vault2.Controllers
 
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
+            }
             else
                 // Otherwise, return stating the operation failed!
                 return Json(new { Success = false, Reason = "Transaction error..." });
@@ -200,8 +236,13 @@ namespace Vault2.Controllers
 
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
+            }
             else
                 // Otherwise, return stating the operation failed!
                 return Json(new { Success = false, Reason = "Transaction error..." });
@@ -227,8 +268,13 @@ namespace Vault2.Controllers
 
             // If our update colour by was sucessful, then we're all good!
             if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
+            }
             else
                 // Otherwise, return stating the operation failed!
                 return Json(new { Success = false, Reason = "Transaction error..." });
@@ -260,6 +306,9 @@ namespace Vault2.Controllers
 
                 // Setup our new session value!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -310,7 +359,12 @@ namespace Vault2.Controllers
 
             // Move the actual folder...
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 return Json(new { Success = true });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -345,7 +399,12 @@ namespace Vault2.Controllers
 
             // Move the actual folder...
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 return Json(new { Success = true });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -373,7 +432,12 @@ namespace Vault2.Controllers
 
             // Move the actual folder...
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 return Json(new { Success = true });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -469,7 +533,12 @@ namespace Vault2.Controllers
 
             // Move the actual folder...
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
+
                 return Json(new { Success = true });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -687,6 +756,9 @@ namespace Vault2.Controllers
 
                 // Add the new file...
                 _processService.AddNewFile(fileObj);
+
+                // Tell our users to update their listings...
+                UpdateListings(userSession.Id);
 
                 // Respond with a successful message...
                 return Json(new { Success = true });

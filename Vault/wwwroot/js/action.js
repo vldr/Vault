@@ -1,6 +1,22 @@
 var fadeOutTimer;
 var rendered = 0;
 
+const connection = new signalR.HubConnectionBuilder().withUrl("/notifications").configureLogging(signalR.LogLevel.Information).build();
+
+connection.on("LoginResponse", (message) =>
+{
+    if (message.success)
+    {
+        window.location = "control";
+    }
+});
+connection.on("UpdateListing", () => { processListFiles(); });
+
+connection.start().catch(function (err)
+{
+    return console.error(err.toString());
+});
+
 function createCookie(name, value, expires, path, domain) {
 	var cookie = name + "=" + escape(value) + ";";
 
@@ -216,8 +232,6 @@ function processDelete(str) {
                         swal({ title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false });
                     else
                         swal("Error!", json.reason, "error");
-
-                    processListFiles();
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");
@@ -334,7 +348,7 @@ function processToggleSharing(id)
             {
                 var json = JSON.parse(xhr.responseText);
 
-                if (json.success)
+                if (!json.success)
                     processListFiles(true, 0, function () { processShareFile(id); });
                 else
                     swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
@@ -431,7 +445,7 @@ function processRenameFile(event)
 
                     if (json.success)
                     {
-                        processListFiles();
+                        //processListFiles();
                         swal.close();
                     }
                     else
@@ -481,7 +495,7 @@ function processRenameFolder(event)
                     var json = JSON.parse(xhr.responseText);
 
                     if (json.success) {
-                        processListFiles();
+                        //processListFiles();
                         swal.close();
                     }
                     else
@@ -527,7 +541,7 @@ function processDeleteFolder(event) {
                     else
                         swal("Error!", json.reason, "error");
 
-                    processListFiles();
+                    //processListFiles();
 
                 }
                 else {
@@ -620,8 +634,8 @@ function processFolderColour(id, colour) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (json.success) processListFiles();
-                else swal("Error!", json.reason, "error");
+                if (!json.success)/* processListFiles();
+                else*/ swal("Error!", json.reason, "error");
             }
             else {
                 swal("Error!", "Failed to connect!", "error");
@@ -643,7 +657,7 @@ function processSortBy(sortby) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (json.success) { processListFiles(); swal.close(); }
+                if (json.success) { /*processListFiles();*/ swal.close(); }
                 else swal("Error!", json.reason, "error");
             }
             else {
@@ -694,13 +708,23 @@ function processLogin(str, str2) {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
+            if (xhr.status === 200 && xhr.status < 300)
+            {
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success)
-                    window.location = "control";
-                else
-                    document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
+                {
+                    var cookieId = "";
+                    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+                    for (var i = 0; i < 25; i++)
+                        cookieId += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                    createCookie(".vault.socketid", cookieId, null, "/");
+
+                    connection.invoke("Login", cookieId, str, str2).catch(err => console.error(err.toString()));
+                }
+                else document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
             }
             else
             {
@@ -712,6 +736,7 @@ function processLogin(str, str2) {
     xhr.open('POST', '/manager/login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("email=" + str + "&password=" + str2);
+
 }
 
 function processMovingFileToFolder(str, str2)
@@ -730,7 +755,7 @@ function processMovingFileToFolder(str, str2)
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
 
-                processListFiles();
+                /*processListFiles();*/
             }
         }
     };
@@ -756,7 +781,7 @@ function processMovingFolderToFolder(str, str2)
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
 
-                processListFiles();
+                /*processListFiles();*/
             }
         }
     };
@@ -798,7 +823,7 @@ function processFolderCreate() {
                     else
                         swal("Error!", json.reason, "error");
 
-                    processListFiles();
+                    /*processListFiles();*/
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");
