@@ -108,14 +108,30 @@ namespace Vault2.Controllers
             // Get the id from the user's session...
             int id = userSession.Id;
 
+            // Get our folder!
+            User user = _loginService.GetUser(id);
+
             // Get the folder id from the user's session!
             int folderId = userSession.Folder;
 
             // Get our folder!
             Folder folder = _processService.GetFolder(id, folderId);
 
-            // Get our folder!
-            User user = _loginService.GetUser(id);
+            // Check if the folder even exists...
+            if (folder == null)
+            {
+                // Reset the folder id...
+                folderId = user.Folder;
+
+                // Reset our users position back to the homepage...
+                userSession.Folder = folderId;
+
+                // Setup our new session!
+                SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+
+                // Begin to render the correct folder...
+                folder = _processService.GetFolder(id, folderId);
+            }
 
             // Get the user's sortby requirement...
             int sortBy = userSession.SortBy;

@@ -1,7 +1,7 @@
 var fadeOutTimer;
 var rendered = 0;
 
-const connection = new signalR.HubConnectionBuilder().withUrl("/notifications").configureLogging(signalR.LogLevel.Information).build();
+const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifications").configureLogging(signalR.LogLevel.Information).build();
 
 connection.on("LoginResponse", (message) =>
 {
