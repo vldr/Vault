@@ -82,8 +82,8 @@ namespace Vault2.Objects
         /**
          * Gets a list of file listings with matching owners and folder id...
          */
-        public List<FileListing> GetFileListings(int ownerId, int folderId, int offset = 0)
-            => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId)
+        public List<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0)
+            => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
             .Select(x => new FileListing
             {
                 Id = x.Id,
@@ -239,22 +239,22 @@ namespace Vault2.Objects
         /**
          * Gives all the files inside a folder... (Sorted)
          */
-        public IEnumerable<File> GetFiles(int ownerId, int folderId, int sortBy = 0)
+        public IQueryable<File> SortFiles(IQueryable<File> query, int sortBy = 0)
         {
             switch (sortBy)
             {
                 // Size
                 case 1:
-                    return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Size);
+                    return query.OrderBy(b => b.Size);
                 // Name
                 case 2:
-                    return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Name);
+                    return query.OrderBy(b => b.Name);
                 // Id
                 case 3:
-                    return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Id);
+                    return query.OrderBy(b => b.Id);
                 // Extension
                 default:
-                    return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Ext);
+                    return query.OrderBy(b => b.Ext);
             }
         }
 

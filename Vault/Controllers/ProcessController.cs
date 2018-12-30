@@ -101,7 +101,7 @@ namespace Vault2.Controllers
                 Total = _processService.GetFileCount(id, folderId),
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Files = _processService.GetFileListings(id, folderId, offset.GetValueOrDefault())
+                Files = _processService.GetFileListings(id, folderId, sortBy, offset.GetValueOrDefault())
             };
 
             return Json(listing);
