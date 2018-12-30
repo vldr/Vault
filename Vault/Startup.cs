@@ -23,6 +23,7 @@ namespace Vault2
 
         public void ConfigureServices(IServiceCollection services)
         {
+            /*
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
 
             services.AddResponseCompression(options =>
@@ -30,6 +31,7 @@ namespace Vault2
                 options.Providers.Add<GzipCompressionProvider>();
                 options.EnableForHttps = true;
             });
+            */
 
             services.AddMvc();
             services.AddSingleton(Configuration);
@@ -55,7 +57,7 @@ namespace Vault2
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseResponseCompression();
+            //app.UseResponseCompression();
 
             app.UseSession();
             app.UseDefaultFiles();

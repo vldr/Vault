@@ -64,11 +64,15 @@ namespace Vault2.Controllers
          */
         [HttpPost]
         [Route("process/list")]
-        public IActionResult List()
+        public IActionResult List(int? offset)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
                 return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+
+            // Check if our folder name is null...
+            if (offset == null || (offset != null && offset.GetValueOrDefault() < 0))
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -94,9 +98,10 @@ namespace Vault2.Controllers
                 Success = true,
                 Previous = folder.FolderId,
                 IsHome = (user.Folder == folder.Id),
+                Total = _processService.GetFileCount(id, folderId),
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Files = _processService.GetFileListings(id, folderId)
+                Files = _processService.GetFileListings(id, folderId, offset.GetValueOrDefault())
             };
 
             return Json(listing);
@@ -501,7 +506,7 @@ namespace Vault2.Controllers
             SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
             // Return a successful response...
-            return List();
+            return List(0);
         }
 
         /**

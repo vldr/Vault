@@ -61,6 +61,12 @@ namespace Vault2.Objects
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId);
 
         /**
+        * Gets a list of folder listings with matching owners and folder id...
+        */
+        public int GetFileCount(int ownerId, int folderId)
+            => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Count();
+
+        /**
          * Gets a list of folder listings with matching owners and folder id...
          */
         public List<FolderListing> GetFolderListings(int ownerId, int folderId)
@@ -76,7 +82,7 @@ namespace Vault2.Objects
         /**
          * Gets a list of file listings with matching owners and folder id...
          */
-        public List<FileListing> GetFileListings(int ownerId, int folderId)
+        public List<FileListing> GetFileListings(int ownerId, int folderId, int offset = 0)
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId)
             .Select(x => new FileListing
             {
@@ -86,7 +92,7 @@ namespace Vault2.Objects
                 Action = GetFileAttribute(x.Id, x.Ext, AttributeTypes.FileAction),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
-            }).ToList();
+            }).Skip(offset).Take(100).ToList();
 
         /**
          * Gives all the files inside a folder...

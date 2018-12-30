@@ -66,8 +66,65 @@
     <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
     <script type="text/javascript" src="/manager/js/action.js"></script>
 
-    <script>processListFiles();</script>
     <script>
+        processListFiles();
+
+        new Dropzone(document.body,
+        {
+            paramName: "file",
+            maxFilesize: 30,
+            parallelUploads: 1,
+            url: "process/upload",
+            clickable: ".btnUpload",
+            previewsContainer: "#previewNoThanks",
+            processing: function (file) {
+                clearTimeout(fadeOutTimer);
+
+                document.getElementById("snack-bar-upload").style.display = "block";
+                document.getElementById("snack-bar-upload").style.animation = "fadein 0.4s";
+                document.getElementById("snack-bar-upload").style.opacity = "1";
+
+                document.getElementById("snack-bar-loader").style.display = "block";
+                document.getElementById("snack-bar-checkmark").style.display = "none";
+
+                document.getElementById("snack-bar-progress").style.borderColor = "#2c80ff";
+
+                document.getElementById("snack-bar-text").innerHTML = "Uploading " + file.name;
+            },
+            success: function (file, response) {
+                if (response === "0")
+                    swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
+            },
+            error: function (file, response) {
+                processListFiles();
+
+                swal("Error!", response, "error");
+            },
+            totaluploadprogress: function (totalProgress, totalBytes, totalBytesSent) {
+                document.getElementById("snack-bar-progress").style.width = `${totalProgress}%`;
+            },
+            queuecomplete: function () {
+                processListFiles();
+
+                fadeOutTimer = setTimeout(function () {
+                    document.getElementById("snack-bar-upload").style.animation = "fadeout 0.6s";
+                    document.getElementById("snack-bar-upload").style.opacity = "0";
+
+                    fadeOutTimer = setTimeout(function () {
+                        document.getElementById("snack-bar-upload").style.display = "none";
+                    }, 600);
+
+                }, 3000);
+            },
+            complete: function (file) {
+                document.getElementById("snack-bar-loader").style.display = "none";
+                document.getElementById("snack-bar-checkmark").style.display = "block";
+
+                document.getElementById("snack-bar-progress").style.borderColor = "#7ac142";
+                document.getElementById("snack-bar-text").innerHTML = `Uploaded ${this.getAcceptedFiles().length} file${this.getAcceptedFiles().length > 1 ? 's' : ''}...`;
+            }
+        });
+
         function showHelp()
         {
 		    var captionText = document.getElementById("captionTag");

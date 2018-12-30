@@ -1,69 +1,5 @@
 var fadeOutTimer;
-var fileListCount = 0;
-
-new Dropzone(document.body,
-{
-    paramName: "file",
-    maxFilesize: 30,
-    parallelUploads: 1,
-    url: "process/upload",
-    clickable: ".btnUpload",
-    previewsContainer: "#previewNoThanks",
-    processing: function (file)
-    {
-        clearTimeout(fadeOutTimer);
-
-        document.getElementById("snack-bar-upload").style.display = "block";
-        document.getElementById("snack-bar-upload").style.animation = "fadein 0.4s";
-        document.getElementById("snack-bar-upload").style.opacity = "1";
-            
-        document.getElementById("snack-bar-loader").style.display = "block";
-        document.getElementById("snack-bar-checkmark").style.display = "none";
-
-        document.getElementById("snack-bar-progress").style.borderColor = "#2c80ff";
-
-        document.getElementById("snack-bar-text").innerHTML = "Uploading " + file.name;
-    },
-    success: function (file, response)
-    {
-        if (response === "0")
-            swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
-    },
-    error: function (file, response)
-    {
-        processListFiles(true);
-
-        swal("Error!", response, "error");
-    },
-    totaluploadprogress: function (totalProgress, totalBytes, totalBytesSent)
-    {
-        document.getElementById("snack-bar-progress").style.width = `${totalProgress}%`;
-    },
-    queuecomplete: function ()
-    {
-        processListFiles(true);
-
-        fadeOutTimer = setTimeout(function ()
-        {
-            document.getElementById("snack-bar-upload").style.animation = "fadeout 0.6s";
-            document.getElementById("snack-bar-upload").style.opacity = "0";
-
-            fadeOutTimer = setTimeout(function ()
-            {
-                document.getElementById("snack-bar-upload").style.display = "none";
-            }, 600);
-
-        }, 3000);
-    },
-    complete: function (file)
-    {
-        document.getElementById("snack-bar-loader").style.display = "none";
-        document.getElementById("snack-bar-checkmark").style.display = "block";
-
-        document.getElementById("snack-bar-progress").style.borderColor = "#7ac142";
-        document.getElementById("snack-bar-text").innerHTML = `Uploaded ${this.getAcceptedFiles().length} file${this.getAcceptedFiles().length > 1 ? 's' : ''}...`;
-    }
-});
+var rendered = 0;
 
 function createCookie(name, value, expires, path, domain) {
 	var cookie = name + "=" + escape(value) + ";";
@@ -87,77 +23,13 @@ function createCookie(name, value, expires, path, domain) {
 	document.cookie = cookie;
 }
 
-function renderFiles(json, isSilent = false)
+function renderFiles(json)
 {
     var elem = document.getElementById('myfiles');
-
-    elem.innerHTML = "";
-    document.getElementById("folder-path").innerHTML = json.path;
-
-    if (!json.isHome) {
-        elem.insertAdjacentHTML("beforeend",
-            `<div class="gridItem" data-folder-id="${json.previous}"
-                         ondrop="drop(event)"
-                         onclick="processMove(event)"
-                         style="background-color: rgba(255, 255, 255, 0.27);border: 2px solid rgba(255, 246, 182, 0);">
-
-                        <div data-folder-id="${json.previous}"
-                             ondragstart="dragStart(event)"
-                             draggable="true" class="grid-icon"
-                             style="background-image: url('/manager/images/folder-icon.png');">
-
-                            <br /><br /><br /><br />
-                            ...
-                            <br>
-                        </div>
-                    </div>`);
-    }
-
-    for (i in json.folders) {
-        var folder = json.folders[i];
+    for (i in json.files) {
+        var file = json.files[i];
 
         elem.insertAdjacentHTML("beforeend",
-            `<div class='gridItem ${folder.style}'
-                             data-folder-id='${folder.id}'
-                             data-folder-title='${folder.name}'
-                             ondragend='dragEnd(event)'
-                             ondragstart='dragStart(event)'
-                             ondrop='drop(event)'
-                             onclick='processMove(event)'
-                             oncontextmenu="contextMenuFolder(event)"
-                             draggable='true'>
-
-                            <div data-folder-id="${folder.id}"
-                                 ondragstart="dragStart(event)"
-                                 draggable="true" class="grid-icon"
-                                 style="background-image: url('${folder.icon}');">
-
-                                <br /><br /><br /><br />
-                                ${folder.name.substring(0, 10)}
-                                <br>
-
-                                <a data-folder-id="${folder.id}" data-delete="1" class="x-button" onclick="processDeleteFolder(event);">
-                                    <img data-folder-id="${folder.id}" data-delete="1"
-                                         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
-                                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
-                                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
-                                </a>
-                            </div>
-                        </div>`);
-    }
-
-    var renderFiles = function (files, offset = 0)
-    {
-        for (var i = offset; i < files.length; i++)
-        {
-            var file = files[i];
-
-            if (i === (offset + 100))
-            {
-                return i;
-            }
-
-            elem.insertAdjacentHTML("beforeend",
             `<div class='gridItem'
                 data-file-id='${file.id}'
                 data-file-title='${file.name}'
@@ -190,26 +62,76 @@ function renderFiles(json, isSilent = false)
                 </a>
             </div>
             </div>`);
-        }
+    }
 
-        return files.length;
-    };
-
-    fileListCount = renderFiles(json.files);
-
-    window.onscroll = function (ev, count)
-    {
-        if ( (window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)
-             && fileListCount < json.files.length )
-        {
-            fileListCount = renderFiles(json.files, fileListCount);
-        }
-    };
-
-    if (!isSilent) elem.classList.add("launch");
+    rendered += json.files.length;
 }
 
-function processListFiles(isSilent = false, callback)
+function renderListings(json, isSilent = false)
+{
+    var elem = document.getElementById('myfiles');
+
+    elem.innerHTML = "";
+    document.getElementById("folder-path").innerHTML = json.path;
+
+    if (!json.isHome)
+    {
+        elem.insertAdjacentHTML("beforeend",
+            `<div class="gridItem" data-folder-id="${json.previous}"
+                         ondrop="drop(event)"
+                         onclick="processMove(event)"
+                         style="background-color: rgba(255, 255, 255, 0.27);border: 2px solid rgba(255, 246, 182, 0);">
+
+                        <div data-folder-id="${json.previous}"
+                             ondragstart="dragStart(event)"
+                             draggable="true" class="grid-icon"
+                             style="background-image: url('/manager/images/folder-icon.png');">
+
+                            <br /><br /><br /><br />
+                            ...
+                            <br>
+                        </div>
+                    </div>`);
+    }
+
+    for (i in json.folders)
+    {
+        var folder = json.folders[i];
+
+        elem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem ${folder.style}'
+                             data-folder-id='${folder.id}'
+                             data-folder-title='${folder.name}'
+                             ondragend='dragEnd(event)'
+                             ondragstart='dragStart(event)'
+                             ondrop='drop(event)'
+                             onclick='processMove(event)'
+                             oncontextmenu="contextMenuFolder(event)"
+                             draggable='true'>
+
+                            <div data-folder-id="${folder.id}"
+                                 ondragstart="dragStart(event)"
+                                 draggable="true" class="grid-icon"
+                                 style="background-image: url('${folder.icon}');">
+
+                                <br /><br /><br /><br />
+                                ${folder.name.substring(0, 10)}
+                                <br>
+
+                                <a data-folder-id="${folder.id}" data-delete="1" class="x-button" onclick="processDeleteFolder(event);">
+                                    <img data-folder-id="${folder.id}" data-delete="1"
+                                         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
+                                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
+                                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
+                                </a>
+                            </div>
+                        </div>`);
+    }
+
+    renderFiles(json);
+}
+
+function processListFiles(reset = true, offset = 0, callback)
 {
     var xmlhttp = new XMLHttpRequest();
     var loadingTimer;
@@ -229,19 +151,43 @@ function processListFiles(isSilent = false, callback)
             if (xmlhttp.status === 200 && xmlhttp.status < 300)
             {
                 clearTimeout(loadingTimer);
-                
+
                 var json = JSON.parse(xmlhttp.responseText);
 
-                renderFiles(json);
+                if (!json.success) {
+                    swal("Error!", json.reason, "error");
+                    return;
+                }
+
+                if (reset)
+                {
+                    rendered = 0;
+                    renderListings(json);
+                }
+                else renderFiles(json);
+
+                if ((json.total - rendered) > 0)
+                {
+                    window.onscroll = function (ev) {
+                        if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
+                            processListFiles(false, rendered);
+                            window.onscroll = null;
+                        }
+                    };
+                }
 
                 if (callback !== undefined)
                     callback();
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
             }
         }
     };
 		
     xmlhttp.open("POST", "process/list", true);
-	xmlhttp.send();
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("offset=" + offset);
 }
 
 function processDelete(str) {
@@ -271,7 +217,7 @@ function processDelete(str) {
                     else
                         swal("Error!", json.reason, "error");
 
-                    processListFiles(true);
+                    processListFiles();
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");
@@ -389,7 +335,7 @@ function processToggleSharing(id)
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success)
-                    processListFiles(true, function () { processShareFile(id); });
+                    processListFiles(true, 0, function () { processShareFile(id); });
                 else
                     swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
             }
@@ -485,7 +431,7 @@ function processRenameFile(event)
 
                     if (json.success)
                     {
-                        processListFiles(true);
+                        processListFiles();
                         swal.close();
                     }
                     else
@@ -527,19 +473,15 @@ function processRenameFolder(event)
 
         var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function ()
-        {
-            if (xhr.readyState === 4)
-            {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-                if (xhr.status === 200 && xhr.status < 300)
-                {
+                if (xhr.status === 200 && xhr.status < 300) {
                     var json = JSON.parse(xhr.responseText);
 
-                    if (json.success)
-                    {
-                        processListFiles(true);
+                    if (json.success) {
+                        processListFiles();
                         swal.close();
                     }
                     else
@@ -549,7 +491,7 @@ function processRenameFolder(event)
                     swal("Error!", "Failed to connect!", "error");
                 }
             }
-        }
+        };
 
         xhr.open('POST', '/manager/process/renamefolder');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -585,7 +527,7 @@ function processDeleteFolder(event) {
                     else
                         swal("Error!", json.reason, "error");
 
-                    processListFiles(true);
+                    processListFiles();
 
                 }
                 else {
@@ -678,7 +620,7 @@ function processFolderColour(id, colour) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (json.success) processListFiles(true);
+                if (json.success) processListFiles();
                 else swal("Error!", json.reason, "error");
             }
             else {
@@ -701,7 +643,7 @@ function processSortBy(sortby) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (json.success) { processListFiles(true); swal.close(); }
+                if (json.success) { processListFiles(); swal.close(); }
                 else swal("Error!", json.reason, "error");
             }
             else {
@@ -788,7 +730,7 @@ function processMovingFileToFolder(str, str2)
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
 
-                processListFiles(true);
+                processListFiles();
             }
         }
     };
@@ -814,7 +756,7 @@ function processMovingFolderToFolder(str, str2)
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
 
-                processListFiles(true);
+                processListFiles();
             }
         }
     };
@@ -856,7 +798,7 @@ function processFolderCreate() {
                     else
                         swal("Error!", json.reason, "error");
 
-                    processListFiles(true);
+                    processListFiles();
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");
@@ -876,7 +818,6 @@ function processMove(event)
         return;
 
 	var str = event.target.getAttribute('data-folder-id');
-
     var xhr = new XMLHttpRequest();
 	
     xhr.onreadystatechange = function() {
@@ -885,9 +826,23 @@ function processMove(event)
             {
                 var json = JSON.parse(xhr.responseText);
 
-                if (!json.success) swal("Error!", json.reason, "error");
+                if (!json.success)
+                {
+                    swal("Error!", json.reason, "error");
+                    return;
+                }
 
-                renderFiles(json);
+                rendered = 0;
+                renderListings(json);
+
+                if ((json.total - rendered) > 0) {
+                    window.onscroll = function (ev) {
+                        if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
+                            processListFiles(false, rendered);
+                            window.onscroll = null;
+                        }
+                    };
+                }
             }
             else
             {
