@@ -3,13 +3,6 @@ var rendered = 0;
 
 const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifications").configureLogging(signalR.LogLevel.Information).build();
 
-connection.on("LoginResponse", (message) =>
-{
-    if (message.success)
-    {
-        window.location = "control";
-    }
-});
 connection.on("UpdateListing", () => { processListFiles(); });
 
 connection.start().catch(function (err)
@@ -65,6 +58,7 @@ function renderFiles(json)
 
             <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
             <p class="grid-file-text" data-file-id="${file.id}">${file.name}</p>
+            <p class="grid-text-right" data-file-id="${file.id}">${file.date} (${file.size})</p>
             </div>`);
     }
 
@@ -117,7 +111,7 @@ function renderListings(json, isSilent = false)
                 <div class="grid-icon" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
                 style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                <p class="grid-text" data-folder-id="${folder.id}">${folder.name}</p>
+                <p class="grid-text" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
             </div>`);
     }
 
@@ -136,7 +130,10 @@ function processListFiles(reset = true, offset = 0, callback)
         {
             if (xmlhttp.readyState < 4)
             {
-                //document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
+                document.getElementById("file-listing").style.display = "none";
+                document.getElementById("folder-listing").innerHTML = `<center>
+                        <img src="/manager/images/ui/loading.gif" style="border-radius: 20px;">
+                    </center>`;
             }
         }, 200);
 
@@ -150,6 +147,17 @@ function processListFiles(reset = true, offset = 0, callback)
 
                 if (!json.success) {
                     swal("Error!", json.reason, "error");
+                    return;
+                }
+
+                if (json.isHome && json.total === 0 && json.folders.length === 0)
+                {
+                    document.getElementById("file-listing").innerHTML = "";
+                    document.getElementById("file-listing").style.display = "none";
+                    document.getElementById("folder-listing").innerHTML = `<center>
+                        <img style="max-width:100%;max-height:100%;" src="/manager/images/ui/wind.png" />
+                    </center>`;
+
                     return;
                 }
 

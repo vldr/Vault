@@ -32,8 +32,14 @@
             </form>
         </div>
     </center>
+    <script type="text/javascript" src="/manager/js/signalr.min.js"></script>
+    <script type="text/javascript" src="/manager/js/action.js"></script>
+    <script>
+        connection.on("LoginResponse", (message) => {
+            if (message.success) {
+                window.location = "control";
+            }
+        });
+    </script>
 </body>
-<script type="text/javascript" src="/manager/js/signalr.min.js"></script>
-<script type="text/javascript" src="/manager/js/action.js"></script>
-
 </html>

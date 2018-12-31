@@ -138,12 +138,6 @@ namespace Vault.Controllers
                 folder = _processService.GetFolder(id, folderId);
             }
 
-            // Get the user's sortby requirement...
-            int sortBy = userSession.SortBy;
-
-            // Get our file listings...
-            var fileListings = _processService.GetFileListings(id, folderId, sortBy, offset.GetValueOrDefault());
-
             // Setup a new listing...
             Listing listing = new Listing()
             {
@@ -152,8 +146,8 @@ namespace Vault.Controllers
                 IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Total = fileListings.Count,
-                Files = fileListings
+                Total = _processService.GetFileCount(id, folderId),
+                Files = _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault())
             };
 
             return Json(listing);
@@ -690,7 +684,7 @@ namespace Vault.Controllers
                 //////////////////////////////////////////////////////////////////
 
                 // Get the file's extension...
-                string fileExtension = Path.GetExtension(fileName);
+                string fileExtension = Path.GetExtension(fileName).ToLower();
 
                 // Check if our file is a PNG, JPEG, or JPG....
                 if (fileExtension == ".png" || fileExtension == ".jpeg" || fileExtension == ".jpg")
@@ -713,6 +707,7 @@ namespace Vault.Controllers
                     Size = size,
                     Name = System.Net.WebUtility.HtmlEncode(fileName),
                     Ext = fileExtension,
+                    Created = DateTime.Now,
                     Folder = folderId,
                     Path = filePath
                 };

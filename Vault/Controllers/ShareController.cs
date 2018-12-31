@@ -55,6 +55,7 @@ namespace Vault.Controllers
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
+            ViewBag.FileSize = _processService.GetBytesReadable(file.Size); 
 
             // Return our view!
             return View();

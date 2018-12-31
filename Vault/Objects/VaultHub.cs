@@ -60,6 +60,9 @@ namespace Vault.Objects
         /// <returns></returns>
         public override Task OnConnectedAsync()
         {
+            // Call our original function...
+            var originalTask = base.OnConnectedAsync();
+
             // Check if our cookie exists...
             if (Context.GetHttpContext().Request.Cookies.ContainsKey(".vault.socketid"))
             {
@@ -71,11 +74,14 @@ namespace Vault.Objects
                 {
                     // If so, then setup a brand new connection id...
                     Connections[key].ConnectionId = Context.ConnectionId;
+
+                    // Return a successful response...
+                    return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
                 }
             }
 
-            // Call our original function...
-            return base.OnConnectedAsync();
+            // Return our original task...
+            return originalTask;
         }
 
         /// <summary>

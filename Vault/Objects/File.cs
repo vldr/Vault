@@ -17,6 +17,8 @@ namespace Vault.Objects
 
         public long Size { get; set; }
 
+        public DateTime Created { get; set; }
+
         public string Hash { get; set; }
 
         public string Path { get; set; }
@@ -36,7 +38,5 @@ namespace Vault.Objects
         public string ShareId { get; set; }
 
         public string ShareKey { get; set; }
-
-        public DateTime ShareDate { get; set; }
     }
 }
