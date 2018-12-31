@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Builder;
 
 namespace Vault.Controllers
 {
@@ -78,6 +79,39 @@ namespace Vault.Controllers
 
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+
+                // Setup function to generate random string...
+                Func<int, string> randomString = count =>
+                {
+                    string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    var stringChars = new char[count];
+                    var random = new Random();
+
+                    for (int i = 0; i < stringChars.Length; i++)
+                    {
+                        stringChars[i] = chars[random.Next(chars.Length)];
+                    }
+
+                    return new string(stringChars);
+                };
+
+
+                // Setup our sync cookie value...
+                var syncValue = randomString(55);
+
+                // Setup a brand new cookie...
+                Response.Cookies.Append(
+                    _configuration["SyncCookieName"],
+                    syncValue,
+                    new Microsoft.AspNetCore.Http.CookieOptions()
+                    {
+                        Path = "/",
+                        Expires = DateTime.Now + _configuration.Get<SessionOptions>().IdleTimeout
+                    }
+                );
+
+                // Set our cookie as an entry in connections...
+                VaultHub.Connections.TryAdd(syncValue, new UserInformation() { Id = user.Id, ConnectionId = string.Empty });
 
                 // Return a successful response...
                 return Json(new { Success = true });

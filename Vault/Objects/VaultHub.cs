@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,7 +12,13 @@ namespace Vault.Objects
     public class VaultHub : Hub
     {
         // Instance of our login service...
-        private LoginService _loginService;
+        private readonly LoginService _loginService;
+
+        // Instance of our configuration...
+        private readonly IConfiguration _configuration;
+        
+        // Instance of our configuration...
+        private readonly string _syncCookieName;
 
         // Instance of our dictionary...
         public static ConcurrentDictionary<string, UserInformation> Connections = new ConcurrentDictionary<string, UserInformation>();
@@ -20,38 +27,12 @@ namespace Vault.Objects
         /// Constructor...
         /// </summary>
         /// <param name="loginService"></param>
-        public VaultHub(LoginService loginService)
+        public VaultHub(LoginService loginService, IConfiguration configuration)
         {
             _loginService = loginService;
-        }
+            _configuration = configuration;
 
-        /// <summary>
-        /// Login
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        public Task Login(string id, string username, string password)
-        {
-            // Check if all the parameters were given...
-            if (username == null || password == null || id == null)
-                return Clients.Caller.SendAsync("LoginResponse", new { Success = false, Reason = "You must supply all required parameters..." });
-
-            // Attempt to find the user and login...
-            User user = _loginService.Login(username, password);
-
-            // Check if we logged in sucessfully...
-            if (user != null)
-            {
-                // Add our user to the session...
-                Connections.TryAdd(id, new UserInformation() { Id = user.Id, ConnectionId = Context.ConnectionId });
-
-                // Return a successful response...
-                return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
-            }
-            else
-                // Return an error response...
-                return Clients.Caller.SendAsync("LoginResponse", new { Success = false, Reason = "The username or password is invalid..." });
+            _syncCookieName = _configuration["SyncCookieName"];
         }
 
         /// <summary>
@@ -64,10 +45,10 @@ namespace Vault.Objects
             var originalTask = base.OnConnectedAsync();
 
             // Check if our cookie exists...
-            if (Context.GetHttpContext().Request.Cookies.ContainsKey(".vault.socketid"))
+            if (Context.GetHttpContext().Request.Cookies.ContainsKey(_syncCookieName))
             {
                 // Get our value of the cookie...
-                string key = Context.GetHttpContext().Request.Cookies[".vault.socketid"];
+                string key = Context.GetHttpContext().Request.Cookies[_syncCookieName];
 
                 // Check if our cookie exists in the connections...
                 if (Connections.ContainsKey(key))
@@ -76,7 +57,7 @@ namespace Vault.Objects
                     Connections[key].ConnectionId = Context.ConnectionId;
 
                     // Return a successful response...
-                    //return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
+                    return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
                 }
             }
 
@@ -104,10 +85,12 @@ namespace Vault.Objects
         }
     }
 
+    /// <summary>
+    /// A class which holds basic user information in our signalr...
+    /// </summary>
     public class UserInformation
     {
         public int Id { get; set; }
         public string ConnectionId { get; set; }
     }
-
 }

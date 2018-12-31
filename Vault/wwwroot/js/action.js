@@ -628,8 +628,7 @@ function processFolderColour(id, colour) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (!json.success)/* processListFiles();
-                else*/ swal("Error!", json.reason, "error");
+                if (!json.success) swal("Error!", json.reason, "error");
             }
             else {
                 swal("Error!", "Failed to connect!", "error");
@@ -651,7 +650,7 @@ function processSortBy(sortby) {
             if (xhr.status === 200 && xhr.status < 300)
             {
                 var json = JSON.parse(xhr.responseText);
-                if (json.success) { /*processListFiles();*/ swal.close(); }
+                if (json.success) { swal.close(); }
                 else swal("Error!", json.reason, "error");
             }
             else {
@@ -706,18 +705,7 @@ function processLogin(str, str2) {
             {
                 var json = JSON.parse(xhr.responseText);
 
-                if (json.success)
-                {
-                    var cookieId = "";
-                    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-                    for (var i = 0; i < 25; i++)
-                        cookieId += possible.charAt(Math.floor(Math.random() * possible.length));
-
-                    createCookie(".vault.socketid", cookieId, null, "/");
-
-                    connection.invoke("Login", cookieId, str, str2).catch(err => console.error(err.toString()));
-                }
+                if (json.success) window.location = "control";
                 else document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
             }
             else
@@ -748,8 +736,6 @@ function processMovingFileToFolder(str, str2)
             if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
-
-                /*processListFiles();*/
             }
         }
     };
@@ -774,8 +760,6 @@ function processMovingFolderToFolder(str, str2)
             if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
-
-                /*processListFiles();*/
             }
         }
     };
@@ -816,8 +800,6 @@ function processFolderCreate() {
                         swal.close();
                     else
                         swal("Error!", json.reason, "error");
-
-                    /*processListFiles();*/
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");
