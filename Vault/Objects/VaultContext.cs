@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace Vault2.Objects
+namespace Vault.Objects
 {
     public class VaultContext : DbContext
     {

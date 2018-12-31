@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ImageMagick;
+using Ionic.Zip;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Vault.Objects;
 
-namespace Vault2.Objects
+namespace Vault.Objects
 {
     public class ProcessService
     {
@@ -255,6 +257,148 @@ namespace Vault2.Objects
                 // Extension
                 default:
                     return query.OrderBy(b => b.Ext);
+            }
+        }
+
+        /**
+         * Generates thumbnails to be used to display images
+         */
+        public void GenerateThumbnails(string path)
+        {
+            // Setup a magick image and see if this file is an image!
+            var magickImage = new MagickImage(path);
+
+            ///////////////////////////////////////////////
+
+            try
+            {
+                // Constant variables to help us figure out what is going on!
+                const int NONE = 0;
+                const int HORIZONTAL = 1;
+                const int VERTICAL = 2;
+                int[][] OPERATIONS = new int[][] {
+                        new int[] {  0, NONE},
+                        new int[] {  0, HORIZONTAL},
+                        new int[] {180, NONE},
+                        new int[] {  0, VERTICAL},
+                        new int[] { 90, HORIZONTAL},
+                        new int[] { 90, NONE},
+                        new int[] {-90, HORIZONTAL},
+                        new int[] {-90, NONE},
+                    };
+
+                // Get our files attribute!
+                string exifAttribute = magickImage.GetAttribute("EXIF:Orientation");
+
+                // Get the index from the attribute EXIF:Orientation...
+                if (exifAttribute != null)
+                {
+                    int index = int.Parse(exifAttribute) - 1;
+
+                    // Translate that into degrees!
+                    int degrees = OPERATIONS[index][0];
+
+                    // If the degrees exist then actually rotate the image!
+                    if (degrees != 0)
+                    {
+                        magickImage.Rotate(degrees);
+                    }
+
+                    // Figure out if we need to flip or flop the image!
+                    switch (OPERATIONS[index][1])
+                    {
+                        case HORIZONTAL:
+                            magickImage.Flop();
+                            break;
+                        case VERTICAL:
+                            magickImage.Flip();
+                            break;
+                    }
+
+                }
+            }
+            catch { }
+
+            ///////////////////////////////////////////////
+
+            // Full path to the file image thumbnail...
+            string filePathPreview = $"{path}.preview";
+
+            // Strip all the metadata...
+            magickImage.Strip();
+
+            // Set the quality to around 50%...
+            magickImage.Quality = 50;
+
+            // Set our format to be a jpeg for that amazing compression...
+            magickImage.Format = MagickFormat.Jpeg;
+
+            // Write the file!
+            magickImage.Write(filePathPreview);
+
+            ///////////////////////////////////////////////
+
+            // Full path to the file image thumbnail...
+            string filePathThumbnail = $"{path}.thumb";
+
+            // Use MagickImage to resize it!
+            magickImage.Resize(32, 32);
+
+            // Strip all the metadata...
+            magickImage.Strip();
+
+            // Set to the lowest quality possible...
+            magickImage.Quality = 25;
+
+            // Write the file!
+            magickImage.Write(filePathThumbnail);
+        }
+
+        /**
+         * Uses recursion to zip files!
+         */
+        public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
+        {
+            // Get our folder!
+            var folder = GetFolder(userId, folderId);
+
+            // Get our files!
+            var files = GetFilesList(userId, folderId);
+
+            // For every file compress it! 
+            foreach (var file in files)
+            {
+                // If the file doesn't exist, continue...
+                if (!System.IO.File.Exists(file.Path))
+                    continue;
+
+                // Setup our folder location.
+                string folderLocation = GetFolderLocation(folder, limit);
+
+                // Setup our entry name...
+                string entryName = $"{folderLocation}{file.Name}";
+
+                // Loop until we've found an entry that doesn't exist!
+                for (int count = 1; zip.ContainsEntry(entryName);)
+                    // Setup entry name to include count!
+                    entryName = $"{folderLocation}({count++}){file.Name}";
+
+                // Set the file name as the next entry...
+                zip.PutNextEntry(entryName);
+
+                // Setup a filestream and stream contents to the zip stream!
+                using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
+                    await stream.CopyToAsync(zip);
+            }
+
+            // Get all the folders inside our folder!
+            var folders = GetFoldersList(userId, folderId);
+
+            // Iterate throughout all our folders!
+            foreach (var folderItem in folders)
+            {
+                // Zip those files up!
+                await ZipFiles(folderItem.Id, userId, zip, limit);
             }
         }
 

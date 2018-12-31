@@ -41,8 +41,13 @@ function createCookie(name, value, expires, path, domain) {
 
 function renderFiles(json)
 {
-    var elem = document.getElementById('myfiles');
-    for (i in json.files) {
+    var elem = document.getElementById('file-listing');
+
+    if (json.files.length > 0)
+        elem.style.display = "block";
+
+    for (i in json.files)
+    {
         var file = json.files[i];
 
         elem.insertAdjacentHTML("beforeend",
@@ -58,25 +63,8 @@ function renderFiles(json)
                 onclick='${file.action}'
                 draggable='true'>
 
-            <div class="grid-icon"
-                    data-file-id="${file.id}"
-                    ondragstart="dragStart(event)"
-                    draggable="true"
-                    style="background-image: url('${file.icon}');margin-bottom:10px;">
-
-                <br /><br /><br /><br />
-
-                ${file.name.substring(0, 10)}
-
-                <br>
-
-                <a data-file-id="${file.id}" data-delete="1" class="x-button" onclick="processDelete(${file.id});">
-                    <img data-file-id="${file.id}" data-delete="1"
-                            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
-                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
-                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
-                </a>
-            </div>
+            <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
+            <p class="grid-file-text" data-file-id="${file.id}">${file.name}</p>
             </div>`);
     }
 
@@ -85,64 +73,54 @@ function renderFiles(json)
 
 function renderListings(json, isSilent = false)
 {
-    var elem = document.getElementById('myfiles');
+    var folderListingElem = document.getElementById('folder-listing');
+    var fileListingElem = document.getElementById('file-listing');
 
-    elem.innerHTML = "";
+    folderListingElem.innerHTML = "";
+    fileListingElem.innerHTML = "";
+    fileListingElem.style.display = "none";
+
     document.getElementById("folder-path").innerHTML = json.path;
 
     if (!json.isHome)
     {
-        elem.insertAdjacentHTML("beforeend",
-            `<div class="gridItem" data-folder-id="${json.previous}"
-                         ondrop="drop(event)"
-                         onclick="processMove(event)"
-                         style="background-color: rgba(255, 255, 255, 0.27);border: 2px solid rgba(255, 246, 182, 0);">
+        folderListingElem.insertAdjacentHTML("beforeend",
+            `<div class="gridItem-folder" data-folder-id="${json.previous}"
+                ondrop="drop(event)"
+                onclick="processMove(event)"
+                style="background-color: rgba(255, 255, 255, 0.27);">
 
-                        <div data-folder-id="${json.previous}"
-                             ondragstart="dragStart(event)"
-                             draggable="true" class="grid-icon"
-                             style="background-image: url('/manager/images/folder-icon.png');">
+            <div class="grid-icon" data-folder-id="${json.previous}"
+                    ondragstart="dragStart(event)" draggable="true" 
+                    style="background-image: url('/manager/images/folder-icon.png'); background-size: 24px;">
+            </div>
 
-                            <br /><br /><br /><br />
-                            ...
-                            <br>
-                        </div>
-                    </div>`);
+            <p class="grid-text" data-folder-id="${json.previous}">...</p>
+        </div>`);
     }
 
     for (i in json.folders)
     {
         var folder = json.folders[i];
 
-        elem.insertAdjacentHTML("beforeend",
-            `<div class='gridItem ${folder.style}'
-                             data-folder-id='${folder.id}'
-                             data-folder-title='${folder.name}'
-                             ondragend='dragEnd(event)'
-                             ondragstart='dragStart(event)'
-                             ondrop='drop(event)'
-                             onclick='processMove(event)'
-                             oncontextmenu="contextMenuFolder(event)"
-                             draggable='true'>
+        folderListingElem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem-folder ${folder.style}'
+                data-folder-id='${folder.id}'
+                data-folder-title='${folder.name}'
+                ondragend='dragEnd(event)'
+                ondragstart='dragStart(event)'
+                ondrop='drop(event)'
+                onclick='processMove(event)'
+                oncontextmenu="contextMenuFolder(event)"
+                draggable='true'>
 
-                            <div data-folder-id="${folder.id}"
-                                 ondragstart="dragStart(event)"
-                                 draggable="true" class="grid-icon"
-                                 style="background-image: url('${folder.icon}');">
+                <div class="grid-icon" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
+                style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                                <br /><br /><br /><br />
-                                ${folder.name.substring(0, 10)}
-                                <br>
-
-                                <a data-folder-id="${folder.id}" data-delete="1" class="x-button" onclick="processDeleteFolder(event);">
-                                    <img data-folder-id="${folder.id}" data-delete="1"
-                                         src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAiElEQVR42r2RsQrDMAxEBRdl8S
-                                        DcX8lQPGg1GBI6lvz/h7QyRRXV0qUULwfvwZ1tenw5PxToRPWMC52eA9+WDnlh3HFQ/xBQl86NFYJqeGflkiogrOvVlIFhqURFVho
-                                        3x1moGAa3deMs+LS30CAhBN5nNxeT5hbJ1zwmji2k+aF6NENIPf/hs54f0sZFUVAMigAAAABJRU5ErkJggg==" />
-                                </a>
-                            </div>
-                        </div>`);
+                <p class="grid-text" data-folder-id="${folder.id}">${folder.name}</p>
+            </div>`);
     }
+
 
     renderFiles(json);
 }
@@ -158,7 +136,7 @@ function processListFiles(reset = true, offset = 0, callback)
         {
             if (xmlhttp.readyState < 4)
             {
-                document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
+                //document.getElementById("myfiles").innerHTML = `<br><br><br><br><center><img src="/manager/images/ui/loading.gif" style="border-radius: 20px;"></center>`;
             }
         }, 200);
 
@@ -348,7 +326,7 @@ function processToggleSharing(id)
             {
                 var json = JSON.parse(xhr.responseText);
 
-                if (!json.success)
+                if (json.success)
                     processListFiles(true, 0, function () { processShareFile(id); });
                 else
                     swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });

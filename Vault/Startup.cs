@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Vault2.Objects;
-using Microsoft.Net.Http.Headers;
+using Vault.Objects;
 using System;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
-using Vault.Objects;
 
 namespace Vault2
 {
@@ -46,7 +43,7 @@ namespace Vault2
 
             services.AddSignalR();
 
-            services.AddDbContext<Objects.VaultContext>(options => 
+            services.AddDbContext<Vault.Objects.VaultContext>(options => 
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
         } 
@@ -66,7 +63,7 @@ namespace Vault2
             {
                 OnPrepareResponse = ctx =>
                 {
-                    ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
+                    //ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
                 }
             });
 

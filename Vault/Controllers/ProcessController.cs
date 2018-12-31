@@ -1,43 +1,42 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
-using Vault2.Objects;
+using Vault.Objects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using System.IO;
-using Vault.Objects;
-using ImageMagick;
-using System.IO.Compression;
 using Ionic.Zip;
 using System.Text;
 using Microsoft.AspNetCore.SignalR;
-using System.Collections.Concurrent;
 
-namespace Vault2.Controllers
+namespace Vault.Controllers
 {
     public class ProcessController : Controller
     {
         // Save our little session tag...
-        private string _sessionName;
-        private string _storageLocation;
-        private string _relativeDirectory;
+        private readonly string _sessionName;
+        private readonly string _storageLocation;
+        private readonly string _relativeDirectory;
 
         // Instance of our process service...
-        private ProcessService _processService;
+        private readonly ProcessService _processService;
 
         // Instance of our login service...
-        private LoginService _loginService;
+        private readonly LoginService _loginService;
 
         // Instance of our configuration...
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
 
         // Instance of our hub...
-        private IHubContext<VaultHub> _hubContext;
+        private readonly IHubContext<VaultHub> _hubContext;
 
-        /**
-         * Contructor
-         */
+        /// <summary>
+        /// Contructor
+        /// </summary>
+        /// <param name="processService"></param>
+        /// <param name="loginService"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
         public ProcessController(ProcessService processService, 
             LoginService loginService,
             IConfiguration configuration, 
@@ -54,24 +53,29 @@ namespace Vault2.Controllers
         }
 
         /// <summary>
-        /// Updates the listings for all our user sessions...
+        /// A function which will return a not logged in json response...
         /// </summary>
-        /// <param name="userId"></param>
-        private void UpdateListings(int userId)
+        /// <returns>Json response...</returns>
+        private JsonResult NotLoggedIn()
         {
-            // Let all our connections know of what happened...
-            foreach (var item in VaultHub.Connections)
-            {
-                // If our user id matches then we've found the right client...
-                if (item.Value.Id == userId)
-                {
-                    // Send a message to the client telling him to update their listings...
-                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
-                }
-            }
-
+            // Return a simple not logged in json response...
+            return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
         }
 
+        /// <summary>
+        /// A function which will return a missing parameters json response...
+        /// </summary>
+        /// <returns>Json response...</returns>
+        private JsonResult MissingParameters()
+        {
+            // Return a simple missing parameters json response...
+            return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+        }
+
+        /// <summary>
+        /// Handles when a user wants to log out...
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("process/logout")]
         public IActionResult Logout()
@@ -86,21 +90,22 @@ namespace Vault2.Controllers
             return Redirect(_relativeDirectory);
         }
 
-        /**
-         * List
-         * Gets the homepage list of items...
-         */
+        /// <summary>
+        /// Gets the homepage list of items...
+        /// </summary>
+        /// <param name="offset"></param>
+        /// <returns>Json formatted response...</returns>
         [HttpPost]
         [Route("process/list")]
         public IActionResult List(int? offset)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check if our folder name is null...
             if (offset == null || (offset != null && offset.GetValueOrDefault() < 0))
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -136,35 +141,40 @@ namespace Vault2.Controllers
             // Get the user's sortby requirement...
             int sortBy = userSession.SortBy;
 
+            // Get our file listings...
+            var fileListings = _processService.GetFileListings(id, folderId, sortBy, offset.GetValueOrDefault());
+
             // Setup a new listing...
             Listing listing = new Listing()
             {
                 Success = true,
                 Previous = folder.FolderId,
-                IsHome = (user.Folder == folder.Id),
-                Total = _processService.GetFileCount(id, folderId),
+                IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Files = _processService.GetFileListings(id, folderId, sortBy, offset.GetValueOrDefault())
+                Total = fileListings.Count,
+                Files = fileListings
             };
 
             return Json(listing);
         }
 
-        /**
-         * Creates a new folder...
-         */ 
+        /// <summary>
+        /// Creates a new folder...
+        /// </summary>
+        /// <param name="folderName"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/newfolder")]
         public IActionResult NewFolder(string folderName)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check if our folder name is null...
             if (folderName == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -187,26 +197,29 @@ namespace Vault2.Controllers
             _processService.AddNewFolder(folderObj);
 
             // Let all our sessions know that our listings have been updated...
-            UpdateListings(id);
+            VaultHub.UpdateListings(_hubContext, id);
 
             // Return a sucessful response...
             return Json(new { Success = true });
         }
 
-        /**
-         * Set the name of our file!
-         */
+        /// <summary>
+        /// Set the name of our file!
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/renamefile")]
         public IActionResult RenameFile(int? fileId, string newName)
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls and limits!
             if (fileId == null || newName == null || newName.Length == 0)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -215,7 +228,7 @@ namespace Vault2.Controllers
             if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -225,20 +238,23 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Set the name of our folder!
-         */
+        /// <summary>
+        /// Set the name of our folder!
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/renamefolder")]
         public IActionResult RenameFolder(int? folderId, string newName)
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls and limits!
             if (folderId == null || newName == null || newName.Length == 0)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -254,7 +270,7 @@ namespace Vault2.Controllers
             if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -264,20 +280,23 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Set the colour of our folder!
-         */
+        /// <summary>
+        /// Set the colour of our folder!
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <param name="colour"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/setcolour")]
         public IActionResult SetFolderColour(int? folderId, int? colour)
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls and limits!
             if (folderId == null || colour == null || colour < 0 || colour > 10)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -286,7 +305,7 @@ namespace Vault2.Controllers
             if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -296,20 +315,22 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Sort our stuff!
-         */
+        /// <summary>
+        /// Sort our file listings!
+        /// </summary>
+        /// <param name="sortBy"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/sortby")]
         public IActionResult SortBy(int? sortBy)
         {
             // Check if we're logged in!
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls and limits!
             if (sortBy == null || sortBy < 0 || sortBy > 10)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -324,7 +345,7 @@ namespace Vault2.Controllers
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -334,20 +355,23 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Move a folder...
-         */
+        /// <summary>
+        /// Move a folder...
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/movefolder")]
         public IActionResult MoveFolder(int? from, int? to)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (from == null || to == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -377,7 +401,7 @@ namespace Vault2.Controllers
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -385,20 +409,22 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Delete a folder...
-         */
+        /// <summary>
+        /// Delete a folder...
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/deletefolder")]
         public IActionResult DeleteFolder(int? folder)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (folder == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -417,28 +443,30 @@ namespace Vault2.Controllers
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 return Json(new { Success = true });
             }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
-        
-        /**
-         * Delete a file...
-         */
+
+        /// <summary>
+        /// Delete a file...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/deletefile")]
         public IActionResult DeleteFile(int? file)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (file == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -450,7 +478,7 @@ namespace Vault2.Controllers
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -458,20 +486,23 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Change password!
-         */
+        /// <summary>
+        /// Change password!
+        /// </summary>
+        /// <param name="currentPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/changepassword")]
         public IActionResult ChangePassword(string currentPassword, string newPassword)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (currentPassword == null || newPassword == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -483,20 +514,23 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Toggle the share of a file!
-         */
+        /// <summary>
+        /// Toggle the sharing of a file!
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="option"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/toggleshare")]
         public IActionResult ToggleShare(int? fileId, int? option)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (fileId == null || option == null || option < 0 || option > 1)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -512,20 +546,23 @@ namespace Vault2.Controllers
         }
 
 
-        /**
-         * Move a file...
-         */
+        /// <summary>
+        /// Move a file...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("process/movefile")]
         public IActionResult MoveFile(int? file, int? folder)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check for nulls...
             if (file == null || folder == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -551,7 +588,7 @@ namespace Vault2.Controllers
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -559,20 +596,22 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
-        /**
-         * Goes to a folder, doesn't matter if it's visible or not...
-         */
+        /// <summary>
+        /// Goes to a folder, doesn't matter if it's visible or not...
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         [HttpPost] 
         [Route("process/goto")]
         public IActionResult GotoFolder(int? folderId)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
-                return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                return NotLoggedIn();
 
             // Check if our input is null...
             if (folderId == null)
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -594,103 +633,11 @@ namespace Vault2.Controllers
             return List(0);
         }
 
-        /**
-         * Generates thumbnails to be used to display images
-         */
-        private void GenerateThumbnails(string path)
-        {
-            // Setup a magick image and see if this file is an image!
-            var magickImage = new MagickImage(path);
-
-            ///////////////////////////////////////////////
-
-            try
-            {
-                // Constant variables to help us figure out what is going on!
-                const int NONE = 0;
-                const int HORIZONTAL = 1;
-                const int VERTICAL = 2;
-                int[][] OPERATIONS = new int[][] {
-                        new int[] {  0, NONE},
-                        new int[] {  0, HORIZONTAL},
-                        new int[] {180, NONE},
-                        new int[] {  0, VERTICAL},
-                        new int[] { 90, HORIZONTAL},
-                        new int[] { 90, NONE},
-                        new int[] {-90, HORIZONTAL},
-                        new int[] {-90, NONE},
-                    };
-
-                // Get our files attribute!
-                string exifAttribute = magickImage.GetAttribute("EXIF:Orientation");
-
-                // Get the index from the attribute EXIF:Orientation...
-                if (exifAttribute != null)
-                {
-                    int index = int.Parse(exifAttribute) - 1;
-
-                    // Translate that into degrees!
-                    int degrees = OPERATIONS[index][0];
-
-                    // If the degrees exist then actually rotate the image!
-                    if (degrees != 0)
-                    {
-                        magickImage.Rotate(degrees);
-                    }
-
-                    // Figure out if we need to flip or flop the image!
-                    switch (OPERATIONS[index][1])
-                    {
-                        case HORIZONTAL:
-                            magickImage.Flop();
-                            break;
-                        case VERTICAL:
-                            magickImage.Flip();
-                            break;
-                    }
-
-                }
-            }
-            catch { }
-            
-            ///////////////////////////////////////////////
-
-            // Full path to the file image thumbnail...
-            string filePathPreview = $"{path}.preview";
-
-            // Strip all the metadata...
-            magickImage.Strip();
-
-            // Set the quality to around 50%...
-            magickImage.Quality = 50;
-
-            // Set our format to be a jpeg for that amazing compression...
-            magickImage.Format = MagickFormat.Jpeg;
-
-            // Write the file!
-            magickImage.Write(filePathPreview);
-
-            ///////////////////////////////////////////////
-
-            // Full path to the file image thumbnail...
-            string filePathThumbnail = $"{path}.thumb";
-
-            // Use MagickImage to resize it!
-            magickImage.Resize(32, 32);
-
-            // Strip all the metadata...
-            magickImage.Strip();
-
-            // Set to the lowest quality possible...
-            magickImage.Quality = 25;
-
-            // Write the file!
-            magickImage.Write(filePathThumbnail);   
-        }
-
-        /**
-         * Upload Files
-         */
+        /// <summary>
+        /// Upload Files
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost("UploadFiles")]
         [Route("process/upload")]
         public async Task<IActionResult> Upload(IFormFile file)
@@ -699,7 +646,7 @@ namespace Vault2.Controllers
             {
                 // Check if we're logged in...
                 if (!IsLoggedIn())
-                    return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+                    return NotLoggedIn();
 
                 // Store our file size...
                 long size = file.Length;
@@ -748,7 +695,7 @@ namespace Vault2.Controllers
                 // Check if our file is a PNG, JPEG, or JPG....
                 if (fileExtension == ".png" || fileExtension == ".jpeg" || fileExtension == ".jpg")
                     // Call our generate thumbnail which will generate a thumbnails...
-                    GenerateThumbnails(filePath);
+                    _processService.GenerateThumbnails(filePath);
 
                 // Get our user's session, it is safe to do so because we've checked if we're logged in!
                 UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -774,7 +721,7 @@ namespace Vault2.Controllers
                 _processService.AddNewFile(fileObj);
 
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                VaultHub.UpdateListings(_hubContext, userSession.Id);
 
                 // Respond with a successful message...
                 return Json(new { Success = true });
@@ -786,82 +733,11 @@ namespace Vault2.Controllers
             }
         }
 
-        /**
-         * Displays the share page for a shared file...
-         */
-        [HttpGet]
-        [Route("share/{shareId}")]
-        public IActionResult Share(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null)
-                return Redirect(_relativeDirectory);
-
-            // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null)
-                return Redirect(_relativeDirectory);
-
-            // Setup our shared file variable in our viewbag!
-            ViewBag.File = file;
-
-            // Return our view!
-            return View();
-        }
-
-        /**
-         * Uses recursion to zip files!
-         */
-        private async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
-        {
-            // Get our folder!
-            var folder = _processService.GetFolder(userId, folderId);
-
-            // Get our files!
-            var files = _processService.GetFilesList(userId, folderId);
-
-            // For every file compress it! 
-            foreach (var file in files)
-            {
-                // If the file doesn't exist, continue...
-                if (!System.IO.File.Exists(file.Path))
-                    continue;
-                 
-                // Setup our folder location.
-                string folderLocation = _processService.GetFolderLocation(folder, limit);
-
-                // Setup our entry name...
-                string entryName = $"{folderLocation}{file.Name}";
-
-                // Loop until we've found an entry that doesn't exist!
-                for (int count = 1; zip.ContainsEntry(entryName);)
-                    // Setup entry name to include count!
-                    entryName = $"{folderLocation}({count++}){file.Name}";
-
-                // Set the file name as the next entry...
-                zip.PutNextEntry(entryName);
-
-                // Setup a filestream and stream contents to the zip stream!
-                using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
-                    await stream.CopyToAsync(zip);
-            }
-
-            // Get all the folders inside our folder!
-            var folders = _processService.GetFoldersList(userId, folderId);
-
-            // Iterate throughout all our folders!
-            foreach (var folderItem in folders)
-            {
-                // Zip those files up!
-                await ZipFiles(folderItem.Id, userId, zip, limit);
-            }
-        }
-
-        /**
-         * Downloads a folder given an id...
-         */
+        /// <summary>
+        /// Downloads a folder given an id...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("process/download/folder/{id}")]
         public async Task<IActionResult> DownloadFolder(int? id)
@@ -905,16 +781,18 @@ namespace Vault2.Controllers
             // Setup our zip stream to point to our response body!
             using (var zip = new ZipOutputStream(Response.Body))
             {
-                await ZipFiles(folderId, userId, zip, folder.FolderId);
+                await _processService.ZipFiles(folderId, userId, zip, folder.FolderId);
             }
 
             // Return an empty result.
             return new EmptyResult();
         }
 
-        /**
-         * Downloads the thumbnail for the file!
-         */
+        /// <summary>
+        /// Downloads the thumbnail for the file!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("process/thumbnail/{id}")]
         public IActionResult Thumbnail(int? id)
@@ -953,46 +831,11 @@ namespace Vault2.Controllers
             return File(new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "image/*", file.Name);
         }
 
-        /**
-         * Downloads the shared file...
-         */
-        [HttpPost]
-        [Route("share/{shareId}")]
-        public IActionResult DownloadSharedFile(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null)
-                return StatusCode(500);
-
-            // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null)
-                return StatusCode(500);
-
-            // Setup our file's path as a variable...
-            string filePath = file.Path;
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath))
-                return StatusCode(500);
-
-            // Check if we were given a x-preview header and that the preview file exists!
-            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
-                // If so, then append .preview to the file path...
-                filePath += ".preview";
-
-            // Increment our file hits so we can know how many times the file was downloaded!
-            _processService.IncrementFileHit(file);
-
-            // Return an empty result.
-            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
-        }
-
-        /**
-         * Downloads a file given an id...
-         */
+        /// <summary>
+        /// Downloads a file given an id...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("process/download/{id}")]
         public IActionResult Download(int? id)
@@ -1037,10 +880,10 @@ namespace Vault2.Controllers
             return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
         }
 
-
-        /**
-         * Check if we're logged in...
-         */
+        /// <summary>
+        /// Check if we're logged in...
+        /// </summary>
+        /// <returns></returns>
         public bool IsLoggedIn()
         {
             // Get our user's session!

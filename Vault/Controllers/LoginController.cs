@@ -2,33 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vault2.Objects;
+using Vault.Objects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Features;
-using Vault.Objects;
 
-namespace Vault2.Controllers
+namespace Vault.Controllers
 {
     public class LoginController : Controller
     {
         // Save our little session tag...
-        private string _sessionName;
-        private string _relativeDirectory;
+        private readonly string _sessionName;
+        private readonly string _relativeDirectory;
 
         // Instance of our login service...
-        private LoginService _loginService;
+        private readonly LoginService _loginService;
 
         // Instance of our process service...
-        private ProcessService _processService;
+        private readonly ProcessService _processService;
 
         // Instance of our configuration...
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
 
-        /**
-         * Contructor
-         */
+        /// <summary>
+        /// Contructor
+        /// </summary>
+        /// <param name="loginService"></param>
+        /// <param name="processService"></param>
+        /// <param name="configuration"></param>
         public LoginController(LoginService loginService, ProcessService processService, IConfiguration configuration)
         {
             _loginService = loginService;
@@ -39,7 +41,12 @@ namespace Vault2.Controllers
             _relativeDirectory = configuration["RelativeDirectory"];
         }
 
-        // Called when someone logs in to the website...
+        /// <summary>
+        /// Called when someone logs in to the website...
+        /// </summary>
+        /// <param name="Email"></param>
+        /// <param name="Password"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("login")]
         public IActionResult LoginPost(string Email, string Password)
@@ -80,7 +87,14 @@ namespace Vault2.Controllers
                 return Json(new { Success = false, Reason = "The username or password is invalid..." });
         }
 
-        // Called when someone registers on the website...
+        /// <summary>
+        /// Called when someone registers on the website...
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="password"></param>
+        /// <param name="name"></param>
+        /// <param name="invite"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("register")]
         public IActionResult RegisterPost(string email, string password, string name, string invite)
@@ -126,10 +140,10 @@ namespace Vault2.Controllers
             }
         }
 
-        /*
-         * Control
-         * Our main page...
-         */
+        /// <summary>
+        /// Our main page...
+        /// </summary>
+        /// <returns></returns>
         [Route("control")]
         public IActionResult Control()
         {
@@ -146,9 +160,10 @@ namespace Vault2.Controllers
             return View();
         }
 
-        /**
-         * Check if we're logged in...
-         */
+        /// <summary>
+        /// Check if we're logged in...
+        /// </summary>
+        /// <returns></returns>
         public bool IsLoggedIn()
         {
             // Get our user's session!

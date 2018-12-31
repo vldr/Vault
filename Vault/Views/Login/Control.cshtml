@@ -2,7 +2,7 @@
     Layout = null;
 }
 
-@model Vault2.Controllers.LoginController
+@model Vault.Controllers.LoginController
 
 <!DOCTYPE html>
 <html>
@@ -33,7 +33,15 @@
         <div class="folder-path" id="folder-path"></div>
 
         <div id="myfiles" class="dropzone-previews " action="Process/upload"
-             method="post" enctype="multipart/form-data" class="dropzone" id="dropzone"></div>
+             method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
+            <div id="folder-listing">
+
+            </div>
+
+            <div id="file-listing">
+
+            </div>
+        </div>
         <br>
     </div>
 

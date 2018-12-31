@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vault2.Objects;
+using Vault.Objects;
 
 namespace Vault.Objects
 {
@@ -76,6 +76,25 @@ namespace Vault.Objects
 
             // Call our original function...
             return base.OnConnectedAsync();
+        }
+
+        /// <summary>
+        /// Updates the listings for all our user sessions...
+        /// </summary>
+        /// <param name="userId"></param>
+        public static void UpdateListings(IHubContext<VaultHub> hubContext, int userId)
+        {
+            // Let all our connections know of what happened...
+            foreach (var item in VaultHub.Connections)
+            {
+                // If our user id matches then we've found the right client...
+                if (item.Value.Id == userId)
+                {
+                    // Send a message to the client telling him to update their listings...
+                    hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
+                }
+            }
+
         }
     }
 
