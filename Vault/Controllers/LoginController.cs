@@ -156,6 +156,9 @@ namespace Vault.Controllers
             // Save our user to the view bag...
             ViewBag.User = _loginService.GetUser(userSession.Id);
 
+            // Setup our boolean for if nightmode is enabled or not...
+            ViewBag.NightMode = Request.Cookies.ContainsKey(".vault.nightmode");
+
             // Return our control view...
             return View();
         }

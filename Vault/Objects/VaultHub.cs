@@ -76,7 +76,7 @@ namespace Vault.Objects
                     Connections[key].ConnectionId = Context.ConnectionId;
 
                     // Return a successful response...
-                    return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
+                    //return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
                 }
             }
 

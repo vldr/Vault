@@ -96,7 +96,7 @@ namespace Vault.Objects
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
-            }).Skip(offset).Take(100).ToList();
+            }).Skip(offset).Take(50).ToList();
 
         /**
          * Gives all the files inside a folder...

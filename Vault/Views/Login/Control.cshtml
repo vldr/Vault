@@ -12,13 +12,24 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" type="text/css" href="/manager/css/usercp.css">
-    <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
-    <link rel="stylesheet" type="text/css" href="/manager/css/dialog.css">
+    @if (ViewBag.NightMode)
+    {
+        <link rel="stylesheet" type="text/css" href="/manager/css/dark-usercp.css">
+        <link rel="stylesheet" type="text/css" href="/manager/css/dark-sweetalert.css">
+        <link rel="stylesheet" type="text/css" href="/manager/css/dark-dialog.css">
+    }
+    else
+    {
+        <link rel="stylesheet" type="text/css" href="/manager/css/usercp.css">
+        <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
+        <link rel="stylesheet" type="text/css" href="/manager/css/dialog.css">
+    }
 </head>
+   
 
-<body onclick="resetContextMenu()" onresize="resetContextMenu()">
-    <div class="content">
+   <body onclick="resetContextMenu()" onresize="resetContextMenu()">
+   
+       <div class="content">
         <div class="topbar">
             <span class="logo">
                 <img src="/manager/images/ui/logo.svg" />
@@ -184,6 +195,10 @@
             <hr style="margin-bottom: 30px;">
             <p>You can update your password from here...</p>
 		    <a onclick="processChangePassword()" style="cursor:pointer;" class="btn">Change Password</a>
+
+            <hr style="margin-bottom: 30px;">
+            <p>You can set to display Vault in dark mode...</p>
+		    <a onclick="enableDarkMode()" style="cursor:pointer;" class="btn">Toggle Darkmode</a>
             </div>`;
 	    }
 

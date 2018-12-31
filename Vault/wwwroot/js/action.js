@@ -32,6 +32,14 @@ function createCookie(name, value, expires, path, domain) {
 	document.cookie = cookie;
 }
 
+function enableDarkMode()
+{
+    if (document.cookie.indexOf(".vault.nightmode") !== -1) document.cookie = ".vault.nightmode=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    else createCookie(".vault.nightmode", "1");
+
+    document.location.reload(true);
+}
+
 function renderFiles(json)
 {
     var elem = document.getElementById('file-listing');
