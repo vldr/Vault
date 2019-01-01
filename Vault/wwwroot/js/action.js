@@ -854,12 +854,9 @@ function viewImageShared(id)
 {
     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function ()
-    {
-        if (xhr.readyState === 4)
-        {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
                 window.URL = window.URL || window.webkitURL;
 
                 var blob = new Blob([xhr.response], { type: "octet/stream" });
@@ -868,12 +865,11 @@ function viewImageShared(id)
 
                 shareBox.innerHTML = `<img src="${blobObj}" class="image-preview" />`;
             }
-            else
-            {
+            else {
                 swal("Error!", "Failed to connect!", "error");
             }
         }
-    }
+    };
 
     xhr.open('POST', `/manager/share/${id}`);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -936,14 +932,14 @@ function viewImage(event)
 	document.getElementById("progressbar").value = 0;	
 	
 	var started_at = new Date();
-	xhr.onprogress = function(evt) {
+    xhr.onprogress = function (evt) {
         if (evt.lengthComputable) {
-			var percentComplete = (evt.loaded / evt.total) * 100;  
-			if (percentComplete !== 0){
-				document.getElementById("progressbar").value = percentComplete;		
-			}
-		} 
-	}
+            var percentComplete = (evt.loaded / evt.total) * 100;
+            if (percentComplete !== 0) {
+                document.getElementById("progressbar").value = percentComplete;
+            }
+        }
+    };
 	
     xhr.open('GET', "/manager/process/download/" + event.target.getAttribute('data-file-id'));
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
