@@ -8,6 +8,7 @@ using System.IO;
 using Ionic.Zip;
 using System.Text;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Builder;
 
 namespace Vault.Controllers
 {
@@ -17,6 +18,7 @@ namespace Vault.Controllers
         private readonly string _sessionName;
         private readonly string _storageLocation;
         private readonly string _relativeDirectory;
+        private readonly string _syncCookieName;
 
         // Instance of our process service...
         private readonly ProcessService _processService;
@@ -50,6 +52,7 @@ namespace Vault.Controllers
             _sessionName = configuration["SessionTagId"];
             _storageLocation = configuration["VaultStorageLocation"];
             _relativeDirectory = configuration["RelativeDirectory"];
+            _syncCookieName = _configuration["SyncCookieName"];
         }
 
         /// <summary>
@@ -73,6 +76,43 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Keeps the session id alive...
+        /// </summary>
+        private void KeepAlive()
+        {
+            // Get our value of the cookie...
+            string key = Request.Cookies[_syncCookieName];
+
+            // Check if the key doesn't equal null...
+            if (key != null && VaultHub.Connections.ContainsKey(key))
+            {
+                // Setup our brand new expiry
+                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
+            }
+        }
+
+        /// <summary>
+        /// Updates the listings for all our user sessions...
+        /// </summary>
+        /// <param name="userId"></param>
+        private void UpdateListings(int userId)
+        {
+            // Let all our connections know of what happened...
+            foreach (var item in VaultHub.Connections)
+            {
+                // If our user id matches then we've found the right client...
+                if (item.Value.Expiry > DateTime.Now && item.Value.Id == userId)
+                {
+                    // Send a message to the client telling them to update their listings...
+                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
+                }
+            }
+
+            // Keep our session alive...
+            KeepAlive();
+        }
+
+        /// <summary>
         /// Handles when a user wants to log out...
         /// </summary>
         /// <returns></returns>
@@ -85,6 +125,19 @@ namespace Vault.Controllers
 
             // Clear out all our sessions...
             HttpContext.Session.Clear();
+
+            // Get our value of the cookie...
+            string key = Request.Cookies[_syncCookieName];
+
+            // Check if the key doesn't equal null...
+            if (key != null && VaultHub.Connections.ContainsKey(key))
+            {
+                // Setup our empty user information... (let this get out of scope so GC cleans it up...)
+                UserInformation userInformation = null;
+
+                // Attempt to remove it...
+                VaultHub.Connections.TryRemove(key, out userInformation);
+            }
 
             // Redirect out of there...
             return Redirect(_relativeDirectory);
@@ -137,6 +190,9 @@ namespace Vault.Controllers
                 // Begin to render the correct folder...
                 folder = _processService.GetFolder(id, folderId);
             }
+
+            // Keep our connection alive...
+            KeepAlive();
 
             // Setup a new listing...
             Listing listing = new Listing()
@@ -191,7 +247,7 @@ namespace Vault.Controllers
             _processService.AddNewFolder(folderObj);
 
             // Let all our sessions know that our listings have been updated...
-            VaultHub.UpdateListings(_hubContext, id);
+            UpdateListings(id);
 
             // Return a sucessful response...
             return Json(new { Success = true });
@@ -222,7 +278,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -264,7 +320,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -299,7 +355,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -339,7 +395,7 @@ namespace Vault.Controllers
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -395,7 +451,7 @@ namespace Vault.Controllers
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -437,7 +493,7 @@ namespace Vault.Controllers
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -472,7 +528,7 @@ namespace Vault.Controllers
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -503,7 +559,13 @@ namespace Vault.Controllers
 
             // Update our user's password!
             if (_processService.UpdatePassword(userSession.Id, currentPassword, newPassword))
+            {
+                // Keep our connection alive...
+                KeepAlive();
+
+
                 return Json(new { Success = true });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -582,7 +644,7 @@ namespace Vault.Controllers
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 return Json(new { Success = true });
             }
@@ -716,7 +778,7 @@ namespace Vault.Controllers
                 _processService.AddNewFile(fileObj);
 
                 // Tell our users to update their listings...
-                VaultHub.UpdateListings(_hubContext, userSession.Id);
+                UpdateListings(userSession.Id);
 
                 // Respond with a successful message...
                 return Json(new { Success = true });

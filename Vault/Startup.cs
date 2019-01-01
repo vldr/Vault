@@ -22,7 +22,6 @@ namespace Vault2
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
-
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<GzipCompressionProvider>();
@@ -37,12 +36,11 @@ namespace Vault2
 
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30);
+                options.IdleTimeout = TimeSpan.FromMinutes(double.Parse(Configuration["SessionExpiry"]));
                 options.Cookie.Name = ".vault";
             });
 
             services.AddSignalR();
-
             services.AddDbContext<Vault.Objects.VaultContext>(options => 
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );

@@ -138,10 +138,7 @@ function processListFiles(reset = true, offset = 0, callback)
         {
             if (xmlhttp.readyState < 4)
             {
-                document.getElementById("file-listing").style.display = "none";
-                document.getElementById("folder-listing").innerHTML = `<center>
-                        <img src="/manager/images/ui/loading.gif" style="border-radius: 20px;">
-                    </center>`;
+                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
             }
         }, 200);
 

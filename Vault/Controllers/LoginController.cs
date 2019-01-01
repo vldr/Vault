@@ -105,13 +105,17 @@ namespace Vault.Controllers
                     syncValue,
                     new Microsoft.AspNetCore.Http.CookieOptions()
                     {
-                        Path = "/",
-                        Expires = DateTime.Now + _configuration.Get<SessionOptions>().IdleTimeout
+                        Path = "/"
                     }
                 );
 
                 // Set our cookie as an entry in connections...
-                VaultHub.Connections.TryAdd(syncValue, new UserInformation() { Id = user.Id, ConnectionId = string.Empty });
+                VaultHub.Connections.TryAdd(syncValue, new UserInformation()
+                {
+                    Id = user.Id,
+                    ConnectionId = string.Empty,
+                    Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]))
+                });
 
                 // Return a successful response...
                 return Json(new { Success = true });

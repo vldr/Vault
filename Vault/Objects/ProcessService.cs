@@ -107,10 +107,9 @@ namespace Vault.Objects
         /**
          * Gives all the files inside a folder using a List...
          */
-        public List<File> GetFilesList(int ownerId, int folderId)
-        {
-            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).ToList();
-        }
+        public List<File> GetFilesList(int ownerId, int folderId) 
+            => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).ToList();
+
 
         /**
          * Gets a folders unique attribute depending on its colour...
@@ -416,6 +415,7 @@ namespace Vault.Objects
          */
         public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
         {
+         
             // Get our folder!
             var folder = GetFolder(userId, folderId);
 

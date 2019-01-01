@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Concurrent;
@@ -53,35 +54,29 @@ namespace Vault.Objects
                 // Check if our cookie exists in the connections...
                 if (Connections.ContainsKey(key))
                 {
-                    // If so, then setup a brand new connection id...
-                    Connections[key].ConnectionId = Context.ConnectionId;
+                    // Check if our session has expired...
+                    if (Connections[key].Expiry < DateTime.Now)
+                    {
+                        // Setup our empty user information... (let this get out of scope so GC cleans it up...)
+                        UserInformation userInformation = null;
 
-                    // Return a successful response...
-                    return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
+                        // Attempt to remove it...
+                        Connections.TryRemove(key, out userInformation);
+                    }
+                    else
+                    // If it is expired, then go ahead and remove it...
+                    {
+                        // If so, then setup a brand new connection id...
+                        Connections[key].ConnectionId = Context.ConnectionId;
+
+                        // Return a successful response...
+                        return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
+                    }
                 }
             }
 
             // Return our original task...
             return originalTask;
-        }
-
-        /// <summary>
-        /// Updates the listings for all our user sessions...
-        /// </summary>
-        /// <param name="userId"></param>
-        public static void UpdateListings(IHubContext<VaultHub> hubContext, int userId)
-        {
-            // Let all our connections know of what happened...
-            foreach (var item in VaultHub.Connections)
-            {
-                // If our user id matches then we've found the right client...
-                if (item.Value.Id == userId)
-                {
-                    // Send a message to the client telling him to update their listings...
-                    hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
-                }
-            }
-
         }
     }
 
@@ -92,5 +87,6 @@ namespace Vault.Objects
     {
         public int Id { get; set; }
         public string ConnectionId { get; set; }
+        public DateTimeOffset Expiry { get; set; }
     }
 }
