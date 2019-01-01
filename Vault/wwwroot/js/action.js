@@ -130,23 +130,14 @@ function renderListings(json, isSilent = false)
 function processListFiles(reset = true, offset = 0, callback)
 {
     var xmlhttp = new XMLHttpRequest();
-    var loadingTimer;
 
     xmlhttp.onreadystatechange = function ()
     {
-        loadingTimer = setTimeout(function ()
-        {
-            if (xmlhttp.readyState < 4)
-            {
-                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-            }
-        }, 200);
-
         if (xmlhttp.readyState === 4)
         {
             if (xmlhttp.status === 200 && xmlhttp.status < 300)
             {
-                clearTimeout(loadingTimer);
+                document.getElementById("loader-horizontal").style.display = "none";
 
                 var json = JSON.parse(xmlhttp.responseText);
 
@@ -189,6 +180,10 @@ function processListFiles(reset = true, offset = 0, callback)
             else {
                 swal("Error!", "Failed to connect!", "error");
             }
+        }
+        else if (xmlhttp.readyState < 4)
+        {
+            document.getElementById("loader-horizontal").style.display = "block";
         }
     };
 		
@@ -817,15 +812,13 @@ function processMove(event)
 
 	var str = event.target.getAttribute('data-folder-id');
     var xhr = new XMLHttpRequest();
-	
-    xhr.onreadystatechange = function() {
+
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
-                if (!json.success)
-                {
+                if (!json.success) {
                     swal("Error!", json.reason, "error");
                     return;
                 }
@@ -842,12 +835,14 @@ function processMove(event)
                     };
                 }
             }
-            else
-            {
-				swal("Error!", "Failed to connect!", "error");
-			}
-        } 
-    }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xmlhttp.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
 
     xhr.open('POST', '/manager/process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");

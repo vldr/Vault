@@ -1267,3 +1267,34 @@ p {
         box-shadow: inset 0px 0px 0px 30px #7ac142;
     }
 }
+
+#loader-horizontal {
+    height: 4px;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+    z-index: 10;
+    display: none;
+    background-color: transparent;
+}
+
+#loader-horizontal:before {
+    display: block;
+    position: absolute;
+    content: "";
+    left: -500px;
+    width: 30%;
+    height: 4px;
+    background-color: #737373;
+    animation: loading 1s linear infinite;
+}
+
+@keyframes loading {
+    from {
+        left: -600px;
+    }
+
+    to {
+        left: 100%;
+    }
+}

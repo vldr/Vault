@@ -1,62 +1,62 @@
 .sweet-overlay {
-      background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0,0,0,0.1)), color-stop(100%, rgba(20,20,20,0.5)));
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(0%, rgba(0,0,0,0.1)), color-stop(100%, rgba(20,20,20,0.5)));
     background: -webkit-radial-gradient(center, ellipse cover, rgba(0,0,0,0.1) 0%, rgba(20,20,20,0.5) 100%);
     background: -o-radial-gradient(center, ellipse cover, rgba(0,0,0,0.1) 0%, rgba(20,20,20,0.5) 100%);
     background: -ms-radial-gradient(center, ellipse cover, rgba(0,0,0,0.1) 0%, rgba(20,20,20,0.5) 100%);
     background: radial-gradient(ellipse at center, rgba(0,0,0,0.1) 0%, rgba(20,20,20,0.5) 100%);
-  outline: 0;
+    outline: 0;
   
-  }
+}
 
 .sweet-alert {
-  background-color: #fff;
-      padding-top: 45px;
+    background-color: #fff;
+    padding-top: 45px;
     border: none;
     -moz-box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
     -webkit-box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
     -ms-box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14),0 9px 46px 8px rgba(0,0,0,0.12),0 11px 15px -7px rgba(0,0,0,0.2);
     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
 }
-  .sweet-alert h2 {
-    top: 0;
-    left: 0;
-    right: 0;
-    height: auto;
-    font-weight: 400;
-    color: #212121;
-    margin: 20px 0;
-    font-size: 2.2em;
-    line-height: 0.8;
-    text-align: center;
-    padding: 10px 19px; }
-  .sweet-alert p {
-    color: #797979;
-    font-size: 16px;
-    /* text-align: center; */
-    font-weight: 300;
-    position: relative;
-    text-align: center;
-    /* text-align: inherit; */
-    float: none;
-    margin: 0;
-    padding-left: 8px;
-    line-height: normal; }
-  .sweet-alert button {
-        border-radius: 2px;
-    /* box-shadow: none !important; */
-    margin-bottom: 25px;
-    background: none !important;
+.sweet-alert h2 {
+top: 0;
+left: 0;
+right: 0;
+height: auto;
+font-weight: 400;
+color: #212121;
+margin: 20px 0;
+font-size: 2.2em;
+line-height: 0.8;
+text-align: center;
+padding: 10px 19px; }
+.sweet-alert p {
+color: #797979;
+font-size: 16px;
+/* text-align: center; */
+font-weight: 300;
+position: relative;
+text-align: center;
+/* text-align: inherit; */
+float: none;
+margin: 0;
+padding-left: 8px;
+line-height: normal; }
+.sweet-alert button {
     border-radius: 2px;
-    /* text-transform: uppercase; */
-    font-size: 14px;
-    font-weight: 600;
-    /* padding: 15px; */
-    position: relative;
-    margin-top: 0;
-    -webkit-transition: background-color 0.5s;
-    transition: background-color 0.5s;
+/* box-shadow: none !important; */
+margin-bottom: 25px;
+background: none !important;
+border-radius: 2px;
+/* text-transform: uppercase; */
+font-size: 14px;
+font-weight: 600;
+/* padding: 15px; */
+position: relative;
+margin-top: 0;
+-webkit-transition: background-color 0.5s;
+transition: background-color 0.5s;
 	
-	}
+}
     .sweet-alert button:hover, .sweet-alert button:focus {
       background-color: #f6f6f6 !important; }
     .sweet-alert button.confirm {

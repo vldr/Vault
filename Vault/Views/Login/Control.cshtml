@@ -28,9 +28,9 @@
 </head>
    
 
-   <body onclick="resetContextMenu()" onresize="resetContextMenu()">
-   
-       <div class="content">
+<body onclick="resetContextMenu()" onresize="resetContextMenu()">
+    <div id="loader-horizontal"></div>
+    <div class="content">
         <div class="topbar">
             <span class="logo">
                 <img src="/manager/images/ui/logo.svg" />
@@ -45,7 +45,7 @@
         <div class="folder-path" id="folder-path"></div>
 
         <div id="myfiles" class="dropzone-previews " action="Process/upload"
-             method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
+                method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
             <div id="folder-listing">
 
             </div>
