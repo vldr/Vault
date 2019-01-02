@@ -571,6 +571,35 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Toggle the api system of a user!
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="option"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/toggleapi")]
+        public IActionResult ToggleAPI()
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Setup an empty api key to be filled in later...
+            string apiKey = string.Empty;
+
+            // Update our user's api ability!   
+            if (_processService.ToggleAPI(userSession.Id, out apiKey))
+            {
+                return Json(new { Success = true, Response = apiKey});
+            }
+            else
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
+
+        /// <summary>
         /// Toggle the sharing of a file!
         /// </summary>
         /// <param name="fileId"></param>

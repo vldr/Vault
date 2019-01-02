@@ -1,6 +1,6 @@
 ﻿@{
     Layout = null;
-    ViewBag.IsPreview = false;
+    ViewBag.Preview = 0;
     ViewBag.PreviewAction = "";
 }
 
@@ -8,48 +8,10 @@
 
 @switch (ViewBag.File.Ext)
 {
-    case ".zip":
-    case ".rar":
-    case ".tar":
-    case ".gz":
-    case ".zipx":
-        ViewBag.Icon = "/manager/images/zip-icon.png";
-        break;
     case ".mov":
     case ".mp4":
     case ".webm":
-        ViewBag.Icon = "/manager/images/video-icon.png";
-        break;
-    case ".docx":
-    case ".asd":
-    case ".dotx":
-    case ".dotm":
-    case ".wbk":
-    case ".docm":
-        ViewBag.Icon = "/manager/images/word-icon.png";
-        break;
-    case ".pptx":
-    case ".pps":
-        ViewBag.Icon = "/manager/images/PowerPoint-icon.png";
-        break;
-    case ".pub":
-        ViewBag.Icon = "/manager/images/Publisher-icon.png";
-        break;
-    case ".exe":
-    case ".app":
-    case ".dmg":
-    case ".bat":
-    case ".elf":
-    case ".sys":
-    case ".msi":
-    case ".sh":
-    case ".deb":
-    case ".com":
-        ViewBag.Icon = "/manager/images/shell-icon.png";
-        break;
-    case ".xlsx":
-    case ".xls":
-        ViewBag.Icon = "/manager/images/Excel-icon.png";
+        ViewBag.Preview = 2;
         break;
     case ".png":
     case ".jpg":
@@ -58,14 +20,10 @@
     case ".pjpeg":
     case ".gif":
     {
-        ViewBag.IsPreview = true;
-        ViewBag.PreviewAction = $"viewImageShared('{@ViewBag.File.ShareId}');";
+        ViewBag.Preview = 1;
         ViewBag.Icon = "/manager/images/image-icon.png";
         break;
     }
-    default:
-        ViewBag.Icon = "/manager/images/unknown-icon.png";
-        break;
 }
 
 <!DOCTYPE html>
@@ -89,33 +47,36 @@
     <div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
 
     <center>
-        @if (ViewBag.IsPreview)
+        @if (ViewBag.Preview == 1)
         {
             <div id="share-box" style="margin-top: 75px;">
-                <div class="loader"></div>
+                <img src="/manager/share/preview/@ViewBag.File.ShareId" class="image-preview" />
             </div>
-
-            <form id="download-form" action="/manager/share/@ViewBag.File.ShareId" method="post"></form>
+            <form id="download-form" action="/manager/share/dl/@ViewBag.File.ShareId" method="post"></form>
+        }
+        else if (ViewBag.Preview == 2)
+        {
+            <div id="share-box" style="margin-top: 75px;">
+                <video class="image-preview" controls>
+                    <source src="/manager/share/preview/@ViewBag.File.ShareId" type="video/mp4">
+                    <source src="/manager/share/preview/@ViewBag.File.ShareId" type="video/ogg">
+                </video>
+            </div>
+            <form id="download-form" action="/manager/share/dl/@ViewBag.File.ShareId" method="post"></form>
         }
         else
         {
             <div class="content">
                 <p>No preview is available for this file type.</p>
-                <form id="download-form" action="/manager/share/@ViewBag.File.ShareId" method="post">
+                <form id="download-form" action="/manager/share/dl/@ViewBag.File.ShareId" method="post">
                     <input type="submit" value="Download">
                 </form>
             </div>
         }
-
         <br /><br />
     </center>
-</body>
-
-<script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
-<script type="text/javascript" src="/manager/js/action.js"></script>
-<script>
-    @Html.Raw(ViewBag.PreviewAction)
-
+    <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
+    <script>
     function fileInfo()
     {
         swal({
@@ -136,5 +97,6 @@
                 <div class="close-info-button" onclick="swal.close();">Close</div>`
         });
     }
-</script>
+    </script>
+</body>
 </html>

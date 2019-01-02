@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
 namespace Vault.Objects
 {
@@ -18,7 +14,9 @@ namespace Vault.Objects
         public virtual string Logs { get; set; }
 
         public int SortBy { get; set; }
-
         public int Folder { get; set; }
+
+        public bool APIEnabled { get; set; }
+        public string APIKey { get; set; }
     }
 }

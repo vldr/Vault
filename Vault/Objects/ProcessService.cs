@@ -532,21 +532,6 @@ namespace Vault.Objects
         */
         public bool ShareFile(int id, int fileId, bool option)
         {
-            // Setup function to generate random string...
-            Func<int, string> randomString = count =>
-            {
-                string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                var stringChars = new char[count];
-                var random = new Random();
-
-                for (int i = 0; i < stringChars.Length; i++)
-                {
-                    stringChars[i] = chars[random.Next(chars.Length)];
-                }
-
-                return new string(stringChars);
-            };
-
             // Catch any exceptions...
             try
             {
@@ -573,7 +558,7 @@ namespace Vault.Objects
                     file.IsSharing = true;
 
                     // Setup a variable to store our share id!
-                    string shareId = randomString(32);
+                    string shareId = RandomString(32);
 
                     // Check if our share id is taken!
                     if (IsShareIdTaken(id, fileId, shareId))
@@ -586,6 +571,61 @@ namespace Vault.Objects
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Return true as it was successful...
+                return true;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Enables or disables the api system for the user...
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public bool ToggleAPI(int userId, out string apiKey)
+        {
+            // Setup a dumby api key value...
+            apiKey = string.Empty;
+
+            // Catch any exceptions...
+            try
+            {
+                // Get our actual user...
+                User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
+
+                // Check if our user is null!
+                if (user == null)
+                    return false;
+
+                // If our api is already enabled, then disable it...
+                if (user.APIEnabled)
+                {
+                    // Disable our api...
+                    user.APIEnabled = false;
+
+                    // Set their api key to be empty...
+                    user.APIKey = string.Empty;
+                }
+                // If our api is disabled, then enable it...
+                else
+                {
+                    // Enable our api...
+                    user.APIEnabled = true;
+
+                    // Setup a random key for them...
+                    user.APIKey = $"token_{RandomString(32)}";
+                }
+
+                // Save our changes!
+                _context.SaveChanges();
+
+                // Pop out our api key...
+                apiKey = user.APIKey;
 
                 // Return true as it was successful...
                 return true;
@@ -1003,6 +1043,25 @@ namespace Vault.Objects
             else
                 // Otherwise return false...
                 return false;
+        }
+
+        /// <summary>
+        /// Generates a random string given the count...
+        /// </summary>
+        /// <param name="count">Number of random characters...</param>
+        /// <returns></returns>
+        private string RandomString(int count)
+        {
+            string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var stringChars = new char[count];
+            var random = new Random();
+
+            for (int i = 0; i < stringChars.Length; i++)
+            {
+                stringChars[i] = chars[random.Next(chars.Length)];
+            }
+
+            return new string(stringChars);
         }
     }
 }

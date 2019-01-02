@@ -1,0 +1,25 @@
+﻿@{
+    Layout = null;
+}
+
+@model Vault.Controllers.LoginController
+
+<div>
+    <b style="font-size:18px;">User Identification:</b><br>
+    <em style="font-size:25px;">@ViewBag.User.Id</em><br><br>
+
+    <b style="font-size:18px;">Email:</b><br>
+    <em style="font-size:25px;">@ViewBag.User.Email</em><br><br>
+
+    <b style="font-size:18px;">Name:</b><br>
+    <em style="font-size:25px;">@ViewBag.User.Name</em><br><br>
+
+    <b style="font-size:18px;">API Key:</b><br>
+    <em style="font-size:25px;" id="api-key">@(ViewBag.User.APIKey.Length > 0 ? ViewBag.User.APIKey : "-")</em><br>
+
+    <hr style="margin-bottom: 30px;">
+    <p>You can update your settings from here:</p><br />
+    <a onclick="processChangePassword()" style="cursor:pointer;" class="btn black">Change Password</a>
+    <a onclick="toggleDarkMode()" style="cursor:pointer;" class="btn black">Toggle Darkmode</a>
+    <a onclick="toggleAPI()" style="cursor:pointer;" class="btn black">Toggle API</a>
+</div>

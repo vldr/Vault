@@ -32,9 +32,9 @@ function createCookie(name, value, expires, path, domain) {
 	document.cookie = cookie;
 }
 
-function enableDarkMode()
+function toggleDarkMode()
 {
-    if (document.cookie.indexOf(".vault.nightmode") !== -1) document.cookie = ".vault.nightmode=;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    if (document.cookie.indexOf(".vault.nightmode") !== -1) document.cookie = ".vault.nightmode=0;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     else createCookie(".vault.nightmode", "1");
 
     document.location.reload(true);
@@ -319,10 +319,151 @@ function contextMenuFile(event)
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
 
+function showLogout()
+{
+    swal({
+        title: "Logout",
+        html: true,
+        animation: false,
+        showConfirmButton: false,
+        allowOutsideClick: true,
+        text: `<a href="process/logout" class="btn">Logout</a>`
+    });
+}
+
+function showSettings()
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4)
+        {
+            document.getElementById("loader-horizontal").style.display = "none";
+
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                swal({
+                    title: "Settings",
+                    html: true,
+                    animation: false,
+                    showConfirmButton: false,
+                    allowOutsideClick: true,
+                    text: xhr.responseText
+                });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4)
+        {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '/manager/settings');
+    xhr.send();
+}
+
+function showSort()
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+            if (xhr.status === 200 && xhr.status < 300) {
+                swal({
+                    title: "Sort",
+                    html: true,
+                    animation: false,
+                    showConfirmButton: false,
+                    allowOutsideClick: true,
+                    text: xhr.responseText
+                });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '/manager/sort');
+    xhr.send();
+}
+
+function showAbout()
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                swal({
+                    title: "About",
+                    html: true,
+                    animation: false,
+                    showConfirmButton: false,
+                    allowOutsideClick: true,
+                    text: xhr.responseText
+                });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '/manager/about');
+    xhr.send();
+}
+
+function toggleAPI()
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4)
+        {
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+
+                if (json.success)
+                {
+                    showSettings();
+                }
+                else
+                    swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
+            }
+            else
+            {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+        }
+    };
+
+    xhr.open('POST', '/manager/process/toggleapi');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send();
+}
+
 function processToggleSharing(id)
 {
     var checkBox = document.getElementById("share-checkbox-input");
-
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -352,7 +493,6 @@ function processToggleSharing(id)
         xhr.send("fileid=" + id + "&option=1");
     else
         xhr.send("fileid=" + id + "&option=0");
-
 }
 
 function selectText()
@@ -431,7 +571,6 @@ function processRenameFile(event)
 
                     if (json.success)
                     {
-                        //processListFiles();
                         swal.close();
                     }
                     else
@@ -481,7 +620,6 @@ function processRenameFolder(event)
                     var json = JSON.parse(xhr.responseText);
 
                     if (json.success) {
-                        //processListFiles();
                         swal.close();
                     }
                     else
@@ -526,9 +664,6 @@ function processDeleteFolder(event) {
                     if (json.success) swal({ title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false });
                     else
                         swal("Error!", json.reason, "error");
-
-                    //processListFiles();
-
                 }
                 else {
                     swal("Error!", "Failed to connect!", "error");

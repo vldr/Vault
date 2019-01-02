@@ -201,6 +201,70 @@ namespace Vault.Controllers
             return View();
         }
 
+
+        /// <summary>
+        /// Our help page...
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("about")]
+        public IActionResult About()
+        {
+            // Check if not logged in!
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+
+            // Setup a user session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Save our user to the view bag...
+            ViewBag.User = _loginService.GetUser(userSession.Id);
+
+            // Return our control view...
+            return View();
+        }
+
+        /// <summary>
+        /// Our settings page...
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("settings")]
+        public IActionResult Settings()
+        {
+            // Check if not logged in!
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+
+            // Setup a user session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Save our user to the view bag...
+            ViewBag.User = _loginService.GetUser(userSession.Id);
+
+            // Return our control view...
+            return View();
+        }
+
+        /// <summary>
+        /// Our sort page...
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("sort")]
+        public IActionResult Sort()
+        {
+            // Check if not logged in!
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+
+            // Setup a user session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Save our user to the view bag...
+            ViewBag.User = _loginService.GetUser(userSession.Id);
+
+            // Return our control view...
+            return View();
+        }
+
         /// <summary>
         /// Check if we're logged in...
         /// </summary>

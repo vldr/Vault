@@ -12,7 +12,7 @@ body {
 }
 
 a {
-    color: black;
+    color: #f9f9f9;
 }
 
 hr {
@@ -1365,16 +1365,16 @@ p {
     display: none;
 }
 
-#loader-horizontal:before {
-    display: block;
-    position: absolute;
-    content: "";
-    left: -500px;
-    width: 30%;
-    height: 4px;
-    background-color: white;
-    animation: loading 1s linear infinite;
-}
+    #loader-horizontal:before {
+        display: block;
+        position: absolute;
+        content: "";
+        left: -500px;
+        width: 30%;
+        height: 4px;
+        background-color: white;
+        animation: loading 1s linear infinite;
+    }
 
 @keyframes loading {
     from {

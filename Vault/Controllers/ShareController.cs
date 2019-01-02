@@ -55,10 +55,42 @@ namespace Vault.Controllers
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
-            ViewBag.FileSize = _processService.GetBytesReadable(file.Size); 
+            ViewBag.FileSize = _processService.GetBytesReadable(file.Size);
+            ViewBag.Icon = _processService.GetFileAttribute(file.Id, file.Ext);
 
             // Return our view!
             return View();
+        }
+
+        /// <summary>
+        /// Downloads the preview shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("share/preview/{shareId}")]
+        public IActionResult DownloadSharedPreview(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null) return StatusCode(500);
+
+            // Get the file...
+            Objects.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null) return StatusCode(500);
+
+            // Setup our file's path as a variable...
+            string filePath = file.Path;
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
+
+            // Check if preview file exists...
+            if (System.IO.File.Exists($"{filePath}.preview")) filePath = $"{filePath}.preview";
+
+            // Return an empty result.
+            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
         }
 
         /// <summary>
@@ -67,7 +99,7 @@ namespace Vault.Controllers
         /// <param name="shareId"></param>
         /// <returns></returns>
         [HttpPost]
-        [Route("share/{shareId}")]
+        [Route("share/dl/{shareId}")]
         public IActionResult DownloadSharedFile(string shareId)
         {
             // Check if our share id given is null!
@@ -81,23 +113,15 @@ namespace Vault.Controllers
             if (file == null)
                 return StatusCode(500);
 
-            // Setup our file's path as a variable...
-            string filePath = file.Path;
-
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath))
+            if (!System.IO.File.Exists(file.Path))
                 return StatusCode(500);
-
-            // Check if we were given a x-preview header and that the preview file exists!
-            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
-                // If so, then append .preview to the file path...
-                filePath += ".preview";
 
             // Increment our file hits so we can know how many times the file was downloaded!
             _processService.IncrementFileHit(file);
 
             // Return an empty result.
-            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
+            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
         }
 
     }
