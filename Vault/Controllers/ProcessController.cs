@@ -18,7 +18,6 @@ namespace Vault.Controllers
         private readonly string _sessionName;
         private readonly string _storageLocation;
         private readonly string _relativeDirectory;
-        private readonly string _syncCookieName;
 
         // Instance of our process service...
         private readonly ProcessService _processService;
@@ -29,9 +28,6 @@ namespace Vault.Controllers
         // Instance of our configuration...
         private readonly IConfiguration _configuration;
 
-        // Instance of our hub...
-        private readonly IHubContext<VaultHub> _hubContext;
-
         /// <summary>
         /// Contructor
         /// </summary>
@@ -41,18 +37,15 @@ namespace Vault.Controllers
         /// <param name="hubContext"></param>
         public ProcessController(ProcessService processService, 
             LoginService loginService,
-            IConfiguration configuration, 
-            IHubContext<VaultHub> hubContext)
+            IConfiguration configuration)
         {
             _processService = processService;
             _loginService = loginService;
             _configuration = configuration;
-            _hubContext = hubContext;
 
             _sessionName = configuration["SessionTagId"];
             _storageLocation = configuration["VaultStorageLocation"];
             _relativeDirectory = configuration["RelativeDirectory"];
-            _syncCookieName = _configuration["SyncCookieName"];
         }
 
         /// <summary>
@@ -76,43 +69,6 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Keeps the session id alive...
-        /// </summary>
-        private void KeepAlive()
-        {
-            // Get our value of the cookie...
-            string key = Request.Cookies[_syncCookieName];
-
-            // Check if the key doesn't equal null...
-            if (key != null && VaultHub.Connections.ContainsKey(key))
-            {
-                // Setup our brand new expiry
-                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
-            }
-        }
-
-        /// <summary>
-        /// Updates the listings for all our user sessions...
-        /// </summary>
-        /// <param name="userId"></param>
-        private void UpdateListings(int userId)
-        {
-            // Let all our connections know of what happened...
-            foreach (var item in VaultHub.Connections)
-            {
-                // If our user id matches then we've found the right client...
-                if (item.Value.Expiry > DateTime.Now && item.Value.Id == userId)
-                {
-                    // Send a message to the client telling them to update their listings...
-                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
-                }
-            }
-
-            // Keep our session alive...
-            KeepAlive();
-        }
-
-        /// <summary>
         /// Handles when a user wants to log out...
         /// </summary>
         /// <returns></returns>
@@ -127,7 +83,7 @@ namespace Vault.Controllers
             HttpContext.Session.Clear();
 
             // Get our value of the cookie...
-            string key = Request.Cookies[_syncCookieName];
+            string key = Request.Cookies[_configuration["SyncCookieName"]];
 
             // Check if the key doesn't equal null...
             if (key != null && VaultHub.Connections.ContainsKey(key))
@@ -192,7 +148,7 @@ namespace Vault.Controllers
             }
 
             // Keep our connection alive...
-            KeepAlive();
+            _processService.KeepAlive(Request);
 
             // Setup a new listing...
             Listing listing = new Listing()
@@ -247,7 +203,7 @@ namespace Vault.Controllers
             _processService.AddNewFolder(folderObj);
 
             // Let all our sessions know that our listings have been updated...
-            UpdateListings(id);
+            _processService.UpdateListings(id, Request);
 
             // Return a sucessful response...
             return Json(new { Success = true });
@@ -278,7 +234,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -320,7 +276,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -355,7 +311,7 @@ namespace Vault.Controllers
             if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -395,7 +351,7 @@ namespace Vault.Controllers
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 // Return that our operation was sucessful!
                 return Json(new { Success = true });
@@ -451,7 +407,7 @@ namespace Vault.Controllers
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 return Json(new { Success = true });
             }
@@ -493,7 +449,7 @@ namespace Vault.Controllers
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 return Json(new { Success = true });
             }
@@ -528,7 +484,7 @@ namespace Vault.Controllers
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 return Json(new { Success = true });
             }
@@ -561,8 +517,7 @@ namespace Vault.Controllers
             if (_processService.UpdatePassword(userSession.Id, currentPassword, newPassword))
             {
                 // Keep our connection alive...
-                KeepAlive();
-
+                _processService.KeepAlive(Request);
 
                 return Json(new { Success = true });
             }
@@ -607,14 +562,14 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("process/toggleshare")]
-        public IActionResult ToggleShare(int? fileId, int? option)
+        public IActionResult ToggleShare(int? fileId)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
                 return NotLoggedIn();
 
             // Check for nulls...
-            if (fileId == null || option == null || option < 0 || option > 1)
+            if (fileId == null)
                 return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
@@ -624,7 +579,7 @@ namespace Vault.Controllers
             int id = userSession.Id;
 
             // Update our file's shareablity!
-            if (_processService.ShareFile(userSession.Id, fileId.GetValueOrDefault(), option == 1 ? true : false))
+            if (_processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault()))
                 return Json(new { Success = true });
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
@@ -673,7 +628,7 @@ namespace Vault.Controllers
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 return Json(new { Success = true });
             }
@@ -738,30 +693,15 @@ namespace Vault.Controllers
 
                 // File too big!
                 if (size > int.Parse(_configuration["MaxVaultFileSize"]))
-                    return Json(new { Success = false, Reason = "The file size is too large..." });
-
-                // Setup function to generate random string...
-                Func<int, string> randomString = count =>
-                {
-                    string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                    var stringChars = new char[count];
-                    var random = new Random();
-
-                    for (int i = 0; i < stringChars.Length; i++)
-                    {
-                        stringChars[i] = chars[random.Next(chars.Length)];
-                    }
-
-                    return new string(stringChars); 
-                };
+                    return StatusCode(500);
 
                 // Full path to file in temp location
-                string filePath = _storageLocation + randomString(30);
+                string filePath = _storageLocation + _processService.RandomString(30);
 
                 // Check if our file already exists with that name!
                 if (System.IO.File.Exists(filePath))
                     // Respond with zero since something bad happened...
-                    return Content("0");
+                    return StatusCode(500);
 
                 // Setup our file name...
                 string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);
@@ -777,37 +717,24 @@ namespace Vault.Controllers
                 // Get the file's extension...
                 string fileExtension = Path.GetExtension(fileName).ToLower();
 
-                // Check if our file is a PNG, JPEG, or JPG....
-                if (fileExtension == ".png" || fileExtension == ".jpeg" || fileExtension == ".jpg")
-                    // Call our generate thumbnail which will generate a thumbnails...
-                    _processService.GenerateThumbnails(filePath);
+                // Call our generate thumbnail which will generate a thumbnails...
+                _processService.GenerateThumbnails(fileExtension, filePath);
 
                 // Get our user's session, it is safe to do so because we've checked if we're logged in!
                 UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-                // Get our current user id...
-                int id = userSession.Id;
-
-                // Get our current folder id that we are inside of...
-                int folderId = userSession.Folder;
-
-                // Setup a new File object...
-                Objects.File fileObj = new Objects.File
-                {
-                    Owner = id,
-                    Size = size,
-                    Name = System.Net.WebUtility.HtmlEncode(fileName),
-                    Ext = fileExtension,
-                    Created = DateTime.Now,
-                    Folder = folderId,
-                    Path = filePath
-                };
-
                 // Add the new file...
-                _processService.AddNewFile(fileObj);
+                _processService.AddNewFile(
+                    userSession.Id, 
+                    size, 
+                    fileName, 
+                    fileExtension, 
+                    userSession.Folder, 
+                    filePath
+                );
 
                 // Tell our users to update their listings...
-                UpdateListings(userSession.Id);
+                _processService.UpdateListings(userSession.Id, Request);
 
                 // Respond with a successful message...
                 return Json(new { Success = true });

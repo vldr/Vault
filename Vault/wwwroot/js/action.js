@@ -488,11 +488,28 @@ function processToggleSharing(id)
 
     xhr.open('POST', '/manager/process/toggleshare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    
-    if (checkBox.checked === true)
-        xhr.send("fileid=" + id + "&option=1");
-    else
-        xhr.send("fileid=" + id + "&option=0");
+    xhr.send("fileid=" + id);
+}
+
+function downloadShareX(apiKey)
+{
+    var text = `{"Name": "Vault", 
+                "DestinationType": "ImageUploader, TextUploader, FileUploader",
+                "RequestURL": "${location.protocol + "//" + location.hostname}/share/upload",
+                "FileFormName": "file",
+                "Arguments": {"apikey": "${apiKey}"}, 
+                "URL": "$json:path$"}`;
+
+    text = text.replace(/\s/g, '');
+
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', "sharex.sxcu");
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
 
 function selectText()
@@ -950,7 +967,10 @@ function processMove(event)
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                document.getElementById("loader-horizontal").style.display = "none";
+
                 var json = JSON.parse(xhr.responseText);
 
                 if (!json.success) {
@@ -974,7 +994,7 @@ function processMove(event)
                 swal("Error!", "Failed to connect!", "error");
             }
         }
-        else if (xmlhttp.readyState < 4) {
+        else if (xhr.readyState < 4) {
             document.getElementById("loader-horizontal").style.display = "block";
         }
     };
@@ -985,8 +1005,11 @@ function processMove(event)
 
 }
 
-function viewImageShared(id)
+function viewImage(event)
 {
+    if (event.target.getAttribute('data-delete') === "1")
+        return;
+
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -996,73 +1019,24 @@ function viewImageShared(id)
 
                 var blob = new Blob([xhr.response], { type: "octet/stream" });
                 var blobObj = window.webkitURL.createObjectURL(blob);
-                var shareBox = document.getElementById("share-box");
 
-                shareBox.innerHTML = `<img src="${blobObj}" class="image-preview" />`;
+                modelLoading.style.display = "none";
+                captionText.style.display = "block";
+                modalImg.style.display = "block";
+                modalImg.src = window.URL.createObjectURL(blob);
+                captionText.innerHTML = "<h1 style='word-wrap: break-word;color:white;font-size:50px;'>" + xhr.getResponseHeader("x-filename").substring(0, 24)
+                    + (xhr.getResponseHeader("x-filename").length > 24 ? "..." : "") + "</h1>" +
+                    `<a id="dl-img" href="/manager/process/download/${event.target.getAttribute('data-file-id')}" class="btn black">Download</a><br><br>` +
+                    "<br>";
+
+                var dl = document.getElementById("dl-img");
+                dl.download = xhr.getResponseHeader("x-filename");
             }
             else {
                 swal("Error!", "Failed to connect!", "error");
             }
         }
     };
-
-    xhr.open('POST', `/manager/share/${id}`);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.setRequestHeader("x-preview", "true");
-    xhr.responseType = 'arraybuffer';
-    xhr.overrideMimeType("text/plain; charset=x-user-defined");
-    xhr.send();
-}
-
-function viewImage(event)
-{
-    if (event.target.getAttribute('data-delete') === "1")
-        return;
-
-	var xhr;
-    if (window.XMLHttpRequest) {
-        xhr = new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-        xhr = new ActiveXObject("Msxml2.XMLHTTP");
-    } else {
-        throw new Error("Ajax is not supported by this browser");
-    }
-	
-	var captionText = document.getElementById("captionTag");
-	var modal = document.getElementById('myModal');
-	var modalImg = document.getElementById("imgObject");
-	var modelLoading = document.getElementById("modelLoading");
-	
-	modal.style.display = "block";
-	modelLoading.style.display = "block";
-	modalImg.style.display = "none";
-	captionText.style.display = "none";
-
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
-				window.URL = window.URL || window.webkitURL;
-				
-				var blob = new Blob([xhr.response], {type: "octet/stream"});
-				var blobObj = window.webkitURL.createObjectURL(blob);
-				
-				modelLoading.style.display = "none";
-				captionText.style.display = "block";
-				modalImg.style.display = "block";
-				modalImg.src = window.URL.createObjectURL(blob);
-                captionText.innerHTML = "<h1 style='word-wrap: break-word;color:white;font-size:50px;'>" + xhr.getResponseHeader("x-filename").substring(0, 24)
-                    + (xhr.getResponseHeader("x-filename").length > 24 ? "..." : "") + "</h1>" +
-                    `<a id="dl-img" href="/manager/process/download/${event.target.getAttribute('data-file-id')}" class="btn black">Download</a><br><br>` + 
-							"<br>";
-				
-				var dl = document.getElementById("dl-img");
-                dl.download = xhr.getResponseHeader("x-filename");
-            }
-			else {
-				swal("Error!", "Failed to connect!", "error");
-			}
-        } 
-    }
 	
 	document.getElementById("progressbar").value = 0;	
 	

@@ -1,5 +1,7 @@
 ﻿using ImageMagick;
 using Ionic.Zip;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -15,6 +17,9 @@ namespace Vault.Objects
     {
         // Our vault database context...
         private VaultContext _context { get; set; }
+
+        // Instance of our hub...
+        private readonly IHubContext<VaultHub> _hubContext;
 
         // Instance of our configuration...
         private IConfiguration _configuration;
@@ -33,8 +38,9 @@ namespace Vault.Objects
         /**
          * Constructor...
          */
-        public ProcessService(VaultContext context, IConfiguration configuration) {
+        public ProcessService(VaultContext context, IConfiguration configuration, IHubContext<VaultHub> hubContext) {
             _context = context;
+            _hubContext = hubContext;
             _configuration = configuration;
         }
 
@@ -51,10 +57,47 @@ namespace Vault.Objects
             => _context.Users.Where(b => b.Id == id).FirstOrDefault().Password;
 
         /**
-        * Checks if the userid even exists
+        * Checks if the folder even exists
         */
         public bool IsFolderValid(int ownerId, int id)
             => _context.Folders.Any(b => b.Id == id && b.Owner == ownerId);
+
+        /// <summary>
+        /// Checks whether a folder matching params exists, if it does it returns it, otherwise
+        /// it creates a brand new fresh folder...
+        /// </summary>
+        /// <param name="owner">The owner of the folder...</param>
+        /// <param name="folderName">The folder's name...</param>
+        /// <returns>Folder Instance</returns>
+        public Folder FolderCreateOrExists(User owner, string folderName)
+        { 
+            // Attempt to find the folder matching our criteria...
+            Folder folder = _context.Folders
+            .Where(b => b.FolderId == owner.Folder 
+            && b.Owner == owner.Id
+            && b.Name == folderName).FirstOrDefault();
+
+            // If we haven't found a folder matching our criteria, then gohead and make a new one...
+            if (folder == null)
+            {
+                // Create a new folder object...
+                Folder folderObj = new Folder
+                {
+                    Owner = owner.Id,
+                    Name = folderName,
+                    FolderId = owner.Folder
+                };
+
+                // Attempt to add our folder to the database...
+                AddNewFolder(folderObj);
+
+                // Return our newly created folder object...
+                return folderObj;
+            }
+            else
+                // Otherwise, return the folder that is already there...
+                return folder;
+        }
 
         /**
          * Gets a folder given an id...
@@ -222,7 +265,7 @@ namespace Vault.Objects
                     if (type == AttributeTypes.FileIcon)
                         return "/manager/process/thumbnail/" + id;
                     else
-                        return "viewImage(event)";
+                        return defaultAction;//return "viewImage(event)";
                 default:
                     if (type == AttributeTypes.FileIcon)
                         return "/manager/images/unknown-icon.png";
@@ -319,8 +362,12 @@ namespace Vault.Objects
         /**
          * Generates thumbnails to be used to display images
          */
-        public void GenerateThumbnails(string path)
+        public void GenerateThumbnails(string ext, string path)
         {
+            // Check if our file is a PNG, JPEG, or JPG....
+            if (!(ext == ".png" || ext == ".jpeg" || ext == ".jpg"))
+                return;
+
             // Setup a magick image and see if this file is an image!
             var magickImage = new MagickImage(path);
 
@@ -495,14 +542,61 @@ namespace Vault.Objects
         public File GetSharedFile(string shareId)
             => _context.Files.Where(b => b.IsSharing == true && b.ShareId == shareId).FirstOrDefault();
 
+        /// <summary>
+        /// Gets a user by their api key only if the api is enabled...
+        /// </summary>
+        /// <param name="apiKey"></param>
+        /// <returns></returns>
+        public User GetUserAPI(string apiKey) => _context.Users.Where(b => b.APIEnabled == true && b.APIKey == apiKey).FirstOrDefault();
 
         /**
          * Adds a new file to the dataset...
          */
-        public void AddNewFile(File file)
+        public void AddNewFile(int userId, long size, string name, string ext, int folderId, string path)
         {
-            _context.Files.Add(file);
+            File fileObj = new Objects.File
+            {
+                Owner = userId,
+                Size = size,
+                Name = System.Net.WebUtility.HtmlEncode(name),
+                Ext = ext,
+                Created = DateTime.Now,
+                Folder = folderId,
+                Path = path
+            };
+
+            _context.Files.Add(fileObj);
             _context.SaveChanges();
+        }
+
+        /**
+         * Adds a new file to the dataset and share it...
+         */
+        public File AddNewFileAndShare(int userId, long size, string name, string ext, int folderId, string path)
+        {
+            File fileObj = new Objects.File
+            {
+                Owner = userId,
+                Size = size,
+                Name = System.Net.WebUtility.HtmlEncode(name),
+                Ext = ext,
+                Created = DateTime.Now,
+                Folder = folderId,
+                Path = path,
+            };
+
+            // Add our file to the dataset...
+            _context.Files.Add(fileObj);
+
+            // Save our changes...
+            _context.SaveChanges();
+
+            // Sadly we must perform two operations...
+            // Share our file...
+            ToggleShareFile(userId, fileObj.Id);
+
+            // Finally return our file object...
+            return fileObj;
         }
 
         /**
@@ -530,7 +624,7 @@ namespace Vault.Objects
         /**
         * Share our file!
         */
-        public bool ShareFile(int id, int fileId, bool option)
+        public bool ToggleShareFile(int id, int fileId)
         {
             // Catch any exceptions...
             try
@@ -543,15 +637,15 @@ namespace Vault.Objects
                     return false;
 
                 // If we want to toggle off our share, then it is simple!
-                if (option == false)
+                if (file.IsSharing)
                 {
                     // Set our is sharing accordingly!
                     file.IsSharing = false;
 
                     // Empty our share id!
-                    file.ShareId = String.Empty;
+                    file.ShareId = String.Empty;                
                 }
-                // Otherwise, turn everything on!
+                // Otherwise, turn everything on...
                 else
                 {
                     // Set our is sharing accordingly!
@@ -568,6 +662,8 @@ namespace Vault.Objects
                     // Generate our random string for our share id!
                     file.ShareId = shareId;
                 }
+
+               
 
                 // Save our changes!
                 _context.SaveChanges();
@@ -1050,7 +1146,7 @@ namespace Vault.Objects
         /// </summary>
         /// <param name="count">Number of random characters...</param>
         /// <returns></returns>
-        private string RandomString(int count)
+        public string RandomString(int count)
         {
             string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[count];
@@ -1062,6 +1158,43 @@ namespace Vault.Objects
             }
 
             return new string(stringChars);
+        }
+
+        /// <summary>
+        /// Keeps the session id alive...
+        /// </summary>
+        public void KeepAlive(HttpRequest httpRequest)
+        {
+            // Get our value of the cookie...
+            string key = httpRequest.Cookies[_configuration["SyncCookieName"]];
+
+            // Check if the key doesn't equal null...
+            if (key != null && VaultHub.Connections.ContainsKey(key))
+            {
+                // Setup our brand new expiry
+                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
+            }
+        }
+
+        /// <summary>
+        /// Updates the listings for all our user sessions...
+        /// </summary>
+        /// <param name="userId"></param>
+        public void UpdateListings(int userId, HttpRequest httpRequest)
+        {
+            // Let all our connections know of what happened...
+            foreach (var item in VaultHub.Connections)
+            {
+                // If our user id matches then we've found the right client...
+                if (item.Value.Expiry > DateTime.Now && item.Value.Id == userId)
+                {
+                    // Send a message to the client telling them to update their listings...
+                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
+                }
+            }
+
+            // Keep our session alive...
+            KeepAlive(httpRequest);
         }
     }
 }

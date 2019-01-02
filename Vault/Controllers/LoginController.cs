@@ -80,24 +80,9 @@ namespace Vault.Controllers
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                // Setup function to generate random string...
-                Func<int, string> randomString = count =>
-                {
-                    string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                    var stringChars = new char[count];
-                    var random = new Random();
-
-                    for (int i = 0; i < stringChars.Length; i++)
-                    {
-                        stringChars[i] = chars[random.Next(chars.Length)];
-                    }
-
-                    return new string(stringChars);
-                };
-
 
                 // Setup our sync cookie value...
-                var syncValue = randomString(55);
+                var syncValue = _processService.RandomString(55);
 
                 // Setup a brand new cookie...
                 Response.Cookies.Append(

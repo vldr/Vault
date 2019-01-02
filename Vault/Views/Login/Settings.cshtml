@@ -15,7 +15,16 @@
     <em style="font-size:25px;">@ViewBag.User.Name</em><br><br>
 
     <b style="font-size:18px;">API Key:</b><br>
-    <em style="font-size:25px;" id="api-key">@(ViewBag.User.APIKey.Length > 0 ? ViewBag.User.APIKey : "-")</em><br>
+
+    @if (ViewBag.User.APIKey.Length > 0)
+    {
+        <em style="font-size:12px;">@ViewBag.User.APIKey</em><br><br>
+        <img src="/manager/images/sharex.svg" style="height:24px; cursor:pointer;" onclick="downloadShareX('@ViewBag.User.APIKey')" />
+    }
+    else
+    {
+        <em style="font-size:25px;" id="api-key">-</em><br>
+    }
 
     <hr style="margin-bottom: 30px;">
     <p>You can update your settings from here:</p><br />
