@@ -495,7 +495,7 @@ function downloadShareX(apiKey)
 {
     var text = `{"Name": "Vault", 
                 "DestinationType": "ImageUploader, TextUploader, FileUploader",
-                "RequestURL": "${location.protocol + "//" + location.hostname}/share/upload",
+                "RequestURL": "${location.protocol + "//" + location.hostname}/manager/share/upload",
                 "FileFormName": "file",
                 "Arguments": {"apikey": "${apiKey}"}, 
                 "URL": "$json:path$"}`;

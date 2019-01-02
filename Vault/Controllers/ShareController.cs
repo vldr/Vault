@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Vault.Objects;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Vault.Controllers
 {
@@ -68,7 +69,7 @@ namespace Vault.Controllers
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpGet]   
         [Route("share/preview/{shareId}")]
         public IActionResult DownloadSharedPreview(string shareId)
         {
@@ -92,6 +93,37 @@ namespace Vault.Controllers
 
             // Return an empty result.
             return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
+        }
+
+        /// <summary>
+        /// Gets the file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("i/{shareId}")]
+        public IActionResult DownloadSharedNoPreview(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null) return StatusCode(500);
+
+            // Get the file...
+            Objects.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null) return StatusCode(500);
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
+
+            // Setup our mime type string...
+            string mimeType = "application/octet-stream";
+
+            // Attempt to get the content type...
+            new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
+
+            // Return an empty result.
+            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), mimeType, file.Name, true);
         }
 
         /// <summary>
