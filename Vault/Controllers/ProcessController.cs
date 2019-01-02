@@ -637,6 +637,63 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Patches token key inside the application...
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/getapp")]
+        public async Task<IActionResult> GetApp()
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return StatusCode(500);
+
+            // Check if our app exists...
+            var fileName = "wwwroot/vault.exe";
+
+            // Disable this feature if it doesn't exist...
+            if (!System.IO.File.Exists(fileName))
+                // Inform them that their API is not enabled...
+                return StatusCode(500);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our user...
+            User user = _loginService.GetUser(userSession.Id);
+
+            // Check if our user even has their api enabled...
+            if (!user.APIEnabled)
+                // Inform them that their API is not enabled...
+                return StatusCode(500);
+
+            // Setup our api token...
+            var apiTokenBytes = Encoding.ASCII.GetBytes(user.APIKey);
+
+            // Setup a simple memory stream...
+            MemoryStream memoryStream = new MemoryStream();
+
+            // Copy our file to memory...
+            using (var fileStream = new FileStream("wwwroot/vault.exe", FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                await fileStream.CopyToAsync(memoryStream);
+            }
+
+            // Go to the correct position...
+            memoryStream.Position = int.Parse(_configuration["VaultExeOffset"]);
+            
+            // Write our api token to the binary file...
+            memoryStream.Write(apiTokenBytes, 0, apiTokenBytes.Length);
+
+            // Reset our position to zero...
+            memoryStream.Position = 0;
+            
+            // Finally, return our binary file as a download...
+            return File(memoryStream, "application/octet-stream", "vault.exe");
+        }
+
+        /// <summary>
         /// Goes to a folder, doesn't matter if it's visible or not...
         /// </summary>
         /// <param name="folderId"></param>

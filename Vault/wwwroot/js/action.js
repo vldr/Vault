@@ -1005,6 +1005,39 @@ function processMove(event)
 
 }
 
+function downloadApp(event)
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4)
+        {
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var blob = new Blob([this.response], { type: 'application/octet-stream' });
+
+                let a = document.createElement("a");
+                a.style = "display: none";
+                document.body.appendChild(a);
+
+                let url = window.URL.createObjectURL(blob);
+                a.href = url;
+                a.download = "vault.exe";
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+    };
+
+    xhr.open('POST', "/manager/process/getapp");
+    xhr.responseType = 'arraybuffer';
+    xhr.send();
+}
+
 function viewImage(event)
 {
     if (event.target.getAttribute('data-delete') === "1")
