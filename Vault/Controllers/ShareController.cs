@@ -123,7 +123,7 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Return an empty result.
-            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), mimeType, file.Name, true);
+            return PhysicalFile(file.Path, mimeType, true);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace Vault.Controllers
                 User user = _processService.GetUserAPI(apiKey);
                
                 // If our user is null, then return an invalid message...
-                if (user == null) return Json(new { Success = false, Reason = apiKey });
+                if (user == null) return Json(new { Success = false, Reason = "Invalid api key..." });
 
                 // Store our file size...
                 long size = file.Length;
@@ -225,9 +225,12 @@ namespace Vault.Controllers
 
                 // Tell our users to update their listings...
                 _processService.UpdateListings(user.Id, Request);
-
+               
+                // Setup a path for our uploaders to know where this is located...
+                var path = $"{_configuration["ShareUploadLocation"]}{fileObj.ShareId}";
+                
                 // Respond with a successful message...
-                return Json(new { Success = true, Path = $"{_configuration["ShareUploadLocation"]}{fileObj.ShareId}" });
+                return Json(new { Success = true, Path = path });
             }
             catch
             {

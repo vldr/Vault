@@ -652,7 +652,7 @@ namespace Vault.Objects
                     file.IsSharing = true;
 
                     // Setup a variable to store our share id!
-                    string shareId = RandomString(32);
+                    string shareId = $"{RandomString(6)}{file.Ext}";
 
                     // Check if our share id is taken!
                     if (IsShareIdTaken(id, fileId, shareId))
@@ -662,8 +662,6 @@ namespace Vault.Objects
                     // Generate our random string for our share id!
                     file.ShareId = shareId;
                 }
-
-               
 
                 // Save our changes!
                 _context.SaveChanges();
