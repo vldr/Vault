@@ -147,6 +147,8 @@ namespace Vault.Controllers
                     Email = email,
                     Password = password,
                     Name = name,
+                    APIEnabled = false,
+                    APIKey = string.Empty,
                     IPAddresses = HttpContext.Connection.RemoteIpAddress.ToString()
                 };
 

@@ -35,6 +35,8 @@ namespace Vault2
 #else
                      options.UrlPrefixes.Add("http://vldr.org:80/manager/");
                      options.UrlPrefixes.Add("https://vldr.org:443/manager/");
+                     options.UrlPrefixes.Add("https://i.upx.me:443/");
+                     options.UrlPrefixes.Add("http://i.upx.me:80/");
 #endif
                  })
                 .UseStartup<Startup>();
