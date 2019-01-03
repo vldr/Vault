@@ -5,10 +5,24 @@ const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifica
 
 connection.on("UpdateListing", () => { processListFiles(); });
 
+connection.onclose(() =>
+{
+    console.log("Lost connection...");  
+    reconnectToSignalR();
+});
+
 connection.start().catch(function (err)
 {
     return console.error(err.toString());
 });
+
+function reconnectToSignalR()
+{
+    connection.start().catch(function (err)
+    {
+        reconnectToSignalR();
+    });
+}
 
 function createCookie(name, value, expires, path, domain) {
 	var cookie = name + "=" + escape(value) + ";";

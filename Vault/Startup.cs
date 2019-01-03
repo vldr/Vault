@@ -7,6 +7,7 @@ using Vault.Objects;
 using System;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using Microsoft.Net.Http.Headers;
 
 namespace Vault2
 {
@@ -61,9 +62,9 @@ namespace Vault2
             {
                 OnPrepareResponse = ctx =>
                 {
-                    //ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,max-age=86400";
+                   // ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,must-revalidate";
                 }
-            });
+            }); 
 
             app.UseSignalR(route =>
             {

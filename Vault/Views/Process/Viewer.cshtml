@@ -19,11 +19,11 @@
     case ".bmp":
     case ".pjpeg":
     case ".gif":
-    {
-        ViewBag.Preview = 1;
-        ViewBag.Icon = "/manager/images/image-icon.png";
-        break;
-    }
+        {
+            ViewBag.Preview = 1;
+            ViewBag.Icon = "/manager/images/image-icon.png";
+            break;
+        }
 }
 
 <div class="file-viewer-topbar">
@@ -52,7 +52,7 @@
             <div class="file-viewer-content">
                 <p>No preview is available for this file type.</p>
                 <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get">
-                    <input type="submit" value="Download">
+                    <input type="submit" onclick="document.getElementById('download-form').submit();" value="Download">
                 </form>
             </div>
         }

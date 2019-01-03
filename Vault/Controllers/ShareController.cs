@@ -123,7 +123,7 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Return an empty result.
-            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 12000, true), mimeType);
+            return PhysicalFile(file.Path, mimeType, false);//File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 12000, true), mimeType);
         }
 
         /// <summary>
