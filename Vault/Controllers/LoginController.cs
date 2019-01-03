@@ -173,7 +173,7 @@ namespace Vault.Controllers
         public IActionResult Control()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -198,7 +198,7 @@ namespace Vault.Controllers
         public IActionResult About()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -219,7 +219,7 @@ namespace Vault.Controllers
         public IActionResult Settings()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -240,7 +240,7 @@ namespace Vault.Controllers
         public IActionResult Sort()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
