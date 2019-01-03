@@ -1152,6 +1152,13 @@ input[type=submit]:hover {
     background: rgba(0,0,0,0.2);
 }
 
+@media all and (max-width: 535px) 
+{
+    .grid-text-right {
+        display:none;
+    }
+}
+
 @media all and (max-width: 800px) {
     #uploadForm input[type=file] {
         width: 80px;

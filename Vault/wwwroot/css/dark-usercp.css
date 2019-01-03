@@ -170,6 +170,11 @@ input[type=submit]:hover {
     border: 1px solid #828282;
 }
 
+@media all and (max-width: 535px) {
+    .grid-text-right {
+        display: none;
+    }
+}
 
 #sorting-arrow {
     height: 20px;
