@@ -45,7 +45,9 @@ function renderFiles(json)
     var elem = document.getElementById('file-listing');
 
     if (json.files.length > 0)
+    {
         elem.style.display = "block";
+    }
 
     for (i in json.files)
     {
@@ -79,8 +81,27 @@ function renderListings(json, isSilent = false)
     var fileListingElem = document.getElementById('file-listing');
 
     folderListingElem.innerHTML = "";
-    fileListingElem.innerHTML = "";
     fileListingElem.style.display = "none";
+
+    if (json.sort === 0) json.sort = 4;
+
+    fileListingElem.innerHTML =
+        `<div id="sort-box">
+	        <a class="sorting-option-left" onclick="processSortBy(${json.sort >= 0 ? "2" : "-2"})" 
+            style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
+
+	        <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
+                onclick="processSortBy(${-json.sort})" src="/manager/images/ui/arrow.svg">
+
+            <a class="sorting-option" onclick="processSortBy(${json.sort >= 0 ? "1" : "-1"})" 
+            style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
+
+	        <a class="sorting-option" onclick="processSortBy(${json.sort >= 0 ? "3" : "-3"})"
+            style="margin-right: 36px; ${Math.abs(json.sort) === 3 ? "font-weight: 600;" : ""}">Date</a>
+
+	        <a class="sorting-option" onclick="processSortBy(${json.sort >= 0 ? "4" : "-4"})" 
+            style="margin-right: 36px; ${Math.abs(json.sort) === 4 ? "font-weight: 600;" : ""}">Type</a>
+        </div>`;
 
     document.getElementById("folder-path").innerHTML = json.path;
 
@@ -122,7 +143,6 @@ function renderListings(json, isSilent = false)
                 <p class="grid-text" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
             </div>`);
     }
-
 
     renderFiles(json);
 }
@@ -785,7 +805,8 @@ function processFolderColour(id, colour) {
     xhr.send("folderid=" + id + "&colour=" + colour);
 }
 
-function processSortBy(sortby) {
+function processSortBy(sortby)
+{
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1119,10 +1140,35 @@ function drop(event) {
 	}
 }
 
+function hideFileViewer()
+{
+    document.getElementById("file-viewer").style.display = "none";
+    document.getElementById("file-viewer").innerHTML = "";
+}
+
 function processDownload(event)
 {
-    if (event.target.getAttribute('data-delete') === "1")
-        return;
+    var xhr = new XMLHttpRequest();
 
-    window.location.href = "/manager/process/download/" + event.target.getAttribute('data-file-id');
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                document.getElementById("file-viewer").innerHTML = xhr.responseText;
+                document.getElementById("file-viewer").style.display = "block";
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '/manager/process/viewer');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
 }

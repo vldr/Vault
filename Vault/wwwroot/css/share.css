@@ -87,9 +87,9 @@ input[type=submit]:hover {
     background-position: center;
 }
 
-    .btn-info:hover {
-        background-color: #2b2b2b;
-    }
+.btn-info:hover {
+    background-color: #2b2b2b;
+}
 
 
 .btn-download {
@@ -118,7 +118,7 @@ input[type=submit]:hover {
 .image-preview {
     max-width: 80%;
     max-height: 80%;
-    box-shadow: 6px 3px 20px 3px black;
+    box-shadow: 6px 3px 20px 3px #00000091;
     -webkit-animation: fadein 0.8s;
     -moz-animation: fadein 0.8s;
     -ms-animation: fadein 0.8s;

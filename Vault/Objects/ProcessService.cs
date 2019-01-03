@@ -283,9 +283,11 @@ namespace Vault.Objects
         {
             // Get absolute value
             long absolute_i = (i < 0 ? -i : i);
+
             // Determine the suffix and readable value
             string suffix;
             double readable;
+
             if (absolute_i >= 0x1000000000000000) // Exabyte
             {
                 suffix = "EB";
@@ -347,13 +349,25 @@ namespace Vault.Objects
                 // Size
                 case 1:
                     return query.OrderBy(b => b.Size);
+                // Size (descending)
+                case -1:
+                    return query.OrderByDescending(b => b.Size);
                 // Name
                 case 2:
                     return query.OrderBy(b => b.Name);
+                // Name (descending)
+                case -2:
+                    return query.OrderByDescending(b => b.Name);
                 // Id
                 case 3:
                     return query.OrderBy(b => b.Id);
-                // Extension
+                // Id (descending)
+                case -3:
+                    return query.OrderByDescending(b => b.Id);
+                // Type (descending)
+                case -4:
+                    return query.OrderByDescending(b => b.Ext);
+                // Type
                 default:
                     return query.OrderBy(b => b.Ext);
             }

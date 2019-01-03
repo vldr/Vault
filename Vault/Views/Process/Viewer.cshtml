@@ -1,0 +1,60 @@
+﻿@{
+    Layout = null;
+    ViewBag.Preview = 0;
+}
+
+@model Vault.Controllers.ProcessController
+
+
+@switch (ViewBag.File.Ext)
+{
+    case ".mov":
+    case ".mp4":
+    case ".webm":
+        ViewBag.Preview = 2;
+        break;
+    case ".png":
+    case ".jpg":
+    case ".jpeg":
+    case ".bmp":
+    case ".pjpeg":
+    case ".gif":
+    {
+        ViewBag.Preview = 1;
+        ViewBag.Icon = "/manager/images/image-icon.png";
+        break;
+    }
+}
+
+<div class="file-viewer-topbar">
+    <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @ViewBag.File.Name</h3>
+</div>
+
+<div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
+
+<div id="file-viewer-box" style="margin-top: 75px;">
+    <center>
+        @if (ViewBag.Preview == 1)
+        {
+            <img src="/manager/process/download/@ViewBag.File.Id" class="file-viewer-preview" />
+            <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get"></form>
+        }
+        else if (ViewBag.Preview == 2)
+        {
+            <video class="file-viewer-preview" controls>
+                <source src="/manager/process/download/@ViewBag.File.Id" type="video/mp4">
+                <source src="/manager/process/download/@ViewBag.File.Id" type="video/ogg">
+            </video>
+            <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get"></form>
+        }
+        else
+        {
+            <div class="file-viewer-content">
+                <p>No preview is available for this file type.</p>
+                <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get">
+                    <input type="submit" value="Download">
+                </form>
+            </div>
+        }
+    </center>
+</div>

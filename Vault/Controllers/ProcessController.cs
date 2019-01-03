@@ -154,6 +154,7 @@ namespace Vault.Controllers
             Listing listing = new Listing()
             {
                 Success = true,
+                Sort = userSession.SortBy,
                 Previous = folder.FolderId,
                 IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
@@ -335,7 +336,7 @@ namespace Vault.Controllers
                 return NotLoggedIn();
 
             // Check for nulls and limits!
-            if (sortBy == null || sortBy < 0 || sortBy > 10)
+            if (sortBy == null || sortBy < -4 || sortBy > 4)
                 return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
@@ -902,6 +903,39 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Returns the view for our file viewer...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/viewer")]
+        public IActionResult Viewer(int? fileId)
+        {
+            // Check if we're logged in...
+            if (!IsLoggedIn()) return StatusCode(500);
+
+            // Check if the file id is not null...
+            if (fileId == null) return StatusCode(500);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get the file...
+            Objects.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
+
+            // Check if the file exists....
+            if (file == null)
+                return StatusCode(500);
+
+            // Setup our shared file variable in our viewbag!
+            ViewBag.File = file;
+            ViewBag.Icon = _processService.GetFileAttribute(file.Id, file.Ext);
+
+            // Return the partial view...
+            return View();
+        }
+
+        /// <summary>
         /// Downloads a file given an id...
         /// </summary>
         /// <param name="id"></param>
@@ -931,23 +965,13 @@ namespace Vault.Controllers
             if (file == null)
                 return StatusCode(500);
 
-            // Setup our file's path as a variable...
-            string filePath = file.Path;
-
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath))
+            if (!System.IO.File.Exists(file.Path))
                 return StatusCode(500);
 
-            // Check if we were given a x-preview header and that the preview file exists!
-            if (Request.Headers.ContainsKey("x-preview") && System.IO.File.Exists($"{filePath}.preview"))
-                // If so, then append .preview to the file path...
-                filePath += ".preview";
-
-            // Add a custom header to find the filename easier...
-            HttpContext.Response.Headers.Add("x-filename", System.Net.WebUtility.UrlEncode(file.Name));
-
             // Return an empty result.
-            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name);
+            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
+                "application/octet-stream", file.Name, true);
         }
 
         /// <summary>
