@@ -572,17 +572,6 @@ namespace Vault.Objects
             if (user == null)
                 return (false, -1);
 
-            // Check if bytes used is greater than the user has allocated...
-            // PLEASE check elsewhere for this condition, this is only a safe guard...
-            /*if ((user.UsedBytes + size) > user.MaxBytes)
-            {
-                // If so, delete this file and end it here...
-                DisposeFileOnDisk(path);
-
-                // Return here...
-                return (false, -1);
-            }*/
-
             // Call our generate thumbnail which will generate a thumbnails...
             GenerateThumbnails(ext, path);
 
