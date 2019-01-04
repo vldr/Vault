@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Vault.Objects;
+using Vault.Models;
 using Microsoft.AspNetCore.StaticFiles;
 
 namespace Vault.Controllers
@@ -49,7 +49,7 @@ namespace Vault.Controllers
                 return Redirect(_relativeDirectory);
 
             // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
+            Models.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)
@@ -77,7 +77,7 @@ namespace Vault.Controllers
             if (shareId == null) return StatusCode(500);
 
             // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
+            Models.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null) return StatusCode(500);
@@ -108,7 +108,7 @@ namespace Vault.Controllers
             if (shareId == null) return StatusCode(500);
 
             // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
+            Models.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null) return StatusCode(500);
@@ -140,7 +140,7 @@ namespace Vault.Controllers
                 return StatusCode(500);
 
             // Get the file...
-            Objects.File file = _processService.GetSharedFile(shareId);
+            Models.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
             if (file == null)

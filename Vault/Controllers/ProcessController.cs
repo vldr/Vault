@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Vault.Objects;
+using Vault.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
@@ -821,7 +821,7 @@ namespace Vault.Controllers
             int userId = userSession.Id;
 
             // Get the file...
-            Objects.File file = _processService.GetFile(userId, id.GetValueOrDefault());
+            Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
             // Check if the file exists....
             if (file == null)
@@ -859,7 +859,7 @@ namespace Vault.Controllers
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
             // Get the file...
-            Objects.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
+            Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Check if the file exists....
             if (file == null)
@@ -897,7 +897,7 @@ namespace Vault.Controllers
             int userId = userSession.Id;
 
             // Get the file...
-            Objects.File file = _processService.GetFile(userId, id.GetValueOrDefault());
+            Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
             // Check if the file exists....
             if (file == null)

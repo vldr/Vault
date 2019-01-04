@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Vault.Objects
+namespace Vault.Models
 {
     public class LoginService
     {

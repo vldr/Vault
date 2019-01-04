@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Vault.Objects;
+using Vault.Models;
 
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    [Migration("20190103234744_FileStorageLimit2")]
-    partial class FileStorageLimit2
+    [Migration("20190104051435_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

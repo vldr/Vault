@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Vault.Migrations
 {
-    public partial class NewDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -61,7 +61,10 @@ namespace Vault.Migrations
                     IPAddresses = table.Column<string>(nullable: true),
                     Logs = table.Column<string>(nullable: true),
                     SortBy = table.Column<int>(nullable: false),
-                    Folder = table.Column<int>(nullable: false)
+                    Folder = table.Column<int>(nullable: false),
+                    MaxBytes = table.Column<long>(nullable: false),
+                    APIEnabled = table.Column<bool>(nullable: false),
+                    APIKey = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Vault.Objects;
+using Vault.Models;
 using System;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
@@ -42,7 +42,7 @@ namespace Vault2
             });
 
             services.AddSignalR();
-            services.AddDbContext<Vault.Objects.VaultContext>(options => 
+            services.AddDbContext<Vault.Models.VaultContext>(options => 
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"))
             );
         } 

@@ -6,9 +6,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Vault.Objects;
+using Vault.Models;
 
-namespace Vault.Objects
+namespace Vault.Models
 {
     public class VaultHub : Hub
     {

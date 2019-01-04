@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vault.Objects
+namespace Vault.Models
 {
     public class User
     {
