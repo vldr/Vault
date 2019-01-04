@@ -16,7 +16,7 @@ namespace Vault.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.4-rtm-31024");
 
-            modelBuilder.Entity("Vault.Objects.File", b =>
+            modelBuilder.Entity("Vault.Models.File", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -52,7 +52,7 @@ namespace Vault.Migrations
                     b.ToTable("Files");
                 });
 
-            modelBuilder.Entity("Vault.Objects.Folder", b =>
+            modelBuilder.Entity("Vault.Models.Folder", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -70,7 +70,7 @@ namespace Vault.Migrations
                     b.ToTable("Folders");
                 });
 
-            modelBuilder.Entity("Vault.Objects.User", b =>
+            modelBuilder.Entity("Vault.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
