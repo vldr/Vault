@@ -184,6 +184,9 @@ namespace Vault.Controllers
             // Setup our boolean for if nightmode is enabled or not...
             ViewBag.NightMode = Request.Cookies.ContainsKey(".vault.nightmode");
 
+            // Setup our upload size view bag variable...
+            ViewBag.MaxUploadSize = _configuration["MaxVaultFileSize"];
+
             // Return our control view...
             return View();
         }

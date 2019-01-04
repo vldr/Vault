@@ -92,7 +92,7 @@ namespace Vault.Controllers
             if (System.IO.File.Exists($"{filePath}.preview")) filePath = $"{filePath}.preview";
 
             // Return an empty result.
-            return File(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
+            return PhysicalFile(filePath, "application/octet-stream", true);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, false);
+            return PhysicalFile(file.Path, mimeType, true);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Vault.Controllers
                 return StatusCode(500);
 
             // Return an empty result.
-            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
+            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
         }
 
         /// <summary>

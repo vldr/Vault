@@ -28,7 +28,7 @@ namespace Vault2
                      options.Authentication.AllowAnonymous = true;
                      options.EnableResponseCaching = true;
                      options.MaxConnections = -1;  
-                     options.MaxRequestBodySize = 90000000;
+                     options.MaxRequestBodySize = null;
 #if DEBUG
                      options.UrlPrefixes.Add("http://127.0.0.1:6969");
                      options.UrlPrefixes.Add("http://127.0.0.1:6969/manager/");

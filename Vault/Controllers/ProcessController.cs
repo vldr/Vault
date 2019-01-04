@@ -837,7 +837,7 @@ namespace Vault.Controllers
             if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
 
             // Return the file...
-            return File(new FileStream(thumbnailPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "image/*", file.Name);
+            return PhysicalFile(thumbnailPath, "image/*", file.Name, true);
         }
 
         /// <summary>
@@ -908,8 +908,7 @@ namespace Vault.Controllers
                 return StatusCode(500);
 
             // Return an empty result.
-            return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite),
-                "application/octet-stream", file.Name, true);
+            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
         }
 
         /// <summary>

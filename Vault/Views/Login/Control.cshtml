@@ -81,7 +81,7 @@
         new Dropzone(document.body,
         {
             paramName: "file",
-            maxFilesize: 30,
+            maxFilesize: @ViewBag.MaxUploadSize,
             parallelUploads: 1,
             url: "process/upload",
             clickable: ".btnUpload",
