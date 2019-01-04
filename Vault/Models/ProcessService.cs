@@ -35,30 +35,40 @@ namespace Vault.Models
             FileAction = 4,
         }
 
-        /**
-         * Constructor...
-         */
+        /// <summary>
+        /// Constructor...
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="configuration"></param>
+        /// <param name="hubContext"></param>
         public ProcessService(VaultContext context, IConfiguration configuration, IHubContext<VaultHub> hubContext) {
             _context = context;
             _hubContext = hubContext;
             _configuration = configuration;
         }
 
-        /**
-        * Checks if the userid even exists
-        */
+        /// <summary>
+        /// Checks if the userid even exists
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public bool UserExists(int id)
             => _context.Users.Any(b => b.Id == id);
 
-        /**
-        * Gets the hashed password from the database!
-        */
+        /// <summary>
+        /// Gets the hashed password from the database!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public string GetPasswordHash(int id) 
             => _context.Users.Where(b => b.Id == id).FirstOrDefault().Password;
 
-        /**
-        * Checks if the folder even exists
-        */
+        /// <summary>
+        /// Checks if the folder even exists
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public bool IsFolderValid(int ownerId, int id)
             => _context.Folders.Any(b => b.Id == id && b.Owner == ownerId);
 
@@ -89,21 +99,30 @@ namespace Vault.Models
                 return folder;
         }
 
-        /**
-         * Gets a folder given an id...
-         */
+        /// <summary>
+        /// Gets a folder given an id...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public IEnumerable<Folder> GetFolders(int ownerId, int folderId) 
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId);
 
-        /**
-        * Gets a list of folder listings with matching owners and folder id...
-        */
+        /// <summary>
+        /// Gets a list of folder listings with matching owners and folder id...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public int GetFileCount(int ownerId, int folderId)
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Count();
 
-        /**
-         * Gets a list of folder listings with matching owners and folder id...
-         */
+        /// <summary>
+        /// Gets a list of folder listings with matching owners and folder id...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public IEnumerable<FolderListing> GetFolderListings(int ownerId, int folderId)
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId)
             .Select(x => new FolderListing
@@ -114,9 +133,14 @@ namespace Vault.Models
                 Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle)
             });
 
-        /**
-         * Gets a list of file listings with matching owners and folder id...
-         */
+        /// <summary>
+        /// Gets a list of file listings with matching owners and folder id...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="sortBy"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
         public IEnumerable<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0)
             => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
             .Select(x => new FileListing
@@ -131,22 +155,31 @@ namespace Vault.Models
                 ShareId = x.ShareId
             }).Skip(offset).Take(50);
 
-        /**
-         * Gives all the files inside a folder...
-         */
+        /// <summary>
+        /// Gives all the files inside a folder...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public IEnumerable<File> GetFiles(int ownerId, int folderId) 
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId);
 
-        /**
-         * Gives all the files inside a folder using a List...
-         */
+        /// <summary>
+        /// Gives all the files inside a folder using a List...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public List<File> GetFilesList(int ownerId, int folderId) 
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).ToList();
 
 
-        /**
-         * Gets a folders unique attribute depending on its colour...
-         */
+        /// <summary>
+        /// Gets a folders unique attribute depending on its colour...
+        /// </summary>
+        /// <param name="colour"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public string GetFolderAttribute(int colour, AttributeTypes type = AttributeTypes.FolderIcon)
         {
             switch (colour)
@@ -179,9 +212,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-        * Gets a folders unique attribute depending on its colour...
-        */
+        /// <summary>
+        /// Gets a folders unique attribute depending on its colour...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ext"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public string GetFileAttribute(int id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
         {
             // Setup our default action so we don't repeat ourselves...
@@ -321,17 +358,23 @@ namespace Vault.Models
         }
 
 
-        /**
-         * Gets a folder given an id using a list...
-         */
+        /// <summary>
+        /// Gets a folder given an id using a list...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public List<Folder> GetFoldersList(int ownerId, int folderId)
         {
             return _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).ToList();
         }
 
-        /**
-         * Gives all the files inside a folder... (Sorted)
-         */
+        /// <summary>
+        /// Gives all the files inside a folder... (Sorted)
+        /// </summary>
+        /// <param name="query"></param>
+        /// <param name="sortBy"></param>
+        /// <returns></returns>
         public IQueryable<File> SortFiles(IQueryable<File> query, int sortBy = 0)
         {
             switch (sortBy)
@@ -363,9 +406,11 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Generates thumbnails to be used to display images
-         */
+        /// <summary>
+        /// Generates thumbnails to be used to display images
+        /// </summary>
+        /// <param name="ext"></param>
+        /// <param name="path"></param>
         public void GenerateThumbnails(string ext, string path)
         {
             // Check if our file is a PNG, JPEG, or JPG....
@@ -461,9 +506,14 @@ namespace Vault.Models
             magickImage.Write(filePathThumbnail);
         }
 
-        /**
-         * Uses recursion to zip files!
-         */
+        /// <summary>
+        /// Uses recursion to zip files!
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <param name="userId"></param>
+        /// <param name="zip"></param>
+        /// <param name="limit"></param>
+        /// <returns></returns>
         public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
         {
          
@@ -510,39 +560,59 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Checks if a folder can move there...
-         */
+        /// <summary>
+        /// Checks if a folder can move there...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
         public bool IsShareIdTaken(int ownerId, int fileId, string shareId)
             => _context.Files.Any(b => b.Id == fileId && b.Owner == ownerId && b.ShareId == shareId);
 
-        /**
-         * Checks if a folder can move there...
-         */
+        /// <summary>
+        /// Checks if a folder can move there...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="id"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public bool CanFolderMove(int ownerId, int id, int folderId) 
             => _context.Folders.Any(b => b.Id == id && b.Owner == ownerId && b.FolderId == folderId);
-        
-        /**
-         * Checks if a file can move there...
-         */ 
+
+        /// <summary>
+        /// Checks if a file can move there...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="id"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>        
         public bool CanFileMove(int ownerId, int id, int folderId) 
             => _context.Files.Any(b => b.Id == id && b.Owner == ownerId && b.Folder == folderId);
 
-        /**
-         * Gets a folder when asked for one...
-         */
+        /// <summary>
+        /// Gets a folder when asked for one...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public Folder GetFolder(int ownerId, int folderId)
             => _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
-        
-        /**
-         * Gets a file when asked for one...
-         */
+
+        /// <summary>
+        /// Gets a file when asked for one...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
         public File GetFile(int ownerId, int fileId) 
             => _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
 
-        /**
-         * Gets a file using the shareId, only works if it is being shared!
-         */
+        /// <summary>
+        /// Gets a file using the shareId, only works if it is being shared!
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
         public File GetSharedFile(string shareId)
             => _context.Files.Where(b => b.IsSharing == true && b.ShareId == shareId).FirstOrDefault();
 
@@ -625,19 +695,13 @@ namespace Vault.Models
             return ToggleShareFile(user.Id, result.fileId);
         }
 
-        /**
-         * Increment our file hits!
-         */
-        //public void IncrementFileHit(File file)
-        //{
-        //    file.Hits++;
-        //
-        //    _context.SaveChanges();
-        //}
-
-        /**
-         * Adds a new folder to the dataset...
-         */
+        /// <summary>
+        /// Adds a new folder to the dataset...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderName"></param>
+        /// <param name="rootFolder"></param>
+        /// <returns></returns>
         public (bool success, Folder folder) AddNewFolder(int ownerId, string folderName, int rootFolder)
         {
             // Catch any exceptions...
@@ -672,9 +736,12 @@ namespace Vault.Models
             }
         }
 
-        /**
-        * Share our file!
-        */
+        /// <summary>
+        /// Share our file!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
         public (bool success, string shareId) ToggleShareFile(int id, int fileId)
         {
             // Catch any exceptions...
@@ -782,9 +849,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Update our file name!
-         */
+        /// <summary>
+        /// Update our file name!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="fileId"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
         public bool UpdateFileName(int id, int fileId, string newName)
         {
             // Catch any exceptions...
@@ -813,9 +884,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Update our folder name!
-         */
+        /// <summary>
+        /// Update our folder name!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="folderId"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
         public bool UpdateFolderName(int id, int folderId, string newName)
         {
             // Catch any exceptions...
@@ -844,9 +919,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Update our folder colour!
-         */
+        /// <summary>
+        /// Update our folder colour!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="folderId"></param>
+        /// <param name="newColour"></param>
+        /// <returns></returns>
         public bool UpdateFolderColour(int id, int folderId, int newColour)
         {
             // Catch any exceptions...
@@ -875,9 +954,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Returns the string representation of the folder's location...
-         */
+        /// <summary>
+        /// Returns the string representation of the folder's location...
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="limit"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public string GetFolderLocation(Folder folder, int limit = 0, StringBuilder location = null)
         {
             // If our location parameter is null then initialize it.
@@ -897,9 +980,13 @@ namespace Vault.Models
             return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), limit, location);
         }
 
-        /**
-         * Returns the string representation of the folder's location in html format...
-         */
+        /// <summary>
+        /// Returns the string representation of the folder's location in html format...
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="limit"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
         public string GetFolderLocationFormatted(Folder folder, int limit = 0, StringBuilder location = null)
         {
             // If our location parameter is null then initialize it.
@@ -919,9 +1006,12 @@ namespace Vault.Models
             return location.ToString();
         }
 
-        /**
-         * Update our sort by field!
-         */
+        /// <summary>
+        /// Update our sort by field!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newSortBy"></param>
+        /// <returns></returns>
         public bool UpdateSortBy(int id, int newSortBy)
         {
             // Catch any exceptions...
@@ -950,9 +1040,12 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Update our name!
-         */
+        /// <summary>
+        /// Update our name!
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="newName"></param>
+        /// <returns></returns>
         public bool UpdateName(int id, string newName)
         {
             // Catch any exceptions...
@@ -981,9 +1074,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Update our password
-         */
+        /// <summary>
+        /// Update our password...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="currentPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
         public bool UpdatePassword(int id, string currentPassword, string newPassword)
         {
             // Catch any exceptions...
@@ -1018,10 +1115,12 @@ namespace Vault.Models
             return false;
         }
 
-
-        /**
-         * Deletes a file from the dataset...
-         */
+        /// <summary>
+        /// Deletes a file from the dataset...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public bool DeleteFolder(int ownerId, int folderId)
         {
             // Catch any exceptions...
@@ -1074,9 +1173,10 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Disposes all the files related to the file path!
-         */
+        /// <summary>
+        /// Disposes all the files related to the file path!
+        /// </summary>
+        /// <param name="filePath"></param>
         public void DisposeFileOnDisk(string filePath)
         {
             try
@@ -1098,9 +1198,12 @@ namespace Vault.Models
             catch { }
         }
 
-        /**
-         * Deletes a file from the dataset...
-         */
+        /// <summary>
+        /// Deletes a file from the dataset...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
         public bool DeleteFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
@@ -1136,10 +1239,14 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Moves a folder to a different folder location...
-         * folder.Id -> newFolderId
-         */
+        /// <summary>
+        /// Moves a folder to a different folder location...
+        /// folder.Id -> newFolderId
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="newFolderId"></param>
+        /// <returns></returns>
         public bool MoveFolder(int ownerId, int folderId, int newFolderId)
         {
             // Catch any exceptions...
@@ -1172,10 +1279,13 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Moves a file to a different folder location...
-         * file.Id -> folderId
-         */
+        /// <summary>
+        /// Moves a file to a different folder location...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         public bool MoveFile(int ownerId, int fileId, int folderId)
         {
             // Catch any exceptions...

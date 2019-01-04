@@ -8,14 +8,18 @@ namespace Vault.Models
         // Our vault database context...
         private VaultContext _context { get; set; }
 
-        /**
-         * Constructor...
-         */
+        /// <summary>
+        /// Constructor...
+        /// </summary>
+        /// <param name="context"></param>
         public LoginService(VaultContext context) => _context = context;
 
-        /**
-         * Attempts to log the user in the system...
-         */
+        /// <summary>
+        /// Attempts to log the user in the system...
+        /// </summary>
+        /// <param name="email"></param>
+        /// <param name="hash"></param>
+        /// <returns></returns>
         public User Login(string email, string hash)
         {
 
@@ -39,36 +43,45 @@ namespace Vault.Models
             }
         }
 
-        /**
-         * Attempts to find the user's ID...
-         */
+        /// <summary>
+        /// Attempts to find the user's ID...
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         public int? GetUserId(string email) => _context.Users
                     .Where(b => b.Email == email)
                     ?.FirstOrDefault()?.Id;
 
-        /**
-         * Attempts to find the user by given id...
-         */
+        /// <summary>
+        /// Attempts to find the user by given id...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public User GetUser(int id) => _context.Users.Where(b => b.Id == id)?.FirstOrDefault();
 
-        /**
-         * Checks if the userid even exists
-         */
+        /// <summary>
+        /// Checks if the userid even exists
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public bool UserExists(int id) => _context.Users.Any(b => b.Id == id);
 
-        /*
-         * Adds an ip address to the user
-         */
+        /// <summary>
+        /// Adds an ip address to the user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ip"></param>
         public void AppendIPAddress(int id, string ip)
         {
             _context.Users.Find(id).IPAddresses += $"{ip}\n";
             _context.SaveChanges();
         }
 
-        /**
-         * Register
-         * Registers a user to the database...
-         */
+        /// <summary>
+        /// Registers a user to the database...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         public bool Register(User user)
         {
             // Catch all our exceptions...
