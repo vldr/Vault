@@ -180,7 +180,14 @@ function processListFiles(reset = true, offset = 0, callback)
                     return;
                 }
 
-                if (json.isHome && json.total === 0 && json.folders.length === 0)
+                if (reset)
+                {
+                    rendered = 0;
+                    renderListings(json);
+                }
+                else renderFiles(json);
+
+                if (json.isHome && rendered === 0 && json.folders.length === 0)
                 {
                     document.getElementById("file-listing").innerHTML = "";
                     document.getElementById("file-listing").style.display = "none";
@@ -191,14 +198,7 @@ function processListFiles(reset = true, offset = 0, callback)
                     return;
                 }
 
-                if (reset)
-                {
-                    rendered = 0;
-                    renderListings(json);
-                }
-                else renderFiles(json);
-
-                if ((json.total - rendered) > 0)
+                if (json.files.length !== 0)
                 {
                     window.onscroll = function (ev) {
                         if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
@@ -1016,7 +1016,7 @@ function processMove(event)
                 rendered = 0;
                 renderListings(json);
 
-                if ((json.total - rendered) > 0) {
+                if (json.files.length !== 0) {
                     window.onscroll = function (ev) {
                         if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
                             processListFiles(false, rendered);

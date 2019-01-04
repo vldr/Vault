@@ -12,10 +12,9 @@ namespace Vault.Objects
         public bool IsHome { get; set; }
         public int Previous { get; set; }
         public int Sort { get; set; }
-        public int Total { get; set; }
 
-        public List<FolderListing> Folders { get; set; }
-        public List<FileListing> Files { get; set; }
+        public IEnumerable<FolderListing> Folders { get; set; }
+        public IEnumerable<FileListing> Files { get; set; }
     }
 
     public class FileListing

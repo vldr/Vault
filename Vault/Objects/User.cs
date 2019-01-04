@@ -16,6 +16,8 @@ namespace Vault.Objects
         public int SortBy { get; set; }
         public int Folder { get; set; }
 
+        public long MaxBytes { get; set; }
+
         public bool APIEnabled { get; set; }
         public string APIKey { get; set; }
     }

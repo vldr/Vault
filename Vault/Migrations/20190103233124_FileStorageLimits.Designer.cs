@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vault.Objects;
 
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    partial class VaultContextModelSnapshot : ModelSnapshot
+    [Migration("20190103233124_FileStorageLimits")]
+    partial class FileStorageLimits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +98,8 @@ namespace Vault.Migrations
                     b.Property<string>("Password");
 
                     b.Property<int>("SortBy");
+
+                    b.Property<long>("UsedBytes");
 
                     b.HasKey("Id");
 

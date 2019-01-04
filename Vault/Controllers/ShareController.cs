@@ -123,7 +123,7 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, false);//File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 12000, true), mimeType);
+            return PhysicalFile(file.Path, mimeType, false);
         }
 
         /// <summary>
@@ -150,9 +150,6 @@ namespace Vault.Controllers
             if (!System.IO.File.Exists(file.Path))
                 return StatusCode(500);
 
-            // Increment our file hits so we can know how many times the file was downloaded!
-            _processService.IncrementFileHit(file);
-
             // Return an empty result.
             return File(new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), "application/octet-stream", file.Name, true);
         }
@@ -178,8 +175,16 @@ namespace Vault.Controllers
                 long size = file.Length;
 
                 // Check if the file is too big to upload...
-                if (size > int.Parse(_configuration["MaxVaultFileSize"]))
+                if (size > long.Parse(_configuration["MaxVaultFileSize"]))
                     return Json(new { Success = false, Reason = "The file size is too large..." });
+
+                //////////////////////////////////////////////////////////////////
+
+                // Check if the user has enough storage to upload the file...
+                if (!_processService.CanUpload(user, size))
+                    return Json(new { Success = false, Reason = "Not enough storage to upload file..." });
+
+                //////////////////////////////////////////////////////////////////
 
                 // Full path to file in temp location
                 string filePath = _configuration["VaultStorageLocation"] + _processService.RandomString(30);
@@ -192,6 +197,9 @@ namespace Vault.Controllers
                 // Setup our file name while also checking if our given file name isn't null...
                 string fileName = file.FileName == null ? "Unknown.bin" : file.FileName;
 
+                // Get the file's extension...
+                string fileExtension = Path.GetExtension(fileName).ToLower();
+
                 // Copy our file from buffer...
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -200,37 +208,24 @@ namespace Vault.Controllers
 
                 //////////////////////////////////////////////////////////////////
 
-                // Get the file's extension...
-                string fileExtension = Path.GetExtension(fileName).ToLower();
-                
-                // Call our generate thumbnail which will generate a thumbnails...
-                _processService.GenerateThumbnails(fileExtension, filePath);
-
-                //////////////////////////////////////////////////////////////////
-
-                // Okay, so we wanna upload this fol
-                Folder folder = _processService.FolderCreateOrExists(user, "API");
-
-                // Double check, if our folder is null or not...
-                if (folder == null)
-                    // Respond with that something bad happened...
-                    return Json(new { Success = false, Reason = "Internal server error! (folder creation)" });
-
                 // Add the new file...
-                Objects.File fileObj = _processService.AddNewFileAndShare(user.Id, size, fileName, fileExtension, folder.Id, filePath);
+                var result = _processService.AddNewFileAPI(user, size, fileName, fileExtension, filePath);
 
-                // Check if our file object came out okay...
-                if (fileObj == null || fileObj.IsSharing == false)
-                    return Json(new { Success = false, Reason = "Internal server error! (file came out null or wasn't shared)" });
+                // Check we were successful in adding a new file...
+                if (result.success)
+                {
+                    // Tell our users to update their listings...
+                    _processService.UpdateListings(user.Id, Request);
 
-                // Tell our users to update their listings...
-                _processService.UpdateListings(user.Id, Request);
-               
-                // Setup a path for our uploaders to know where this is located...
-                var path = $"{_configuration["ShareUploadLocation"]}{fileObj.ShareId}";
-                
-                // Respond with a successful message...
-                return Json(new { Success = true, Path = path });
+                    // Setup a path for our uploaders to know where this is located...
+                    var path = $"{_configuration["ShareUploadLocation"]}{result.shareId}";
+
+                    // Respond with a successful message...
+                    return Json(new { Success = true, Path = path });
+                }
+                else
+                    // Respond that something bad happened...
+                    return Json(new { Success = false, Reason = "Transaction error..." });
             }
             catch
             {

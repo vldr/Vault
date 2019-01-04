@@ -80,19 +80,9 @@ namespace Vault.Objects
             // If we haven't found a folder matching our criteria, then gohead and make a new one...
             if (folder == null)
             {
-                // Create a new folder object...
-                Folder folderObj = new Folder
-                {
-                    Owner = owner.Id,
-                    Name = folderName,
-                    FolderId = owner.Folder
-                };
-
                 // Attempt to add our folder to the database...
-                AddNewFolder(folderObj);
-
                 // Return our newly created folder object...
-                return folderObj;
+                return AddNewFolder(owner.Id, folderName, owner.Folder).folder;
             }
             else
                 // Otherwise, return the folder that is already there...
@@ -114,7 +104,7 @@ namespace Vault.Objects
         /**
          * Gets a list of folder listings with matching owners and folder id...
          */
-        public List<FolderListing> GetFolderListings(int ownerId, int folderId)
+        public IEnumerable<FolderListing> GetFolderListings(int ownerId, int folderId)
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId)
             .Select(x => new FolderListing
             {
@@ -122,12 +112,12 @@ namespace Vault.Objects
                 Name = x.Name,
                 Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
                 Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle)
-            }).ToList();
+            });
 
         /**
          * Gets a list of file listings with matching owners and folder id...
          */
-        public List<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0)
+        public IEnumerable<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0)
             => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
             .Select(x => new FileListing
             {
@@ -139,7 +129,7 @@ namespace Vault.Objects
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
-            }).Skip(offset).Take(50).ToList();
+            }).Skip(offset).Take(50);
 
         /**
          * Gives all the files inside a folder...
@@ -563,12 +553,41 @@ namespace Vault.Objects
         /// <returns></returns>
         public User GetUserAPI(string apiKey) => _context.Users.Where(b => b.APIEnabled == true && b.APIKey == apiKey).FirstOrDefault();
 
-        /**
-         * Adds a new file to the dataset...
-         */
-        public void AddNewFile(int userId, long size, string name, string ext, int folderId, string path)
+        /// <summary>
+        /// Handles adding, and generating thumbnails...
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="size"></param>
+        /// <param name="name"></param>
+        /// <param name="ext"></param>
+        /// <param name="fileId"></param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public (bool success, int fileId) AddNewFile(int userId, long size, string name, string ext, int folderId, string path)
         {
-            File fileObj = new Objects.File
+            // Get our user following with that user id...
+            User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
+
+            // Check if the user exists...
+            if (user == null)
+                return (false, -1);
+
+            // Check if bytes used is greater than the user has allocated...
+            // PLEASE check elsewhere for this condition, this is only a safe guard...
+            /*if ((user.UsedBytes + size) > user.MaxBytes)
+            {
+                // If so, delete this file and end it here...
+                DisposeFileOnDisk(path);
+
+                // Return here...
+                return (false, -1);
+            }*/
+
+            // Call our generate thumbnail which will generate a thumbnails...
+            GenerateThumbnails(ext, path);
+
+            // Generate a file object...
+            File fileObj = new File
             {
                 Owner = userId,
                 Size = size,
@@ -579,66 +598,95 @@ namespace Vault.Objects
                 Path = path
             };
 
+            // Add the file object to the files context...
             _context.Files.Add(fileObj);
+
+            // Save all our changes...
             _context.SaveChanges();
+
+            // Return true that the operation was successful...
+            return (true, fileObj.Id);
         }
 
-        /**
-         * Adds a new file to the dataset and share it...
-         */
-        public File AddNewFileAndShare(int userId, long size, string name, string ext, int folderId, string path)
+        /// <summary>
+        /// Shares a file using the AddNewFile as a backbone and while 
+        /// also placing files inside a folder "API" on the home screen...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="size"></param>
+        /// <param name="name"></param>
+        /// <param name="ext"></param>
+        /// <param name="path"></param>
+        /// <returns>Tuple, (success and the shareId filled if it was successful...)</returns>
+        public (bool success, string shareId) AddNewFileAPI(User user, long size, string name, string ext, string path)
         {
-            File fileObj = new Objects.File
-            {
-                Owner = userId,
-                Size = size,
-                Name = System.Net.WebUtility.HtmlEncode(name),
-                Ext = ext,
-                Created = DateTime.Now,
-                Folder = folderId,
-                Path = path,
-            };
+            // Add new folder or use folder if it already exists...
+            Folder folder = FolderCreateOrExists(user, "API");
 
-            // Add our file to the dataset...
-            _context.Files.Add(fileObj);
+            // Check if the folder was able to be used or created...
+            if (folder == null) return (false, string.Empty);
 
-            // Save our changes...
-            _context.SaveChanges();
+            // Call our original add new file...
+            var result = AddNewFile(user.Id, size, name, ext, folder.Id, path);
 
-            // Sadly we must perform two operations...
-            // Share our file...
-            ToggleShareFile(userId, fileObj.Id);
+            // Make sure adding our file was successful, if not, return false...
+            if (!result.success) return (false, string.Empty);
 
-            // Finally return our file object...
-            return fileObj;
+            // Respond with a tuple...
+            return ToggleShareFile(user.Id, result.fileId);
         }
 
         /**
          * Increment our file hits!
          */
-        public void IncrementFileHit(File file)
-        {
-            file.Hits++;
-
-            _context.SaveChanges();
-        }
+        //public void IncrementFileHit(File file)
+        //{
+        //    file.Hits++;
+        //
+        //    _context.SaveChanges();
+        //}
 
         /**
          * Adds a new folder to the dataset...
          */
-        public void AddNewFolder(Folder folder)
+        public (bool success, Folder folder) AddNewFolder(int ownerId, string folderName, int rootFolder)
         {
-            // Add our folder to the context...
-            _context.Folders.Add(folder);
+            // Catch any exceptions...
+            try
+            {
+                // Filter out our folder name...
+                if (folderName == null)
+                    // If it is null, then replace it with an empty string...
+                    folderName = string.Empty;
 
-            // Save our changes!
-            _context.SaveChanges();
+                // Create a new folder object...
+                Folder folder = new Folder
+                {
+                    Owner = ownerId,
+                    Name = folderName,
+                    FolderId = rootFolder
+                };
+
+                // Add our folder to the context...
+                _context.Folders.Add(folder);
+
+                // Save our changes!
+                _context.SaveChanges();
+
+                // Return the folder object...
+                return (true, folder);
+            }
+            catch
+            {
+                // Exception, false...
+                return (false, null);
+            }
         }
 
         /**
         * Share our file!
         */
-        public bool ToggleShareFile(int id, int fileId)
+        public (bool success, string shareId) ToggleShareFile(int id, int fileId)
         {
             // Catch any exceptions...
             try
@@ -648,7 +696,7 @@ namespace Vault.Objects
 
                 // Check if our user is null!
                 if (file == null)
-                    return false;
+                    return (false, string.Empty);
 
                 // If we want to toggle off our share, then it is simple!
                 if (file.IsSharing)
@@ -671,7 +719,7 @@ namespace Vault.Objects
                     // Check if our share id is taken!
                     if (IsShareIdTaken(id, fileId, shareId))
                         // Return false if it is taken!
-                        return false;
+                        return (false, string.Empty);
 
                     // Generate our random string for our share id!
                     file.ShareId = shareId;
@@ -681,12 +729,12 @@ namespace Vault.Objects
                 _context.SaveChanges();
 
                 // Return true as it was successful...
-                return true;
+                return (true, file.ShareId);
             }
             catch
             {
                 // Exception, false...
-                return false;
+                return (false, string.Empty);
             }
         }
 
@@ -1105,25 +1153,34 @@ namespace Vault.Objects
          */
         public bool MoveFolder(int ownerId, int folderId, int newFolderId)
         {
-            // Get our folders as objects...
-            Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
-            Folder newFolder = _context.Folders.Where(b => b.Id == newFolderId && b.Owner == ownerId).FirstOrDefault();
-
-            // Check if our new folder and our current folder isn't null...
-            if (folder != null && newFolder != null)
+            // Catch any exceptions...
+            try
             {
-                // Modify
-                folder.FolderId = newFolder.Id;
+                // Get our folders as objects...
+                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
+                Folder newFolder = _context.Folders.Where(b => b.Id == newFolderId && b.Owner == ownerId).FirstOrDefault();
 
-                // Save our changes...
-                _context.SaveChanges();
+                // Check if our new folder and our current folder isn't null...
+                if (folder != null && newFolder != null)
+                {
+                    // Modify
+                    folder.FolderId = newFolder.Id;
 
-                // Respond with a true...
-                return true;
+                    // Save our changes...
+                    _context.SaveChanges();
+
+                    // Respond with a true...
+                    return true;
+                }
+                else
+                    // Otherwise return false...
+                    return false;
             }
-            else
-                // Otherwise return false...
+            catch
+            {
+                // Exception, false...
                 return false;
+            }
         }
 
         /**
@@ -1132,25 +1189,116 @@ namespace Vault.Objects
          */
         public bool MoveFile(int ownerId, int fileId, int folderId)
         {
-            // Get our folders as objects...
-            File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
-            Folder newFolder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
-
-            // Check if our new folder and our current folder isn't null...
-            if (file != null && newFolder != null)
+            // Catch any exceptions...
+            try
             {
-                // Modify
-                file.Folder = newFolder.Id;
+                // Get our folders as objects...
+                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+                Folder newFolder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
 
-                // Save our changes...
-                _context.SaveChanges();
+                // Check if our new folder and our current folder isn't null...
+                if (file != null && newFolder != null)
+                {
+                    // Modify
+                    file.Folder = newFolder.Id;
 
-                // Respond with a true...
-                return true;
+                    // Save our changes...
+                    _context.SaveChanges();
+
+                    // Respond with a true...
+                    return true;
+                }
+                else
+                    // Otherwise return false...
+                    return false;
             }
-            else
-                // Otherwise return false...
+            catch
+            {
+                // Exception, false...
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Responds with whether a user can upload with the given file size...
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public bool CanUpload(int userId, long size)
+        {
+            try
+            {
+                // Setup our user...
+                User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
+
+                // Check if our user exists...
+                if (user == null)
+                    // If it doesn't then return here...
+                    return false;
+
+                // Setup our max bytes variable...
+                var max = user.MaxBytes;
+
+                // Setup our total bytes variable...
+                var total = _context.Files.Where(b => b.Owner == userId).Sum(b => b.Size);
+
+                // Setup a boolean condition to check if we're beyond our limit...
+                return !(total + size > max);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Responds with whether a user can upload with the given file size...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="size"></param>
+        /// <returns></returns>
+        public bool CanUpload(User user, long size)
+        {
+            try
+            {
+                // Setup our max bytes variable...
+                var max = user.MaxBytes;
+
+                // Setup our total bytes variable...
+                var total = _context.Files.Where(b => b.Owner == user.Id).Sum(b => b.Size);
+
+                // Setup a boolean condition to check if we're beyond our limit...
+                return !(total + size > max);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns a formatted string of the remaining storage space...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public string StorageFormatted(User user)
+        {
+            try
+            {
+                // Setup our total bytes variable...
+                var total = GetBytesReadable(_context.Files.Where(b => b.Owner == user.Id).Sum(b => b.Size));
+
+                // Setup our max bytes...
+                var max = GetBytesReadable(user.MaxBytes);
+
+                // Setup a boolean condition to check if we're beyond our limit...
+                return $"{total} / {max} used";
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         /// <summary>

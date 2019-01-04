@@ -80,7 +80,6 @@ namespace Vault.Controllers
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-
                 // Setup our sync cookie value...
                 var syncValue = _processService.RandomString(55);
 
@@ -147,6 +146,7 @@ namespace Vault.Controllers
                     Email = email,
                     Password = password,
                     Name = name,
+                    MaxBytes = long.Parse(_configuration["VaultMaxBytes"]),
                     APIEnabled = false,
                     APIKey = string.Empty,
                     IPAddresses = HttpContext.Connection.RemoteIpAddress.ToString()
@@ -173,7 +173,7 @@ namespace Vault.Controllers
         public IActionResult Control()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return StatusCode(500);
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -226,6 +226,9 @@ namespace Vault.Controllers
 
             // Save our user to the view bag...
             ViewBag.User = _loginService.GetUser(userSession.Id);
+
+            // Setup our storage space variable...
+            ViewBag.Storage = _processService.StorageFormatted(ViewBag.User);
 
             // Return our control view...
             return View();

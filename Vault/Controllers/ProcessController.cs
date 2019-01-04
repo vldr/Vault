@@ -159,7 +159,6 @@ namespace Vault.Controllers
                 IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Total = _processService.GetFileCount(id, folderId),
                 Files = _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault())
             };
 
@@ -186,28 +185,18 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user's id...
-            int id = userSession.Id;
-
-            // Get our current folder that we are inside of...
-            int folderId = userSession.Folder;
-
-            // Create a new folder object...
-            Folder folderObj = new Folder
-            {
-                Owner = id,
-                Name = folderName == null ? "" : folderName,
-                FolderId = folderId
-            };
-
             // Call our add new folder to add a brand new folder...
-            _processService.AddNewFolder(folderObj);
+            if (_processService.AddNewFolder(userSession.Id, folderName, userSession.Folder).success)
+            {
+                // Let all our sessions know that our listings have been updated...
+                _processService.UpdateListings(userSession.Id, Request);
 
-            // Let all our sessions know that our listings have been updated...
-            _processService.UpdateListings(id, Request);
-
-            // Return a sucessful response...
-            return Json(new { Success = true });
+                // Return a sucessful response...
+                return Json(new { Success = true });
+            }
+            else
+                // Return an error stating there was a problem with this transaction...
+                return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /// <summary>
@@ -580,7 +569,7 @@ namespace Vault.Controllers
             int id = userSession.Id;
 
             // Update our file's shareablity!
-            if (_processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault()))
+            if (_processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault()).success)
                 return Json(new { Success = true });
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
@@ -686,14 +675,24 @@ namespace Vault.Controllers
             {
                 // Check if we're logged in...
                 if (!IsLoggedIn())
-                    return NotLoggedIn();
+                    return StatusCode(500);
 
                 // Store our file size...
                 long size = file.Length;
 
                 // File too big!
-                if (size > int.Parse(_configuration["MaxVaultFileSize"]))
+                if (size > long.Parse(_configuration["MaxVaultFileSize"])) return StatusCode(500);
+
+                // Get our user's session, it is safe to do so because we've checked if we're logged in!
+                UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+                //////////////////////////////////////////////////////////////////
+
+                // Check if the user has enough storage to upload the file...
+                if (!_processService.CanUpload(userSession.Id, size))
                     return StatusCode(500);
+
+                //////////////////////////////////////////////////////////////////
 
                 // Full path to file in temp location
                 string filePath = _storageLocation + _processService.RandomString(30);
@@ -717,32 +716,29 @@ namespace Vault.Controllers
                 // Get the file's extension...
                 string fileExtension = Path.GetExtension(fileName).ToLower();
 
-                // Call our generate thumbnail which will generate a thumbnails...
-                _processService.GenerateThumbnails(fileExtension, filePath);
-
-                // Get our user's session, it is safe to do so because we've checked if we're logged in!
-                UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
                 // Add the new file...
-                _processService.AddNewFile(
-                    userSession.Id, 
-                    size, 
-                    fileName, 
-                    fileExtension, 
-                    userSession.Folder, 
-                    filePath
-                );
+                if (_processService.AddNewFile(
+                    userSession.Id,
+                    size,
+                    fileName,
+                    fileExtension,
+                    userSession.Folder,
+                    filePath).success)
+                {
+                    // Inform all clients that there was change...
+                    _processService.UpdateListings(userSession.Id, Request);
 
-                // Tell our users to update their listings...
-                _processService.UpdateListings(userSession.Id, Request);
-
-                // Respond with a successful message...
-                return Json(new { Success = true });
+                    // Respond with a successful message...
+                    return Ok();
+                }
+                else
+                    // Otherwise return a 500 error...
+                    return StatusCode(500);
             }
             catch
             {
                 // Respond with zero since something bad happened...
-                return Json(new { Success = false, Reason = "Transaction error..." });
+                return StatusCode(500);
             }
         }
 
