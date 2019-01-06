@@ -225,7 +225,13 @@ namespace Vault.Controllers
             return PhysicalFile(file.Path, mimeType, file.Name, true);
         }
 
-
+        /// <summary>
+        /// Returns the thumbnail of a file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("share/thumbnail/{shareId}/{fileId}/{folderId}")]
         public IActionResult FolderFileThumbnail(string shareId, int? fileId, int? folderId)
@@ -265,7 +271,7 @@ namespace Vault.Controllers
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Route("share/dl/{shareId}")]
         public IActionResult DownloadSharedFile(string shareId)
         {
