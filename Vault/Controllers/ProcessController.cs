@@ -575,6 +575,36 @@ namespace Vault.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
+        /// <summary>
+        /// Enables or disable the share functionality of a folder in the controller...
+        /// </summary>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/togglefoldershare")]
+        public IActionResult ToggleFolderShare(int? folderId)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Check for nulls...
+            if (folderId == null)
+                return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our user id...
+            int id = userSession.Id;
+
+            // Update our file's shareablity!
+            if (_processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault()).success)
+                return Json(new { Success = true });
+            else
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
+
 
         /// <summary>
         /// Move a file...
@@ -862,12 +892,15 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null)
-                return StatusCode(500);
+            if (file == null) return StatusCode(500);
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id, file.Ext);
+            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
+            ViewBag.Url = $"/manager/process/download/{file.Id}";
 
             // Return the partial view...
             return View();

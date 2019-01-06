@@ -26,7 +26,6 @@
         <link rel="stylesheet" type="text/css" href="/manager/css/dialog.css">
     }
 </head>
-   
 
 <body onclick="resetContextMenu()" onresize="resetContextMenu()">
     <div id="loader-horizontal"></div>
@@ -132,6 +131,26 @@
                 document.getElementById("snack-bar-text").innerHTML = `Uploaded ${this.getAcceptedFiles().length} file${this.getAcceptedFiles().length > 1 ? 's' : ''}...`;
             }
         });
+
+        const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifications").configureLogging(signalR.LogLevel.Information).build();
+
+        connection.on("UpdateListing", () => { processListFiles(); });
+
+        connection.onclose(() => {
+            console.log("Lost connection...");
+            reconnectToSignalR();
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        function reconnectToSignalR()
+        {
+            connection.start().catch(function (err) {
+                reconnectToSignalR();
+            });
+        }
     </script>
 </body>
 </html>

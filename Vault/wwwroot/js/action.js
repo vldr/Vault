@@ -1,29 +1,6 @@
 var fadeOutTimer;
 var rendered = 0;
 
-const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifications").configureLogging(signalR.LogLevel.Information).build();
-
-connection.on("UpdateListing", () => { processListFiles(); });
-
-connection.onclose(() =>
-{
-    console.log("Lost connection...");  
-    reconnectToSignalR();
-});
-
-connection.start().catch(function (err)
-{
-    return console.error(err.toString());
-});
-
-function reconnectToSignalR()
-{
-    connection.start().catch(function (err)
-    {
-        reconnectToSignalR();
-    });
-}
-
 function createCookie(name, value, expires, path, domain) {
 	var cookie = name + "=" + escape(value) + ";";
 
@@ -144,6 +121,8 @@ function renderListings(json, isSilent = false)
             `<div class='gridItem-folder ${folder.style}'
                 data-folder-id='${folder.id}'
                 data-folder-title='${folder.name}'
+                data-folder-shared='${folder.isSharing}'
+                data-folder-share='${folder.shareId}'
                 ondragend='dragEnd(event)'
                 ondragstart='dragStart(event)'
                 ondrop='drop(event)'
@@ -226,6 +205,7 @@ function processListFiles(reset = true, offset = 0, callback)
     xmlhttp.send("offset=" + offset);
 }
 
+
 function processDelete(str) {
 	swal({
         title: "Are you sure?",
@@ -305,6 +285,7 @@ function contextMenuFolder(event)
     menuOptions.innerHTML = `<li class="menu-option" data-folder-id="${folderId}" onclick="processMove(event)">Open</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processRenameFolder(event)">Rename</li>`
         + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
+        + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
         + `<li class="menu-option-color-picker">
                 <div onclick="processFolderColour(${folderId}, 0)" class="color-circle orange"></div>
@@ -495,6 +476,34 @@ function toggleAPI()
     xhr.send();
 }
 
+function processToggleFolderSharing(id)
+{
+    var checkBox = document.getElementById("share-checkbox-input");
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
+            if (xhr.status === 200 && xhr.status < 300) {
+                var json = JSON.parse(xhr.responseText);
+
+                if (json.success)
+                    processListFiles(true, 0, function () { processShareFolder(id); });
+                else
+                    swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+    };
+
+    xhr.open('POST', '/manager/process/togglefoldershare');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("folderid=" + id);
+}
+
 function processToggleSharing(id)
 {
     var checkBox = document.getElementById("share-checkbox-input");
@@ -581,6 +590,31 @@ function processShareFile(id)
             <br><br>`
             : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">
+                <span class="checkmark"></span>
+            </label>`)
+    });
+}
+
+function processShareFolder(id) {
+    var isShared = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-shared");
+    var shareId = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-share");
+
+    swal({
+        title: "Share",
+        html: true,
+        animation: false,
+        customClass: 'fadein',
+        showConfirmButton: true,
+
+        text: `<p style="text-align: left;">You can easily share your folders with anybody around the globe. Simply enable sharing and give them the link below!</p><br>`
+            + (isShared === "true" ? `
+            <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleFolderSharing(${id})">
+                <span class="checkmark"></span> 
+            </label>
+            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/manager/share/folder/${shareId}</div>
+            <br><br>`
+                : `<label id="share-checkbox">Enable
+                <input id="share-checkbox-input" type="checkbox" onclick="processToggleFolderSharing(${id})">
                 <span class="checkmark"></span>
             </label>`)
     });
@@ -994,9 +1028,6 @@ function processFolderCreate() {
 
 function processMove(event)
 {	
-    if (event.target.getAttribute('data-delete') === "1")
-        return;
-
 	var str = event.target.getAttribute('data-folder-id');
     var xhr = new XMLHttpRequest();
 
@@ -1037,7 +1068,6 @@ function processMove(event)
     xhr.open('POST', '/manager/process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + str);
-
 }
 
 function dragEnd(event) {
@@ -1099,4 +1129,132 @@ function processDownload(event)
     xhr.open('POST', '/manager/process/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
+}
+
+function processSharedViewer(fileId, folderId, shareId)
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+            if (xhr.status === 200 && xhr.status < 300) {
+                document.getElementById("file-viewer").innerHTML = xhr.responseText;
+                document.getElementById("file-viewer").style.display = "block";
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '/manager/share/viewer');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("fileId=" + fileId + "&folderId=" + folderId + "&shareId=" + shareId);
+}
+
+function renderSharedFiles(json) {
+    var elem = document.getElementById('listings');
+
+    for (i in json.files) {
+        var file = json.files[i];
+
+        elem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem-folder'
+                data-file-id='${file.id}'
+                data-file-title='${file.name}'
+                onclick='processSharedViewer(${file.id}, ${file.folder}, "${json.shareId}")'>
+
+            <div class="grid-file-icon" style="background-image: url('${file.icon}');"></div>
+            <p class="grid-text">${file.name.substring(0, 13)}</p>
+            </div>`);
+    }
+
+    rendered += json.files.length;
+}
+
+function renderSharedListings(json) {
+    var listings = document.getElementById('listings');
+
+    listings.innerHTML = "";
+
+    if (!json.isHome)
+    {
+        listings.insertAdjacentHTML("beforeend",
+            `<div class='gridItem-folder'
+                data-folder-id='${json.previous}'
+                onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
+
+                <div class="grid-icon" style="background-image: url('/manager/images/folder-icon.png'); 
+                background-size: 24px;"></div>
+
+                <p class="grid-text">...</p>
+            </div>`);
+    }
+
+    for (i in json.folders) {
+        var folder = json.folders[i];
+
+        listings.insertAdjacentHTML("beforeend",
+            `<div class='gridItem-folder'
+                data-folder-id='${folder.id}'
+                data-folder-title='${folder.name}'
+                onclick='processSharedListFiles(${folder.id}, "${json.shareId}")'>
+
+                <div class="grid-icon" style="background-image: url('${folder.icon}'); 
+                background-size: 24px;"></div>
+
+                <p class="grid-text">${folder.name.substring(0, 13)}</p>
+            </div>`);
+    }
+
+    renderSharedFiles(json);
+}
+
+function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4) {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300)
+            {
+                document.getElementById("loader-horizontal").style.display = "none";
+
+                var json = JSON.parse(xmlhttp.responseText);
+
+                if (!json.success) {
+                    swal("Error!", json.reason, "error");
+                    return;
+                }
+
+                if (reset) {
+                    rendered = 0;
+                    renderSharedListings(json);
+                }
+                else renderSharedFiles(json);
+
+                if (json.files.length !== 0) {
+                    window.onscroll = function (ev) {
+                        if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
+                            processSharedListFiles(folderId, shareId, false, rendered);
+                            window.onscroll = null;
+                        }
+                    };
+                }
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xmlhttp.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xmlhttp.open("POST", "/manager/share/list", true);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send("offset=" + offset + "&shareId=" + shareId + "&folderId=" + folderId);
 }

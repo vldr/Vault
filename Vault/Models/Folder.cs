@@ -13,7 +13,9 @@ namespace Vault.Models
         public string Name { get; set; }
         public int Colour { get; set; }
         public int Owner { get; set; }
-
         public int FolderId { get; set; }
+
+        public bool IsSharing { get; set; }
+        public string ShareId { get; set; }
     }
 }

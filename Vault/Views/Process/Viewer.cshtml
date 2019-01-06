@@ -30,28 +30,28 @@
     <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @ViewBag.File.Name</h3>
 </div>
 
-<div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
+<div class="btn-download-viewer" onclick="document.getElementById('download-form').submit();"></div>
 
 <div id="file-viewer-box" style="margin-top: 75px;">
     <center>
         @if (ViewBag.Preview == 1)
         {
-            <img src="/manager/process/download/@ViewBag.File.Id" class="file-viewer-preview" />
-            <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get"></form>
+            <img src="@ViewBag.Url" class="file-viewer-preview" />
+            <form id="download-form" action="@ViewBag.Url" method="get"></form>
         }
         else if (ViewBag.Preview == 2)
         {
             <video class="file-viewer-preview" controls>
-                <source src="/manager/process/download/@ViewBag.File.Id" type="video/mp4">
-                <source src="/manager/process/download/@ViewBag.File.Id" type="video/ogg">
+                <source src="@ViewBag.Url" type="video/mp4">
+                <source src="@ViewBag.Url" type="video/ogg">
             </video>
-            <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get"></form>
+            <form id="download-form" action="@ViewBag.Url" method="get"></form>
         }
         else
         {
             <div class="file-viewer-content">
                 <p>No preview is available for this file type.</p>
-                <form id="download-form" action="/manager/process/download/@ViewBag.File.Id" method="get">
+                <form id="download-form" action="@ViewBag.Url" method="get">
                     <input type="submit" onclick="document.getElementById('download-form').submit();" value="Download">
                 </form>
             </div>

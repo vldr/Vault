@@ -33,6 +33,7 @@ namespace Vault.Models
             FolderStyle = 2,
             FileIcon = 3,
             FileAction = 4,
+            FileShareIcon = 5
         }
 
         /// <summary>
@@ -130,7 +131,9 @@ namespace Vault.Models
                 Id = x.Id,
                 Name = x.Name,
                 Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
-                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle)
+                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
+                IsSharing = x.IsSharing,
+                ShareId = x.ShareId
             });
 
         /// <summary>
@@ -147,13 +150,31 @@ namespace Vault.Models
             {
                 Id = x.Id,
                 Name = x.Name,
-                Icon = GetFileAttribute(x.Id, x.Ext, AttributeTypes.FileIcon),
-                Action = GetFileAttribute(x.Id, x.Ext, AttributeTypes.FileAction),
+                Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
+                Action = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileAction),
                 Date = x.Created.ToString(),
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
             }).Skip(offset).Take(50);
+
+        /// <summary>
+        /// Gets a list of file listings which have been shared...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="sortBy"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public IEnumerable<FileListing> GetSharedFileListings(int ownerId, int folderId, string shareId, int offset = 0)
+           => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Ext)
+           .Select(x => new FileListing
+           {
+               Id = x.Id,
+               Name = x.Name,
+               Icon = GetFileAttribute($"{shareId}/{x.Id}/{folderId}", x.Ext, AttributeTypes.FileShareIcon),
+               Folder = x.Folder
+           }).Skip(offset).Take(50);
 
         /// <summary>
         /// Gives all the files inside a folder...
@@ -219,7 +240,7 @@ namespace Vault.Models
         /// <param name="ext"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public string GetFileAttribute(int id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
+        public string GetFileAttribute(string id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
         {
             // Setup our default action so we don't repeat ourselves...
             var defaultAction = "processDownload(event)";
@@ -231,14 +252,14 @@ namespace Vault.Models
                 case ".tar":
                 case ".gz":
                 case ".zipx":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/zip-icon.png";
                     else
                         return defaultAction;
                 case ".mov":
                 case ".mp4":
                 case ".webm":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/video-icon.png";
                     else
                         return defaultAction;
@@ -248,18 +269,18 @@ namespace Vault.Models
                 case ".dotm":
                 case ".wbk":
                 case ".docm":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/word-icon.png";
                     else
                         return defaultAction;
                 case ".pptx":
                 case ".pps":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/PowerPoint-icon.png";
                     else
                         return defaultAction;
                 case ".pub":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/Publisher-icon.png";
                     else
                         return defaultAction;
@@ -273,13 +294,13 @@ namespace Vault.Models
                 case ".sh":
                 case ".deb":
                 case ".com":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/shell-icon.png";
                     else
                         return defaultAction;
                 case ".xlsx":
                 case ".xls":
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/Excel-icon.png";
                     else
                         return defaultAction;
@@ -291,10 +312,12 @@ namespace Vault.Models
                 case ".gif":
                     if (type == AttributeTypes.FileIcon)
                         return "/manager/process/thumbnail/" + id;
+                    else if (type == AttributeTypes.FileShareIcon)
+                        return "/manager/share/thumbnail/" + id;
                     else
-                        return defaultAction;//return "viewImage(event)";
+                        return defaultAction;
                 default:
-                    if (type == AttributeTypes.FileIcon)
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
                         return "/manager/images/unknown-icon.png";
                     else
                         return defaultAction;
@@ -571,6 +594,16 @@ namespace Vault.Models
             => _context.Files.Any(b => b.Id == fileId && b.Owner == ownerId && b.ShareId == shareId);
 
         /// <summary>
+        /// Check whether a folder's share id is already taken...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        public bool IsShareIdTakenFolder(int ownerId, int folderId, string shareId)
+            => _context.Folders.Any(b => b.Id == folderId && b.Owner == ownerId && b.ShareId == shareId);
+
+        /// <summary>
         /// Checks if a folder can move there...
         /// </summary>
         /// <param name="ownerId"></param>
@@ -615,6 +648,26 @@ namespace Vault.Models
         /// <returns></returns>
         public File GetSharedFile(string shareId)
             => _context.Files.Where(b => b.IsSharing == true && b.ShareId == shareId).FirstOrDefault();
+
+        /// <summary>
+        /// Gets a shared file given the owner, folder it resides, and its file id...
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="ownerId"></param>
+        /// <returns></returns>
+        public File GetSharedFile(int fileId, int folderId, int ownerId)
+            => _context.Files.Where(b => b.Id == fileId
+            && b.Folder == folderId 
+            && b.Owner == ownerId).FirstOrDefault();
+
+        /// <summary>
+        /// Gets a folder that is being shared, given the shareId...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        public Folder GetSharedFolder(string shareId)
+            => _context.Folders.Where(b => b.IsSharing == true && b.ShareId == shareId).FirstOrDefault();
 
         /// <summary>
         /// Gets a user by their api key only if the api is enabled...
@@ -761,7 +814,7 @@ namespace Vault.Models
                     file.IsSharing = false;
 
                     // Empty our share id!
-                    file.ShareId = String.Empty;                
+                    file.ShareId = string.Empty;                
                 }
                 // Otherwise, turn everything on...
                 else
@@ -786,6 +839,72 @@ namespace Vault.Models
 
                 // Return true as it was successful...
                 return (true, file.ShareId);
+            }
+            catch
+            {
+                // Exception, false...
+                return (false, string.Empty);
+            }
+        }
+
+        /// <summary>
+        /// Enables or disables the share functionality of a folder...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        public (bool success, string shareId) ToggleShareFolder(int id, int folderId)
+        {
+            // Catch any exceptions...
+            try
+            {
+                // Get our actual user...
+                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id).FirstOrDefault();
+
+                // Check if our user is null!
+                if (folder == null) return (false, string.Empty);
+
+                // Get our user...
+                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+
+                // Check if our user exists...
+                if (user == null) return (false, string.Empty);
+
+                // Check if we aren't about to start sharing our home folder...
+                if (user.Folder == folder.Id) return (false, string.Empty);
+
+                // If we want to toggle off our share, then it is simple!
+                if (folder.IsSharing)
+                {
+                    // Set our is sharing accordingly!
+                    folder.IsSharing = false;
+
+                    // Empty our share id!
+                    folder.ShareId = string.Empty;
+                }
+                // Otherwise, turn everything on...
+                else
+                {
+                    // Set our is sharing accordingly!
+                    folder.IsSharing = true;
+
+                    // Setup a variable to store our share id!
+                    string shareId = $"{RandomString(25)}";
+
+                    // Check if our share id is taken!
+                    if (IsShareIdTakenFolder(id, folderId, shareId))
+                        // Return false if it is taken!
+                        return (false, string.Empty);
+
+                    // Generate our random string for our share id!
+                    folder.ShareId = shareId;
+                }
+
+                // Save our changes!
+                _context.SaveChanges();
+
+                // Return true as it was successful...
+                return (true, folder.ShareId);
             }
             catch
             {
@@ -1004,6 +1123,46 @@ namespace Vault.Models
 
             // Return the final location string!
             return location.ToString();
+        }
+
+        /// <summary>
+        /// Gets the selected shared folder relative to the root folder...
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <param name="limitFolder"></param>
+        /// <param name="location"></param>
+        /// <returns></returns>
+        public Folder GetSharedFolderRelative(int folderId, string shareId)
+        {
+            // Attempt to get our shared folder...
+            Folder sharedFolder = GetSharedFolder(shareId);
+
+            // Check if our shared folder is null...
+            if (sharedFolder == null) return null;
+            
+            // Setup our target folder...
+            Folder targetFolder = GetFolder(sharedFolder.Owner, folderId);
+
+            // Check if the folder we are targetting even exists...
+            if (targetFolder == null) return sharedFolder;
+
+            // Setup our temp folder...
+            Folder tempFolder = targetFolder;
+
+            // Loop until we've found our shared folder or until we reach null!
+            while (tempFolder != null && tempFolder != sharedFolder)
+            {
+                // Get the next folder in the chain!
+                tempFolder = GetFolder(sharedFolder.Owner, tempFolder.FolderId);
+            }
+
+            // Check if our target folder does equal our shared folder...
+            if (tempFolder == sharedFolder)
+                // Then we've found our folder...
+                return targetFolder;
+            else
+                // Otherwise, return the shared folder since something is off...
+                return sharedFolder;
         }
 
         /// <summary>

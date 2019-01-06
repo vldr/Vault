@@ -1,0 +1,34 @@
+﻿@{
+    Layout = null;
+}
+
+@model Vault.Controllers.ShareController
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewBag.Folder.Name - Vault</title>
+
+    <link rel="stylesheet" type="text/css" href="/manager/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="/manager/css/share.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <div class="topbar">
+        <h3><img src="/manager/images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name</h3>
+    </div>
+
+    <div id="loader-horizontal"></div>
+    <div id="listings"></div>
+
+    <div id="file-viewer" onclick="hideFileViewer()"></div>
+
+    <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
+    <script type="text/javascript" src="/manager/js/action.js"></script>
+    <script>processSharedListFiles(@ViewBag.Folder.Id, "@ViewBag.ShareId");</script>
+</body>
+</html>

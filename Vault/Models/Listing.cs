@@ -13,6 +13,8 @@ namespace Vault.Models
         public int Previous { get; set; }
         public int Sort { get; set; }
 
+        public string ShareId { get; set; }
+
         public IEnumerable<FolderListing> Folders { get; set; }
         public IEnumerable<FileListing> Files { get; set; }
     }
@@ -25,6 +27,7 @@ namespace Vault.Models
         public string Action { get; set; }
         public string Date { get; set; }
         public string Size { get; set; }
+        public int Folder { get; set; }
 
         public bool IsSharing { get; set; }
         public string ShareId { get; set; }
@@ -36,6 +39,9 @@ namespace Vault.Models
         public string Name { get; set; }
         public string Icon { get; set; }
         public string Style { get; set; }
+
+        public bool IsSharing { get; set; }
+        public string ShareId { get; set; }
     }
 }
 

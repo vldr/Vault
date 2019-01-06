@@ -1,0 +1,5 @@
+CREATE INDEX tag_created ON Files (Folder, Owner, Created);
+CREATE INDEX tag_ext ON Files (Folder, Owner, Ext);
+CREATE INDEX tag_id ON Files (Folder, Owner, Id);
+CREATE INDEX tag_name ON Files (Folder, Owner, Name);
+CREATE INDEX tag_size ON Files (Folder, Owner, Size);
