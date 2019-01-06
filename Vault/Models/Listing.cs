@@ -14,6 +14,7 @@ namespace Vault.Models
         public int Sort { get; set; }
 
         public string ShareId { get; set; }
+        public int SharedFolder { get; set; }
 
         public IEnumerable<FolderListing> Folders { get; set; }
         public IEnumerable<FileListing> Files { get; set; }

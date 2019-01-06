@@ -857,9 +857,9 @@ div .button {
     box-sizing: border-box;
 }
 
-    .gridItem:hover {
-        background-color: #0000000a;
-    }
+.gridItem:hover {
+    background-color: #0000000a;
+}
 
 #share-checkbox {
     display: block;
@@ -1406,10 +1406,10 @@ p {
     color: #d4d4d4;
 }
 
-    .folder-path a {
-        color: #cccccc;
-        text-decoration: none;
-    }
+.folder-path a {
+    color: #cccccc;
+    text-decoration: none;
+}
 
 #snack-bar-upload {
     padding: 15px;

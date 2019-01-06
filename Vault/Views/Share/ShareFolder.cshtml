@@ -19,11 +19,14 @@
 </head>
 <body>
     <div class="topbar">
-        <h3><img src="/manager/images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name</h3>
+        <h3><img src="/manager/images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name Folder</h3>
     </div>
 
     <div id="loader-horizontal"></div>
-    <div id="listings"></div>
+    <div id="listings">
+        <div id="folder-listing"></div>
+        <div id="file-listing"></div>
+    </div>
 
     <div id="file-viewer" onclick="hideFileViewer()"></div>
 

@@ -21,6 +21,9 @@ namespace Vault.Controllers
 
         // Instance of our relative directory...
         private readonly string _relativeDirectory;
+        
+        // Instance of our sort by cookie...
+        private readonly string _sortByCookie;
 
         /// <summary>
         /// A function which will return a missing parameters json response...
@@ -43,6 +46,34 @@ namespace Vault.Controllers
             _configuration = configuration;
 
             _relativeDirectory = configuration["RelativeDirectory"];
+            _sortByCookie = configuration["VaultSortByCookie"];
+        }
+
+        /// <summary>
+        /// Initializes our sort by value...
+        /// </summary>
+        /// <returns></returns>
+        private int InitializeSortBy()
+        {
+            // Setup our sort by prototype here...
+            int sortBy = 0;
+
+            // Check if our cookie exists, if so, continue...
+            if (Request.Cookies.ContainsKey(_sortByCookie))
+            {
+                // Get the value of the cookie if it exists...
+                string value = Request.Cookies[_sortByCookie];
+
+                // Attempt to convert our cookie value to an int...
+                int.TryParse(value, out sortBy);
+
+                // Check if our sort by value is within limits... (HARD CODING)
+                // Reset if it is...
+                if (sortBy < -4 || sortBy > 4) sortBy = 0;
+            }
+
+            // Return our sort by in the end...
+            return sortBy;
         }
 
         /// <summary>
@@ -109,13 +140,16 @@ namespace Vault.Controllers
         /// <param name="offset"></param>
         /// <param name="folderId"></param>
         /// <param name="shareId"></param>
+        /// <param name="sortBy"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("share/list")]
         public IActionResult List(int? offset, int? folderId, string shareId)
         {
             // Check if our parameters given are null!
-            if (offset == null || folderId == null || shareId == null)
+            if (offset == null 
+                || folderId == null 
+                || shareId == null)
                 return MissingParameters();
 
             // Get our shared folder...
@@ -125,6 +159,9 @@ namespace Vault.Controllers
             if (sharedFolder == null)
                 // Inform the user of what happened...
                 return Json(new { Success = false, Reason = "The given folder is not being shared or doesn't exist..." });
+
+            // Create a cookie if it doesn't exist already of our sort by...
+            var sortBy = InitializeSortBy();
 
             // Get the file...
             Folder folder = _processService.GetSharedFolder(shareId);
@@ -136,8 +173,14 @@ namespace Vault.Controllers
                 ShareId = shareId,
                 IsHome = (folder.Id == sharedFolder.Id),
                 Previous = sharedFolder.FolderId,
+                SharedFolder = sharedFolder.Id,
+                Sort = sortBy,
                 Folders = _processService.GetFolderListings(sharedFolder.Owner, sharedFolder.Id),
-                Files = _processService.GetSharedFileListings(sharedFolder.Owner, sharedFolder.Id, shareId, offset.GetValueOrDefault())
+                Files = _processService.GetSharedFileListings(sharedFolder.Owner, 
+                    sharedFolder.Id, 
+                    shareId,
+                    sortBy,
+                    offset.GetValueOrDefault())
             };
 
             // Return our listing...
@@ -193,7 +236,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("share/dl/{shareId}/{fileId}/{folderId}")]
-        public IActionResult DownloadFolderFile(string shareId, int? fileId, int? folderId)
+        public IActionResult FolderFileDownload(string shareId, int? fileId, int? folderId)
         {
             // Check if our parameters given are null!
             if (shareId == null || fileId == null || folderId == null) return StatusCode(500);

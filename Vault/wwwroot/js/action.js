@@ -328,7 +328,8 @@ function contextMenuFile(event)
 
     var fileId = event.target.getAttribute('data-file-id');
 
-    menuOptions.innerHTML = `<li class="menu-option" data-file-id="${fileId}" onclick="processDownload(event)">Download</li>`
+    menuOptions.innerHTML = `<li class="menu-option"
+            onclick="location.href = '/manager/process/download/${fileId}'">Download</li>`
         + `<li class="menu-option" data-file-id="${fileId}" onclick="processRenameFile(event)">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
@@ -1157,33 +1158,66 @@ function processSharedViewer(fileId, folderId, shareId)
 }
 
 function renderSharedFiles(json) {
-    var elem = document.getElementById('listings');
+    var elem = document.getElementById('file-listing');
+
+    if (json.files.length > 0) {
+        elem.style.display = "block";
+    }
 
     for (i in json.files) {
         var file = json.files[i];
 
         elem.insertAdjacentHTML("beforeend",
-            `<div class='gridItem-folder'
+            `<div class='gridItem-file'
                 data-file-id='${file.id}'
                 data-file-title='${file.name}'
                 onclick='processSharedViewer(${file.id}, ${file.folder}, "${json.shareId}")'>
 
             <div class="grid-file-icon" style="background-image: url('${file.icon}');"></div>
-            <p class="grid-text">${file.name.substring(0, 13)}</p>
+            <p class="grid-text">${file.name}</p>
+            <p class="grid-text-right">${file.date} (${file.size})</p>
             </div>`);
     }
 
     rendered += json.files.length;
 }
 
-function renderSharedListings(json) {
-    var listings = document.getElementById('listings');
+function processSharedSortBy(folderId, shareId, value)
+{
+    createCookie(".vault.sortby", value, "Thu, 01 Jan 2099 00:00:01 GMT;", "/");
+    processSharedListFiles(folderId, shareId);
+}
 
-    listings.innerHTML = "";
+function renderSharedListings(json) {
+    var folderListing = document.getElementById('folder-listing');
+    var fileListing = document.getElementById('file-listing');
+
+    folderListing.innerHTML = "";
+    fileListing.style.display = "none";
+
+    if (json.sort === 0) json.sort = 4;
+
+    fileListing.innerHTML =
+    `<div id="sort-box">
+	    <a class="sorting-option-left" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "2" : "-2"})" 
+        style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
+
+	    <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
+            onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${-json.sort})" src="/manager/images/ui/arrow.svg">
+
+        <a class="sorting-option" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "1" : "-1"})" 
+        style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
+
+	    <a class="sorting-option" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "3" : "-3"})"
+        style="margin-right: 36px; ${Math.abs(json.sort) === 3 ? "font-weight: 600;" : ""}">Date</a>
+
+	    <a class="sorting-option" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "4" : "-4"})" 
+        style="margin-right: 36px; ${Math.abs(json.sort) === 4 ? "font-weight: 600;" : ""}">Type</a>
+    </div>`;
 
     if (!json.isHome)
     {
-        listings.insertAdjacentHTML("beforeend",
+        folderListing.insertAdjacentHTML("beforeend",
             `<div class='gridItem-folder'
                 data-folder-id='${json.previous}'
                 onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
@@ -1195,10 +1229,11 @@ function renderSharedListings(json) {
             </div>`);
     }
 
-    for (i in json.folders) {
+    for (i in json.folders)
+    {
         var folder = json.folders[i];
 
-        listings.insertAdjacentHTML("beforeend",
+        folderListing.insertAdjacentHTML("beforeend",
             `<div class='gridItem-folder'
                 data-folder-id='${folder.id}'
                 data-folder-title='${folder.name}'

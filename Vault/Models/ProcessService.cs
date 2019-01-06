@@ -166,14 +166,16 @@ namespace Vault.Models
         /// <param name="sortBy"></param>
         /// <param name="offset"></param>
         /// <returns></returns>
-        public IEnumerable<FileListing> GetSharedFileListings(int ownerId, int folderId, string shareId, int offset = 0)
-           => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).OrderBy(b => b.Ext)
+        public IEnumerable<FileListing> GetSharedFileListings(int ownerId, int folderId, string shareId, int sortBy, int offset = 0)
+           => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
            .Select(x => new FileListing
            {
                Id = x.Id,
                Name = x.Name,
                Icon = GetFileAttribute($"{shareId}/{x.Id}/{folderId}", x.Ext, AttributeTypes.FileShareIcon),
-               Folder = x.Folder
+               Folder = x.Folder,
+               Size = GetBytesReadable(x.Size),
+               Date = x.Created.ToString()
            }).Skip(offset).Take(50);
 
         /// <summary>
