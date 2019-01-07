@@ -76,34 +76,7 @@ namespace Vault.Controllers
             return sortBy;
         }
 
-        /// <summary>
-        /// Displays the share page for a shared file...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("share/{shareId}")]
-        public IActionResult Share(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null)
-                return Redirect(_relativeDirectory);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null)
-                return Redirect(_relativeDirectory);
-
-            // Setup our shared file variable in our viewbag!
-            ViewBag.File = file;
-            ViewBag.FileSize = _processService.GetBytesReadable(file.Size);
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
-
-            // Return our view!
-            return View();
-        }
+        ////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Displays the share page for a shared folder...
@@ -234,9 +207,44 @@ namespace Vault.Controllers
         /// <param name="fileId"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        [HttpGet]
+        [HttpPost]
         [Route("share/dl/{shareId}/{fileId}/{folderId}")]
         public IActionResult FolderFileDownload(string shareId, int? fileId, int? folderId)
+        {
+            // Check if our parameters given are null!
+            if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
+
+            // Get our shared folder...
+            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
+
+            // Check if the file exists or is valid!
+            if (sharedFolder == null) return StatusCode(500);
+
+            // Get the file...
+            Models.File file = _processService.GetSharedFile(fileId.GetValueOrDefault(),
+                sharedFolder.Id,
+                sharedFolder.Owner);
+
+            // Check if we were able to find the file...
+            if (file == null) return StatusCode(500);
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
+
+            // Return an empty result.
+            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
+        }
+
+        /// <summary>
+        /// Downloads a file from a shared folder...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("share/dl/{shareId}/{fileId}/{folderId}")]
+        public IActionResult FolderFilePreview(string shareId, int? fileId, int? folderId)
         {
             // Check if our parameters given are null!
             if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
@@ -264,8 +272,13 @@ namespace Vault.Controllers
             // Attempt to get the content type...
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
+            // Check if our mime type is null or not...
+            if (mimeType == null)
+                // If it is reset it...
+                mimeType = "application/octet-stream";
+
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, file.Name, true);
+            return PhysicalFile(file.Path, mimeType, true);
         }
 
         /// <summary>
@@ -309,6 +322,37 @@ namespace Vault.Controllers
             return PhysicalFile(thumbnailPath, "image/*", file.Name, true);
         }
 
+        ////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        /// <summary>
+        /// Displays the share page for a shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("share/{shareId}")]
+        public IActionResult ShareFile(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null)
+                return Redirect(_relativeDirectory);
+
+            // Get the file...
+            Models.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null)
+                return Redirect(_relativeDirectory);
+
+            // Setup our shared file variable in our viewbag!
+            ViewBag.File = file;
+            ViewBag.FileSize = _processService.GetBytesReadable(file.Size);
+            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
+
+            // Return our view!
+            return View();
+        }
+
         /// <summary>
         /// Downloads the shared file...
         /// </summary>
@@ -316,7 +360,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("share/dl/{shareId}")]
-        public IActionResult DownloadSharedFile(string shareId)
+        public IActionResult SharedFileDownload(string shareId)
         {
             // Check if our share id given is null!
             if (shareId == null) return StatusCode(500);
@@ -341,7 +385,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("i/{shareId}")]
-        public IActionResult DownloadSharedDirect(string shareId)
+        public IActionResult SharedFileDirectDownload(string shareId)
         {
             // Check if our share id given is null!
             if (shareId == null) return StatusCode(500);
@@ -361,9 +405,16 @@ namespace Vault.Controllers
             // Attempt to get the content type...
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
+            // Check if our mime type is null or not...
+            if (mimeType == null)
+                // If it is reset it...
+                mimeType = "application/octet-stream";
+
             // Return an empty result.
             return PhysicalFile(file.Path, mimeType, true);
         }
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////
 
         /// <summary>
         /// Upload Files

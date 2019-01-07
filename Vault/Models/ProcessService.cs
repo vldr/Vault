@@ -306,6 +306,11 @@ namespace Vault.Models
                         return "/manager/images/Excel-icon.png";
                     else
                         return defaultAction;
+                case ".pdf":
+                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                        return "/manager/images/pdf-icon.png";
+                    else
+                        return defaultAction;
                 case ".png":
                 case ".jpg":
                 case ".jpeg":
@@ -439,7 +444,7 @@ namespace Vault.Models
         public void GenerateThumbnails(string ext, string path)
         {
             // Check if our file is a PNG, JPEG, or JPG....
-            if (!(ext == ".png" || ext == ".jpeg" || ext == ".jpg"))
+            if ( !(ext == ".png" || ext == ".jpeg" || ext == ".jpg") )
                 return;
 
             // Setup a magick image and see if this file is an image!

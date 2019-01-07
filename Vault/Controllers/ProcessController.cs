@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Vault.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -7,8 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using Ionic.Zip;
 using System.Text;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace Vault.Controllers
 {
@@ -912,6 +910,55 @@ namespace Vault.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
+        [Route("process/download/{id}")]
+        public IActionResult Preview(int? id)
+        {
+            // Check if we're logged in...
+            if (!IsLoggedIn())
+                return StatusCode(500);
+
+            // Check if the file id is not null...
+            if (id == null)
+                return StatusCode(500);
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our current user id...
+            int userId = userSession.Id;
+
+            // Get the file...
+            Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
+
+            // Check if the file exists....
+            if (file == null)
+                return StatusCode(500);
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path))
+                return StatusCode(500);
+
+            // Setup our mime type string...
+            string mimeType = "application/octet-stream";
+
+            // Attempt to get the content type...
+            new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
+
+            // Check if our mime type is null or not...
+            if (mimeType == null)
+                // If it is reset it...
+                mimeType = "application/octet-stream";
+
+            // Return an empty result.
+            return PhysicalFile(file.Path, mimeType,  true);
+        }
+
+        /// <summary>
+        /// Downloads a file given an id...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpPost]
         [Route("process/download/{id}")]
         public IActionResult Download(int? id)
         {

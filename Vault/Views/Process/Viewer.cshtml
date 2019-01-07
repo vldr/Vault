@@ -8,6 +8,9 @@
 
 @switch (ViewBag.File.Ext)
 {
+    case ".pdf":
+        ViewBag.Preview = 3;
+        break;
     case ".mov":
     case ".mp4":
     case ".webm":
@@ -37,7 +40,7 @@
         @if (ViewBag.Preview == 1)
         {
             <img src="@ViewBag.Url" class="file-viewer-preview" />
-            <form id="download-form" action="@ViewBag.Url" method="get"></form>
+            <form id="download-form" action="@ViewBag.Url" method="post"></form>
         }
         else if (ViewBag.Preview == 2)
         {
@@ -45,13 +48,27 @@
                 <source src="@ViewBag.Url" type="video/mp4">
                 <source src="@ViewBag.Url" type="video/ogg">
             </video>
-            <form id="download-form" action="@ViewBag.Url" method="get"></form>
+            <form id="download-form" action="@ViewBag.Url" method="post"></form>
+        }
+        else if (ViewBag.Preview == 3)
+        {
+            <div id="share-box" style="margin-top: 75px;">
+                <iframe src="@ViewBag.Url" frameborder="0"
+                        style="margin: 0 auto;
+                        position: absolute;
+                        left: 10%;
+                        width: 80%;
+                        height: 100%;
+                        border: none;"
+                        class="image-preview"></iframe>
+            </div>
+            <form id="download-form" action="@ViewBag.Url" method="post"></form>
         }
         else
         {
             <div class="file-viewer-content">
                 <p>No preview is available for this file type.</p>
-                <form id="download-form" action="@ViewBag.Url" method="get">
+                <form id="download-form" action="@ViewBag.Url" method="post">
                     <input type="submit" onclick="document.getElementById('download-form').submit();" value="Download">
                 </form>
             </div>

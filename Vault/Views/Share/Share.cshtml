@@ -8,17 +8,8 @@
 
 @switch (ViewBag.File.Ext)
 {
-    case ".docx":
-    case ".asd":
-    case ".dotx":
-    case ".dotm":
-    case ".wbk":
-    case ".docm":
-    case ".pptx":
-    case ".pps":
-    case ".pub":
-    case ".xlsx":
-    case ".xls":
+    case ".pdf":
+        ViewBag.Preview = 3;
         break;
     case ".mov":
     case ".mp4":
@@ -73,6 +64,21 @@
                     <source src="/manager/i/@ViewBag.File.ShareId" type="video/mp4">
                     <source src="/manager/i/@ViewBag.File.ShareId" type="video/ogg">
                 </video>
+            </div>
+            <form id="download-form" action="/manager/share/dl/@ViewBag.File.ShareId" method="post"></form>
+        }
+        else if (ViewBag.Preview == 3)
+        {
+            <div id="share-box" style="margin-top: 75px;">
+                <iframe src="/manager/i/@ViewBag.File.ShareId" frameborder="0"
+                        style="margin: 0 auto;
+                        position: absolute;
+                        left: 10%;
+                        width: 80%;
+                        height: 100%;
+                        border: none;" 
+                        class="image-preview">
+                </iframe>
             </div>
             <form id="download-form" action="/manager/share/dl/@ViewBag.File.ShareId" method="post"></form>
         }
