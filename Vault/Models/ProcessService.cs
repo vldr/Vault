@@ -830,7 +830,7 @@ namespace Vault.Models
                     file.IsSharing = true;
 
                     // Setup a variable to store our share id!
-                    string shareId = $"{RandomString(6)}{file.Ext}";
+                    string shareId = $"{RandomString(7)}";
 
                     // Check if our share id is taken!
                     if (IsShareIdTaken(id, fileId, shareId))

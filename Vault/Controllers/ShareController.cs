@@ -385,7 +385,8 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("i/{shareId}")]
-        public IActionResult SharedFileDirectDownload(string shareId)
+        [Route("i/{shareId}.{suffix}")]
+        public IActionResult SharedFileDirectDownload(string shareId, string prefix)
         {
             // Check if our share id given is null!
             if (shareId == null) return StatusCode(500);
@@ -480,7 +481,7 @@ namespace Vault.Controllers
                     _processService.UpdateListings(user.Id, Request);
 
                     // Setup a path for our uploaders to know where this is located...
-                    var path = $"{_configuration["ShareUploadLocation"]}{result.shareId}";
+                    var path = $"{_configuration["ShareUploadLocation"]}{result.shareId}{fileExtension}";
 
                     // Respond with a successful message...
                     return Json(new { Success = true, Path = path });
