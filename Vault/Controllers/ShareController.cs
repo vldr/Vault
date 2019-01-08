@@ -331,7 +331,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("share/{shareId}")]
-        public IActionResult ShareFile(string shareId)
+        public IActionResult Share(string shareId)
         {
             // Check if our share id given is null!
             if (shareId == null)
