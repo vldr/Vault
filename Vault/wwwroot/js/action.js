@@ -1252,8 +1252,10 @@ function renderSharedListings(json) {
 function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
     var xmlhttp = new XMLHttpRequest();
 
-    xmlhttp.onreadystatechange = function () {
-        if (xmlhttp.readyState === 4) {
+    xmlhttp.onreadystatechange = function ()
+    {
+        if (xmlhttp.readyState === 4)
+        {
             if (xmlhttp.status === 200 && xmlhttp.status < 300)
             {
                 document.getElementById("loader-horizontal").style.display = "none";
@@ -1264,6 +1266,8 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
                     swal("Error!", json.reason, "error");
                     return;
                 }
+
+                document.getElementById("download-form").action = `/manager/share/folder/dl/${folderId}/${shareId}`;
 
                 if (reset) {
                     rendered = 0;

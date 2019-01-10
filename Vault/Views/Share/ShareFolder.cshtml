@@ -21,6 +21,7 @@
     <div class="topbar">
         <h3><img src="/manager/images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name Folder</h3>
     </div>
+    <div class="btn-download-viewer" onclick="document.getElementById('download-form').submit();"></div>
 
     <div id="loader-horizontal"></div>
     <div id="listings">
@@ -29,6 +30,7 @@
     </div>
 
     <div id="file-viewer" onclick="hideFileViewer()"></div>
+    <form id="download-form" action="/manager/share/folder/dl/@ViewBag.Folder.Id/@ViewBag.Folder.ShareId" method="post"></form>
 
     <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
     <script type="text/javascript" src="/manager/js/action.js"></script>

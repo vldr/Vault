@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Vault.Models;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Threading;
 
 namespace Vault.Controllers
 {
@@ -105,6 +106,48 @@ namespace Vault.Controllers
 
             // Return our view!
             return View();
+        }
+
+        /// <summary>
+        /// Downloads the entire shared folder...
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("share/folder/dl/{folderId}/{shareId}")]
+        public async Task<IActionResult> DownloadFolder(CancellationToken cancellationToken, int? folderId, string shareId)
+        {
+            // Check if our share id or folder id given is null!
+            if (folderId == null || shareId == null)
+                return StatusCode(500);
+
+            // Get our relative folder...
+            var folder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
+
+            // Check if our folder isn't null...
+            if (folder == null) return StatusCode(500);
+
+            // Make sure you don't download the home folder...
+            if (folder.Id == 0) return StatusCode(500);
+
+            // Register our encoding provider...
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
+            // Setup our response...
+            Response.StatusCode = 200;
+            Response.ContentType = "application/octet-stream";
+            Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(folder.Name)}.zip");
+
+            // Setup our zip stream to point to our response body!
+            using (var zip = new Ionic.Zip.ZipOutputStream(Response.Body))
+            {
+                // Await our zip files method...
+                await _processService.ZipFiles(folder.Id, folder.Owner, zip, cancellationToken, folder.FolderId);
+            }
+
+            // Return an empty result.
+            return new EmptyResult();
         }
 
         /// <summary>
