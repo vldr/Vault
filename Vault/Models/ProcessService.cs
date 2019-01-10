@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Vault.Models;
 
@@ -544,9 +545,12 @@ namespace Vault.Models
         /// <param name="zip"></param>
         /// <param name="limit"></param>
         /// <returns></returns>
-        public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, int limit = 0)
+        public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, CancellationToken cancellationToken, int limit = 0)
         {
-         
+            // Check if our task was cancelled before we even venture in...
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
             // Get our folder!
             var folder = GetFolder(userId, folderId);
 
@@ -560,6 +564,10 @@ namespace Vault.Models
                 if (!System.IO.File.Exists(file.Path))
                     continue;
 
+                // Check if our task was cancelled for every file...
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
                 // Setup our folder location.
                 string folderLocation = GetFolderLocation(folder, limit);
 
@@ -572,11 +580,22 @@ namespace Vault.Models
                     entryName = $"{folderLocation}({count++}){file.Name}";
 
                 // Set the file name as the next entry...
-                zip.PutNextEntry(entryName);
+                var entry = zip.PutNextEntry(entryName);
+
+                // Setup our compression level to not compress at all...
+                entry.CompressionLevel = Ionic.Zlib.CompressionLevel.None;
 
                 // Setup a filestream and stream contents to the zip stream!
                 using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
-                    await stream.CopyToAsync(zip);
+                {
+                    // Place our copy to async inside a try catch...
+                    try
+                    {
+                        // Copy all our data to the zip stream...
+                        await stream.CopyToAsync(zip, cancellationToken);
+                    }
+                    catch { };
+                }
             }
 
             // Get all the folders inside our folder!
@@ -585,8 +604,12 @@ namespace Vault.Models
             // Iterate throughout all our folders!
             foreach (var folderItem in folders)
             {
+                // Check if our task was cancelled for every folder...
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
                 // Zip those files up!
-                await ZipFiles(folderItem.Id, userId, zip, limit);
+                await ZipFiles(folderItem.Id, userId, zip, cancellationToken, limit);
             }
         }
 

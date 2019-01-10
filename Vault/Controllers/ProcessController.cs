@@ -7,6 +7,8 @@ using System.IO;
 using Ionic.Zip;
 using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
+using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace Vault.Controllers
 {
@@ -26,6 +28,9 @@ namespace Vault.Controllers
         // Instance of our configuration...
         private readonly IConfiguration _configuration;
 
+        // Instance of our logger...
+        private readonly ILogger _logger;
+
         /// <summary>
         /// Contructor
         /// </summary>
@@ -35,11 +40,13 @@ namespace Vault.Controllers
         /// <param name="hubContext"></param>
         public ProcessController(ProcessService processService, 
             LoginService loginService,
+            ILoggerFactory loggerFactory,
             IConfiguration configuration)
         {
             _processService = processService;
             _loginService = loginService;
             _configuration = configuration;
+            _logger = loggerFactory.CreateLogger("ProcessController");
 
             _sessionName = configuration["SessionTagId"];
             _storageLocation = configuration["VaultStorageLocation"];
@@ -777,7 +784,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("process/download/folder/{id}")]
-        public async Task<IActionResult> DownloadFolder(int? id)
+        public async Task<IActionResult> DownloadFolder(CancellationToken cancellationToken, int? id)
         {
             // Check if we're logged in...
             if (!IsLoggedIn())
@@ -818,7 +825,8 @@ namespace Vault.Controllers
             // Setup our zip stream to point to our response body!
             using (var zip = new ZipOutputStream(Response.Body))
             {
-                await _processService.ZipFiles(folderId, userId, zip, folder.FolderId);
+                // Await our zip files method...
+                await _processService.ZipFiles(folderId, userId, zip, cancellationToken, folder.FolderId);
             }
 
             // Return an empty result.
