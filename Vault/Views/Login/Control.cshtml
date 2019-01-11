@@ -15,15 +15,15 @@
     @if (ViewBag.NightMode)
     {
         <meta name="theme-color" content="#000000">
-        <link rel="stylesheet" type="text/css" href="/manager/css/dark-usercp.css">
-        <link rel="stylesheet" type="text/css" href="/manager/css/dark-sweetalert.css">
-        <link rel="stylesheet" type="text/css" href="/manager/css/dark-dialog.css">
+        <link rel="stylesheet" type="text/css" href="/css/dark-usercp.css">
+        <link rel="stylesheet" type="text/css" href="/css/dark-sweetalert.css">
+        <link rel="stylesheet" type="text/css" href="/css/dark-dialog.css">
     }
     else
     {
-        <link rel="stylesheet" type="text/css" href="/manager/css/usercp.css">
-        <link rel="stylesheet" type="text/css" href="/manager/css/sweetalert.css">
-        <link rel="stylesheet" type="text/css" href="/manager/css/dialog.css">
+        <link rel="stylesheet" type="text/css" href="/css/usercp.css">
+        <link rel="stylesheet" type="text/css" href="/css/sweetalert.css">
+        <link rel="stylesheet" type="text/css" href="/css/dialog.css">
     }
 </head>
 
@@ -32,7 +32,7 @@
     <div class="content">
         <div class="topbar">
             <span class="logo">
-                <img src="/manager/images/ui/logo.svg" />
+                <img src="/images/ui/logo.svg" />
             </span>
             <a onclick="showSettings()"><div class="btnSettings"></div></a>
             <a onclick="showLogout()"><div class="btnLogout"></div></a>
@@ -69,10 +69,10 @@
 
     <div id="file-viewer" onclick="hideFileViewer()"></div>
 
-    <script type="text/javascript" src="/manager/js/signalr.min.js"></script>
-    <script type="text/javascript" src="/manager/js/dropzone.js"></script>
-    <script type="text/javascript" src="/manager/js/sweetalert.min.js"></script>
-    <script type="text/javascript" src="/manager/js/action.js"></script>
+    <script type="text/javascript" src="/js/signalr.min.js"></script>
+    <script type="text/javascript" src="/js/dropzone.js"></script>
+    <script type="text/javascript" src="/js/sweetalert.min.js"></script>
+    <script type="text/javascript" src="/js/action.js"></script>
 
     <script>
         processListFiles();
@@ -132,7 +132,7 @@
             }
         });
 
-        const connection = new signalR.HubConnectionBuilder().withUrl("/manager/notifications").configureLogging(signalR.LogLevel.Information).build();
+        const connection = new signalR.HubConnectionBuilder().withUrl("/notifications").configureLogging(signalR.LogLevel.Information).build();
 
         connection.on("UpdateListing", () => { processListFiles(); });
 

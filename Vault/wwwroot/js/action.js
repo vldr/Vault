@@ -82,7 +82,7 @@ function renderListings(json, isSilent = false)
             style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
 
 	        <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
-                onclick="processSortBy(${-json.sort})" src="/manager/images/ui/arrow.svg">
+                onclick="processSortBy(${-json.sort})" src="/images/ui/arrow.svg">
 
             <a class="sorting-option" onclick="processSortBy(${json.sort >= 0 ? "1" : "-1"})" 
             style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
@@ -106,7 +106,7 @@ function renderListings(json, isSilent = false)
 
             <div class="grid-icon" data-folder-id="${json.previous}"
                     ondragstart="dragStart(event)" draggable="true" 
-                    style="background-image: url('/manager/images/folder-icon.png'); background-size: 24px;">
+                    style="background-image: url('/images/folder-icon.png'); background-size: 24px;">
             </div>
 
             <p class="grid-text" data-folder-id="${json.previous}">...</p>
@@ -171,7 +171,7 @@ function processListFiles(reset = true, offset = 0, callback)
                     document.getElementById("file-listing").innerHTML = "";
                     document.getElementById("file-listing").style.display = "none";
                     document.getElementById("folder-listing").innerHTML = `<center>
-                        <img style="max-width:100%;max-height:100%;" src="/manager/images/ui/wind.png" />
+                        <img style="max-width:100%;max-height:100%;" src="/images/ui/wind.png" />
                     </center>`;
 
                     return;
@@ -239,7 +239,7 @@ function processDelete(str) {
             }
         };
 
-        xhr.open('POST', '/manager/process/deletefile');
+        xhr.open('POST', '/process/deletefile');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("file=" + str);
 	});
@@ -298,7 +298,7 @@ function contextMenuFolder(event)
 
 function processDownloadFolder(id)
 {
-    window.location.href = "/manager/process/download/folder/" + id;
+    window.location.href = "/process/download/folder/" + id;
 }
 
 function contextMenuFile(event)
@@ -329,7 +329,7 @@ function contextMenuFile(event)
     var fileId = event.target.getAttribute('data-file-id');
 
     menuOptions.innerHTML = `<li class="menu-option"
-            onclick="location.href = '/manager/process/download/${fileId}'">Download</li>`
+            onclick="location.href = '/process/download/${fileId}'">Download</li>`
         + `<li class="menu-option" data-file-id="${fileId}" onclick="processRenameFile(event)">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
@@ -377,7 +377,7 @@ function showSettings()
         }
     };
 
-    xhr.open('POST', '/manager/settings');
+    xhr.open('POST', '/settings');
     xhr.send();
 }
 
@@ -407,7 +407,7 @@ function showSort()
         }
     };
 
-    xhr.open('POST', '/manager/sort');
+    xhr.open('POST', '/sort');
     xhr.send();
 }
 
@@ -439,7 +439,7 @@ function showAbout()
         }
     };
 
-    xhr.open('POST', '/manager/about');
+    xhr.open('POST', '/about');
     xhr.send();
 }
 
@@ -472,7 +472,7 @@ function toggleAPI()
         }
     };
 
-    xhr.open('POST', '/manager/process/toggleapi');
+    xhr.open('POST', '/process/toggleapi');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send();
 }
@@ -500,7 +500,7 @@ function processToggleFolderSharing(id)
         }
     };
 
-    xhr.open('POST', '/manager/process/togglefoldershare');
+    xhr.open('POST', '/process/togglefoldershare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + id);
 }
@@ -530,7 +530,7 @@ function processToggleSharing(id)
         }
     };
 
-    xhr.open('POST', '/manager/process/toggleshare');
+    xhr.open('POST', '/process/toggleshare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileid=" + id);
 }
@@ -539,7 +539,7 @@ function downloadShareX(apiKey)
 {
     var text = `{"Name": "Vault", 
                 "DestinationType": "ImageUploader, TextUploader, FileUploader",
-                "RequestURL": "${location.protocol + "//" + location.hostname}/manager/share/upload",
+                "RequestURL": "${location.protocol + "//" + location.hostname}/share/upload",
                 "FileFormName": "file",
                 "Arguments": {"apikey": "${apiKey}"}, 
                 "URL": "$json:path$"}`;
@@ -587,7 +587,7 @@ function processShareFile(id)
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
                 <span class="checkmark"></span>
             </label>
-            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/manager/share/${shareId}</div>
+            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/share/${shareId}</div>
             <br><br>`
             : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">
@@ -612,7 +612,7 @@ function processShareFolder(id) {
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleFolderSharing(${id})">
                 <span class="checkmark"></span> 
             </label>
-            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/manager/share/folder/${shareId}</div>
+            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/share/folder/${shareId}</div>
             <br><br>`
                 : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleFolderSharing(${id})">
@@ -668,7 +668,7 @@ function processRenameFile(event)
             }
         };
 
-        xhr.open('POST', '/manager/process/renamefile');
+        xhr.open('POST', '/process/renamefile');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("fileid=" + id + "&newname=" + newName);
     });
@@ -717,7 +717,7 @@ function processRenameFolder(event)
             }
         };
 
-        xhr.open('POST', '/manager/process/renamefolder');
+        xhr.open('POST', '/process/renamefolder');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("folderid=" + id + "&newname=" + newName);
     });
@@ -757,7 +757,7 @@ function processDeleteFolder(event) {
             }
         };
 
-        xhr.open('POST', '/manager/process/deletefolder');
+        xhr.open('POST', '/process/deletefolder');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 		xhr.send("folder=" + str);
 		
@@ -826,7 +826,7 @@ function processChangePassword()
                 }
             };
 
-            xhr.open('POST', '/manager/process/changepassword');
+            xhr.open('POST', '/process/changepassword');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
         });
@@ -849,7 +849,7 @@ function processFolderColour(id, colour) {
         }
     };
 
-    xhr.open('POST', '/manager/process/setcolour');
+    xhr.open('POST', '/process/setcolour');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + id + "&colour=" + colour);
 }
@@ -873,7 +873,7 @@ function processSortBy(sortby)
         }
     };
 
-    xhr.open('POST', '/manager/process/sortby');
+    xhr.open('POST', '/process/sortby');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("sortby=" + sortby);
 }
@@ -904,7 +904,7 @@ function processRegister(str, str2, str3, str4)
         }
     };
 
-    xhr.open('POST', '/manager/register');
+    xhr.open('POST', '/register');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("email=" + str + "&password=" + str2 + "&name=" + str3 + "&invite=" + str4);
 }
@@ -929,7 +929,7 @@ function processLogin(str, str2) {
         }
     };
 
-    xhr.open('POST', '/manager/login');
+    xhr.open('POST', '/login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("email=" + str + "&password=" + str2);
 
@@ -954,7 +954,7 @@ function processMovingFileToFolder(str, str2)
         }
     };
 
-    xhr.open('POST', '/manager/process/movefile');
+    xhr.open('POST', '/process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("file=" + str + "&folder=" + str2);
 }
@@ -978,7 +978,7 @@ function processMovingFolderToFolder(str, str2)
         }
     };
 
-    xhr.open('POST', '/manager/process/movefolder');
+    xhr.open('POST', '/process/movefolder');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("from=" + str + "&to=" + str2);
 }
@@ -1021,7 +1021,7 @@ function processFolderCreate() {
             }
         };
 
-        xhr.open('POST', '/manager/process/newfolder');
+        xhr.open('POST', '/process/newfolder');
 		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("foldername=" + inputValue);
 	});
@@ -1066,7 +1066,7 @@ function processMove(event)
         }
     };
 
-    xhr.open('POST', '/manager/process/goto');
+    xhr.open('POST', '/process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + str);
 }
@@ -1127,7 +1127,7 @@ function processDownload(event)
         }
     };
 
-    xhr.open('POST', '/manager/process/viewer');
+    xhr.open('POST', '/process/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
 }
@@ -1152,7 +1152,7 @@ function processSharedViewer(fileId, folderId, shareId)
         }
     };
 
-    xhr.open('POST', '/manager/share/viewer');
+    xhr.open('POST', '/share/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileId=" + fileId + "&folderId=" + folderId + "&shareId=" + shareId);
 }
@@ -1203,7 +1203,7 @@ function renderSharedListings(json) {
         style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
 
 	    <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
-            onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${-json.sort})" src="/manager/images/ui/arrow.svg">
+            onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${-json.sort})" src="/images/ui/arrow.svg">
 
         <a class="sorting-option" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "1" : "-1"})" 
         style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
@@ -1222,7 +1222,7 @@ function renderSharedListings(json) {
                 data-folder-id='${json.previous}'
                 onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('/manager/images/folder-icon.png'); 
+                <div class="grid-icon" style="background-image: url('/images/folder-icon.png'); 
                 background-size: 24px;"></div>
 
                 <p class="grid-text">...</p>
@@ -1267,7 +1267,7 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
                     return;
                 }
 
-                document.getElementById("download-form").action = `/manager/share/folder/dl/${folderId}/${shareId}`;
+                document.getElementById("download-form").action = `/share/folder/dl/${folderId}/${shareId}`;
 
                 if (reset) {
                     rendered = 0;
@@ -1293,7 +1293,7 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
         }
     };
 
-    xmlhttp.open("POST", "/manager/share/list", true);
+    xmlhttp.open("POST", "/share/list", true);
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp.send("offset=" + offset + "&shareId=" + shareId + "&folderId=" + folderId);
 }

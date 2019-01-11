@@ -11,6 +11,10 @@
     animation: fadein 0.8s;
 }
 
+a {
+    font-family: sans-serif;
+}
+
 .content {
     position: relative;
     background-color: #232323;
@@ -471,11 +475,11 @@ input[type=submit] {
     cursor: pointer;
 }
 
-    .sorting-option-left:hover {
-        text-decoration: none;
-        color: #6d6d6d;
-        cursor: pointer;
-    }
+.sorting-option-left:hover {
+    text-decoration: none;
+    color: #6d6d6d;
+    cursor: pointer;
+}
 
 .sorting-option:hover {
     text-decoration: none;

@@ -237,7 +237,7 @@ namespace Vault.Controllers
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
             ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
-            ViewBag.Url = $"/manager/share/dl/{shareId}/{fileId}/{folderId}";
+            ViewBag.Url = $"/share/dl/{shareId}/{fileId}/{folderId}";
 
             // Return the partial view...
             return View("/Views/Process/Viewer.cshtml");

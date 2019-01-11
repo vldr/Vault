@@ -210,27 +210,27 @@ namespace Vault.Models
             {
                 case 1:
                     if (type == AttributeTypes.FolderIcon)
-                        return "/manager/images/folder-icon2.png";
+                        return "/images/folder-icon2.png";
                     else
                         return "purple-icon";
                 case 2:
                     if (type == AttributeTypes.FolderIcon)
-                        return "/manager/images/folder-icon3.png";
+                        return "/images/folder-icon3.png";
                     else
                         return "green-icon";
                 case 3:
                     if (type == AttributeTypes.FolderIcon)
-                        return "/manager/images/folder-icon4.png";
+                        return "/images/folder-icon4.png";
                     else
                         return "red-icon";
                 case 4:
                     if (type == AttributeTypes.FolderIcon)
-                        return "/manager/images/folder-icon5.png";
+                        return "/images/folder-icon5.png";
                     else
                         return "blue-icon";
                 default:
                     if (type == AttributeTypes.FolderIcon)
-                        return "/manager/images/folder-icon.png";
+                        return "/images/folder-icon.png";
                     else
                         return "orange-icon";
             }
@@ -256,14 +256,14 @@ namespace Vault.Models
                 case ".gz":
                 case ".zipx":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/zip-icon.png";
+                        return "/images/zip-icon.png";
                     else
                         return defaultAction;
                 case ".mov":
                 case ".mp4":
                 case ".webm":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/video-icon.png";
+                        return "/images/video-icon.png";
                     else
                         return defaultAction;
                 case ".docx":
@@ -273,18 +273,18 @@ namespace Vault.Models
                 case ".wbk":
                 case ".docm":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/word-icon.png";
+                        return "/images/word-icon.png";
                     else
                         return defaultAction;
                 case ".pptx":
                 case ".pps":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/PowerPoint-icon.png";
+                        return "/images/PowerPoint-icon.png";
                     else
                         return defaultAction;
                 case ".pub":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/Publisher-icon.png";
+                        return "/images/Publisher-icon.png";
                     else
                         return defaultAction;
                 case ".exe":
@@ -298,18 +298,18 @@ namespace Vault.Models
                 case ".deb":
                 case ".com":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/shell-icon.png";
+                        return "/images/shell-icon.png";
                     else
                         return defaultAction;
                 case ".xlsx":
                 case ".xls":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/Excel-icon.png";
+                        return "/images/Excel-icon.png";
                     else
                         return defaultAction;
                 case ".pdf":
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/pdf-icon.png";
+                        return "/images/pdf-icon.png";
                     else
                         return defaultAction;
                 case ".png":
@@ -319,14 +319,14 @@ namespace Vault.Models
                 case ".pjpeg":
                 case ".gif":
                     if (type == AttributeTypes.FileIcon)
-                        return "/manager/process/thumbnail/" + id;
+                        return "/process/thumbnail/" + id;
                     else if (type == AttributeTypes.FileShareIcon)
-                        return "/manager/share/thumbnail/" + id;
+                        return "/share/thumbnail/" + id;
                     else
                         return defaultAction;
                 default:
                     if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
-                        return "/manager/images/unknown-icon.png";
+                        return "/images/unknown-icon.png";
                     else
                         return defaultAction;
             }
@@ -560,13 +560,13 @@ namespace Vault.Models
             // For every file compress it! 
             foreach (var file in files)
             {
-                // If the file doesn't exist, continue...
-                if (!System.IO.File.Exists(file.Path))
-                    continue;
-
                 // Check if our task was cancelled for every file...
                 if (cancellationToken.IsCancellationRequested)
                     return;
+
+                // If the file doesn't exist, continue...
+                if (!System.IO.File.Exists(file.Path))
+                    continue;
 
                 // Setup our folder location.
                 string folderLocation = GetFolderLocation(folder, limit);
