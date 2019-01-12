@@ -9,34 +9,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <center>
-        <div class="header-nav">
-            <a href="/"><img class="logo-header" src="/images/ui/logo-big.png" /></a>
-            <ul class="navbar">
-                <li><a href="../index">Home</a></li>
-                <li><a href="">Vault</a></li>
-                <li><a href="../legal.html">Legal</a></li>
-            </ul>
+    <div class="intro-header"></div>
+    <div class="header-nav">
+        <a href="/"><img class="logo-header" src="/images/ui/logo-big.png" /></a>
+        <ul class="navbar">
+            <li><a href="../index">Home</a></li>
+            <li><a href="">Vault</a></li>
+            <li><a href="../legal.html">Legal</a></li>
+        </ul>
+    </div>
 
-        </div>
-        <div style="margin-top:45px; padding-top:10px; padding-bottom:10px;">
-        </div>
+    <div class="seperator"></div>
+
+    <div class="hero">
+        <h2 class="hero-title-tiny"><img class="hero-img" src="/images/vault-logo.svg">VAULT</h2>
+        <h2 class="hero-title">The choice when storing files, only the best, nothing less.</h2>
         <div class="content">
-            <span id="txtHint" style="color:#f15151;margin-top:-90px;padding: 10px;"><br></span>
-
-            <form action="">
-                <input placeholder="Email" type="text" id="username" class="textbox-other" name="username" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()"><br>
-                <input style="margin-top:10px;" placeholder="Password" type="password" name="password" class="textbox-password" id="password" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()"><br><br>
-                <a class="btn black" style="cursor:pointer;" name="signin" id="signin" onclick="processLogin(document.getElementsByName('username')[0].value, document.getElementsByName('password')[0].value)">Login</a>
-                <a href="register.html" style="margin-left:10px;margin-right:10px;">Register</a>
-            </form>
+            <center>
+                <span id="txtHint" style="color:#f15151;margin-top:-90px;padding: 10px;"><br></span>
+                <form action="">
+                    <input placeholder="Email" type="text" id="username" class="textbox-other" name="username" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()"><br>
+                    <input style="margin-top:10px;" placeholder="Password" type="password" name="password" class="textbox-password" id="password" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()"><br><br>
+                    <a class="btn black" style="cursor:pointer;" name="signin" id="signin" onclick="processLogin(document.getElementsByName('username')[0].value, document.getElementsByName('password')[0].value)">Login</a>
+                    <a href="register.html" style="margin-left:10px;margin-right:10px;">Register</a>
+                </form>
+            </center>
         </div>
-    </center>
+
+
+    </div>
+    <div class="info-box">
+        <video src="videos/1.mp4" class="info-left-video" autoplay loop></video>
+        <div class="info-right">Simple drag and drop, complex menus gone.</div>
+    </div>
+
+    <div class="info-box">
+        <video src="videos/2.mp4" class="info-right-video" autoplay loop></video>
+        <div class="info-left">Uploading has never been easier, total control.</div>
+    </div>
+
+    <div class="info-box">
+        <video src="videos/3.mp4" class="info-left-video" autoplay loop></video>
+        <div class="info-right">Navigation is fast and concise, no more waiting.</div>
+    </div>
+
+    <div class="info-box">
+        <video src="videos/4.mp4" class="info-right-video" autoplay loop></video>
+        <div class="info-left">Viewing your favourite files is now a breeze.</div>
+    </div>
+
+    <div class="info-box">
+        <video src="videos/5.mp4" class="info-left-video" autoplay loop></video>
+        <div class="info-right">Don't forget about contextual menus, they're here too!</div>
+    </div>
+
+    <div class="footer">
+        What are you waiting for? 
+        <br />
+        <a class="footer-button" href="register.html">Get Started</a>
+    </div>
+
     <script type="text/javascript" src="/js/signalr.min.js"></script>
     <script type="text/javascript" src="/js/action.js"></script>
     <script>
-        connection.on("LoginResponse", (message) =>
-        {
+        connection.on("LoginResponse", (message) => {
             if (message.success) {
                 window.location = "control";
             }

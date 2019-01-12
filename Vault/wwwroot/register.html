@@ -9,37 +9,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <center>
-        <div class="header-nav">
-            <a href="index"><img class="logo-header" src="/images/ui/logo-big.png" /></a>
-            <ul class="navbar">
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="">Vault</a></li>
-                <li><a href="../legal.html">Legal</a></li>
-            </ul>
-        </div>
+    <div class="intro-header-register"></div>
+    <div class="header-nav">
+        <a href="index"><img class="logo-header" src="/images/ui/logo-big.png" /></a>
+        <ul class="navbar">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="">Vault</a></li>
+            <li><a href="../legal.html">Legal</a></li>
+        </ul>
+    </div>
 
-        <div class="content" style="margin-top:45px;">
-            <span id="txtHint" style="color:#f15151;margin-top:-90px;padding:10px;"></span>
+    <div class="register-content" style="margin-top:45px;">
+        <span id="txtHint" style="color:#f15151;margin-top:-90px;padding:10px;"></span>
 
-            <form action="">
-                <input class="textbox-other" placeholder="EMail" type="text" id="username" name="username" asp-for="Email"><br><br>
-                <input class="textbox-password" placeholder="Password" type="password" name="password" id="password" asp-for="Password">
+        <form action="">
+            <input class="textbox-other-wide" placeholder="EMail" type="text" id="username" name="username" asp-for="Email"><br><br>
+            <input class="textbox-password-wide" placeholder="Password" type="password" name="password" id="password" asp-for="Password">
 
-                <div id="pwd-info" style="width:50%;font-size:12px;"></div>
-                <br>
-                <input class="textbox-other" placeholder="Name" type="text" name="fname" id="fname" asp-for="Name"><br><br>
-                <input class="textbox-other" placeholder="Invitation" type="text" name="invite" id="invite"><br><br>
+            <div id="pwd-info" style="width:50%;font-size:12px;"></div>
+            <br>
+            <input class="textbox-other-wide" placeholder="Name" type="text" name="fname" id="fname" asp-for="Name"><br><br>
+            <input class="textbox-other-wide" placeholder="Invitation" type="text" name="invite" id="invite"><br><br>
 
-                <a id="register" class="btn black" style="cursor:pointer;" name="register"
-                   onclick="processRegister(document.getElementsByName('username')[0].value,
-					document.getElementsByName('password')[0].value,
-                    document.getElementsByName('fname')[0].value,
-                    document.getElementsByName('invite')[0].value)">Register</a>
-                <a href="/" style="margin-left:10px;margin-right:10px;">Log in</a>
-            </form>
-        </div>
-    </center>
+            <a id="register" class="btn black" style="cursor:pointer;" name="register"
+               onclick="processRegister(document.getElementsByName('username')[0].value,
+				document.getElementsByName('password')[0].value,
+                document.getElementsByName('fname')[0].value,
+                document.getElementsByName('invite')[0].value)">Register</a>
+            <a href="/" style="margin-left:10px;margin-right:10px;">Log in</a>
+        </form>
+    </div>
 </body>
 <script type="text/javascript" src="/js/action.js"></script>
 </html>
