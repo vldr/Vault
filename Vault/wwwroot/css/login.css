@@ -712,27 +712,37 @@ hr {
 
     .info-left-video {
         float: none;
+        height: 265px;
     }
 
     .info-right-video {
         float: none;
+        height: 265px;
     }
 
     .info-right {
         float: none;
         width: auto;
+        font-size: 50px;
+        padding: 10px;
         margin-top: 25px;
     }
 
     .info-left {
         float: none;
         width: auto;
+        font-size: 50px;
+        padding: 10px;
         margin-top: 25px;
     }
 
     .info-box {
         text-align: center;
         height: auto;
+    }
+
+    .footer {
+        font-size: 55px;
     }
 }
 
