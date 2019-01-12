@@ -30,7 +30,8 @@ namespace Vault2
                      options.MaxConnections = -1;  
                      options.MaxRequestBodySize = null;
 #if DEBUG
-                     options.UrlPrefixes.Add("http://127.0.0.1:6969");
+                     //options.UrlPrefixes.Add("http://127.0.0.1:6969");
+                     options.UrlPrefixes.Add("http://127.0.0.1:6969/manager/");
 #else
                      options.UrlPrefixes.Add("http://vault.vldr.org:80/");
                      options.UrlPrefixes.Add("https://vault.vldr.org:443/");

@@ -35,6 +35,8 @@ a {
     outline: 0;
     border: 0;
     background: none;
+    margin-bottom: 30px;
+    font-size: 24px;
     width: 100%;
     border-bottom: 2px solid rgba(0, 0, 0, 0.10);
     padding: 12px;
@@ -45,6 +47,8 @@ a {
 .textbox-other-wide {
     outline: 0;
     border: 0;
+    margin-bottom: 30px;
+    font-size: 24px;
     background: none;
     width: 100%;
     border-bottom: 2px solid rgba(0, 0, 0, 0.10);
@@ -111,7 +115,7 @@ div .button {
     top: 0;
     left: 0;
     z-index: -2;
-    background-image: url(/images/footer.png);
+    background-image: url(../images/footer.png);
     background-position: bottom;
     background-size: cover;
 }
@@ -124,7 +128,7 @@ div .button {
     top: 0;
     left: 0;
     z-index: -2;
-    background-image: url(/images/cover.jpg);
+    background-image: url(../images/cover.jpg);
     background-position: bottom;
     background-size: cover;
 }
@@ -627,7 +631,7 @@ a {
 
 .footer {
     height: 400px;
-    background: url(/images/footer.png);
+    background: url(../images/footer.png);
     font-family: 'Abhaya Libre', serif;
     color: #ffffff;
     box-shadow: inset -1px 6px 20px 0px #0000003b;
@@ -677,7 +681,7 @@ hr {
 
 @media screen and (max-width: 965px) {
     .intro-header {
-        height: 1024px;
+        height: 945px;
     }
 
     .seperator {
@@ -707,11 +711,11 @@ hr {
     }
 
     .info-left-video {
-        float:none;
+        float: none;
     }
 
     .info-right-video {
-        float:none;
+        float: none;
     }
 
     .info-right {
@@ -728,7 +732,7 @@ hr {
 
     .info-box {
         text-align: center;
-        height:auto;
+        height: auto;
     }
 }
 

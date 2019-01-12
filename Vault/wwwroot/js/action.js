@@ -2,46 +2,42 @@ var fadeOutTimer;
 var rendered = 0;
 
 function createCookie(name, value, expires, path, domain) {
-	var cookie = name + "=" + escape(value) + ";";
+    var cookie = name + "=" + escape(value) + ";";
 
-	if (expires) {
-		if(expires instanceof Date) {
-			if (isNaN(expires.getTime()))
-				expires = new Date();
-			}
-		else
-			expires = new Date(new Date().getTime() + parseInt(expires) * 1000 * 60 * 60 * 24);
+    if (expires) {
+        if (expires instanceof Date) {
+            if (isNaN(expires.getTime()))
+                expires = new Date();
+        }
+        else
+            expires = new Date(new Date().getTime() + parseInt(expires) * 1000 * 60 * 60 * 24);
 
-			cookie += "expires=" + expires.toGMTString() + ";";
-	}
+        cookie += "expires=" + expires.toGMTString() + ";";
+    }
 
-	if (path)
-		cookie += "path=" + path + ";";
-	if (domain)
-		cookie += "domain=" + domain + ";";
+    if (path)
+        cookie += "path=" + path + ";";
+    if (domain)
+        cookie += "domain=" + domain + ";";
 
-	document.cookie = cookie;
+    document.cookie = cookie;
 }
 
-function toggleDarkMode()
-{
+function toggleDarkMode() {
     if (document.cookie.indexOf(".vault.nightmode") !== -1) document.cookie = ".vault.nightmode=0;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     else createCookie(".vault.nightmode", "1");
 
     document.location.reload(true);
 }
 
-function renderFiles(json)
-{
+function renderFiles(json) {
     var elem = document.getElementById('file-listing');
 
-    if (json.files.length > 0)
-    {
+    if (json.files.length > 0) {
         elem.style.display = "block";
     }
 
-    for (i in json.files)
-    {
+    for (i in json.files) {
         var file = json.files[i];
 
         elem.insertAdjacentHTML("beforeend",
@@ -66,8 +62,7 @@ function renderFiles(json)
     rendered += json.files.length;
 }
 
-function renderListings(json, isSilent = false)
-{
+function renderListings(json, isSilent = false) {
     var folderListingElem = document.getElementById('folder-listing');
     var fileListingElem = document.getElementById('file-listing');
 
@@ -82,7 +77,7 @@ function renderListings(json, isSilent = false)
             style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
 
 	        <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
-                onclick="processSortBy(${-json.sort})" src="/images/ui/arrow.svg">
+                onclick="processSortBy(${-json.sort})" src="images/ui/arrow.svg">
 
             <a class="sorting-option" onclick="processSortBy(${json.sort >= 0 ? "1" : "-1"})" 
             style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
@@ -96,8 +91,7 @@ function renderListings(json, isSilent = false)
 
     document.getElementById("folder-path").innerHTML = json.path;
 
-    if (!json.isHome)
-    {
+    if (!json.isHome) {
         folderListingElem.insertAdjacentHTML("beforeend",
             `<div class="gridItem-folder" data-folder-id="${json.previous}"
                 ondrop="drop(event)"
@@ -106,15 +100,14 @@ function renderListings(json, isSilent = false)
 
             <div class="grid-icon" data-folder-id="${json.previous}"
                     ondragstart="dragStart(event)" draggable="true" 
-                    style="background-image: url('/images/folder-icon.png'); background-size: 24px;">
+                    style="background-image: url('images/folder-icon.png'); background-size: 24px;">
             </div>
 
             <p class="grid-text" data-folder-id="${json.previous}">...</p>
         </div>`);
     }
 
-    for (i in json.folders)
-    {
+    for (i in json.folders) {
         var folder = json.folders[i];
 
         folderListingElem.insertAdjacentHTML("beforeend",
@@ -140,16 +133,12 @@ function renderListings(json, isSilent = false)
     renderFiles(json);
 }
 
-function processListFiles(reset = true, offset = 0, callback)
-{
+function processListFiles(reset = true, offset = 0, callback) {
     var xmlhttp = new XMLHttpRequest();
 
-    xmlhttp.onreadystatechange = function ()
-    {
-        if (xmlhttp.readyState === 4)
-        {
-            if (xmlhttp.status === 200 && xmlhttp.status < 300)
-            {
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4) {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300) {
                 document.getElementById("loader-horizontal").style.display = "none";
 
                 var json = JSON.parse(xmlhttp.responseText);
@@ -159,26 +148,23 @@ function processListFiles(reset = true, offset = 0, callback)
                     return;
                 }
 
-                if (reset)
-                {
+                if (reset) {
                     rendered = 0;
                     renderListings(json);
                 }
                 else renderFiles(json);
 
-                if (json.isHome && rendered === 0 && json.folders.length === 0)
-                {
+                if (json.isHome && rendered === 0 && json.folders.length === 0) {
                     document.getElementById("file-listing").innerHTML = "";
                     document.getElementById("file-listing").style.display = "none";
                     document.getElementById("folder-listing").innerHTML = `<center>
-                        <img style="max-width:100%;max-height:100%;" src="/images/ui/wind.png" />
+                        <img style="max-width:100%;max-height:100%;" src="images/ui/wind.png" />
                     </center>`;
 
                     return;
                 }
 
-                if (json.files.length !== 0)
-                {
+                if (json.files.length !== 0) {
                     window.onscroll = function (ev) {
                         if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
                             processListFiles(false, rendered);
@@ -194,12 +180,11 @@ function processListFiles(reset = true, offset = 0, callback)
                 swal("Error!", "Failed to connect!", "error");
             }
         }
-        else if (xmlhttp.readyState < 4)
-        {
+        else if (xmlhttp.readyState < 4) {
             document.getElementById("loader-horizontal").style.display = "block";
         }
     };
-		
+
     xmlhttp.open("POST", "process/list", true);
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp.send("offset=" + offset);
@@ -207,7 +192,7 @@ function processListFiles(reset = true, offset = 0, callback)
 
 
 function processDelete(str) {
-	swal({
+    swal({
         title: "Are you sure?",
         text: "You will not be able to recover this file ever!",
         type: "warning",
@@ -217,44 +202,40 @@ function processDelete(str) {
         confirmButtonColor: "#DD6B55",
         confirmButtonText: "Yes, delete it!",
         closeOnConfirm: false
-	},
-    function ()
-    {
-        var xhr = new XMLHttpRequest();
+    },
+        function () {
+            var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200 && xhr.status < 300)
-                {
-                    var json = JSON.parse(xhr.responseText);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200 && xhr.status < 300) {
+                        var json = JSON.parse(xhr.responseText);
 
-                    if (json.success)
-                        swal({ title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false });
-                    else
-                        swal("Error!", json.reason, "error");
+                        if (json.success)
+                            swal({ title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false });
+                        else
+                            swal("Error!", json.reason, "error");
+                    }
+                    else {
+                        swal("Error!", "Failed to connect!", "error");
+                    }
                 }
-                else {
-                    swal("Error!", "Failed to connect!", "error");
-                }
-            }
-        };
+            };
 
-        xhr.open('POST', '/process/deletefile');
-		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("file=" + str);
-	});
+            xhr.open('POST', 'process/deletefile');
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("file=" + str);
+        });
 }
 
-function resetContextMenu()
-{
+function resetContextMenu() {
     var menu = document.getElementById("context-menu");
     var menuOptions = document.getElementById("context-menu-options");
     menu.style.display = "none";
     menuOptions.innerHTML = "";
 }
 
-function contextMenuFolder(event)
-{
+function contextMenuFolder(event) {
     event.preventDefault();
 
     var menu = document.getElementById("context-menu");
@@ -262,13 +243,11 @@ function contextMenuFolder(event)
 
     menuOptions.innerHTML = "";
 
-    const toggleMenu = command =>
-    {
+    const toggleMenu = command => {
         menu.style.display = command === "show" ? "block" : "none";
     };
 
-    const setPosition = ({ top, left }) =>
-    {
+    const setPosition = ({ top, left }) => {
         menu.style.left = `${left}px`;
         menu.style.top = `${top}px`;
         toggleMenu('show');
@@ -293,16 +272,14 @@ function contextMenuFolder(event)
                 <div onclick="processFolderColour(${folderId}, 2)" class="color-circle green"></div>
                 <div onclick="processFolderColour(${folderId}, 3)" class="color-circle red"></div>
                 <div onclick="processFolderColour(${folderId}, 4)" class="color-circle blue"></div>
-            </li>`;   
+            </li>`;
 }
 
-function processDownloadFolder(id)
-{
+function processDownloadFolder(id) {
     window.location.href = "/process/download/folder/" + id;
 }
 
-function contextMenuFile(event)
-{
+function contextMenuFile(event) {
     event.preventDefault();
 
     var menu = document.getElementById("context-menu");
@@ -335,8 +312,7 @@ function contextMenuFile(event)
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
 
-function showLogout()
-{
+function showLogout() {
     swal({
         title: "Logout",
         html: true,
@@ -347,17 +323,14 @@ function showLogout()
     });
 }
 
-function showSettings()
-{
+function showSettings() {
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4)
-        {
+        if (xhr.readyState === 4) {
             document.getElementById("loader-horizontal").style.display = "none";
 
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 swal({
                     title: "Settings",
                     html: true,
@@ -371,18 +344,16 @@ function showSettings()
                 swal("Error!", "Failed to connect!", "error");
             }
         }
-        else if (xhr.readyState < 4)
-        {
+        else if (xhr.readyState < 4) {
             document.getElementById("loader-horizontal").style.display = "block";
         }
     };
 
-    xhr.open('POST', '/settings');
+    xhr.open('POST', 'settings');
     xhr.send();
 }
 
-function showSort()
-{
+function showSort() {
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -407,20 +378,17 @@ function showSort()
         }
     };
 
-    xhr.open('POST', '/sort');
+    xhr.open('POST', 'sort');
     xhr.send();
 }
 
-function showAbout()
-{
+function showAbout() {
     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function ()
-    {
+    xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             document.getElementById("loader-horizontal").style.display = "none";
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 swal({
                     title: "About",
                     html: true,
@@ -439,31 +407,25 @@ function showAbout()
         }
     };
 
-    xhr.open('POST', '/about');
+    xhr.open('POST', 'about');
     xhr.send();
 }
 
-function toggleAPI()
-{
+function toggleAPI() {
     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function ()
-    {
-        if (xhr.readyState === 4)
-        {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
-                if (json.success)
-                {
+                if (json.success) {
                     showSettings();
                 }
                 else
                     swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
             }
-            else
-            {
+            else {
                 swal("Error!", "Failed to connect!", "error");
             }
         }
@@ -472,13 +434,12 @@ function toggleAPI()
         }
     };
 
-    xhr.open('POST', '/process/toggleapi');
+    xhr.open('POST', 'process/toggleapi');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send();
 }
 
-function processToggleFolderSharing(id)
-{
+function processToggleFolderSharing(id) {
     var checkBox = document.getElementById("share-checkbox-input");
     var xhr = new XMLHttpRequest();
 
@@ -500,23 +461,20 @@ function processToggleFolderSharing(id)
         }
     };
 
-    xhr.open('POST', '/process/togglefoldershare');
+    xhr.open('POST', 'process/togglefoldershare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + id);
 }
 
-function processToggleSharing(id)
-{
+function processToggleSharing(id) {
     var checkBox = document.getElementById("share-checkbox-input");
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4)
-        {
+        if (xhr.readyState === 4) {
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success)
@@ -530,13 +488,12 @@ function processToggleSharing(id)
         }
     };
 
-    xhr.open('POST', '/process/toggleshare');
+    xhr.open('POST', 'process/toggleshare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileid=" + id);
 }
 
-function downloadShareX(apiKey)
-{
+function downloadShareX(apiKey) {
     var text = `{"Name": "Vault", 
                 "DestinationType": "ImageUploader, TextUploader, FileUploader",
                 "RequestURL": "${location.protocol + "//" + location.hostname}/share/upload",
@@ -556,8 +513,7 @@ function downloadShareX(apiKey)
     document.body.removeChild(element);
 }
 
-function selectText()
-{
+function selectText() {
     if (document.selection) {
         var range = document.body.createTextRange();
         range.moveToElementText(document.getElementById("share-box"));
@@ -570,18 +526,17 @@ function selectText()
     }
 }
 
-function processShareFile(id)
-{
+function processShareFile(id) {
     var isShared = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-shared");
     var shareId = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-share");
-    
+
     swal({
         title: "Share",
         html: true,
         animation: false,
         customClass: 'fadein',
-        showConfirmButton: true, 
-        
+        showConfirmButton: true,
+
         text: `<p style="text-align: left;">You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p><br>`
             + (isShared === "true" ? `
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
@@ -589,7 +544,7 @@ function processShareFile(id)
             </label>
             <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/share/${shareId}</div>
             <br><br>`
-            : `<label id="share-checkbox">Enable
+                : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">
                 <span class="checkmark"></span>
             </label>`)
@@ -621,8 +576,7 @@ function processShareFolder(id) {
     });
 }
 
-function processRenameFile(event)
-{
+function processRenameFile(event) {
     var id = event.target.getAttribute('data-file-id');
     var title = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-title");
 
@@ -645,18 +599,14 @@ function processRenameFile(event)
 
         var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function ()
-        {
-            if (xhr.readyState === 4)
-            {
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
                 swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
 
-                if (xhr.status === 200 && xhr.status < 300)
-                {
+                if (xhr.status === 200 && xhr.status < 300) {
                     var json = JSON.parse(xhr.responseText);
 
-                    if (json.success)
-                    {
+                    if (json.success) {
                         swal.close();
                     }
                     else
@@ -668,14 +618,13 @@ function processRenameFile(event)
             }
         };
 
-        xhr.open('POST', '/process/renamefile');
+        xhr.open('POST', 'process/renamefile');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("fileid=" + id + "&newname=" + newName);
     });
 }
 
-function processRenameFolder(event)
-{
+function processRenameFolder(event) {
     var id = event.target.getAttribute('data-folder-id');
     var title = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-title");
 
@@ -717,15 +666,15 @@ function processRenameFolder(event)
             }
         };
 
-        xhr.open('POST', '/process/renamefolder');
+        xhr.open('POST', 'process/renamefolder');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("folderid=" + id + "&newname=" + newName);
     });
 }
 
 function processDeleteFolder(event) {
-	var str = event.target.getAttribute('data-folder-id');
-	
+    var str = event.target.getAttribute('data-folder-id');
+
     swal({
         title: "Are you sure?",
         text: "You will not be able to recover this folder!",
@@ -736,89 +685,20 @@ function processDeleteFolder(event) {
         confirmButtonColor: "#DD6B55",
         confirmButtonText: "Yes, delete it!",
         closeOnConfirm: false
-	},
-	function(){
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState < 4)
-                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-            else if (xhr.readyState === 4) {
-                if (xhr.status === 200 && xhr.status < 300) {
-                    var json = JSON.parse(xhr.responseText);
-
-                    if (json.success) swal({ title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false });
-                    else
-                        swal("Error!", json.reason, "error");
-                }
-                else {
-                    swal("Error!", "Failed to connect!", "error");
-                }
-            }
-        };
-
-        xhr.open('POST', '/process/deletefolder');
-		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-		xhr.send("folder=" + str);
-		
-		
-	});
-}
-
-function processChangePassword()
-{
-    swal
-    ({
-        title: "Enter your current password...",
-        text: null,
-        type: "input",
-        inputType: "password",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        animation: "fadein",
-        inputPlaceholder: "Current Password"
     },
-    function (currentPassword) 
-    {
-        if (currentPassword === false) return false;
-
-        if (currentPassword === "") {
-            swal.showInputError("You need to write something!");
-            return false;
-        }
-
-        swal
-        ({
-            title: "Enter your desired new password...",
-            text: null,
-            type: "input",
-            inputType: "password",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            animation: "fadein",
-            inputPlaceholder: "New Password"
-        },
-        function (newPassword)
-        {
-            if (newPassword === false) return false;
-
-            if (newPassword === "") {
-                swal.showInputError("You need to write something!");
-                return false;
-            }
-
+        function () {
             var xhr = new XMLHttpRequest();
 
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4)
-                {
+                if (xhr.readyState < 4)
                     swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+                else if (xhr.readyState === 4) {
                     if (xhr.status === 200 && xhr.status < 300) {
-
                         var json = JSON.parse(xhr.responseText);
 
-                        if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
-                        else swal("Error!", json.reason, "error");
+                        if (json.success) swal({ title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false });
+                        else
+                            swal("Error!", json.reason, "error");
                     }
                     else {
                         swal("Error!", "Failed to connect!", "error");
@@ -826,11 +706,76 @@ function processChangePassword()
                 }
             };
 
-            xhr.open('POST', '/process/changepassword');
+            xhr.open('POST', 'process/deletefolder');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
+            xhr.send("folder=" + str);
+
+
         });
-    });
+}
+
+function processChangePassword() {
+    swal
+        ({
+            title: "Enter your current password...",
+            text: null,
+            type: "input",
+            inputType: "password",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            animation: "fadein",
+            inputPlaceholder: "Current Password"
+        },
+        function (currentPassword) {
+            if (currentPassword === false) return false;
+
+            if (currentPassword === "") {
+                swal.showInputError("You need to write something!");
+                return false;
+            }
+
+            swal
+                ({
+                    title: "Enter your desired new password...",
+                    text: null,
+                    type: "input",
+                    inputType: "password",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    animation: "fadein",
+                    inputPlaceholder: "New Password"
+                },
+                function (newPassword) {
+                    if (newPassword === false) return false;
+
+                    if (newPassword === "") {
+                        swal.showInputError("You need to write something!");
+                        return false;
+                    }
+
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+                            if (xhr.status === 200 && xhr.status < 300) {
+
+                                var json = JSON.parse(xhr.responseText);
+
+                                if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
+                                else swal("Error!", json.reason, "error");
+                            }
+                            else {
+                                swal("Error!", "Failed to connect!", "error");
+                            }
+                        }
+                    };
+
+                    xhr.open('POST', 'process/changepassword');
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
+                });
+        });
 }
 
 function processFolderColour(id, colour) {
@@ -838,8 +783,7 @@ function processFolderColour(id, colour) {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
                 if (!json.success) swal("Error!", json.reason, "error");
             }
@@ -849,20 +793,18 @@ function processFolderColour(id, colour) {
         }
     };
 
-    xhr.open('POST', '/process/setcolour');
+    xhr.open('POST', 'process/setcolour');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + id + "&colour=" + colour);
 }
 
-function processSortBy(sortby)
-{
+function processSortBy(sortby) {
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
                 if (json.success) { swal.close(); }
                 else swal("Error!", json.reason, "error");
@@ -873,23 +815,19 @@ function processSortBy(sortby)
         }
     };
 
-    xhr.open('POST', '/process/sortby');
+    xhr.open('POST', 'process/sortby');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("sortby=" + sortby);
 }
 
-function processRegister(str, str2, str3, str4)
-{
+function processRegister(str, str2, str3, str4) {
     var xhr = new XMLHttpRequest();
 
-    xhr.onreadystatechange = function ()
-    {
-        if (xhr.readyState === 4)
-        {
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
             document.getElementById('txtHint').innerHTML = "Loading...<br><br>";
 
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success)
@@ -897,14 +835,13 @@ function processRegister(str, str2, str3, str4)
                 else
                     document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
             }
-            else
-            {
+            else {
                 document.getElementById('txtHint').innerHTML = "Failed to connect!<br><br>";
             }
         }
     };
 
-    xhr.open('POST', '/register');
+    xhr.open('POST', 'register');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("email=" + str + "&password=" + str2 + "&name=" + str3 + "&invite=" + str4);
 }
@@ -915,30 +852,26 @@ function processLogin(str, str2) {
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success) window.location = "control";
                 else document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
             }
-            else
-            {
+            else {
                 document.getElementById('txtHint').innerHTML = "Failed to connect!<br><br>";
             }
         }
     };
 
-    xhr.open('POST', '/login');
+    xhr.open('POST', 'login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("email=" + str + "&password=" + str2);
 
 }
 
-function processMovingFileToFolder(str, str2)
-{
-    if (str2 === null)
-    {
+function processMovingFileToFolder(str, str2) {
+    if (str2 === null) {
         contextMenuFile(event);
         return;
     }
@@ -954,15 +887,13 @@ function processMovingFileToFolder(str, str2)
         }
     };
 
-    xhr.open('POST', '/process/movefile');
+    xhr.open('POST', 'process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("file=" + str + "&folder=" + str2);
 }
 
-function processMovingFolderToFolder(str, str2)
-{
-    if (str === str2)
-    {
+function processMovingFolderToFolder(str, str2) {
+    if (str === str2) {
         contextMenuFolder(event);
         return;
     }
@@ -978,64 +909,62 @@ function processMovingFolderToFolder(str, str2)
         }
     };
 
-    xhr.open('POST', '/process/movefolder');
+    xhr.open('POST', 'process/movefolder');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("from=" + str + "&to=" + str2);
 }
 
 function processFolderCreate() {
-	
-	swal
-	({
-		title: "New Folder",
-		text: null,
-		type: "input",
-		showCancelButton: true,
-		closeOnConfirm: false,
-		animation: "fadein",
-		inputPlaceholder: "Documents, Applications, et al."
-	},
-	function(inputValue){
-		if (inputValue === false) return false;
-		if (inputValue === "") {
-			swal.showInputError("You need to write something!");
-            return false;
-		}
-		
-        var xhr = new XMLHttpRequest();
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200 && xhr.status < 300) {
-
-                    var json = JSON.parse(xhr.responseText);
-
-                    if (json.success)
-                        swal.close();
-                    else
-                        swal("Error!", json.reason, "error");
-                }
-                else {
-                    swal("Error!", "Failed to connect!", "error");
-                }
+    swal
+        ({
+            title: "New Folder",
+            text: null,
+            type: "input",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            animation: "fadein",
+            inputPlaceholder: "Documents, Applications, et al."
+        },
+        function (inputValue) {
+            if (inputValue === false) return false;
+            if (inputValue === "") {
+                swal.showInputError("You need to write something!");
+                return false;
             }
-        };
 
-        xhr.open('POST', '/process/newfolder');
-		xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("foldername=" + inputValue);
-	});
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200 && xhr.status < 300) {
+
+                        var json = JSON.parse(xhr.responseText);
+
+                        if (json.success)
+                            swal.close();
+                        else
+                            swal("Error!", json.reason, "error");
+                    }
+                    else {
+                        swal("Error!", "Failed to connect!", "error");
+                    }
+                }
+            };
+
+            xhr.open('POST', 'process/newfolder');
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("foldername=" + inputValue);
+        });
 }
 
-function processMove(event)
-{	
-	var str = event.target.getAttribute('data-folder-id');
+function processMove(event) {
+    var str = event.target.getAttribute('data-folder-id');
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300)
-            {
+            if (xhr.status === 200 && xhr.status < 300) {
                 document.getElementById("loader-horizontal").style.display = "none";
 
                 var json = JSON.parse(xhr.responseText);
@@ -1066,13 +995,13 @@ function processMove(event)
         }
     };
 
-    xhr.open('POST', '/process/goto');
+    xhr.open('POST', 'process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + str);
 }
 
 function dragEnd(event) {
-	event.target.style.opacity = '1';
+    event.target.style.opacity = '1';
 }
 
 function dragStart(event) {
@@ -1083,57 +1012,28 @@ function dragStart(event) {
 }
 
 function allowDrop(event) {
-	event.preventDefault();
+    event.preventDefault();
 }
 
 function drop(event) {
-	var data = event.dataTransfer.getData("Text");
-	var res = data.split("|");
-	
-	if ( res[0] !== "null" && res[0] !== "") {
-		processMovingFileToFolder(res[0], event.target.getAttribute('data-folder-id'));
-	}
-	
-	if ( res[1] !== "null" && res[1] !== "") {
+    var data = event.dataTransfer.getData("Text");
+    var res = data.split("|");
+
+    if (res[0] !== "null" && res[0] !== "") {
+        processMovingFileToFolder(res[0], event.target.getAttribute('data-folder-id'));
+    }
+
+    if (res[1] !== "null" && res[1] !== "") {
         processMovingFolderToFolder(res[1], event.target.getAttribute('data-folder-id'));
-	}
+    }
 }
 
-function hideFileViewer()
-{
+function hideFileViewer() {
     document.getElementById("file-viewer").style.display = "none";
     document.getElementById("file-viewer").innerHTML = "";
 }
 
-function processDownload(event)
-{
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function ()
-    {
-        if (xhr.readyState === 4) {
-            document.getElementById("loader-horizontal").style.display = "none";
-            if (xhr.status === 200 && xhr.status < 300)
-            {
-                document.getElementById("file-viewer").innerHTML = xhr.responseText;
-                document.getElementById("file-viewer").style.display = "block";
-            }
-            else {
-                swal("Error!", "Failed to connect!", "error");
-            }
-        }
-        else if (xhr.readyState < 4) {
-            document.getElementById("loader-horizontal").style.display = "block";
-        }
-    };
-
-    xhr.open('POST', '/process/viewer');
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
-}
-
-function processSharedViewer(fileId, folderId, shareId)
-{
+function processDownload(event) {
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1152,7 +1052,31 @@ function processSharedViewer(fileId, folderId, shareId)
         }
     };
 
-    xhr.open('POST', '/share/viewer');
+    xhr.open('POST', 'process/viewer');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
+}
+
+function processSharedViewer(fileId, folderId, shareId) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+            if (xhr.status === 200 && xhr.status < 300) {
+                document.getElementById("file-viewer").innerHTML = xhr.responseText;
+                document.getElementById("file-viewer").style.display = "block";
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', '../../share/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("fileId=" + fileId + "&folderId=" + folderId + "&shareId=" + shareId);
 }
@@ -1173,7 +1097,7 @@ function renderSharedFiles(json) {
                 data-file-title='${file.name}'
                 onclick='processSharedViewer(${file.id}, ${file.folder}, "${json.shareId}")'>
 
-            <div class="grid-file-icon" style="background-image: url('${file.icon}');"></div>
+            <div class="grid-file-icon" style="background-image: url('../../${file.icon}');"></div>
             <p class="grid-text">${file.name}</p>
             <p class="grid-text-right">${file.date} (${file.size})</p>
             </div>`);
@@ -1182,8 +1106,7 @@ function renderSharedFiles(json) {
     rendered += json.files.length;
 }
 
-function processSharedSortBy(folderId, shareId, value)
-{
+function processSharedSortBy(folderId, shareId, value) {
     createCookie(".vault.sortby", value, "Thu, 01 Jan 2099 00:00:01 GMT;", "/");
     processSharedListFiles(folderId, shareId);
 }
@@ -1198,12 +1121,12 @@ function renderSharedListings(json) {
     if (json.sort === 0) json.sort = 4;
 
     fileListing.innerHTML =
-    `<div id="sort-box">
+        `<div id="sort-box">
 	    <a class="sorting-option-left" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "2" : "-2"})" 
         style="margin-right: 5px; ${Math.abs(json.sort) === 2 ? "font-weight: 600;" : ""}">Name</a>
 
 	    <img id="${json.sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"}" 
-            onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${-json.sort})" src="/images/ui/arrow.svg">
+            onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${-json.sort})" src="../../images/ui/arrow.svg">
 
         <a class="sorting-option" onclick="processSharedSortBy('${json.sharedFolder}', '${json.shareId}', ${json.sort >= 0 ? "1" : "-1"})" 
         style="margin-right: 10px; ${Math.abs(json.sort) === 1 ? "font-weight: 600;" : ""}">Size</a>
@@ -1215,22 +1138,20 @@ function renderSharedListings(json) {
         style="margin-right: 36px; ${Math.abs(json.sort) === 4 ? "font-weight: 600;" : ""}">Type</a>
     </div>`;
 
-    if (!json.isHome)
-    {
+    if (!json.isHome) {
         folderListing.insertAdjacentHTML("beforeend",
             `<div class='gridItem-folder'
                 data-folder-id='${json.previous}'
                 onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('/images/folder-icon.png'); 
+                <div class="grid-icon" style="background-image: url('../../images/folder-icon.png'); 
                 background-size: 24px;"></div>
 
                 <p class="grid-text">...</p>
             </div>`);
     }
 
-    for (i in json.folders)
-    {
+    for (i in json.folders) {
         var folder = json.folders[i];
 
         folderListing.insertAdjacentHTML("beforeend",
@@ -1239,7 +1160,7 @@ function renderSharedListings(json) {
                 data-folder-title='${folder.name}'
                 onclick='processSharedListFiles(${folder.id}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('${folder.icon}'); 
+                <div class="grid-icon" style="background-image: url('../../${folder.icon}'); 
                 background-size: 24px;"></div>
 
                 <p class="grid-text">${folder.name.substring(0, 13)}</p>
@@ -1252,12 +1173,9 @@ function renderSharedListings(json) {
 function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
     var xmlhttp = new XMLHttpRequest();
 
-    xmlhttp.onreadystatechange = function ()
-    {
-        if (xmlhttp.readyState === 4)
-        {
-            if (xmlhttp.status === 200 && xmlhttp.status < 300)
-            {
+    xmlhttp.onreadystatechange = function () {
+        if (xmlhttp.readyState === 4) {
+            if (xmlhttp.status === 200 && xmlhttp.status < 300) {
                 document.getElementById("loader-horizontal").style.display = "none";
 
                 var json = JSON.parse(xmlhttp.responseText);
@@ -1293,7 +1211,7 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
         }
     };
 
-    xmlhttp.open("POST", "/share/list", true);
+    xmlhttp.open("POST", "../../share/list", true);
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp.send("offset=" + offset + "&shareId=" + shareId + "&folderId=" + folderId);
 }

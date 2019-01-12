@@ -10,16 +10,16 @@
     <meta charset="UTF-8">
     <title>@ViewBag.Folder.Name - Vault</title>
 
-    <link rel="stylesheet" type="text/css" href="~/css/login.css">
-    <link rel="stylesheet" type="text/css" href="~/css/sweetalert.css">
-    <link rel="stylesheet" type="text/css" href="~/css/share.css">
+    <link rel="stylesheet" type="text/css" href="../../css/login.css">
+    <link rel="stylesheet" type="text/css" href="../../css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="../../css/share.css">
 
     <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <div class="topbar">
-        <h3><img src="~/images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name Folder</h3>
+        <h3><img src="../../images/folder-icon.png" class="topbar-icon" /> @ViewBag.Folder.Name Folder</h3>
     </div>
     <div class="btn-download-viewer" onclick="document.getElementById('download-form').submit();"></div>
 
@@ -30,10 +30,10 @@
     </div>
 
     <div id="file-viewer" onclick="hideFileViewer()"></div>
-    <form id="download-form" action="/share/folder/dl/@ViewBag.Folder.Id/@ViewBag.Folder.ShareId" method="post"></form>
+    <form id="download-form" action="../../share/folder/dl/@ViewBag.Folder.Id/@ViewBag.Folder.ShareId" method="post"></form>
 
-    <script type="text/javascript" src="~/js/sweetalert.min.js"></script>
-    <script type="text/javascript" src="~/js/action.js"></script>
+    <script type="text/javascript" src="../../js/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../../js/action.js"></script>
     <script>processSharedListFiles(@ViewBag.Folder.Id, "@ViewBag.ShareId");</script>
 </body>
 </html>

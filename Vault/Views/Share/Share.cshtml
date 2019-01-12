@@ -24,7 +24,7 @@
     case ".gif":
     {
         ViewBag.Preview = 1;
-        ViewBag.Icon = "/images/image-icon.png";
+        ViewBag.Icon = "images/image-icon.png";
         break;
     }
 }
@@ -35,16 +35,16 @@
     <meta charset="UTF-8">
     <title>@ViewBag.File.Name - Vault</title>
 
-    <link rel="stylesheet" type="text/css" href="/css/login.css">
-    <link rel="stylesheet" type="text/css" href="/css/sweetalert.css">
-    <link rel="stylesheet" type="text/css" href="/css/share.css">
+    <link rel="stylesheet" type="text/css" href="../css/login.css">
+    <link rel="stylesheet" type="text/css" href="../css/sweetalert.css">
+    <link rel="stylesheet" type="text/css" href="../css/share.css">
 
     <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <div class="topbar">
-        <h3><img src="@ViewBag.Icon" class="topbar-icon" /> @ViewBag.File.Name</h3>
+        <h3><img src="../@ViewBag.Icon" class="topbar-icon" /> @ViewBag.File.Name</h3>
     </div>
     <div class="btn-info" onclick="fileInfo();"></div>
     <div class="btn-download" onclick="document.getElementById('download-form').submit();"></div>
@@ -53,24 +53,24 @@
         @if (ViewBag.Preview == 1)
         {
             <div id="share-box" style="margin-top: 75px;">
-                <img src="/i/@ViewBag.File.ShareId" class="image-preview" />
+                <img src="../i/@ViewBag.File.ShareId" class="image-preview" />
             </div>
-            <form id="download-form" action="/share/dl/@ViewBag.File.ShareId" method="post"></form>
+            <form id="download-form" action="dl/@ViewBag.File.ShareId" method="post"></form>
         }
         else if (ViewBag.Preview == 2)
         {
             <div id="share-box" style="margin-top: 75px;">
                 <video class="image-preview" controls>
-                    <source src="/i/@ViewBag.File.ShareId" type="video/mp4">
-                    <source src="/i/@ViewBag.File.ShareId" type="video/ogg">
+                    <source src="../i/@ViewBag.File.ShareId" type="video/mp4">
+                    <source src="../i/@ViewBag.File.ShareId" type="video/ogg">
                 </video>
             </div>
-            <form id="download-form" action="/share/dl/@ViewBag.File.ShareId" method="post"></form>
+            <form id="download-form" action="dl/@ViewBag.File.ShareId" method="post"></form>
         }
         else if (ViewBag.Preview == 3)
         {
             <div id="share-box" style="margin-top: 75px;">
-                <iframe src="/i/@ViewBag.File.ShareId" frameborder="0"
+                <iframe src="../i/@ViewBag.File.ShareId" frameborder="0"
                         style="margin: 0 auto;
                         position: absolute;
                         left: 10%;
@@ -80,20 +80,20 @@
                         class="image-preview">
                 </iframe>
             </div>
-            <form id="download-form" action="/share/dl/@ViewBag.File.ShareId" method="post"></form>
+            <form id="download-form" action="dl/@ViewBag.File.ShareId" method="post"></form>
         }
         else
         {
             <div class="content">
                 <p>No preview is available for this file type.</p>
-                <form id="download-form" action="/share/dl/@ViewBag.File.ShareId" method="post">
+                <form id="download-form" action="dl/@ViewBag.File.ShareId" method="post">
                     <input type="submit" value="Download">
                 </form>
             </div>
         }
         <br /><br />
     </center>
-    <script type="text/javascript" src="/js/sweetalert.min.js"></script>
+    <script type="text/javascript" src="../js/sweetalert.min.js"></script>
     <script>
     function fileInfo()
     {

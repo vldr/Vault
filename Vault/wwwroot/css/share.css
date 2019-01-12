@@ -30,6 +30,7 @@ a {
     padding-bottom: 40px;
     box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
     border: 2px solid #2d2d2d;
+    float: none;
 }
 
 .close-info-button {
