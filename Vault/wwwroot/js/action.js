@@ -275,8 +275,20 @@ function contextMenuFolder(event) {
             </li>`;
 }
 
-function processDownloadFolder(id) {
-    window.location.href = "/process/download/folder/" + id;
+function processDownloadFolder(id)
+{
+    window.location.href = "process/download/folder/" + id;
+}
+
+function processDownloadFile(id) {
+    var form = document.createElement("form");
+
+    form.method = "POST";
+    form.action = "process/download/" + id;
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
 }
 
 function contextMenuFile(event) {
@@ -306,7 +318,7 @@ function contextMenuFile(event) {
     var fileId = event.target.getAttribute('data-file-id');
 
     menuOptions.innerHTML = `<li class="menu-option"
-            onclick="location.href = '/process/download/${fileId}'">Download</li>`
+            onclick="processDownloadFile(${fileId})">Download</li>`
         + `<li class="menu-option" data-file-id="${fileId}" onclick="processRenameFile(event)">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
