@@ -571,16 +571,24 @@ namespace Vault.Models
                 // Setup our folder location.
                 string folderLocation = GetFolderLocation(folder, limit);
 
+                // Setup our file name variable which will contain a safer version of the file name...
+                string fileName = file.Name.Replace('/', '_');
+
                 // Setup our entry name...
-                string entryName = $"{folderLocation}{file.Name}";
+                StringBuilder entryName = new StringBuilder($"{folderLocation}{fileName}");
 
                 // Loop until we've found an entry that doesn't exist!
-                for (int count = 1; zip.ContainsEntry(entryName);)
-                    // Setup entry name to include count!
-                    entryName = $"{folderLocation}({count++}){file.Name}";
+                for (int count = 1; zip.ContainsEntry(entryName.ToString());)
+                {
+                    // Clear out our entry name...
+                    entryName.Clear();
+
+                    // Append our new entry which includes our 
+                    entryName.Append($"{folderLocation}({count++}){fileName}");
+                }
 
                 // Set the file name as the next entry...
-                var entry = zip.PutNextEntry(entryName);
+                var entry = zip.PutNextEntry(entryName.ToString());
 
                 // Setup our compression level to not compress at all...
                 entry.CompressionLevel = Ionic.Zlib.CompressionLevel.None;
@@ -1115,8 +1123,9 @@ namespace Vault.Models
             // If our location parameter is null then initialize it.
             if (location == null) location = new StringBuilder();
 
-            // Insert our folder's name at the start of the string builder.
-            location.Insert(0, folder.Name + "/");
+            // Insert our folder's name at the start of the string builder 
+            // and also remove a special character from the folder name...
+            location.Insert(0, folder.Name.Replace('/', '_') + "/");
 
             // Easy case, check if we're on the root folder.
             if (folder.FolderId == limit)

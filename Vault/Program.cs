@@ -32,8 +32,11 @@ namespace Vault2
 #if DEBUG
                      options.UrlPrefixes.Add("http://127.0.0.1:6969");
 #else
+                     options.UrlPrefixes.Add("http://vault.vldr.org:80/");
+                     options.UrlPrefixes.Add("https://vault.vldr.org:443/");
+
                      options.UrlPrefixes.Add("http://upx.me:80/");
-                     options.UrlPrefixes.Add("http://upx.me:443/");
+                     options.UrlPrefixes.Add("https://upx.me:443/");
 #endif
                  })
                 .UseStartup<Startup>();
