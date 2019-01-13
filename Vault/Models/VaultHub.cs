@@ -70,7 +70,7 @@ namespace Vault.Models
                         Connections[key].ConnectionId = Context.ConnectionId;
 
                         // Return a successful response...
-                        return Clients.Caller.SendAsync("LoginResponse", new { Success = true });
+                        return Clients.Caller.SendAsync("LoginResponse", new { Success = true, Connections[key].Name });
                     }
                 }
             }
@@ -87,6 +87,7 @@ namespace Vault.Models
     {
         public int Id { get; set; }
         public string ConnectionId { get; set; }
+        public string Name { get; set; }
         public DateTimeOffset Expiry { get; set; }
     }
 }

@@ -98,6 +98,7 @@ namespace Vault.Controllers
                 {
                     Id = user.Id,
                     ConnectionId = string.Empty,
+                    Name = user.Name,
                     Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]))
                 });
 

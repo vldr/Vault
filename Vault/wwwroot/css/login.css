@@ -69,6 +69,39 @@ a {
     padding-bottom: 40px;
 }
 
+#welcome-title {
+    margin-top: 20%;
+    color: #484848;
+    font-size: 23px;
+    margin-bottom: -5px;
+    font-family: 'Abhaya Libre', serif;
+    padding: 20px;
+    display: none;
+}
+
+#welcome-button {
+    background: #ffffff;
+    border: #3e3e3e solid 4px;
+    border-radius: 25px;
+    color: #000;
+    font-size: 17px;
+    font-weight: bold;
+    padding: 8px 29px;
+    text-decoration: none;
+    text-align: center;
+    min-width: 60px;
+    position: relative;
+    transition: all .3s ease;
+    cursor: pointer;
+    user-select:none;
+    display:none;
+}
+
+#welcome-button:hover {
+    background-color: #3e3e3e;
+    color:white;
+}
+
 div .button {
     margin: 0 15px 15px 0;
 }
@@ -839,7 +872,7 @@ tspan {
     transform-origin: 49% 50%;
 }
 
-.login-loader {
+#login-loader {
     filter: brightness(0);
     height: 236px;
 }
