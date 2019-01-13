@@ -858,13 +858,18 @@ function processRegister(str, str2, str3, str4) {
     xhr.send("email=" + str + "&password=" + str2 + "&name=" + str3 + "&invite=" + str4);
 }
 
-function processLogin(str, str2) {
+function processLogin(str, str2)
+{
+    document.getElementById('login-loader-box').style.display = "block";
+    document.getElementById('txtHint').innerHTML = "";
 
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
             if (xhr.status === 200 && xhr.status < 300) {
+                document.getElementById('login-loader-box').style.display = "none";
+
                 var json = JSON.parse(xhr.responseText);
 
                 if (json.success) window.location = "control";
