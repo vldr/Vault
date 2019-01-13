@@ -50,7 +50,7 @@ function renderFiles(json) {
                 ondragstart='dragStart(event)'
                 ondrop='drop(event)'
                 oncontextmenu="contextMenuFile(event)"
-                onclick='${file.action}'
+                onclick='processDownload(event)'
                 draggable='true'>
 
             <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
@@ -505,10 +505,14 @@ function processToggleSharing(id) {
     xhr.send("fileid=" + id);
 }
 
-function downloadShareX(apiKey) {
+function downloadShareX(apiKey)
+{
+    const loc = window.location.href;
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
+
     var text = `{"Name": "Vault", 
                 "DestinationType": "ImageUploader, TextUploader, FileUploader",
-                "RequestURL": "${location.protocol + "//" + location.hostname}/share/upload",
+                "RequestURL": "${path}share/upload",
                 "FileFormName": "file",
                 "Arguments": {"apikey": "${apiKey}"}, 
                 "URL": "$json:path$"}`;
@@ -542,6 +546,9 @@ function processShareFile(id) {
     var isShared = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-shared");
     var shareId = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-share");
 
+    const loc = window.location.href;
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
+
     swal({
         title: "Share",
         html: true,
@@ -554,7 +561,7 @@ function processShareFile(id) {
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleSharing(${id})">
                 <span class="checkmark"></span>
             </label>
-            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/share/${shareId}</div>
+            <div id="share-box" class="share-box" onclick="selectText()">${path}share/${shareId}</div>
             <br><br>`
                 : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleSharing(${id})">
@@ -566,6 +573,9 @@ function processShareFile(id) {
 function processShareFolder(id) {
     var isShared = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-shared");
     var shareId = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-share");
+
+    const loc = window.location.href;
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
 
     swal({
         title: "Share",
@@ -579,7 +589,7 @@ function processShareFolder(id) {
             <label id="share-checkbox">Enable<input id="share-checkbox-input" type="checkbox" checked onclick="processToggleFolderSharing(${id})">
                 <span class="checkmark"></span> 
             </label>
-            <div id="share-box" class="share-box" onclick="selectText()">${location.protocol + "//" + location.hostname}/share/folder/${shareId}</div>
+            <div id="share-box" class="share-box" onclick="selectText()">${path}share/folder/${shareId}</div>
             <br><br>`
                 : `<label id="share-checkbox">Enable
                 <input id="share-checkbox-input" type="checkbox" onclick="processToggleFolderSharing(${id})">
@@ -1202,7 +1212,7 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
                     return;
                 }
 
-                document.getElementById("download-form").action = `/share/folder/dl/${folderId}/${shareId}`;
+                document.getElementById("download-form").action = `../../share/folder/dl/${folderId}/${shareId}`;
 
                 if (reset) {
                     rendered = 0;

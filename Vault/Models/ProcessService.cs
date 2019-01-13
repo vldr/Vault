@@ -32,9 +32,11 @@ namespace Vault.Models
         {
             FolderIcon = 1,
             FolderStyle = 2,
+
             FileIcon = 3,
             FileAction = 4,
-            FileShareIcon = 5
+            FileShareIcon = 5,
+            FileIconNoPreview = 6
         }
 
         /// <summary>
@@ -152,7 +154,6 @@ namespace Vault.Models
                 Id = x.Id,
                 Name = x.Name,
                 Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
-                Action = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileAction),
                 Date = x.Created.ToString(),
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
@@ -246,7 +247,7 @@ namespace Vault.Models
         public string GetFileAttribute(string id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
         {
             // Setup our default action so we don't repeat ourselves...
-            var defaultAction = "processDownload(event)";
+            var defaultAction = "0";
 
             switch (ext)
             {
@@ -255,35 +256,45 @@ namespace Vault.Models
                 case ".tar":
                 case ".gz":
                 case ".zipx":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon 
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/zip-icon.png";
                     else
                         return defaultAction;
                 case ".mov":
                 case ".mp4":
                 case ".webm":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/video-icon.png";
                     else
-                        return defaultAction;
+                        return "2";
                 case ".docx":
                 case ".asd":
                 case ".dotx":
                 case ".dotm":
                 case ".wbk":
                 case ".docm":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/word-icon.png";
                     else
                         return defaultAction;
                 case ".pptx":
                 case ".pps":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/PowerPoint-icon.png";
                     else
                         return defaultAction;
                 case ".pub":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/Publisher-icon.png";
                     else
                         return defaultAction;
@@ -297,35 +308,41 @@ namespace Vault.Models
                 case ".sh":
                 case ".deb":
                 case ".com":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/shell-icon.png";
                     else
                         return defaultAction;
                 case ".xlsx":
                 case ".xls":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/Excel-icon.png";
                     else
                         return defaultAction;
                 case ".pdf":
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/pdf-icon.png";
                     else
-                        return defaultAction;
+                        return "3";
                 case ".png":
                 case ".jpg":
                 case ".jpeg":
                 case ".bmp":
                 case ".pjpeg":
                 case ".gif":
-                    if (type == AttributeTypes.FileIcon)
-                        return "process/thumbnail/" + id;
-                    else if (type == AttributeTypes.FileShareIcon)
-                        return "share/thumbnail/" + id;
-                    else
-                        return defaultAction;
+                    if (type == AttributeTypes.FileIcon) return "process/thumbnail/" + id;
+                    else if (type == AttributeTypes.FileShareIcon) return "share/thumbnail/" + id;
+                    else if (type == AttributeTypes.FileIconNoPreview) return "images/image-icon.png";
+                    else return "1";
                 default:
-                    if (type == AttributeTypes.FileIcon || type == AttributeTypes.FileShareIcon)
+                    if (type == AttributeTypes.FileIcon 
+                        || type == AttributeTypes.FileIconNoPreview 
+                        || type == AttributeTypes.FileShareIcon)
                         return "images/unknown-icon.png";
                     else
                         return defaultAction;

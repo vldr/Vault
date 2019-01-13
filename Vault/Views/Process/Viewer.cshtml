@@ -1,33 +1,8 @@
 ﻿@{
     Layout = null;
-    ViewBag.Preview = 0;
 }
 
 @model Vault.Controllers.ProcessController
-
-
-@switch (ViewBag.File.Ext)
-{
-    case ".pdf":
-        ViewBag.Preview = 3;
-        break;
-    case ".mov":
-    case ".mp4":
-    case ".webm":
-        ViewBag.Preview = 2;
-        break;
-    case ".png":
-    case ".jpg":
-    case ".jpeg":
-    case ".bmp":
-    case ".pjpeg":
-    case ".gif":
-        {
-            ViewBag.Preview = 1;
-            ViewBag.Icon = "images/image-icon.png";
-            break;
-        }
-}
 
 <div class="file-viewer-topbar">
     <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @ViewBag.File.Name</h3>
@@ -37,12 +12,12 @@
 
 <div id="file-viewer-box" style="margin-top: 75px;">
     <center>
-        @if (ViewBag.Preview == 1)
+        @if (ViewBag.Preview == "1")
         {
             <img src="@ViewBag.Url" class="file-viewer-preview" />
             <form id="download-form" action="@ViewBag.Url" method="post"></form>
         }
-        else if (ViewBag.Preview == 2)
+        else if (ViewBag.Preview == "2")
         {
             <video class="file-viewer-preview" controls>
                 <source src="@ViewBag.Url" type="video/mp4">
@@ -50,7 +25,7 @@
             </video>
             <form id="download-form" action="@ViewBag.Url" method="post"></form>
         }
-        else if (ViewBag.Preview == 3)
+        else if (ViewBag.Preview == "3")
         {
             <div id="share-box" style="margin-top: 75px;">
                 <iframe src="@ViewBag.Url" frameborder="0"

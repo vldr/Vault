@@ -236,7 +236,18 @@ namespace Vault.Controllers
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
+
+            // Setup our file icon with no preview...
+            ViewBag.Icon = "../../" + _processService.GetFileAttribute(file.Id.ToString(), 
+                file.Ext, 
+                ProcessService.AttributeTypes.FileIconNoPreview);
+
+            // Setup our view bag action as a preview variable...
+            ViewBag.Preview = _processService.GetFileAttribute(file.Id.ToString(),
+                file.Ext,
+                ProcessService.AttributeTypes.FileAction);
+
+            // Setup our view bag url...
             ViewBag.Url = $"../../share/dl/{shareId}/{fileId}/{folderId}";
 
             // Return the partial view...
@@ -389,8 +400,19 @@ namespace Vault.Controllers
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
+
+            // Setup our readable version of the file size...
             ViewBag.FileSize = _processService.GetBytesReadable(file.Size);
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
+
+            // Setup our icon which should have no preview...
+            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), 
+                file.Ext,
+                ProcessService.AttributeTypes.FileIconNoPreview);
+
+            // Setup our view bag action as a preview variable...
+            ViewBag.Preview = _processService.GetFileAttribute(file.Id.ToString(),
+                file.Ext,
+                ProcessService.AttributeTypes.FileAction);
 
             // Return our view!
             return View();

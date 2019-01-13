@@ -905,7 +905,20 @@ namespace Vault.Controllers
 
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), file.Ext);
+
+            // Setup our icon to not display a preview icon...
+            ViewBag.Icon = _processService.GetFileAttribute(
+                file.Id.ToString(), 
+                file.Ext, 
+                ProcessService.AttributeTypes.FileIconNoPreview);
+
+            // Setup our view bag action as a preview variable...
+            ViewBag.Preview = _processService.GetFileAttribute(
+                file.Id.ToString(),
+                file.Ext,
+                ProcessService.AttributeTypes.FileAction);
+
+            // Setup our url...
             ViewBag.Url = $"process/download/{file.Id}";
 
             // Return the partial view...
