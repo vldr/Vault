@@ -971,7 +971,7 @@ namespace Vault.Controllers
                 mimeType = "application/octet-stream";
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType,  true);
+            return PhysicalFile(file.Path, mimeType, true);
         }
 
         /// <summary>
