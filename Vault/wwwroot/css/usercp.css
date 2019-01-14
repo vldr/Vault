@@ -18,8 +18,7 @@ a {
 hr {
     border: 0;
     height: 0;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-top: 24px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -1253,37 +1252,39 @@ p {
     min-width: 60px;
     position: relative;
     transition: color .1s ease;
-    /* top: 40em; */
 }
 
-    .btn:hover {
-        background: #357ebd;
-    }
+.btn:hover {
+    background: #357ebd;
+}
 
-    .btn.black {
-        background: #696a6f;
-        border: #86878C solid 1px;
-        border-radius: 3px;
-        color: #fff;
-        display: inline-block;
-        font-size: 14px;
-        padding: 8px 15px;
-        text-decoration: none;
-        text-align: center;
-        min-width: 60px;
-        position: relative;
-        transition: color .1s ease;
-    }
+.btn.black {
+    background: #ffffff;
+    border: #797979 solid 3px;
+    border-radius: 25px;
+    color: #797979;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 8px 29px;
+    text-decoration: none;
+    text-align: center;
+    min-width: 60px;
+    position: relative;
+    transition: all .2s ease;
+    cursor: pointer;
+    user-select: none;
+}
 
-        .btn.black :hover {
-            background: #86878C;
-        }
+.btn.black:hover {
+    background: #797979;
+    color: #dedede;
+}
 
-    .btn.btn-big {
-        font-size: 18px;
-        padding: 15px 20px;
-        min-width: 100px;
-    }
+.btn.btn-big {
+    font-size: 18px;
+    padding: 15px 20px;
+    min-width: 100px;
+}
 
 .btn-close {
     color: #aaaaaa;

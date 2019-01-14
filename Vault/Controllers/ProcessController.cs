@@ -184,8 +184,7 @@ namespace Vault.Controllers
                 return NotLoggedIn();
 
             // Check if our folder name is null...
-            if (folderName == null)
-                return MissingParameters();
+            if (string.IsNullOrWhiteSpace(folderName)) return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -226,7 +225,7 @@ namespace Vault.Controllers
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
             // If our update colour by was sucessful, then we're all good!
-            if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), System.Net.WebUtility.HtmlEncode(newName)))
+            if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), newName))
             {
                 // Tell our users to update their listings...
                 _processService.UpdateListings(userSession.Id, Request);
@@ -254,7 +253,7 @@ namespace Vault.Controllers
                 return NotLoggedIn();
 
             // Check for nulls and limits!
-            if (folderId == null || newName == null || newName.Length == 0)
+            if (folderId == null || string.IsNullOrWhiteSpace(newName))
                 return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
@@ -488,6 +487,38 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Change name!
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/changename")]
+        public IActionResult ChangeName(string name)
+        {
+            // If we're not logged in...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Check for nulls...
+            if (string.IsNullOrWhiteSpace(name)) return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Update our user's password!
+            if (_processService.UpdateName(userSession.Id, name))
+            {
+                // Keep our connection alive...
+                _processService.KeepAliveAndUpdateName(Request, name);
+
+                // Return a successful response...
+                return Json(new { Success = true });
+            }
+            else
+                // Return an error response...
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
+
+        /// <summary>
         /// Change password!
         /// </summary>
         /// <param name="currentPassword"></param>
@@ -497,13 +528,16 @@ namespace Vault.Controllers
         [Route("process/changepassword")]
         public IActionResult ChangePassword(string currentPassword, string newPassword)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            // Check if we're even logged in...
+            if (!IsLoggedIn()) return NotLoggedIn();
 
             // Check for nulls...
-            if (currentPassword == null || newPassword == null)
+            if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword))
                 return MissingParameters();
+
+            // Check if our new password is too short...
+            if (newPassword.Length < 6)
+                return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);

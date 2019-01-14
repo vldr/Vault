@@ -6,10 +6,10 @@
 
 <div>
     <b style="font-size:18px;">Email:</b><br>
-    <em style="font-size:25px;">@ViewBag.User.Email</em><br><br>
+    <em style="font-size:25px;">@Html.Raw(@ViewBag.User.Email)</em><br><br>
 
     <b style="font-size:18px;">Name:</b><br>
-    <em style="font-size:25px;">@ViewBag.User.Name</em><br><br>
+    <em style="font-size:25px;">@Html.Raw(@ViewBag.User.Name)</em><br><br>
 
     <b style="font-size:18px;">Storage:</b><br>
     <em style="font-size:14px;">@ViewBag.Storage</em><br><br>
@@ -18,8 +18,9 @@
 
     @if (ViewBag.User.APIKey.Length > 0)
     {
-        <em style="font-size:12px;">@ViewBag.User.APIKey</em><br><br>
-        <img src="images/sharex.svg" style="height:24px; cursor:pointer;" onclick="downloadShareX('@ViewBag.User.APIKey')" />
+        <em style="font-size:12px;">@ViewBag.User.APIKey</em>
+        <img src="images/sharex.svg" style="height:24px;margin-bottom: -5px;margin-left: 5px;cursor:pointer;"
+             onclick="downloadShareX('@ViewBag.User.APIKey')" />
     }
     else
     {
@@ -28,7 +29,8 @@
 
     <hr style="margin-bottom: 30px;">
     <p>You can update your settings from here:</p><br />
-    <a onclick="processChangePassword()" style="cursor:pointer;" class="btn black">Change Password</a>
+    <a onclick="processChangePassword()" style="cursor:pointer;" class="btn black">Update Password</a>
+    <a onclick="processChangeName('@ViewBag.User.Name')" style="cursor:pointer;" class="btn black">Update Name</a><br />
     <a onclick="toggleDarkMode()" style="cursor:pointer;" class="btn black">Toggle Darkmode</a>
     <a onclick="toggleAPI()" style="cursor:pointer;" class="btn black">Toggle API</a>
 </div>

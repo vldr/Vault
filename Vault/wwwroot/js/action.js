@@ -326,12 +326,12 @@ function contextMenuFile(event) {
 
 function showLogout() {
     swal({
-        title: "Logout",
+        title: "Are you sure?",
         html: true,
         animation: false,
         showConfirmButton: false,
         allowOutsideClick: true,
-        text: `<a href="process/logout" class="btn">Logout</a>`
+        text: `<a href="process/logout" class="btn black">Logout</a>`
     });
 }
 
@@ -736,68 +736,116 @@ function processDeleteFolder(event) {
         });
 }
 
+function processChangeName(name) {
+    swal
+    ({
+        title: "Update your name...",
+        text: null,
+        inputValue: name,
+        type: "input",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        animation: "fadein",
+        inputPlaceholder: "Current Password"
+    },
+    function (updatedName)
+    {
+        if (updatedName === false) return false;
+
+        if (updatedName === "")
+        {
+            swal.showInputError("You need to write something!");
+            return false;
+        }
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function ()
+        {
+            if (xhr.readyState === 4) {
+                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
+                if (xhr.status === 200 && xhr.status < 300) {
+
+                    var json = JSON.parse(xhr.responseText);
+
+                    if (json.success) showSettings();
+                    else swal("Error!", json.reason, "error");
+                }
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+        };
+
+        xhr.open('POST', 'process/changename');
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send("name=" + updatedName);
+    });     
+}
+
 function processChangePassword() {
     swal
-        ({
-            title: "Enter your current password...",
-            text: null,
-            type: "input",
-            inputType: "password",
-            showCancelButton: true,
-            closeOnConfirm: false,
-            animation: "fadein",
-            inputPlaceholder: "Current Password"
-        },
-        function (currentPassword) {
-            if (currentPassword === false) return false;
+    ({
+        title: "Enter your current password...",
+        text: null,
+        type: "input",
+        inputType: "password",
+        showCancelButton: true,
+        closeOnConfirm: false,
+        animation: "fadein",
+        inputPlaceholder: "Current Password"
+    },
+    function (currentPassword) {
+        if (currentPassword === false) return false;
 
-            if (currentPassword === "") {
-                swal.showInputError("You need to write something!");
-                return false;
-            }
+        if (currentPassword === "") {
+            swal.showInputError("You need to write something!");
+            return false;
+        }
 
-            swal
-                ({
-                    title: "Enter your desired new password...",
-                    text: null,
-                    type: "input",
-                    inputType: "password",
-                    showCancelButton: true,
-                    closeOnConfirm: false,
-                    animation: "fadein",
-                    inputPlaceholder: "New Password"
-                },
-                function (newPassword) {
-                    if (newPassword === false) return false;
+        swal
+            ({
+                title: "Enter your desired new password...",
+                text: null,
+                type: "input",
+                inputType: "password",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                animation: "fadein",
+                inputPlaceholder: "New Password"
+            },
+            function (newPassword) {
+                if (newPassword === false) return false;
 
-                    if (newPassword === "") {
-                        swal.showInputError("You need to write something!");
-                        return false;
-                    }
+                if (newPassword === "") {
+                    swal.showInputError("You need to write something!");
+                    return false;
+                }
 
-                    var xhr = new XMLHttpRequest();
+                var xhr = new XMLHttpRequest();
 
-                    xhr.onreadystatechange = function () {
-                        if (xhr.readyState === 4) {
-                            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-                            if (xhr.status === 200 && xhr.status < 300) {
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+                        if (xhr.status === 200 && xhr.status < 300) {
 
-                                var json = JSON.parse(xhr.responseText);
+                            var json = JSON.parse(xhr.responseText);
 
-                                if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
-                                else swal("Error!", json.reason, "error");
-                            }
-                            else {
-                                swal("Error!", "Failed to connect!", "error");
-                            }
+                            if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
+                            else swal("Error!", json.reason, "error");
                         }
-                    };
+                        else {
+                            swal("Error!", "Failed to connect!", "error");
+                        }
+                    }
+                };
 
-                    xhr.open('POST', 'process/changepassword');
-                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
-                });
-        });
+                xhr.open('POST', 'process/changepassword');
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
+            });
+    });
 }
 
 function processFolderColour(id, colour) {

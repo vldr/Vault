@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -758,8 +759,8 @@ namespace Vault.Models
             {
                 Owner = userId,
                 Size = size,
-                Name = System.Net.WebUtility.HtmlEncode(name),
-                Ext = ext,
+                Name = WebUtility.HtmlEncode(name),
+                Ext = WebUtility.HtmlEncode(ext),
                 Created = DateTime.Now,
                 Folder = folderId,
                 Path = path
@@ -816,15 +817,13 @@ namespace Vault.Models
             try
             {
                 // Filter out our folder name...
-                if (folderName == null)
-                    // If it is null, then replace it with an empty string...
-                    folderName = string.Empty;
+                if (string.IsNullOrWhiteSpace(folderName)) return (false, null);
 
                 // Create a new folder object...
                 Folder folder = new Folder
                 {
                     Owner = ownerId,
-                    Name = folderName,
+                    Name = WebUtility.HtmlEncode(folderName),
                     FolderId = rootFolder
                 };
 
@@ -1039,11 +1038,13 @@ namespace Vault.Models
                 File file = _context.Files.Where(b => b.Id == fileId && b.Owner == id).FirstOrDefault();
 
                 // Check if our user is null!
-                if (file == null)
-                    return false;
+                if (file == null) return false;
+
+                // Double check if we aren't getting null or whitespace...
+                if (string.IsNullOrWhiteSpace(newName)) return false;
 
                 // Update our users name!
-                file.Name = newName;
+                file.Name = WebUtility.HtmlEncode(newName);
 
                 // Save our changes!
                 _context.SaveChanges();
@@ -1077,8 +1078,11 @@ namespace Vault.Models
                 if (folder == null)
                     return false;
 
+                // Double check if we aren't getting null or whitespace...
+                if (string.IsNullOrWhiteSpace(newName)) return false;
+
                 // Update our users name!
-                folder.Name = newName;
+                folder.Name = WebUtility.HtmlEncode(newName);
 
                 // Save our changes!
                 _context.SaveChanges();
@@ -1256,40 +1260,6 @@ namespace Vault.Models
         }
 
         /// <summary>
-        /// Update our name!
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="newName"></param>
-        /// <returns></returns>
-        public bool UpdateName(int id, string newName)
-        {
-            // Catch any exceptions...
-            try
-            {
-                // Get our actual user...
-                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
-
-                // Check if our user is null!
-                if (user == null)
-                    return false;
-
-                // Update our users name!
-                user.Name = newName;
-
-                // Save our changes!
-                _context.SaveChanges();
-
-                // Return true as it was successful...
-                return true;
-            }
-            catch
-            {
-                // Exception, false...
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Update our password...
         /// </summary>
         /// <param name="id"></param>
@@ -1328,6 +1298,43 @@ namespace Vault.Models
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Updates a user's name...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="currentPassword"></param>
+        /// <param name="newPassword"></param>
+        /// <returns></returns>
+        public bool UpdateName(int id, string name)
+        {
+            // Catch any exceptions...
+            try
+            {
+                // Get our actual user...
+                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+
+                // Check if our user is null!
+                if (user == null) return false;
+
+                // Make sure our name isn't just white space or null
+                if (string.IsNullOrWhiteSpace(name)) return false;
+
+                // Okay, set up the new name...
+                user.Name = WebUtility.HtmlEncode(name);
+
+                // Save our changes!
+                _context.SaveChanges();
+
+                // If everything went smooth then return true.
+                return true;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
         }
 
         /// <summary>
@@ -1647,6 +1654,26 @@ namespace Vault.Models
             {
                 // Setup our brand new expiry
                 VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
+            }
+        }
+
+        /// <summary>
+        /// Keeps the session id alive and updates the name of the user...
+        /// </summary>
+        /// <param name="httpRequest"></param>
+        public void KeepAliveAndUpdateName(HttpRequest httpRequest, string name)
+        {
+            // Get our value of the cookie...
+            string key = httpRequest.Cookies[_configuration["SyncCookieName"]];
+
+            // Check if the key doesn't equal null...
+            if (key != null && VaultHub.Connections.ContainsKey(key))
+            {
+                // Setup our brand new expiry...
+                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
+
+                // Setup our brand new name...
+                VaultHub.Connections[key].Name = WebUtility.HtmlEncode(name);
             }
         }
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Builder;
+using System.Net;
 
 namespace Vault.Controllers
 {
@@ -59,6 +60,9 @@ namespace Vault.Controllers
             // Check if already logged in...
             if (IsLoggedIn())
                 return Json(new { Success = true });
+
+            // Encode our email as a html encoded string...
+            Email = WebUtility.HtmlEncode(Email);
 
             // Attempt to find the user and login...
             User user = _loginService.Login(Email, Password);
@@ -126,16 +130,15 @@ namespace Vault.Controllers
             try
             {
                 // Check if our input is null...
-                if (email == null || password == null || name == null || invite == null)
+                if (string.IsNullOrWhiteSpace(email)
+                    || string.IsNullOrWhiteSpace(password) 
+                    || string.IsNullOrWhiteSpace(name) 
+                    || string.IsNullOrWhiteSpace(invite))
                     return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
                 // Check if the password is greater than 4 characters...
                 if (password.Length < 6)
                     return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
-
-                // Check if the name is a decent length...
-                if (name.Length < 4)
-                    return Json(new { Success = false, Reason = "The name must be at least 4 characters long..." });
 
                 // Check that if our invite key matches...
                 if (invite != _configuration["VaultInviteKey"])
@@ -144,9 +147,9 @@ namespace Vault.Controllers
                 // Setup our user...
                 User user = new User()
                 {
-                    Email = email,
+                    Email = System.Net.WebUtility.HtmlEncode(email),
                     Password = password,
-                    Name = name,
+                    Name = System.Net.WebUtility.HtmlEncode(name),
                     MaxBytes = long.Parse(_configuration["VaultMaxBytes"]),
                     APIEnabled = false,
                     APIKey = string.Empty,
