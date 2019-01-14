@@ -854,6 +854,7 @@ div .button {
     padding: 21px;
     cursor: pointer;
     box-sizing: border-box;
+    overflow:hidden;
 }
 
 .gridItem:hover {
@@ -1050,6 +1051,8 @@ progress::-moz-progress-bar {
     left: 10px;
     top: 0;
     color: #c5c5c5;
+    overflow: hidden;
+    height: 50px;
 }
 
 .file-viewer-icon {
@@ -1119,6 +1122,7 @@ input[type=submit]:hover {
     float: left;
     max-width: 50%;
     overflow: hidden;
+    height: 16px;
 }
 
 .grid-text {

@@ -88,9 +88,7 @@ namespace Vault.Models
             try
             {
                 // Check if our email already exists in the database...
-                bool exists = (_context.Users
-                    .Where(b => b.Email == user.Email)
-                    .FirstOrDefault()) != null;
+                bool exists = _context.Users.Any(b => b.Email == user.Email);
 
                 // If it does, quit here...
                 if (exists)

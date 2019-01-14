@@ -501,6 +501,9 @@ namespace Vault.Controllers
             // Check for nulls...
             if (string.IsNullOrWhiteSpace(name)) return MissingParameters();
 
+            // Check if our name is too long...
+            if (name.Length > 16) return Json(new { Success = false, Reason = "The name is too long..." });
+
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 

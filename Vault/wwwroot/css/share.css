@@ -65,6 +65,8 @@ input[type=submit] {
 .topbar {
     margin-left: 15px;
     color: #c5c5c5;
+    overflow: hidden;
+    height: 50px;
 }
 
 .topbar-icon {
@@ -259,8 +261,11 @@ input[type=submit] {
     font-size: 13px;
     margin-top: -2px;
     margin-left: 11px;
-    color: #cececef2;
+    color: #bfbfbff2;
     float: left;
+    max-width: 50%;
+    overflow: hidden;
+    height: 16px;
 }
 
 .grid-file-icon {
@@ -379,6 +384,8 @@ input[type=submit] {
     left: 10px;
     top: 0;
     color: #c5c5c5;
+    overflow: hidden;
+    height: 50px;
 }
 
 .file-viewer-icon {
@@ -440,6 +447,7 @@ input[type=submit] {
     -ms-animation: fadein 0.5s;
     -o-animation: fadein 0.5s;
     animation: fadein 0.5s;
+    overflow: hidden;
 }
 
     .gridItem-file:hover {
@@ -476,11 +484,11 @@ input[type=submit] {
     cursor: pointer;
 }
 
-.sorting-option-left:hover {
-    text-decoration: none;
-    color: #6d6d6d;
-    cursor: pointer;
-}
+    .sorting-option-left:hover {
+        text-decoration: none;
+        color: #6d6d6d;
+        cursor: pointer;
+    }
 
 .sorting-option:hover {
     text-decoration: none;

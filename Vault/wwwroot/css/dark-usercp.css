@@ -109,6 +109,8 @@ input[type=text] {
     left: 10px;
     top: 0;
     color: #c5c5c5;
+    overflow: hidden;
+    height: 50px;
 }
 
 .file-viewer-icon {
@@ -971,11 +973,12 @@ div .button {
     padding: 21px;
     cursor: pointer;
     box-sizing: border-box;
+    overflow:hidden;
 }
 
-    .gridItem:hover {
-        background-color: #0000000a;
-    }
+.gridItem:hover {
+    background-color: #0000000a;
+}
 
 #share-checkbox {
     display: block;
@@ -1130,6 +1133,7 @@ progress::-moz-progress-bar {
     float: left;
     max-width: 50%;
     overflow: hidden;
+    height:16px;
 }
 
 .grid-text {
