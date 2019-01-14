@@ -900,8 +900,7 @@ function processRegister(str, str2, str3, str4) {
             if (xhr.status === 200 && xhr.status < 300) {
                 var json = JSON.parse(xhr.responseText);
 
-                if (json.success)
-                    window.location = "/";
+                if (json.success) window.location = "index.html";
                 else
                     document.getElementById('txtHint').innerHTML = `${json.reason}<br><br>`;
             }

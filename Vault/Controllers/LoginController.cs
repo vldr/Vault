@@ -126,47 +126,30 @@ namespace Vault.Controllers
         [Route("register")]
         public IActionResult RegisterPost(string email, string password, string name, string invite)
         {
-            // Sadly, a try catch must be used...
-            try
-            {
-                // Check if our input is null...
-                if (string.IsNullOrWhiteSpace(email)
-                    || string.IsNullOrWhiteSpace(password) 
-                    || string.IsNullOrWhiteSpace(name) 
-                    || string.IsNullOrWhiteSpace(invite))
-                    return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+            // Check if our input is null...
+            if (string.IsNullOrWhiteSpace(email)
+                || string.IsNullOrWhiteSpace(password) 
+                || string.IsNullOrWhiteSpace(name) 
+                || string.IsNullOrWhiteSpace(invite))
+                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
-                // Check if the password is greater than 4 characters...
-                if (password.Length < 6)
-                    return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
+            // Check if the password is greater than 4 characters...
+            if (password.Length < 6)
+                return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
 
-                // Check that if our invite key matches...
-                if (invite != _configuration["VaultInviteKey"])
-                    return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
+            // Check if our name is too long...
+            if (name.Length > 24)
+                return Json(new { Success = false, Reason = "The name is too long..." });
 
-                // Setup our user...
-                User user = new User()
-                {
-                    Email = System.Net.WebUtility.HtmlEncode(email),
-                    Password = password,
-                    Name = System.Net.WebUtility.HtmlEncode(name),
-                    MaxBytes = long.Parse(_configuration["VaultMaxBytes"]),
-                    APIEnabled = false,
-                    APIKey = string.Empty,
-                    IPAddresses = HttpContext.Connection.RemoteIpAddress.ToString()
-                };
+            // Check that if our invite key matches...
+            if (invite != _configuration["VaultInviteKey"])
+                return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
 
-                // Return the response from our login service...
-                if (_loginService.Register(user))
-                    return Json(new { Success = true });
-                else
-                    return Json(new { Success = false, Reason = "Transaction error..." });
-            }
-            catch
-            {
-                // Return zero for an exception...
+            // Return the response from our login service...
+            if (_loginService.Register(email, name, password, HttpContext.Connection.RemoteIpAddress.ToString()))
+                return Json(new { Success = true });
+            else
                 return Json(new { Success = false, Reason = "Transaction error..." });
-            }
         }
 
         /// <summary>

@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Linq;
+using System.Net;
 
 namespace Vault.Models
 {
@@ -8,11 +10,18 @@ namespace Vault.Models
         // Our vault database context...
         private VaultContext _context { get; set; }
 
+        // Instance of our configuration...
+        private readonly IConfiguration _configuration;
+
         /// <summary>
         /// Constructor...
         /// </summary>
         /// <param name="context"></param>
-        public LoginService(VaultContext context) => _context = context;
+        public LoginService(VaultContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
 
         /// <summary>
         /// Attempts to log the user in the system...
@@ -82,20 +91,40 @@ namespace Vault.Models
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public bool Register(User user)
+        public bool Register(string email, string name, string password, string ipAddress)
         {
             // Catch all our exceptions...
             try
             {
                 // Check if our email already exists in the database...
-                bool exists = _context.Users.Any(b => b.Email == user.Email);
+                bool exists = _context.Users.Any(b => b.Email == email);
 
                 // If it does, quit here...
-                if (exists)
-                    return false;
+                if (exists) return false;
+
+                // Setup our user...
+                User user = new User();
+
+                // Setup our user's email address...
+                user.Email = WebUtility.HtmlEncode(email);
+
+                // Setup the user's name...
+                user.Name = WebUtility.HtmlEncode(name);
+
+                // Setup the max bytes of the user...
+                user.MaxBytes = long.Parse(_configuration["VaultMaxBytes"]);
+
+                // Setup our user's ip address...
+                user.IPAddresses = ipAddress;
+
+                // Reset our api enabled and api key...
+                user.APIEnabled = false;
+
+                // Set our api key to be empty...
+                user.APIKey = string.Empty;
 
                 // Hash our user's password using BCrypt...
-                user.Password = BCrypt.BCryptHelper.HashPassword(user.Password, BCrypt.BCryptHelper.GenerateSalt());
+                user.Password = BCrypt.BCryptHelper.HashPassword(password, BCrypt.BCryptHelper.GenerateSalt());
 
                 // Set our created atribute to now...
                 user.Created = DateTime.Now;
@@ -120,15 +149,15 @@ namespace Vault.Models
 
                 // Save our changes...
                 _context.SaveChanges();
+
+                // Otherwise, return OK...
+                return true;
             }
             catch (Exception)
             {
                 // If theres an exception, return an error...
                 return false;
             }
-
-            // Otherwise, return OK...
-            return true;
         }
     }
 }

@@ -163,7 +163,7 @@ div .button {
     background-image: url(../images/cover.jpg);
     background-position: bottom;
     background-size: cover;
-    box-shadow: 0px 5px 20px 1px rgba(0, 0, 0, 0.21);
+    box-shadow: 0px 5px 20px 1px rgba(0, 0, 0, 0.24);
 }
 
 .hero {
