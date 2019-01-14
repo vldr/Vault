@@ -6,8 +6,10 @@
 
 <div>
     <b style="font-size:18px;">Name:</b><br>
-    <em style="font-size:25px;">@Html.Raw(ViewBag.User.Name)</em><br><br>
-
+    <div style="font-size: 23px;overflow: hidden;height: 26px;width: 99%;">
+        @Html.Raw(ViewBag.User.Name)
+    </div>
+    <br>
     <b style="font-size:18px;">Storage:</b><br>
     <em style="font-size:14px;">@ViewBag.Storage</em><br><br>
 
