@@ -528,11 +528,11 @@ namespace Vault.Models
             // Strip all the metadata...
             magickImage.Strip();
 
-            // Set the quality to around 50%...
+            // Set to the medium quality...
             magickImage.Quality = 50;
 
-            // Set our format to be a jpeg for that amazing compression...
-            magickImage.Format = MagickFormat.Jpeg;
+            // Set our format to be a webp for that amazing compression...
+            magickImage.Format = MagickFormat.WebP;
 
             // Write the file!
             magickImage.Write(filePathPreview);
@@ -550,6 +550,9 @@ namespace Vault.Models
 
             // Set to the lowest quality possible...
             magickImage.Quality = 25;
+
+            // Set our format to be a webp for that amazing compression...
+            magickImage.Format = MagickFormat.WebP;
 
             // Write the file!
             magickImage.Write(filePathThumbnail);

@@ -1,6 +1,6 @@
 body {
     font-family: sans-serif;
-    background-color: rgba(238, 238, 238, 1);
+    background-color: rgb(255, 255, 255);
     margin: 0;
     padding: 0;
 }
@@ -93,14 +93,14 @@ a {
     position: relative;
     transition: all .3s ease;
     cursor: pointer;
-    user-select:none;
-    display:none;
+    user-select: none;
+    display: none;
 }
 
-#welcome-button:hover {
-    background-color: #3e3e3e;
-    color:white;
-}
+    #welcome-button:hover {
+        background-color: #3e3e3e;
+        color: white;
+    }
 
 div .button {
     margin: 0 15px 15px 0;
@@ -153,7 +153,6 @@ div .button {
     background-size: cover;
 }
 
-
 .intro-header {
     height: 770px;
     width: 100%;
@@ -164,6 +163,7 @@ div .button {
     background-image: url(../images/cover.jpg);
     background-position: bottom;
     background-size: cover;
+    box-shadow: 0px 5px 20px 1px rgba(0, 0, 0, 0.21);
 }
 
 .hero {
@@ -207,14 +207,14 @@ div .button {
     float: left;
     border: 1px solid #c5c5c5;
     height: 340px;
-    box-shadow: 0px 0px 20px #0000002e;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1803921568627451);
     border-radius: 5px;
 }
 
 .info-right-video {
     float: right;
     height: 340px;
-    box-shadow: 0px 0px 20px #0000002e;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1803921568627451);
     border-radius: 5px;
     border: 1px solid #c5c5c5;
 }
@@ -233,7 +233,7 @@ div .button {
     height: 390px;
     padding-top: 100px;
     padding-bottom: 50px;
-    border-bottom: 1px solid #afafaf80;
+    border-bottom: 1px solid rgba(175, 175, 175, 0.5019607843137255);
 }
 
 .info-right {
@@ -518,7 +518,8 @@ div .button {
 
 a {
     color: #696969;
-    font-family: 'Abhaya Libre', serif; /* font-family:  serif; */
+    font-family: 'Abhaya Libre', serif;
+    /* font-family:  serif; */
     text-decoration: none;
 }
 
@@ -545,7 +546,7 @@ a {
     margin: 17px;
     float: left;
     cursor: pointer;
-    box-shadow: 1px 2px 17px 0px #00000040;
+    box-shadow: 1px 2px 17px 0px rgba(0, 0, 0, 0.25098039215686274);
 }
 
     .logo-header:hover {
@@ -667,7 +668,7 @@ a {
     background: url(../images/footer.png);
     font-family: 'Abhaya Libre', serif;
     color: #ffffff;
-    box-shadow: inset -1px 6px 20px 0px #0000003b;
+    box-shadow: inset -1px 6px 20px 0px rgba(0, 0, 0, 0.17);
     padding-top: 224px;
     font-size: 72px;
     text-align: center;
@@ -676,7 +677,7 @@ a {
 .footer-button {
     padding: 10px 30px;
     user-select: none;
-    background: #0000004a;
+    background: rgba(0, 0, 0, 0.2901960784313726);
     cursor: pointer;
     color: #ececec;
     font-size: 25px;
@@ -693,7 +694,6 @@ hr {
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
-
 
 @media screen and (max-width: 442px) {
     .logo-header {

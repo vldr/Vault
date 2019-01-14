@@ -989,9 +989,17 @@ namespace Vault.Controllers
             if (file == null)
                 return StatusCode(500);
 
+            // Setup our file path string...
+            string filePath = file.Path;
+
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path))
+            if (!System.IO.File.Exists(filePath))
                 return StatusCode(500);
+
+            // Check if a preview file exists for our download...
+            if (System.IO.File.Exists($"{filePath}.preview"))
+                // Then change our file path to accommodate for it...
+                filePath = $"{filePath}.preview";
 
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
@@ -1000,12 +1008,10 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Check if our mime type is null or not...
-            if (mimeType == null)
-                // If it is reset it...
-                mimeType = "application/octet-stream";
+            if (mimeType == null) mimeType = "application/octet-stream";
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, true);
+            return PhysicalFile(filePath, mimeType, true);
         }
 
         /// <summary>
