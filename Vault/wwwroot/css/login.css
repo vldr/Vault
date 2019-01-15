@@ -97,10 +97,10 @@ a {
     display: none;
 }
 
-    #welcome-button:hover {
-        background-color: #3e3e3e;
-        color: white;
-    }
+#welcome-button:hover {
+    background-color: #3e3e3e;
+    color: white;
+}
 
 div .button {
     margin: 0 15px 15px 0;
@@ -363,9 +363,9 @@ div .button {
     transition: color .1s ease;
 }
 
-    .btn.black :hover {
-        background: #86878C;
-    }
+.btn.black :hover {
+    background: #86878C;
+}
 
 .return {
     position: absolute;
@@ -417,64 +417,64 @@ div .button {
     text-decoration: none;
 }
 
-    .button:hover {
-        background-color: #F8F8F8;
-        background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
-        border: 1px solid #C6C6C6;
-        color: #333;
-        -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-    }
+.button:hover {
+    background-color: #F8F8F8;
+    background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
+    border: 1px solid #C6C6C6;
+    color: #333;
+    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.blue {
-        background-color: #4D90FE;
-        background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: linear-gradient(top, #4d90fe, #4787ed);
-        border: 1px solid #3079ED;
-        color: white;
-    }
+.button.blue {
+    background-color: #4D90FE;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: linear-gradient(top, #4d90fe, #4787ed);
+    border: 1px solid #3079ED;
+    color: white;
+}
 
-        .button.blue:hover {
-            border: 1px solid #2F5BB7;
-            background-color: #357AE8;
-            background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: linear-gradient(top, #4d90fe, #357ae8);
-            -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-        }
+.button.blue:hover {
+    border: 1px solid #2F5BB7;
+    background-color: #357AE8;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: linear-gradient(top, #4d90fe, #357ae8);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.default:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        color: black;
-    }
+.button.default:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    color: black;
+}
 
-    .button.blue:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-    }
+.button.blue:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+}
 
-    .button.blue:focus {
-        outline: 0 !important;
-    }
+.button.blue:focus {
+    outline: 0 !important;
+}
 
-    .button.default:focus {
-        outline: 0 !important;
-    }
+.button.default:focus {
+    outline: 0 !important;
+}
 
 .login-password {
     outline: 0;
@@ -523,10 +523,10 @@ a {
     text-decoration: none;
 }
 
-    a:hover {
-        color: #000;
-        text-decoration: underline
-    }
+a:hover {
+    color: #000;
+    text-decoration: underline
+}
 
 .header {
     background-color: white;
@@ -549,9 +549,9 @@ a {
     box-shadow: 1px 2px 17px 0px rgba(0, 0, 0, 0.25098039215686274);
 }
 
-    .logo-header:hover {
-        opacity: 0.5;
-    }
+.logo-header:hover {
+    opacity: 0.5;
+}
 
 .dropdown > .drawer, .dropdown > .inner, .navbar {
     box-shadow: 2px 4px 13px 1px rgba(0, 0, 0, 0.22);
@@ -571,11 +571,11 @@ a {
     z-index: 100;
 }
 
-    .navbar > li {
-        float: left;
-        display: inline;
-        padding: 16px;
-    }
+.navbar > li {
+    float: left;
+    display: inline;
+    padding: 16px;
+}
 
 .dropdown {
     display: inline-block;
@@ -586,58 +586,58 @@ a {
     position: fixed
 }
 
-    .dropdown > .drawer {
-        position: absolute;
-        border: 2px solid #f5f5f5;
-        margin-left: 10px;
-        height: 37px;
-        width: 30px;
-        padding: 0;
-        border-radius: 4px;
-        top: 20px;
-        right: 15px;
-        background: url(../../../img/ui/md.png) 7.5px 11.5px no-repeat #f5f5f5
-    }
+.dropdown > .drawer {
+    position: absolute;
+    border: 2px solid #f5f5f5;
+    margin-left: 10px;
+    height: 37px;
+    width: 30px;
+    padding: 0;
+    border-radius: 4px;
+    top: 20px;
+    right: 15px;
+    background: url(../../../img/ui/md.png) 7.5px 11.5px no-repeat #f5f5f5
+}
 
-        .dropdown > .drawer:hover {
-            background-color: #eee;
-            cursor: pointer
-        }
+.dropdown > .drawer:hover {
+    background-color: #eee;
+    cursor: pointer
+}
 
-    .dropdown > input {
-        display: none
-    }
+.dropdown > input {
+    display: none
+}
 
-    .dropdown.active > .drawer {
-        color: #202020
-    }
+.dropdown.active > .drawer {
+    color: #202020
+}
 
-        .dropdown.active > .drawer:after {
-            visibility: visible
-        }
+.dropdown.active > .drawer:after {
+    visibility: visible
+}
 
-    .dropdown > .inner {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        position: fixed;
-        width: 300px;
-        padding-top: 34px;
-        background: #F5F5F5;
-        box-shadow: 0 1px 1px rgba(0,0,0,.15);
-        border: 1px solid #DEDEDE;
-        visibility: hidden;
-        top: 75px;
-        margin-left: -18px;
-        text-align: center;
-        border-radius: 2px;
-        height: 275px;
-        overflow: overlay;
-    }
+.dropdown > .inner {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    position: fixed;
+    width: 300px;
+    padding-top: 34px;
+    background: #F5F5F5;
+    box-shadow: 0 1px 1px rgba(0,0,0,.15);
+    border: 1px solid #DEDEDE;
+    visibility: hidden;
+    top: 75px;
+    margin-left: -18px;
+    text-align: center;
+    border-radius: 2px;
+    height: 275px;
+    overflow: overlay;
+}
 
-    .dropdown.active .inner {
-        visibility: visible
-    }
+.dropdown.active .inner {
+    visibility: visible
+}
 
 .gridItem:hover {
     background-color: #F7F7F7;
@@ -684,9 +684,9 @@ a {
     border-radius: 40px;
 }
 
-    .footer-button:hover {
-        color: white;
-    }
+.footer-button:hover {
+    color: white;
+}
 
 hr {
     border: 0;

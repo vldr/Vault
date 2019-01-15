@@ -21,7 +21,7 @@ hr {
     margin-top: 40px;
     margin-bottom: 40px;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid rgba(156, 156, 156, 0.3);
 }
 
 table {
@@ -173,6 +173,13 @@ input[type=submit]:hover {
 }
 
 @media all and (max-width: 535px) {
+    .grid-file-text {
+        width: 85%;
+        max-width: none;
+        word-break: keep-all;
+        white-space: nowrap;
+    }
+
     .grid-text-right {
         display: none;
     }
@@ -236,9 +243,9 @@ input[type=submit]:hover {
     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
 }
 
-    .alert-body a {
-        color: #ffffff !important;
-    }
+.alert-body a {
+    color: #ffffff !important;
+}
 
 div .button {
     margin: 0 15px 15px 0;
@@ -298,9 +305,9 @@ div .button {
     background-color: #5f5f5f;
 }
 
-    .color-circle:hover {
-        box-shadow: inset 0px 0px 0px 2px #000;
-    }
+.color-circle:hover {
+    box-shadow: inset 0px 0px 0px 2px #000;
+}
 
 .orange {
     background-color: #ffac00;
@@ -423,12 +430,12 @@ div .button {
     transition: 0.3s;
 }
 
-    .closeThis:hover,
-    .closeThis:focus {
-        color: #bbb;
-        text-decoration: none;
-        cursor: pointer;
-    }
+.closeThis:hover,
+.closeThis:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
 
 @media only screen and (max-width: 700px) {
     .myImg-modal-content {
@@ -522,18 +529,18 @@ div .button {
     list-style: none;
 }
 
-    #file-list > li {
-        padding: 10px;
-        background-color: white;
-        border-radius: 5px;
-        margin: 0 auto;
-        margin: 10px;
-    }
+#file-list > li {
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    margin: 0 auto;
+    margin: 10px;
+}
 
 
-    #file-list a {
-        color: black;
-    }
+#file-list a {
+    color: black;
+}
 
 @keyframes fadein {
     from {
@@ -659,64 +666,64 @@ div .button {
     text-decoration: none;
 }
 
-    .button:hover {
-        background-color: #F8F8F8;
-        background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
-        border: 1px solid #C6C6C6;
-        color: #333;
-        -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-    }
+.button:hover {
+    background-color: #F8F8F8;
+    background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
+    border: 1px solid #C6C6C6;
+    color: #333;
+    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.blue {
-        background-color: #4D90FE;
-        background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: linear-gradient(top, #4d90fe, #4787ed);
-        border: 1px solid #3079ED;
-        color: white;
-    }
+.button.blue {
+    background-color: #4D90FE;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: linear-gradient(top, #4d90fe, #4787ed);
+    border: 1px solid #3079ED;
+    color: white;
+}
 
-        .button.blue:hover {
-            border: 1px solid #2F5BB7;
-            background-color: #357AE8;
-            background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: linear-gradient(top, #4d90fe, #357ae8);
-            -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-        }
+.button.blue:hover {
+    border: 1px solid #2F5BB7;
+    background-color: #357AE8;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: linear-gradient(top, #4d90fe, #357ae8);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.default:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        color: black;
-    }
+.button.default:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    color: black;
+}
 
-    .button.blue:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-    }
+.button.blue:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+}
 
-    .button.blue:focus {
-        outline: 0 !important;
-    }
+.button.blue:focus {
+    outline: 0 !important;
+}
 
-    .button.default:focus {
-        outline: 0 !important;
-    }
+.button.default:focus {
+    outline: 0 !important;
+}
 
 .info {
     position: relative;
@@ -761,10 +768,10 @@ div .button {
     background-color: #333333;
 }
 
-    .btnSettings:hover {
-        background-color: #525252;
-        cursor: pointer;
-    }
+.btnSettings:hover {
+    background-color: #525252;
+    cursor: pointer;
+}
 
 .btnLogout {
     position: absolute;
@@ -785,10 +792,10 @@ div .button {
     background-color: #333333;
 }
 
-    .btnLogout:hover {
-        background-color: #525252;
-        cursor: pointer;
-    }
+.btnLogout:hover {
+    background-color: #525252;
+    cursor: pointer;
+}
 
 .btnHelp {
     position: absolute;
@@ -809,10 +816,10 @@ div .button {
     background-color: #333333;
 }
 
-    .btnHelp:hover {
-        background-color: #525252;
-        cursor: pointer;
-    }
+.btnHelp:hover {
+    background-color: #525252;
+    cursor: pointer;
+}
 
 .btnUpload {
     position: absolute;
@@ -835,10 +842,10 @@ div .button {
     background-color: #333333;
 }
 
-    .btnUpload:hover {
-        background-color: #525252;
-        cursor: pointer;
-    }
+.btnUpload:hover {
+    background-color: #525252;
+    cursor: pointer;
+}
 
 .btnSort {
     position: absolute;
@@ -860,10 +867,10 @@ div .button {
     background-color: #333333;
 }
 
-    .btnSort:hover {
-        background-color: #525252;
-        cursor: pointer;
-    }
+.btnSort:hover {
+    background-color: #525252;
+    cursor: pointer;
+}
 
 .btnHome {
     position: absolute;
@@ -882,10 +889,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnHome:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnHome:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnDelete {
     background-color: #f5f5f5;
@@ -899,10 +906,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnDelete:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnDelete:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnDownload {
     background-color: #f5f5f5;
@@ -917,10 +924,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnDownload:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnDownload:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .table-content {
     position: relative;
@@ -973,7 +980,7 @@ div .button {
     padding: 21px;
     cursor: pointer;
     box-sizing: border-box;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .gridItem:hover {
@@ -998,13 +1005,13 @@ div .button {
     user-select: none;
 }
 
-    #share-checkbox input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        height: 0;
-        width: 0;
-    }
+#share-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
 
 .share-box {
     background-color: #1f1f1f;
@@ -1133,7 +1140,7 @@ progress::-moz-progress-bar {
     float: left;
     max-width: 50%;
     overflow: hidden;
-    height:16px;
+    height: 16px;
 }
 
 .grid-text {
@@ -1185,11 +1192,11 @@ progress::-moz-progress-bar {
         display: block;
     }
 
-        thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
 
     td {
         border: none;
@@ -1303,9 +1310,9 @@ p {
     top: 0;
 }
 
-    .btn-close:hover {
-        color: #919191;
-    }
+.btn-close:hover {
+    color: #919191;
+}
 
 .modal:before {
     content: "";
@@ -1363,9 +1370,9 @@ p {
     border-bottom: #eeeeee solid 1px;
 }
 
-    .modal-header h2 {
-        font-size: 20px;
-    }
+.modal-header h2 {
+    font-size: 20px;
+}
 
 .modal-footer {
     border-top: #eeeeee solid 1px;
@@ -1415,10 +1422,10 @@ p {
     color: #5d5c5c;
 }
 
-    .folder-path a {
-        color: #5d5c5c;
-        text-decoration: none;
-    }
+.folder-path a {
+    color: #5d5c5c;
+    text-decoration: none;
+}
 
 #snack-bar-upload {
     padding: 15px;
@@ -1525,16 +1532,39 @@ p {
     display: none;
 }
 
-    #loader-horizontal:before {
-        display: block;
-        position: absolute;
-        content: "";
-        left: -500px;
-        width: 30%;
-        height: 4px;
-        background-color: white;
-        animation: loading 1s linear infinite;
-    }
+#loader-horizontal:before {
+    display: block;
+    position: absolute;
+    content: "";
+    left: -500px;
+    width: 30%;
+    height: 4px;
+    background-color: white;
+    animation: loading 1s linear infinite;
+}
+
+.btn-download-viewer {
+    position: absolute;
+    border: 2px solid #3c3c3c;
+    box-shadow: 0 1px 1px rgba(0,0,0,.15);
+    margin-left: 10px;
+    height: 35px;
+    width: 35px;
+    padding: 0;
+    border-radius: 4px;
+    top: 15px;
+    right: 20px;
+    cursor: pointer;
+    background: url(../images/ui/download.svg);
+    background-size: 20px;
+    background-color: #1b1b1b;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.btn-download-viewer:hover {
+    background-color: #2b2b2b;
+}
 
 @keyframes loading {
     from {

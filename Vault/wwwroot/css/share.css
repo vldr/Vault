@@ -44,10 +44,10 @@ a {
     text-align: center;
 }
 
-    .close-info-button:hover {
-        border: 1px solid #828282;
-        outline: 0;
-    }
+.close-info-button:hover {
+    border: 1px solid #828282;
+    outline: 0;
+}
 
 input[type=submit] {
     background: #313131;
@@ -58,9 +58,9 @@ input[type=submit] {
     cursor: pointer;
 }
 
-    input[type=submit]:hover {
-        border: 1px solid #828282;
-    }
+input[type=submit]:hover {
+    border: 1px solid #828282;
+}
 
 .topbar {
     margin-left: 15px;
@@ -93,10 +93,10 @@ input[type=submit] {
     background-position: center;
 }
 
-    .btn-info:hover {
-        background-color: #2b2b2b;
-        outline: 0;
-    }
+.btn-info:hover {
+    background-color: #2b2b2b;
+    outline: 0;
+}
 
 .btn-download {
     position: absolute;
@@ -117,10 +117,10 @@ input[type=submit] {
     background-position: center;
 }
 
-    .btn-download:hover {
-        background-color: #2b2b2b;
-        outline: 0;
-    }
+.btn-download:hover {
+    background-color: #2b2b2b;
+    outline: 0;
+}
 
 .image-preview {
     max-width: 80%;
@@ -145,16 +145,16 @@ input[type=submit] {
     background-color: transparent;
 }
 
-    #loader-horizontal:before {
-        display: block;
-        position: absolute;
-        content: "";
-        left: -500px;
-        width: 30%;
-        height: 4px;
-        background-color: white;
-        animation: loading 1s linear infinite;
-    }
+#loader-horizontal:before {
+    display: block;
+    position: absolute;
+    content: "";
+    left: -500px;
+    width: 30%;
+    height: 4px;
+    background-color: white;
+    animation: loading 1s linear infinite;
+}
 
 @keyframes loading {
     from {
@@ -430,10 +430,10 @@ input[type=submit] {
     background-position: center;
 }
 
-    .btn-download-viewer:hover {
-        background-color: #2b2b2b;
-        outline: 0;
-    }
+.btn-download-viewer:hover {
+    background-color: #2b2b2b;
+    outline: 0;
+}
 
 .gridItem-file {
     width: 100%;
@@ -450,10 +450,10 @@ input[type=submit] {
     overflow: hidden;
 }
 
-    .gridItem-file:hover {
-        background-color: #0000000a;
-        outline: 0;
-    }
+.gridItem-file:hover {
+    background-color: #0000000a;
+    outline: 0;
+}
 
 #sorting-arrow {
     height: 20px;
@@ -484,11 +484,11 @@ input[type=submit] {
     cursor: pointer;
 }
 
-    .sorting-option-left:hover {
-        text-decoration: none;
-        color: #6d6d6d;
-        cursor: pointer;
-    }
+.sorting-option-left:hover {
+    text-decoration: none;
+    color: #6d6d6d;
+    cursor: pointer;
+}
 
 .sorting-option:hover {
     text-decoration: none;

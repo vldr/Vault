@@ -176,9 +176,9 @@ div .button {
     background-color: #5f5f5f;
 }
 
-    .color-circle:hover {
-        box-shadow: inset 0px 0px 0px 2px #000;
-    }
+.color-circle:hover {
+    box-shadow: inset 0px 0px 0px 2px #000;
+}
 
 .orange {
     background-color: #ffac00;
@@ -301,12 +301,12 @@ div .button {
     transition: 0.3s;
 }
 
-    .closeThis:hover,
-    .closeThis:focus {
-        color: #bbb;
-        text-decoration: none;
-        cursor: pointer;
-    }
+.closeThis:hover,
+.closeThis:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
 
 @media only screen and (max-width: 700px) {
     .myImg-modal-content {
@@ -400,18 +400,18 @@ div .button {
     list-style: none;
 }
 
-    #file-list > li {
-        padding: 10px;
-        background-color: white;
-        border-radius: 5px;
-        margin: 0 auto;
-        margin: 10px;
-    }
+#file-list > li {
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    margin: 0 auto;
+    margin: 10px;
+}
 
 
-    #file-list a {
-        color: black;
-    }
+#file-list a {
+    color: black;
+}
 
 @keyframes fadein {
     from {
@@ -537,64 +537,64 @@ div .button {
     text-decoration: none;
 }
 
-    .button:hover {
-        background-color: #F8F8F8;
-        background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
-        background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
-        border: 1px solid #C6C6C6;
-        color: #333;
-        -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-        box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
-    }
+.button:hover {
+    background-color: #F8F8F8;
+    background-image: -webkit-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -moz-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -ms-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: -o-linear-gradient(top, #f8f8f8, #f1f1f1);
+    background-image: linear-gradient(top, #f8f8f8, #f1f1f1);
+    border: 1px solid #C6C6C6;
+    color: #333;
+    -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.blue {
-        background-color: #4D90FE;
-        background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
-        background-image: linear-gradient(top, #4d90fe, #4787ed);
-        border: 1px solid #3079ED;
-        color: white;
-    }
+.button.blue {
+    background-color: #4D90FE;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -moz-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -ms-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: -o-linear-gradient(top, #4d90fe, #4787ed);
+    background-image: linear-gradient(top, #4d90fe, #4787ed);
+    border: 1px solid #3079ED;
+    color: white;
+}
 
-        .button.blue:hover {
-            border: 1px solid #2F5BB7;
-            background-color: #357AE8;
-            background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
-            background-image: linear-gradient(top, #4d90fe, #357ae8);
-            -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-            box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
-        }
+.button.blue:hover {
+    border: 1px solid #2F5BB7;
+    background-color: #357AE8;
+    background-image: -webkit-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -moz-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -ms-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: -o-linear-gradient(top, #4d90fe, #357ae8);
+    background-image: linear-gradient(top, #4d90fe, #357ae8);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .1);
+}
 
-    .button.default:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
-        color: black;
-    }
+.button.default:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .1);
+    color: black;
+}
 
-    .button.blue:active {
-        -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-        box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
-    }
+.button.blue:active {
+    -webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    -moz-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, .3);
+}
 
-    .button.blue:focus {
-        outline: 0 !important;
-    }
+.button.blue:focus {
+    outline: 0 !important;
+}
 
-    .button.default:focus {
-        outline: 0 !important;
-    }
+.button.default:focus {
+    outline: 0 !important;
+}
 
 .info {
     position: relative;
@@ -639,10 +639,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnSettings:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnSettings:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnLogout {
     position: absolute;
@@ -664,10 +664,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnLogout:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnLogout:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnHelp {
     position: absolute;
@@ -689,10 +689,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnHelp:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnHelp:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnUpload {
     position: absolute;
@@ -715,10 +715,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnUpload:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnUpload:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnSort {
     position: absolute;
@@ -741,10 +741,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnSort:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnSort:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnHome {
     position: absolute;
@@ -763,10 +763,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnHome:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnHome:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnDelete {
     background-color: #f5f5f5;
@@ -780,10 +780,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnDelete:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnDelete:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .btnDownload {
     background-color: #f5f5f5;
@@ -798,10 +798,10 @@ div .button {
     background-color: #f5f5f5;
 }
 
-    .btnDownload:hover {
-        background-color: #eeeeee;
-        cursor: pointer;
-    }
+.btnDownload:hover {
+    background-color: #eeeeee;
+    cursor: pointer;
+}
 
 .table-content {
     position: relative;
@@ -840,9 +840,7 @@ div .button {
     font-family: Arial, sans-serif;
     text-decoration: none;
     -moz-user-select: -moz-none;
-    -khtml-user-select: none;
     -webkit-user-select: none;
-    -o-user-select: none;
     user-select: none;
     cursor: pointer;
 }
@@ -854,7 +852,7 @@ div .button {
     padding: 21px;
     cursor: pointer;
     box-sizing: border-box;
-    overflow:hidden;
+    overflow: hidden;
 }
 
 .gridItem:hover {
@@ -879,13 +877,13 @@ div .button {
     user-select: none;
 }
 
-    #share-checkbox input {
-        position: absolute;
-        opacity: 0;
-        cursor: pointer;
-        height: 0;
-        width: 0;
-    }
+#share-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
 
 .share-box {
     background-color: #e0e0e0;
@@ -1155,10 +1153,16 @@ input[type=submit]:hover {
     background: rgba(0,0,0,0.2);
 }
 
-@media all and (max-width: 535px) 
-{
+@media all and (max-width: 535px) {
+    .grid-file-text {
+        width: 85%;
+        max-width: none;
+        word-break: keep-all;
+        white-space: nowrap;
+    }
+
     .grid-text-right {
-        display:none;
+        display: none;
     }
 }
 
@@ -1181,11 +1185,11 @@ input[type=submit]:hover {
         display: block;
     }
 
-        thead tr {
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
-        }
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
 
     td {
         border: none;
@@ -1299,9 +1303,9 @@ p {
     top: 0;
 }
 
-    .btn-close:hover {
-        color: #919191;
-    }
+.btn-close:hover {
+    color: #919191;
+}
 
 .modal:before {
     content: "";
@@ -1359,9 +1363,9 @@ p {
     border-bottom: #eeeeee solid 1px;
 }
 
-    .modal-header h2 {
-        font-size: 20px;
-    }
+.modal-header h2 {
+    font-size: 20px;
+}
 
 .modal-footer {
     border-top: #eeeeee solid 1px;
@@ -1374,27 +1378,22 @@ p {
 
 .green-icon {
     background-color: #d1ffe1;
-    /*border: 2px solid #b6ffbf;*/
 }
 
 .purple-icon {
     background-color: #efd1ff;
-    /*border: 2px solid #ffb6fd;*/
 }
 
 .orange-icon {
     background-color: #ffffd1;
-    /*border: 2px solid #fff6b6;*/
 }
 
 .blue-icon {
     background-color: #d1f7ff;
-    /*border: 2px solid #b6e4ff;*/
 }
 
 .red-icon {
     background-color: #ffd1d1;
-    /*border: 2px solid #ffb6b6;*/
 }
 
 #folder-listing {
