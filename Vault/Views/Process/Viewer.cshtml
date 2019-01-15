@@ -5,7 +5,7 @@
 @model Vault.Controllers.ProcessController
 
 <div class="file-viewer-topbar">
-    <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @Html.Raw(@ViewBag.File.Name)</h3>
+    <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @System.Net.WebUtility.HtmlDecode(@ViewBag.File.Name)</h3>
 </div>
 
 <div class="btn-download-viewer" onclick="document.getElementById('download-form').submit();"></div>

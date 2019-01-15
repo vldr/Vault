@@ -5,9 +5,9 @@
 @model Vault.Controllers.LoginController
 
 <div>
-    <b style="font-size:18px;">Name:</b><br>
+    <b style="        font-size: 18px;">Name:</b><br>
     <div style="font-size: 23px;overflow: hidden;height: 26px;width: 99%;">
-        @Html.Raw(ViewBag.User.Name)
+        @System.Net.WebUtility.HtmlDecode(ViewBag.User.Name)
     </div>
     <br>
     <b style="font-size:18px;">Storage:</b><br>
