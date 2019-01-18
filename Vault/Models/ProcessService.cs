@@ -1,4 +1,5 @@
-﻿using ImageMagick;
+﻿using GrapeCity.Documents.Word;
+using ImageMagick;
 using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
@@ -273,6 +274,12 @@ namespace Vault.Models
                     else
                         return "2";
                 case ".docx":
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
+                        return "images/word-icon.png";
+                    else
+                        return "3";
                 case ".asd":
                 case ".dotx":
                 case ".dotm":
@@ -462,6 +469,22 @@ namespace Vault.Models
         /// <param name="path"></param>
         public void GenerateThumbnails(string ext, string path)
         {
+            // Generate a PDF representation of our DOCX...
+            if (ext == ".docx")
+            {
+                // Initialize our word document...
+                var doc = new GcWordDocument();
+
+                // Load up our document...
+                doc.Load(path);
+
+                // Save it as a preview file...
+                doc.SaveAsPdf($"{path}.preview.pdf");
+
+                // Return here...
+                return;
+            }
+
             // Check if our file is a PNG, JPEG, or JPG....
             if ( !(ext == ".png" || ext == ".jpeg" || ext == ".jpg") )
                 return;
@@ -777,6 +800,30 @@ namespace Vault.Models
 
             // Return true that the operation was successful...
             return (true, fileObj.Id);
+        }
+
+        /// <summary>
+        /// Setups a preview path...
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public void SetupPreview(ref string contentType, ref string path)
+        {
+            // Check we're dealing with a DOCX preview...
+            if (System.IO.File.Exists($"{path}.preview.pdf"))
+            {
+                // Update our path...
+                path = $"{path}.preview.pdf";
+
+                // Update our content type...
+                contentType = "application/pdf";
+            }
+            // Check if we're dealing with an image preview...
+            else if (System.IO.File.Exists($"{path}.preview"))
+            {
+                // Update our path...
+                path = $"{path}.preview";
+            }
         }
 
         /// <summary>

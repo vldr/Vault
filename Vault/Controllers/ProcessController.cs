@@ -743,75 +743,67 @@ namespace Vault.Controllers
         [Route("process/upload")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
-            try
-            {
-                // Check if we're logged in...
-                if (!IsLoggedIn())
-                    return StatusCode(500);
+            // Check if we're logged in...
+            if (!IsLoggedIn())
+                return StatusCode(500);
 
-                // Store our file size...
-                long size = file.Length;
+            // Store our file size...
+            long size = file.Length;
 
-                // File too big!
-                if (size > long.Parse(_configuration["MaxVaultFileSize"])) return StatusCode(500);
+            // File too big!
+            if (size > long.Parse(_configuration["MaxVaultFileSize"])) return StatusCode(500);
 
-                // Get our user's session, it is safe to do so because we've checked if we're logged in!
-                UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-                //////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////
 
-                // Check if the user has enough storage to upload the file...
-                if (!_processService.CanUpload(userSession.Id, size))
-                    return StatusCode(500);
+            // Check if the user has enough storage to upload the file...
+            if (!_processService.CanUpload(userSession.Id, size))
+                return StatusCode(500);
 
-                //////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////
 
-                // Full path to file in temp location
-                string filePath = _storageLocation + _processService.RandomString(30);
+            // Full path to file in temp location
+            string filePath = _storageLocation + _processService.RandomString(30);
 
-                // Check if our file already exists with that name!
-                if (System.IO.File.Exists(filePath))
-                    // Respond with zero since something bad happened...
-                    return StatusCode(500);
-
-                // Setup our file name...
-                string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);
-
-                // Copy our file from buffer...
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                //////////////////////////////////////////////////////////////////
-
-                // Get the file's extension...
-                string fileExtension = Path.GetExtension(fileName).ToLower();
-
-                // Add the new file...
-                if (_processService.AddNewFile(
-                    userSession.Id,
-                    size,
-                    fileName,
-                    fileExtension,
-                    userSession.Folder,
-                    filePath).success)
-                {
-                    // Inform all clients that there was change...
-                    _processService.UpdateListings(userSession.Id, Request);
-
-                    // Respond with a successful message...
-                    return Ok();
-                }
-                else
-                    // Otherwise return a 500 error...
-                    return StatusCode(500);
-            }
-            catch
-            {
+            // Check if our file already exists with that name!
+            if (System.IO.File.Exists(filePath))
                 // Respond with zero since something bad happened...
                 return StatusCode(500);
+
+            // Setup our file name...
+            string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);
+
+            // Copy our file from buffer...
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
             }
+
+            //////////////////////////////////////////////////////////////////
+
+            // Get the file's extension...
+            string fileExtension = Path.GetExtension(fileName).ToLower();
+
+            // Add the new file...
+            if (_processService.AddNewFile(
+                userSession.Id,
+                size,
+                fileName,
+                fileExtension,
+                userSession.Folder,
+                filePath).success)
+            {
+                // Inform all clients that there was change...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                // Respond with a successful message...
+                return Ok();
+            }
+            else
+                // Otherwise return a 500 error...
+                return StatusCode(500);
         }
 
         /// <summary>
@@ -999,11 +991,6 @@ namespace Vault.Controllers
             if (!System.IO.File.Exists(filePath))
                 return StatusCode(500);
 
-            // Check if a preview file exists for our download...
-            if (System.IO.File.Exists($"{filePath}.preview"))
-                // Then change our file path to accommodate for it...
-                filePath = $"{filePath}.preview";
-
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
 
@@ -1012,6 +999,9 @@ namespace Vault.Controllers
 
             // Check if our mime type is null or not...
             if (mimeType == null) mimeType = "application/octet-stream";
+
+            // Setup our preview info...
+            _processService.SetupPreview(ref mimeType, ref filePath);
 
             // Return an empty result.
             return PhysicalFile(filePath, mimeType, true);

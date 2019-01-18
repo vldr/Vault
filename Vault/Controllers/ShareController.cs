@@ -317,8 +317,11 @@ namespace Vault.Controllers
             // Check if we were able to find the file...
             if (file == null) return StatusCode(500);
 
+            // Setup our file path string...
+            string filePath = file.Path;
+
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
+            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
 
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
@@ -327,12 +330,13 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Check if our mime type is null or not...
-            if (mimeType == null)
-                // If it is reset it...
-                mimeType = "application/octet-stream";
+            if (mimeType == null) mimeType = "application/octet-stream";
+
+            // Setup our preview info...
+            _processService.SetupPreview(ref mimeType, ref filePath);
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, true);
+            return PhysicalFile(filePath, mimeType, true);
         }
 
         /// <summary>
@@ -462,8 +466,11 @@ namespace Vault.Controllers
             // Check if the file exists or is valid!
             if (file == null) return StatusCode(500);
 
+            // Setup our file path...
+            string filePath = file.Path;
+
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
+            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
 
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
@@ -472,12 +479,13 @@ namespace Vault.Controllers
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
             // Check if our mime type is null or not...
-            if (mimeType == null)
-                // If it is reset it...
-                mimeType = "application/octet-stream";
+            if (mimeType == null) mimeType = "application/octet-stream";
+
+            // Setup our preview info...
+            _processService.SetupPreview(ref mimeType, ref filePath);
 
             // Return an empty result.
-            return PhysicalFile(file.Path, mimeType, true);
+            return PhysicalFile(filePath, mimeType, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////
