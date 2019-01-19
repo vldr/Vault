@@ -275,8 +275,7 @@ function contextMenuFolder(event) {
             </li>`;
 }
 
-function processDownloadFolder(id)
-{
+function processDownloadFolder(id) {
     window.location.href = "process/download/folder/" + id;
 }
 
@@ -505,10 +504,9 @@ function processToggleSharing(id) {
     xhr.send("fileid=" + id);
 }
 
-function downloadShareX(apiKey)
-{
+function downloadShareX(apiKey) {
     const loc = window.location.href;
-    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1);
 
     var text = `{"Name": "Vault", 
                 "DestinationType": "ImageUploader, TextUploader, FileUploader",
@@ -547,7 +545,7 @@ function processShareFile(id) {
     var shareId = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-share");
 
     const loc = window.location.href;
-    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1);
 
     swal({
         title: "Share",
@@ -575,7 +573,7 @@ function processShareFolder(id) {
     var shareId = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-share");
 
     const loc = window.location.href;
-    const path = loc.substr(0, loc.lastIndexOf('/') + 1); 
+    const path = loc.substr(0, loc.lastIndexOf('/') + 1);
 
     swal({
         title: "Share",
@@ -738,114 +736,123 @@ function processDeleteFolder(event) {
 
 function processChangeName(name) {
     swal
-    ({
-        title: "Update your name...",
-        text: null,
-        inputValue: name,
-        type: "input",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        animation: "fadein",
-        inputPlaceholder: "Current Password"
-    },
-    function (updatedName)
-    {
-        if (updatedName === false) return false;
-
-        if (updatedName === "")
-        {
-            swal.showInputError("You need to write something!");
-            return false;
-        }
-
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function ()
-        {
-            if (xhr.readyState === 4) {
-                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-
-                if (xhr.status === 200 && xhr.status < 300) {
-
-                    var json = JSON.parse(xhr.responseText);
-
-                    if (json.success) showSettings();
-                    else swal("Error!", json.reason, "error");
-                }
-                else {
-                    swal("Error!", "Failed to connect!", "error");
-                }
+        ({
+            title: "Update your name...",
+            text: null,
+            inputValue: name,
+            type: "input",
+            showCancelButton: true,
+            closeOnCancel: false,
+            closeOnConfirm: false,
+            animation: "fadein",
+            inputPlaceholder: "Current Password"
+        },
+        function (updatedName) {
+            if (updatedName === false) {
+                showSettings();
+                return false;
             }
-        };
 
-        xhr.open('POST', 'process/changename');
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("name=" + updatedName);
-    });     
+            if (updatedName === "") {
+                swal.showInputError("You need to write something!");
+                return false;
+            }
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
+                    if (xhr.status === 200 && xhr.status < 300) {
+
+                        var json = JSON.parse(xhr.responseText);
+
+                        if (json.success) showSettings();
+                        else swal("Error!", json.reason, "error");
+                    }
+                    else {
+                        swal("Error!", "Failed to connect!", "error");
+                    }
+                }
+            };
+
+            xhr.open('POST', 'process/changename');
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.send("name=" + updatedName);
+        });
 }
 
 function processChangePassword() {
     swal
-    ({
-        title: "Enter your current password...",
-        text: null,
-        type: "input",
-        inputType: "password",
-        showCancelButton: true,
-        closeOnConfirm: false,
-        animation: "fadein",
-        inputPlaceholder: "Current Password"
-    },
-    function (currentPassword) {
-        if (currentPassword === false) return false;
+        ({
+            title: "Enter your current password...",
+            text: null,
+            type: "input",
+            inputType: "password",
+            showCancelButton: true,
+            closeOnConfirm: false,
+            closeOnCancel: false,
+            animation: "fadein",
+            inputPlaceholder: "Current Password"
+        },
+        function (currentPassword) {
+            if (currentPassword === false) {
+                showSettings();
+                return false;
+            }
 
-        if (currentPassword === "") {
-            swal.showInputError("You need to write something!");
-            return false;
-        }
+            if (currentPassword === "") {
+                swal.showInputError("You need to write something!");
+                return false;
+            }
 
-        swal
-            ({
-                title: "Enter your desired new password...",
-                text: null,
-                type: "input",
-                inputType: "password",
-                showCancelButton: true,
-                closeOnConfirm: false,
-                animation: "fadein",
-                inputPlaceholder: "New Password"
-            },
-            function (newPassword) {
-                if (newPassword === false) return false;
-
-                if (newPassword === "") {
-                    swal.showInputError("You need to write something!");
-                    return false;
-                }
-
-                var xhr = new XMLHttpRequest();
-
-                xhr.onreadystatechange = function () {
-                    if (xhr.readyState === 4) {
-                        swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-                        if (xhr.status === 200 && xhr.status < 300) {
-
-                            var json = JSON.parse(xhr.responseText);
-
-                            if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
-                            else swal("Error!", json.reason, "error");
-                        }
-                        else {
-                            swal("Error!", "Failed to connect!", "error");
-                        }
+            swal
+                ({
+                    title: "Enter your desired new password...",
+                    text: null,
+                    type: "input",
+                    inputType: "password",
+                    showCancelButton: true,
+                    closeOnConfirm: false,
+                    closeOnCancel: false,
+                    animation: "fadein",
+                    inputPlaceholder: "New Password"
+                },
+                function (newPassword) {
+                    if (newPassword === false) {
+                        showSettings();
+                        return false;
                     }
-                };
 
-                xhr.open('POST', 'process/changepassword');
-                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
-            });
-    });
+                    if (newPassword === "") {
+                        swal.showInputError("You need to write something!");
+                        return false;
+                    }
+
+                    var xhr = new XMLHttpRequest();
+
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState === 4) {
+                            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+                            if (xhr.status === 200 && xhr.status < 300) {
+
+                                var json = JSON.parse(xhr.responseText);
+
+                                if (json.success) swal({ title: "Success!", text: "Your password was changed!", type: "success", timer: 1500, showConfirmButton: false });
+                                else swal("Error!", json.reason, "error");
+                            }
+                            else {
+                                swal("Error!", "Failed to connect!", "error");
+                            }
+                        }
+                    };
+
+                    xhr.open('POST', 'process/changepassword');
+                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
+                });
+        });
 }
 
 function processFolderColour(id, colour) {
@@ -915,8 +922,7 @@ function processRegister(str, str2, str3, str4) {
     xhr.send("email=" + str + "&password=" + str2 + "&name=" + str3 + "&invite=" + str4);
 }
 
-function processLogin(str, str2)
-{
+function processLogin(str, str2) {
     document.getElementById('login-loader-box').style.display = "block";
     document.getElementById('txtHint').innerHTML = "";
 
@@ -1092,6 +1098,9 @@ function allowDrop(event) {
 function drop(event) {
     var data = event.dataTransfer.getData("Text");
     var res = data.split("|");
+
+    if (res == "")
+        return;
 
     if (res[0] !== "null" && res[0] !== "") {
         processMovingFileToFolder(res[0], event.target.getAttribute('data-folder-id'));

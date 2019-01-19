@@ -126,6 +126,7 @@ input[type=submit]:hover {
     max-width: 80%;
     max-height: 80%;
     box-shadow: 6px 3px 20px 3px #00000091;
+    z-index: -99 !important;
     -webkit-animation: fadein 0.8s;
     -moz-animation: fadein 0.8s;
     -ms-animation: fadein 0.8s;
