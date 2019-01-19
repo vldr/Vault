@@ -11,6 +11,40 @@ body {
     overflow-x: hidden;
 }
 
+.btn-close-viewer {
+    position: absolute;
+    border: 2px solid #3c3c3c;
+    box-shadow: 0 1px 1px rgba(0,0,0,.15);
+    margin-left: 10px;
+    height: 35px;
+    width: 35px;
+    padding: 0;
+    border-radius: 4px;
+    top: 15px;
+    right: 65px;
+    cursor: pointer;
+    background: url(../images/x.svg);
+    background-size: 20px;
+    background-color: #1b1b1b;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.btn-close-viewer:hover {
+    background-color: #2b2b2b;
+}
+
+.pdf-viewer {
+    position: absolute;
+    left: 0;
+    top: 15px;
+    width: 100%;
+    height: 100%;
+    border: none;
+    max-height: none;
+    max-width: none;
+}
+
 a {
     color: #f9f9f9;
 }
@@ -108,6 +142,7 @@ input[type=text] {
     position: absolute;
     left: 10px;
     top: 0;
+    z-index: -20;
     color: #c5c5c5;
     overflow: hidden;
     height: 50px;
@@ -1384,28 +1419,28 @@ p {
 }
 
 .green-icon {
-    background-color: #096b2b;
-    /*border: 2px solid #b6ffbf;*/
+    box-shadow: inset 0px 0px 0px 2px #40bf54;
+    background-color: #2d2d2d;
 }
 
 .purple-icon {
-    background-color: #69099c;
-    /*border: 2px solid #ffb6fd;*/
+    box-shadow: inset 0px 0px 0px 2px #bf40b0;
+    background-color: #2d2d2d;
 }
 
 .orange-icon {
-    background-color: #8e7f03;
-    /*border: 2px solid #fff6b6;*/
+    box-shadow: inset 0px 0px 0px 2px #353535;
+    background-color: #2d2d2d;
 }
 
 .blue-icon {
-    background-color: #04548e;
-    /*border: 2px solid #b6e4ff;*/
+    box-shadow: inset 0px 0px 0px 2px #368cd7;
+    background-color: #2d2d2d;
 }
 
 .red-icon {
-    background-color: #750101;
-    /*border: 2px solid #ffb6b6;*/
+    box-shadow: inset 0px 0px 0px 2px #d63131;
+    background-color: #2d2d2d;
 }
 
 #folder-listing {

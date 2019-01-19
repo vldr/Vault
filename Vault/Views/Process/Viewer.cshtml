@@ -9,8 +9,6 @@
     <meta charset="UTF-8">
     <title>@System.Net.WebUtility.HtmlDecode(@ViewBag.File.Name) - Vault</title>
 
-    <link rel="stylesheet" type="text/css" href="../css/login.css">
-    <link rel="stylesheet" type="text/css" href="../css/sweetalert.css">
     <link rel="stylesheet" type="text/css" href="../css/share.css">
 
     <link href="https://fonts.googleapis.com/css?family=Abhaya+Libre" rel="stylesheet">
@@ -35,17 +33,7 @@
         else if (ViewBag.Preview == "3")
         {
             <div id="share-box" style="margin-top: 75px;">
-                <iframe src="@(ViewBag.Relative)viewer/?file=../@ViewBag.Url" frameborder="0"
-                        style="position: absolute;
-                        z-index: -19;
-                        left: 0;
-                        top: 15px;
-                        width: 100%;
-                        height: 100%;
-                        border: none;
-                        max-height: none;
-                        max-width: none;"
-                        class="image-preview"></iframe>
+                <iframe src="@(ViewBag.Relative)viewer/?file=../@ViewBag.Url" frameborder="0" class="pdf-viewer"></iframe>
             </div>
             <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
         }
@@ -67,3 +55,4 @@
 </div>
 
 <div class="btn-download-viewer" onclick="document.getElementById('download-form').submit();"></div>
+<div class="btn-close-viewer" onclick="hideFileViewer()"></div>

@@ -44,14 +44,14 @@
 
         <div class="folder-path" id="folder-path"></div>
 
-        <div id="myfiles" class="dropzone-previews" action="Process/upload" method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
+        <div id="file-container" class="dropzone-previews" action="Process/upload" method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
             <div id="folder-listing"></div>
             <div id="file-listing"></div>
         </div>
         <br>
     </div>
 
-    <div id="previewNoThanks" style="display:none"></div>
+    <div id="preview" style="display:none"></div>
 
     <div id="context-menu" class="menu" oncontextmenu="event.preventDefault()">
         <ul id="context-menu-options" class="menu-options"></ul>
@@ -72,7 +72,7 @@
         <div id="snack-bar-progress"></div>
     </div>
 
-    <div id="file-viewer" onclick="hideFileViewer()"></div>
+    <div id="file-viewer"></div>
 
     <script type="text/javascript" src="js/signalr.min.js"></script>
     <script type="text/javascript" src="js/dropzone.js"></script>
@@ -91,7 +91,7 @@
             parallelUploads: 1,
             url: "process/upload",
             clickable: ".btnUpload",
-            previewsContainer: "#previewNoThanks",
+            previewsContainer: "#preview",
             processing: function (file)
             {
                 clearTimeout(fadeOutTimer);
