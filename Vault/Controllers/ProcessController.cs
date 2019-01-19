@@ -950,6 +950,9 @@ namespace Vault.Controllers
             // Setup our url...
             ViewBag.Url = $"process/download/{file.Id}";
 
+            // Setup our relative part...
+            ViewBag.Relative = string.Empty;
+
             // Return the partial view...
             return View();
         }

@@ -248,7 +248,10 @@ namespace Vault.Controllers
                 ProcessService.AttributeTypes.FileAction);
 
             // Setup our view bag url...
-            ViewBag.Url = $"../../share/dl/{shareId}/{fileId}/{folderId}";
+            ViewBag.Url = $"share/dl/{shareId}/{fileId}/{folderId}";
+
+            // Setup our relative part...
+            ViewBag.Relative = $"../../";
 
             // Return the partial view...
             return View("/Views/Process/Viewer.cshtml");
@@ -405,11 +408,8 @@ namespace Vault.Controllers
             // Setup our shared file variable in our viewbag!
             ViewBag.File = file;
 
-            // Setup our readable version of the file size...
-            ViewBag.FileSize = _processService.GetBytesReadable(file.Size);
-
             // Setup our icon which should have no preview...
-            ViewBag.Icon = _processService.GetFileAttribute(file.Id.ToString(), 
+            ViewBag.Icon = "../" + _processService.GetFileAttribute(file.Id.ToString(), 
                 file.Ext,
                 ProcessService.AttributeTypes.FileIconNoPreview);
 
@@ -418,33 +418,14 @@ namespace Vault.Controllers
                 file.Ext,
                 ProcessService.AttributeTypes.FileAction);
 
+            // Setup our file url...
+            ViewBag.Url = $"i/{file.ShareId}";
+
+            // Setup our relative part...
+            ViewBag.Relative = $"../";
+
             // Return our view!
-            return View();
-        }
-
-        /// <summary>
-        /// Downloads the shared file...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/dl/{shareId}")]
-        public IActionResult SharedFileDownload(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null) return StatusCode(500);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null) return StatusCode(500);
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
-
-            // Return an empty result.
-            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
+            return View("/Views/Process/Viewer.cshtml");
         }
 
         /// <summary>
@@ -486,6 +467,44 @@ namespace Vault.Controllers
 
             // Return an empty result.
             return PhysicalFile(filePath, mimeType, true);
+        }
+
+        /// <summary>
+        /// Gets the file using POST...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="prefix"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("i/{shareId}")]
+        public IActionResult SharedFileDownload(string shareId, string prefix)
+        {
+            // Check if our share id given is null!
+            if (shareId == null) return StatusCode(500);
+
+            // Get the file...
+            Models.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null) return StatusCode(500);
+
+            // Setup our file path...
+            string filePath = file.Path;
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
+
+            // Setup our mime type string...
+            string mimeType = "application/octet-stream";
+
+            // Attempt to get the content type...
+            new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
+
+            // Check if our mime type is null or not...
+            if (mimeType == null) mimeType = "application/octet-stream";
+
+            // Return an empty result.
+            return PhysicalFile(filePath, mimeType, file.Name, true);
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////

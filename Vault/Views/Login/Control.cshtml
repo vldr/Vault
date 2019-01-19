@@ -63,6 +63,11 @@
             <circle id="snack-bar-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
             <path id="snack-bar-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
         </svg>
+        <svg id="snack-bar-x" xmlns="http://www.w3.org/2000/svg" viewBox="-81 -80 350 350">
+            <path id="snack-bar-x-check" d="M180.607,10.607l-79.696,79.697l79.696,79.697L170,180.607l-79.696-79.696l-79.696,79.696L0,170.001l79.696-79.697L0,10.607
+	        L10.607,0.001l79.696,79.696L170,0.001L180.607,10.607z" />
+        </svg>
+
         <div id="snack-bar-text"></div>
         <div id="snack-bar-progress"></div>
     </div>
@@ -76,6 +81,8 @@
 
     <script>
         processListFiles();
+
+        var successfulCompletion = false;
 
         new Dropzone(document.body,
         {
@@ -95,6 +102,7 @@
 
                 document.getElementById("snack-bar-loader").style.display = "block";
                 document.getElementById("snack-bar-checkmark").style.display = "none";
+                document.getElementById("snack-bar-x").style.display = "none";
 
                 document.getElementById("snack-bar-progress").style.borderColor = "#2c80ff";
 
@@ -102,14 +110,19 @@
             },
             success: function (file, response)
             {
-                if (response === "0")
-                    swal("Error!", "An error occured uploading... (could be file limit, file size, etc)", "error");
+                if (response !== "0") successfulCompletion = true;
             },
             error: function (file, response)
             {
-                processListFiles();
+                successfulCompletion = false;
 
-                swal("Error!", response, "error");
+                document.getElementById("snack-bar-loader").style.display = "none";
+                document.getElementById("snack-bar-checkmark").style.display = "none";
+
+                document.getElementById("snack-bar-x").style.display = "block";
+                document.getElementById("snack-bar-progress").style.borderColor = "#c14141";
+
+                document.getElementById("snack-bar-text").innerHTML = `Failed to upload ${file.name}...`;
             },
             totaluploadprogress: function (totalProgress, totalBytes, totalBytesSent) {
                 document.getElementById("snack-bar-progress").style.width = `${totalProgress}%`;
@@ -128,6 +141,8 @@
             },
             complete: function (file)
             {
+                if (!successfulCompletion) return;
+
                 document.getElementById("snack-bar-loader").style.display = "none";
                 document.getElementById("snack-bar-checkmark").style.display = "block";
 

@@ -14,6 +14,8 @@ a {
     border: 1px solid rgba(0, 0, 0, 0.10);
     background-color: #f7f7f7;
     padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 25px;
     font-family: 'Abhaya Libre', serif;
     -webkit-border-radius: 2px;
     border-radius: 2px;
@@ -83,7 +85,7 @@ a {
     background: #ffffff;
     border: #3e3e3e solid 4px;
     border-radius: 25px;
-    color: #000;
+    color: #5a5a5a;
     font-size: 17px;
     font-weight: bold;
     padding: 8px 29px;
@@ -349,23 +351,28 @@ div .button {
 }
 
 .btn.black {
-    background: #696a6f;
-    border: #86878C solid 1px;
-    border-radius: 3px;
-    color: #fff;
-    display: inline-block;
-    font-size: 14px;
-    padding: 8px 15px;
+    font-family: sans-serif;
+    background: #ffffff;
+    border: #797979 solid 3px;
+    border-radius: 25px;
+    color: #797979;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 8px 29px;
     text-decoration: none;
     text-align: center;
     min-width: 60px;
     position: relative;
-    transition: color .1s ease;
+    transition: all .2s ease;
+    cursor: pointer;
+    user-select: none;
 }
 
-.btn.black :hover {
-    background: #86878C;
+.btn.black:hover {
+    background: #797979;
+    color: #dedede;
 }
+
 
 .return {
     position: absolute;
@@ -388,7 +395,7 @@ div .button {
     float: right;
     margin-bottom: 15px;
     padding-top: 45px;
-    padding-bottom: 40px;
+    padding-bottom: 45px;
     box-shadow: 0 1px 12px 0 rgba(0, 0, 0, 0.3);
     border: 2px solid #fff;
 }
@@ -518,8 +525,8 @@ div .button {
 
 a {
     color: #696969;
-    font-family: 'Abhaya Libre', serif;
-    /* font-family:  serif; */
+    font-family: sans-serif;
+    font-size: 13px;
     text-decoration: none;
 }
 

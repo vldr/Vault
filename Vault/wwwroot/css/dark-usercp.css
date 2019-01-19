@@ -1469,6 +1469,20 @@ p {
     margin-left: 36px;
 }
 
+#snack-bar-x {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    top: 10px;
+    position: absolute;
+    stroke-width: 2;
+    stroke: #fff;
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 0px #c14141;
+    animation: fill-red .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+    display: none;
+}
+
 #snack-bar-checkmark {
     width: 24px;
     height: 24px;
@@ -1500,11 +1514,24 @@ p {
     animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
+#snack-bar-x-check {
+    fill: white;
+    opacity: 0;
+    animation: fade-x 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+}
+
 @keyframes stroke {
     100% {
         stroke-dashoffset: 0;
     }
 }
+
+@keyframes fade-x {
+    100% {
+        opacity: 1;
+    }
+}
+
 
 @keyframes scale {
     0%, 100% {
@@ -1519,6 +1546,12 @@ p {
 @keyframes fill {
     100% {
         box-shadow: inset 0px 0px 0px 30px #7ac142;
+    }
+}
+
+@keyframes fill-red {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px #c14141;
     }
 }
 
