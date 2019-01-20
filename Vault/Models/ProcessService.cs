@@ -142,6 +142,43 @@ namespace Vault.Models
             });
 
         /// <summary>
+        /// Searches for folders matching the search term criteria...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="term"></param>
+        /// <returns></returns>
+        public IEnumerable<FolderListing> SearchFolderListings(int ownerId, string term)
+            => _context.Folders.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId)
+            .Select(x => new FolderListing
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
+                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
+                IsSharing = x.IsSharing,
+                ShareId = x.ShareId
+            }).Take(10);
+
+        /// <summary>
+        /// Searches for files matching the search term criteria...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="term"></param>
+        /// <returns></returns>
+        public IEnumerable<FileListing> SearchFileListings(int ownerId, string term)
+           => _context.Files.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId)
+           .Select(x => new FileListing
+           {
+               Id = x.Id,
+               Name = x.Name,
+               Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
+               Date = x.Created.ToString(),
+               Size = GetBytesReadable(x.Size),
+               IsSharing = x.IsSharing,
+               ShareId = x.ShareId
+           }).Take(10);
+
+        /// <summary>
         /// Gets a list of file listings with matching owners and folder id...
         /// </summary>
         /// <param name="ownerId"></param>

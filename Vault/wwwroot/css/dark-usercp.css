@@ -843,11 +843,64 @@ div .button {
     top: 14px;
     right: 86px;
     z-index: 2;
-    background: url(../images/ui/info_wheel_white.svg);
+    background: url(../images/ui/search_white.svg);
     background-size: 17px;
     background-repeat: no-repeat;
     background-position: center;
     background-color: #333333;
+}
+
+#search-box {
+    margin: 0 auto;
+    display: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 1020px;
+    margin-top: 20px;
+    background: transparent;
+    color: white;
+    font-size: 3em;
+    border-bottom: 3px solid #464646;
+}
+
+#search-content {
+    margin: 0 auto;
+    max-width: 1020px;
+    padding-top: 14px;
+    min-height: 90%;
+    background: #25252552;
+    box-shadow: 0px 0px 30px 3px #00000014;
+}
+
+#search-content .grid-text-right {
+    color: #696868;
+}
+
+#search-content .grid-file-text {
+    color: #c5c5c5;
+}
+
+#close-button {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    padding: 0;
+    border-radius: 4px;
+    top: 45px;
+    right: 20px;
+    cursor: pointer;
+    z-index: 2;
+    background: url(../images/x.svg);
+    background-size: 28px;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: none;
+}
+
+@media all and (max-width: 1020px) {
+    #close-button {
+        display: block;
+    }
 }
 
 .btnHelp:hover {
@@ -894,7 +947,7 @@ div .button {
     top: 14px;
     right: 165px;
     z-index: 2;
-    background: url(../images/ui/list_white.svg);
+    background: url(../images/ui/newfolder_white.svg);
     background-size: 19px;
     background-repeat: no-repeat;
     background-position: center;

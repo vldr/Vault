@@ -171,6 +171,38 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// The search mechanism for finding folders and files...
+        /// </summary>
+        /// <param name="term"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/search")]
+        public IActionResult Search(string term)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Check if our folder name is null...
+            if (string.IsNullOrWhiteSpace(term)) return MissingParameters();
+
+            // Set our term to be lowercase...
+            term = term.ToLower();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Setup a new listing...
+            Listing listing = new Listing()
+            {
+                Success = true,
+                Folders = _processService.SearchFolderListings(userSession.Id, term),
+                Files = _processService.SearchFileListings(userSession.Id, term)
+            };
+
+            return Json(listing);
+        }
+
+        /// <summary>
         /// Creates a new folder...
         /// </summary>
         /// <param name="folderName"></param>

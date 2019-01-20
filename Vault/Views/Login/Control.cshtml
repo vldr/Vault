@@ -36,15 +36,15 @@
             </span>
             <a onclick="showSettings()"><div class="btnSettings"></div></a>
             <a onclick="showLogout()"><div class="btnLogout"></div></a>
-            <a onclick="showAbout()"><div class="btnHelp"></div></a>
-            <a onclick="showSort()"><div class="btnSort"></div></a>
+            <a onclick="showSearch()"><div class="btnHelp"></div></a>
+            <a onclick="processFolderCreate()"><div class="btnSort"></div></a>
             <a><div class="btnUpload"></div></a>
             <div class="topbar-hider"></div>
         </div>
 
         <div class="folder-path" id="folder-path"></div>
 
-        <div id="file-container" class="dropzone-previews" action="Process/upload" method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
+        <div id="container" class="dropzone-previews" action="Process/upload" method="post" enctype="multipart/form-data" class="dropzone" id="dropzone">
             <div id="folder-listing"></div>
             <div id="file-listing"></div>
         </div>
