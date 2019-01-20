@@ -209,8 +209,7 @@ input[type=submit]:hover {
 
 @media all and (max-width: 535px) {
     .grid-file-text {
-        width: 85%;
-        max-width: none;
+        max-width: 90% !important;
         word-break: keep-all;
         white-space: nowrap;
     }
@@ -1419,12 +1418,12 @@ p {
 }
 
 .green-icon {
-    box-shadow: inset 0px 0px 0px 2px #40bf54;
+    box-shadow: inset 0px 0px 0px 2px #46ff6378;
     background-color: #2d2d2d;
 }
 
 .purple-icon {
-    box-shadow: inset 0px 0px 0px 2px #bf40b0;
+    box-shadow: inset 0px 0px 0px 2px #ff26e582;
     background-color: #2d2d2d;
 }
 
@@ -1434,12 +1433,12 @@ p {
 }
 
 .blue-icon {
-    box-shadow: inset 0px 0px 0px 2px #368cd7;
+    box-shadow: inset 0px 0px 0px 2px #29aef7a8;
     background-color: #2d2d2d;
 }
 
 .red-icon {
-    box-shadow: inset 0px 0px 0px 2px #d63131;
+    box-shadow: inset 0px 0px 0px 2px #ff0e0e7d;
     background-color: #2d2d2d;
 }
 

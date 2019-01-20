@@ -970,15 +970,21 @@ var PDFViewerApplication = {
                   return;
                 }
                 var message = exception && exception.message;
-                var loadingErrorMessage = void 0;
-                if (exception instanceof _pdfjsLib.InvalidPDFException) {
-                  loadingErrorMessage = _this2.l10n.get('invalid_file_error', null, 'Invalid or corrupted PDF file.');
+                  var loadingErrorMessage = void 0;
+                  _this2.loadingBar.percent = 0;
+                  document.getElementById("toolbarContainer").style.display = "none";
+
+                  if (exception instanceof _pdfjsLib.InvalidPDFException) {
+                     
+                      loadingErrorMessage = _this2.l10n.get('invalid_file_error', null, 'No preview is available for this file.');
+                      
+
                 } else if (exception instanceof _pdfjsLib.MissingPDFException) {
-                  loadingErrorMessage = _this2.l10n.get('missing_file_error', null, 'Missing PDF file.');
+                  loadingErrorMessage = _this2.l10n.get('missing_file_error', null, 'Missing file.');
                 } else if (exception instanceof _pdfjsLib.UnexpectedResponseException) {
                   loadingErrorMessage = _this2.l10n.get('unexpected_response_error', null, 'Unexpected server response.');
                 } else {
-                  loadingErrorMessage = _this2.l10n.get('loading_error', null, 'An error occurred while loading the PDF.');
+                  loadingErrorMessage = _this2.l10n.get('loading_error', null, 'An error occurred while loading the file.');
                 }
                 return loadingErrorMessage.then(function (msg) {
                   _this2.error(msg, { message: message });

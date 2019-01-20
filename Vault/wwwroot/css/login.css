@@ -7,6 +7,12 @@ body {
 
 a {
     color: gray;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 .textbox-password {
@@ -523,14 +529,14 @@ div .button {
     vertical-align: middle
 }
 
-a {
+.navbar a {
     color: #696969;
-    font-family: sans-serif;
-    font-size: 13px;
+    font-family: 'Abhaya Libre', serif;
     text-decoration: none;
+    font-size: unset;
 }
 
-a:hover {
+.navbar a:hover {
     color: #000;
     text-decoration: underline
 }

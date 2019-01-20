@@ -55,7 +55,7 @@ function renderFiles(json) {
 
             <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
             <p class="grid-file-text" data-file-id="${file.id}">${file.name}</p>
-            <p class="grid-text-right" data-file-id="${file.id}">${file.date} (${file.size})</p>
+            <p class="grid-text-right" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
             </div>`);
     }
 
@@ -96,7 +96,7 @@ function renderListings(json, isSilent = false) {
             `<div class="gridItem-folder" data-folder-id="${json.previous}"
                 ondrop="drop(event)"
                 onclick="processMove(event)"
-                style="background-color: rgba(255, 255, 255, 0.27);">
+                style="background-color: rgba(255, 255, 255, 0.19);">
 
             <div class="grid-icon" data-folder-id="${json.previous}"
                     ondragstart="dragStart(event)" draggable="true" 

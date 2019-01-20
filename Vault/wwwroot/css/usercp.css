@@ -1190,8 +1190,7 @@ input[type=submit]:hover {
 
 @media all and (max-width: 535px) {
     .grid-file-text {
-        width: 85%;
-        max-width: none;
+        max-width: 90% !important;
         word-break: keep-all;
         white-space: nowrap;
     }
