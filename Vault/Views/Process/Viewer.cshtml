@@ -15,40 +15,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
-<div id="file-viewer-box" style="margin-top: 75px;">
-    <center>
-        @if (ViewBag.Preview == "1")
-        {
-            <img src="@ViewBag.Relative@ViewBag.Url" class="file-viewer-preview" />
-            <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
-        }
-        else if (ViewBag.Preview == "2")
-        {
-            <video class="file-viewer-preview" controls>
-                <source src="@ViewBag.Relative@ViewBag.Url" type="video/mp4">
-                <source src="@ViewBag.Relative@ViewBag.Url" type="video/ogg">
-            </video>
-            <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
-        }
-        else if (ViewBag.Preview == "3")
-        {
-            <div id="share-box" style="margin-top: 75px;">
-                <iframe src="@(ViewBag.Relative)viewer/?file=../@ViewBag.Url" frameborder="0" class="pdf-viewer"></iframe>
-            </div>
-            <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
-        }
-        else
-        {
-            <div class="file-viewer-content">
-                <p>No preview is available for this file type.</p>
-                <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post">
-                    <input type="submit" onclick="document.getElementById('download-form').submit();" value="Download">
-                </form>
-            </div>
-        }
-    </center>
-</div>
 
+@if (ViewBag.Preview == "1")
+{
+    <img src="@ViewBag.Relative@ViewBag.Url" class="file-viewer-preview" />
+    <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
+}
+else if (ViewBag.Preview == "2")
+{
+    <video class="file-viewer-preview" controls>
+        <source src="@ViewBag.Relative@ViewBag.Url" type="video/mp4">
+        <source src="@ViewBag.Relative@ViewBag.Url" type="video/ogg">
+    </video>
+    <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
+}
+else if (ViewBag.Preview == "3")
+{
+    <div id="share-box" style="margin-top: 75px;">
+        <iframe src="@(ViewBag.Relative)viewer/?file=../@ViewBag.Url" frameborder="0" class="pdf-viewer"></iframe>
+    </div>
+    <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
+}
+else
+{
+    <div class="file-viewer-content">
+        <p>No preview is available for this file type.</p>
+        <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post">
+            <input type="submit" onclick="document.getElementById('download-form').submit();" value="Download">
+        </form>
+    </div>
+}
 
 <div class="file-viewer-topbar">
     <h3><img src="@ViewBag.Icon" class="file-viewer-icon"> @System.Net.WebUtility.HtmlDecode(@ViewBag.File.Name)</h3>

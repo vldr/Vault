@@ -3,6 +3,8 @@ var rendered = 0;
 
 window.onkeypress = function (event)
 {
+    if (event.keyCode === 32) return;
+
     var display = document.getElementById("file-viewer").style.display;
 
     var alert = document.getElementsByClassName("sweet-alert");
@@ -13,6 +15,11 @@ window.onkeypress = function (event)
     {
         showSearch();
     }
+};
+
+window.onclick = function (event)
+{
+    if (event.target.id === "file-viewer") event.target.style.display = "none";
 };
 
 function createCookie(name, value, expires, path, domain) {
@@ -67,9 +74,11 @@ function renderFiles(json) {
                 onclick='processDownload(event)'
                 draggable='true'>
 
-            <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
-            <p class="grid-file-text" data-file-id="${file.id}">${file.name}</p>
-            <p class="grid-text-right" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
+            <div class="grid-file-icon" data-file-id="${file.id}" data-file-title="${file.name}" 
+            ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
+
+            <p class="grid-file-text" data-file-title="${file.name}" data-file-id="${file.id}">${file.name}</p>
+            <p class="grid-text-right" data-file-title="${file.name}" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
             </div>`);
     }
 
@@ -137,10 +146,10 @@ function renderListings(json, isSilent = false) {
                 oncontextmenu="contextMenuFolder(event)"
                 draggable='true'>
 
-                <div class="grid-icon" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
+                <div class="grid-icon" data-folder-title="${folder.name}" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
                 style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                <p class="grid-text" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
+                <p class="grid-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
             </div>`);
     }
 
@@ -160,6 +169,12 @@ function processListFiles(reset = true, offset = 0, callback) {
                 if (!json.success) {
                     swal("Error!", json.reason, "error");
                     return;
+                }
+
+                var display = document.getElementById("file-viewer").style.display;
+                if ((display === "block")) {
+                    var value = document.getElementById("search-box").value;
+                    showSearch(value);
                 }
 
                 if (reset) {
@@ -238,7 +253,7 @@ function processDelete(str) {
 
             xhr.open('POST', 'process/deletefile');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("file=" + str);
+            xhr.send("file=" + encodeURIComponent(str));
         });
 }
 
@@ -274,9 +289,10 @@ function contextMenuFolder(event) {
     setPosition(origin);
 
     var folderId = event.target.getAttribute('data-folder-id');
+    var folderTitle = event.target.getAttribute('data-folder-title');
 
     menuOptions.innerHTML = `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
-        + `<li class="menu-option" data-folder-id="${folderId}" onclick="processRenameFolder(event)">Rename</li>`
+        + `<li class="menu-option" onclick="processRenameFolder(${folderId}, '${folderTitle}')">Rename</li>`
         + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
         + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
@@ -304,7 +320,8 @@ function processDownloadFile(id) {
     document.body.removeChild(form);
 }
 
-function contextMenuFile(event) {
+function contextMenuFile(event)
+{
     event.preventDefault();
 
     var menu = document.getElementById("context-menu");
@@ -329,10 +346,11 @@ function contextMenuFile(event) {
     setPosition(origin);
 
     var fileId = event.target.getAttribute('data-file-id');
+    var fileTitle = event.target.getAttribute('data-file-title');
 
     menuOptions.innerHTML = `<li class="menu-option"
             onclick="processDownloadFile(${fileId})">Download</li>`
-        + `<li class="menu-option" data-file-id="${fileId}" onclick="processRenameFile(event)">Rename</li>`
+        + `<li class="menu-option" onclick="processRenameFile(${fileId}, '${fileTitle}')">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
@@ -488,7 +506,7 @@ function processToggleFolderSharing(id) {
 
     xhr.open('POST', 'process/togglefoldershare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("folderid=" + id);
+    xhr.send("folderid=" + encodeURIComponent(id));
 }
 
 function processToggleSharing(id) {
@@ -515,7 +533,7 @@ function processToggleSharing(id) {
 
     xhr.open('POST', 'process/toggleshare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("fileid=" + id);
+    xhr.send("fileid=" + encodeURIComponent(id));
 }
 
 function downloadShareX(apiKey) {
@@ -610,9 +628,7 @@ function processShareFolder(id) {
     });
 }
 
-function processRenameFile(event) {
-    var id = event.target.getAttribute('data-file-id');
-    var title = document.querySelector(`[data-file-id='${id}']`).getAttribute("data-file-title");
+function processRenameFile(id, title) {
 
     swal({
         title: "Rename File",
@@ -654,14 +670,13 @@ function processRenameFile(event) {
 
         xhr.open('POST', 'process/renamefile');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("fileid=" + id + "&newname=" + newName);
+        xhr.send("fileid=" + encodeURIComponent(id)
+            + "&newname=" + encodeURIComponent(newName));
     });
 }
 
-function processRenameFolder(event) {
-    var id = event.target.getAttribute('data-folder-id');
-    var title = document.querySelector(`[data-folder-id='${id}']`).getAttribute("data-folder-title");
-
+function processRenameFolder(id, title)
+{
     swal({
         title: "Rename Folder",
         text: null,
@@ -702,7 +717,7 @@ function processRenameFolder(event) {
 
         xhr.open('POST', 'process/renamefolder');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("folderid=" + id + "&newname=" + newName);
+        xhr.send("folderid=" + encodeURIComponent(id) + "&newname=" + encodeURIComponent(newName));
     });
 }
 
@@ -742,7 +757,7 @@ function processDeleteFolder(event) {
 
             xhr.open('POST', 'process/deletefolder');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("folder=" + str);
+            xhr.send("folder=" + encodeURIComponent(str));
 
 
         });
@@ -793,7 +808,7 @@ function processChangeName(name) {
 
             xhr.open('POST', 'process/changename');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("name=" + updatedName);
+            xhr.send("name=" + encodeURIComponent(updatedName));
         });
 }
 
@@ -864,12 +879,13 @@ function processChangePassword() {
 
                     xhr.open('POST', 'process/changepassword');
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    xhr.send("currentPassword=" + currentPassword + "&newPassword=" + newPassword);
+                    xhr.send("currentPassword=" + encodeURIComponent(currentPassword)
+                        + "&newPassword=" + encodeURIComponent(newPassword));
                 });
         });
 }
 
-function processFolderColour(id, colour) {
+function processFolderColour(id, colour) {  
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -886,7 +902,7 @@ function processFolderColour(id, colour) {
 
     xhr.open('POST', 'process/setcolour');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("folderid=" + id + "&colour=" + colour);
+    xhr.send("folderid=" + encodeURIComponent(id) + "&colour=" + encodeURIComponent(colour));
 }
 
 function processSortBy(sortby) {
@@ -908,7 +924,7 @@ function processSortBy(sortby) {
 
     xhr.open('POST', 'process/sortby');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("sortby=" + sortby);
+    xhr.send("sortby=" + encodeURIComponent(sortby));
 }
 
 function processRegister(str, str2, str3, str4) {
@@ -933,7 +949,10 @@ function processRegister(str, str2, str3, str4) {
 
     xhr.open('POST', 'register');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("email=" + str + "&password=" + str2 + "&name=" + str3 + "&invite=" + str4);
+    xhr.send("email=" + encodeURIComponent(str)
+        + "&password=" + encodeURIComponent(str2)
+        + "&name=" + encodeURIComponent(str3)
+        + "&invite=" + encodeURIComponent(str4));
 }
 
 function processLogin(str, str2) {
@@ -960,7 +979,7 @@ function processLogin(str, str2) {
 
     xhr.open('POST', 'login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("email=" + str + "&password=" + str2);
+    xhr.send("email=" + encodeURIComponent(str) + "&password=" + encodeURIComponent(str2));
 
 }
 
@@ -983,7 +1002,7 @@ function processMovingFileToFolder(str, str2) {
 
     xhr.open('POST', 'process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("file=" + str + "&folder=" + str2);
+    xhr.send("file=" + encodeURIComponent(str) + "&folder=" + encodeURIComponent(str2));
 }
 
 function processMovingFolderToFolder(str, str2) {
@@ -1005,7 +1024,7 @@ function processMovingFolderToFolder(str, str2) {
 
     xhr.open('POST', 'process/movefolder');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("from=" + str + "&to=" + str2);
+    xhr.send("from=" + encodeURIComponent(str) + "&to=" + encodeURIComponent(str2));
 }
 
 function processFolderCreate() {
@@ -1048,7 +1067,7 @@ function processFolderCreate() {
 
             xhr.open('POST', 'process/newfolder');
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("foldername=" + inputValue);
+            xhr.send("foldername=" + encodeURIComponent(inputValue));
         });
 }
 
@@ -1093,7 +1112,7 @@ function processMoveId(id)
 
     xhr.open('POST', 'process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("folderid=" + id);
+    xhr.send("folderid=" + encodeURIComponent(id));
 }
 
 function processMove(event) {
@@ -1135,7 +1154,7 @@ function processMove(event) {
 
     xhr.open('POST', 'process/goto');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("folderid=" + str);
+    xhr.send("folderid=" + encodeURIComponent(str));
 }
 
 function dragEnd(event) {
@@ -1195,7 +1214,7 @@ function processDownloadId(id) {
 
     xhr.open('POST', 'process/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("fileid=" + id);
+    xhr.send("fileid=" + encodeURIComponent(id));
 }
 
 function processDownload(event) {
@@ -1219,36 +1238,36 @@ function processDownload(event) {
 
     xhr.open('POST', 'process/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("fileid=" + event.target.getAttribute('data-file-id'));
+    xhr.send("fileid="
+        + encodeURIComponent(event.target.getAttribute('data-file-id')));
 }
 
-function showSearch()
+function showSearch(term = null)
 {
     var fileViewer = document.getElementById("file-viewer");
 
-    fileViewer.innerHTML
-        = `<input type="text" id="search-box" name="search-box" autofocus placeholder="Search">
+    if (term === null)
+    {
+        fileViewer.innerHTML
+            = `<input type="text" id="search-box" name="search-box" autofocus placeholder="Search">
            <div id="close-button" onclick="document.getElementById('file-viewer').style.display = 'none'"></div>
            <div id="search-content"></div>`;
 
-    fileViewer.style.display = "block";
-
-    fileViewer.onclick = function (event)
-    {
-        if (event.target.id === "file-viewer")
-            fileViewer.style.display = "none";
-    };
-
+        fileViewer.style.display = "block";
+    }
+    
     var searchBox = document.getElementById("search-box");
     var searchContent = document.getElementById("search-content");
 
     searchBox.focus();
     searchBox.onkeyup = function (event)
     {
-        if (searchBox.value === "") return;
+        var searchTerm = searchBox.value.trim();
+
+        if (searchTerm === "") return;
+        if (event.keyCode === 32) return;
 
         var xhr = new XMLHttpRequest();
-        var searchTerm = searchBox.value;
 
         xhr.onreadystatechange = function ()
         {
@@ -1293,17 +1312,15 @@ function showSearch()
                                 data-folder-title='${folder.name}'
                                 data-folder-shared='${folder.isSharing}'
                                 data-folder-share='${folder.shareId}'
-                                ondragend='dragEnd(event)'
-                                ondragstart='dragStart(event)'
-                                ondrop='drop(event)'
-                                onclick='processMoveId(${folder.id})'
                                 oncontextmenu="contextMenuFolder(event)"
-                                draggable='true'>
+                                onclick='processMoveId(${folder.id})'>
 
-                                <div class="grid-file-icon" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
-                                style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
+                                <div class="grid-file-icon"
+                                    data-folder-id="${folder.id}"
+                                    data-folder-title="${folder.name}"
+                                    style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                                <p class="grid-file-text" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
+                                <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
                             </div>`);
                     }
 
@@ -1317,16 +1334,15 @@ function showSearch()
                                 data-file-title='${file.name}'
                                 data-file-shared='${file.isSharing}'
                                 data-file-share='${file.shareId}'
-                                ondragend='dragEnd(event)'
-                                ondragstart='dragStart(event)'
-                                ondrop='drop(event)'
                                 oncontextmenu="contextMenuFile(event)"
-                                onclick='processDownload(event)'
-                                draggable='true'>
+                                onclick='processDownload(event)'>
 
-                            <div class="grid-file-icon" data-file-id="${file.id}" ondragstart="dragStart(event)" draggable="true" style="background-image: url('${file.icon}');"></div>
-                            <p class="grid-file-text" data-file-id="${file.id}">${file.name}</p>
-                            <p class="grid-text-right" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
+                                <div class="grid-file-icon"
+                                    data-file-title="${file.name}"
+                                    data-file-id="${file.id}" 
+                                    style="background-image: url('${file.icon}');"></div>
+                                <p class="grid-file-text" data-file-title="${file.name}" data-file-id="${file.id}">${file.name}</p>
+                                <p class="grid-text-right" data-file-title="${file.name}" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
                             </div>`);
                     }
                 }
@@ -1343,8 +1359,14 @@ function showSearch()
 
         xhr.open('POST', 'process/search');
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("term=" + searchTerm);
+        xhr.send("term=" + encodeURIComponent(searchTerm));
     };
+
+    if (term !== null)
+    {
+        searchBox.value = term;
+        searchBox.dispatchEvent(new KeyboardEvent('keyup', { 'key': ' ' }));
+    }
 }
 
 function processSharedViewer(fileId, folderId, shareId) {
@@ -1368,7 +1390,9 @@ function processSharedViewer(fileId, folderId, shareId) {
 
     xhr.open('POST', '../../share/viewer');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("fileId=" + fileId + "&folderId=" + folderId + "&shareId=" + shareId);
+    xhr.send("fileId=" + encodeURIComponent(fileId)
+        + "&folderId=" + encodeURIComponent(folderId)
+        + "&shareId=" + encodeURIComponent(shareId));
 }
 
 function renderSharedFiles(json) {

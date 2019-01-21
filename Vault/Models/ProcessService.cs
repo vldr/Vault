@@ -148,7 +148,7 @@ namespace Vault.Models
         /// <param name="term"></param>
         /// <returns></returns>
         public IEnumerable<FolderListing> SearchFolderListings(int ownerId, string term)
-            => _context.Folders.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId)
+            => _context.Folders.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId).OrderByDescending(b => b.Id)
             .Select(x => new FolderListing
             {
                 Id = x.Id,
@@ -166,7 +166,7 @@ namespace Vault.Models
         /// <param name="term"></param>
         /// <returns></returns>
         public IEnumerable<FileListing> SearchFileListings(int ownerId, string term)
-           => _context.Files.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId)
+           => _context.Files.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId).OrderByDescending(b => b.Id)
            .Select(x => new FileListing
            {
                Id = x.Id,
