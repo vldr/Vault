@@ -1193,6 +1193,7 @@ progress::-moz-progress-bar {
     width: 32px;
     margin-top: -19px;
     margin-left: -7px;
+    pointer-events: none;
     outline: none;
     white-space: nowrap;
     background-repeat: no-repeat;
@@ -1205,6 +1206,7 @@ progress::-moz-progress-bar {
     width: 32px;
     margin-top: -15px;
     margin-left: -7px;
+    pointer-events: none;
     outline: none;
     white-space: nowrap;
     background-repeat: no-repeat;
@@ -1240,6 +1242,7 @@ progress::-moz-progress-bar {
     margin-top: -4px;
     margin-left: 8px;
     color: #fffffff2;
+    pointer-events: none;
     float: left;
 }
 
@@ -1247,6 +1250,7 @@ progress::-moz-progress-bar {
     font-size: 13px;
     margin-top: -8px;
     color: #afafaff2;
+    pointer-events: none;
     float: right;
 }
 

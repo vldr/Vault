@@ -19,7 +19,14 @@ window.onkeypress = function (event)
 
 window.onclick = function (event)
 {
+    resetContextMenu();
+
     if (event.target.id === "file-viewer") event.target.style.display = "none";
+};
+
+window.onresize = function (event)
+{
+    resetContextMenu();
 };
 
 function createCookie(name, value, expires, path, domain) {
@@ -172,9 +179,14 @@ function processListFiles(reset = true, offset = 0, callback) {
                 }
 
                 var display = document.getElementById("file-viewer").style.display;
-                if ((display === "block")) {
+
+                if (display === "block")
+                {
                     var value = document.getElementById("search-box").value;
-                    showSearch(value);
+                    showSearch(value, callback);
+
+                    if (callback !== undefined)
+                        callback = undefined;
                 }
 
                 if (reset) {
@@ -202,8 +214,7 @@ function processListFiles(reset = true, offset = 0, callback) {
                     };
                 }
 
-                if (callback !== undefined)
-                    callback();
+                if (callback !== undefined) callback();
             }
             else {
                 swal("Error!", "Failed to connect!", "error");
@@ -1242,11 +1253,11 @@ function processDownload(event) {
         + encodeURIComponent(event.target.getAttribute('data-file-id')));
 }
 
-function showSearch(term = null)
+function showSearch(term = null, callback)
 {
     var fileViewer = document.getElementById("file-viewer");
 
-    if (term === null)
+    if (fileViewer.style.display !== "block")
     {
         fileViewer.innerHTML
             = `<input type="text" id="search-box" name="search-box" autofocus placeholder="Search">
@@ -1257,116 +1268,115 @@ function showSearch(term = null)
     }
     
     var searchBox = document.getElementById("search-box");
-    var searchContent = document.getElementById("search-content");
-
-    searchBox.focus();
-    searchBox.onkeyup = function (event)
-    {
-        var searchTerm = searchBox.value.trim();
-
-        if (searchTerm === "") return;
-        if (event.keyCode === 32) return;
-
-        var xhr = new XMLHttpRequest();
-
-        xhr.onreadystatechange = function ()
-        {
-            if (xhr.readyState === 4)
-            {
-                document.getElementById("loader-horizontal").style.display = "none";
-
-                if (xhr.status === 200 && xhr.status < 300)
-                {
-                    var json = JSON.parse(xhr.responseText);
-
-                    if (!json.success)
-                    {
-                        swal("Error!", json.reason, "error");
-                        return;
-                    }
-
-                    searchContent.innerHTML = ``;
-
-                    if (event.keyCode === 13)
-                    {
-                        if (json.folders.length > 0)
-                        {
-                            processMoveId(json.folders[0].id);
-                            fileViewer.style.display = "none";
-                            return;
-                        }
-                        else if (json.files.length > 0)
-                        {
-                            processDownloadId(json.files[0].id);
-                            return;
-                        }
-                    }
-
-                    for (i in json.folders)
-                    {
-                        var folder = json.folders[i];
-
-                        searchContent.insertAdjacentHTML("beforeend",
-                            `<div class='gridItem'
-                                data-folder-id='${folder.id}'
-                                data-folder-title='${folder.name}'
-                                data-folder-shared='${folder.isSharing}'
-                                data-folder-share='${folder.shareId}'
-                                oncontextmenu="contextMenuFolder(event)"
-                                onclick='processMoveId(${folder.id})'>
-
-                                <div class="grid-file-icon"
-                                    data-folder-id="${folder.id}"
-                                    data-folder-title="${folder.name}"
-                                    style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
-
-                                <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
-                            </div>`);
-                    }
-
-                    for (i in json.files)
-                    {
-                        var file = json.files[i];
-
-                        searchContent.insertAdjacentHTML("beforeend",
-                            `<div class='gridItem'
-                                data-file-id='${file.id}'
-                                data-file-title='${file.name}'
-                                data-file-shared='${file.isSharing}'
-                                data-file-share='${file.shareId}'
-                                oncontextmenu="contextMenuFile(event)"
-                                onclick='processDownload(event)'>
-
-                                <div class="grid-file-icon"
-                                    data-file-title="${file.name}"
-                                    data-file-id="${file.id}" 
-                                    style="background-image: url('${file.icon}');"></div>
-                                <p class="grid-file-text" data-file-title="${file.name}" data-file-id="${file.id}">${file.name}</p>
-                                <p class="grid-text-right" data-file-title="${file.name}" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
-                            </div>`);
-                    }
-                }
-                else
-                {
-                    swal("Error!", "Failed to connect!", "error");
-                }
-            }
-            else if (xhr.readyState < 4)
-            {
-                document.getElementById("loader-horizontal").style.display = "block";
-            }
-        };
-
-        xhr.open('POST', 'process/search');
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.send("term=" + encodeURIComponent(searchTerm));
-    };
+    var searchTerm = searchBox.value.trim();
 
     if (term !== null)
     {
         searchBox.value = term;
-        searchBox.dispatchEvent(new KeyboardEvent('keyup', { 'key': ' ' }));
+        processSearchQuery(null, callback);
     }
+
+    searchBox.focus();
+    searchBox.onkeyup = processSearchQuery;
+}
+
+function processSearchQuery(event, callback)
+{
+    var searchBox = document.getElementById("search-box");
+    var searchTerm = searchBox.value.trim();
+
+    if (searchTerm === "") return;
+    if (event !== null && event.keyCode === 32) return;
+
+    var xhr = new XMLHttpRequest();
+    var searchContent = document.getElementById("search-content");
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4) {
+            document.getElementById("loader-horizontal").style.display = "none";
+
+            if (xhr.status === 200 && xhr.status < 300)
+            {
+                var json = JSON.parse(xhr.responseText);
+
+                if (!json.success) {
+                    swal("Error!", json.reason, "error");
+                    return;
+                }
+
+                searchContent.innerHTML = ``;
+
+                if (event !== null && event.keyCode === 13) {
+                    if (json.folders.length > 0)
+                    {
+                        processMoveId(json.folders[0].id);
+                        return;
+                    }
+                    else if (json.files.length > 0)
+                    {
+                        processDownloadId(json.files[0].id);
+                        return;
+                    }
+                }
+
+                for (i in json.folders) {
+                    var folder = json.folders[i];
+
+                    searchContent.insertAdjacentHTML("beforeend",
+                        `<div class='gridItem'
+                        data-folder-id='${folder.id}'
+                        data-folder-title='${folder.name}'
+                        data-folder-shared='${folder.isSharing}'
+                        data-folder-share='${folder.shareId}'
+                        oncontextmenu="contextMenuFolder(event)"
+                        onclick='processMoveId(${folder.id})'>
+
+                        <div class="grid-file-icon"
+                            data-folder-id="${folder.id}"
+                            data-folder-title="${folder.name}"
+                            style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
+
+                        <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
+                    </div>`);
+                }
+
+                for (i in json.files) {
+                    var file = json.files[i];
+
+                    searchContent.insertAdjacentHTML("beforeend",
+                        `<div class='gridItem'
+                        data-file-id='${file.id}'
+                        data-file-title='${file.name}'
+                        data-file-shared='${file.isSharing}'
+                        data-file-share='${file.shareId}'
+                        oncontextmenu="contextMenuFile(event)"
+                        onclick='processDownload(event)'>
+
+                        <div class="grid-file-icon"
+                            data-file-title="${file.name}"
+                            data-file-id="${file.id}" 
+                            style="background-image: url('${file.icon}');"></div>
+                        <p class="grid-file-text" data-file-title="${file.name}" data-file-id="${file.id}">${file.name}</p>
+                        <p class="grid-text-right" data-file-title="${file.name}" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
+                    </div>`);
+                }
+
+                if (callback !== undefined)
+                    callback();
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', 'process/search');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("term=" + encodeURIComponent(searchTerm));
 }
 
 function processSharedViewer(fileId, folderId, shareId) {
