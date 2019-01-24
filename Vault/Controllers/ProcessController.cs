@@ -932,7 +932,7 @@ namespace Vault.Controllers
 
             // Check if the file even exists on the disk...
             if (!System.IO.File.Exists(thumbnailPath))
-                return Redirect(_relativeDirectory + _processService.GetFileAttribute(string.Empty, ".svg"));
+                return Redirect(_relativeDirectory + _processService.GetFileAttribute());
 
             // Return the file...
             return PhysicalFile(thumbnailPath, "image/*", file.Name, true);

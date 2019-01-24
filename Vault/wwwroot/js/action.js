@@ -1385,10 +1385,8 @@ function renderSharedListings(json) {
                 data-folder-id='${json.previous}'
                 onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('../../images/file/folder-icon.svg'); 
-                background-size: 24px;"></div>
-
-                <p class="grid-text">...</p>
+                <div class="grid-icon" style="background-image: url('../../images/file/folder-icon.svg');background-size: 24px;"></div>
+                <p class="grid-folder-text">...</p>
             </div>`);
     }
 
@@ -1401,10 +1399,8 @@ function renderSharedListings(json) {
                 data-folder-title='${folder.name}'
                 onclick='processSharedListFiles(${folder.id}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('../../${folder.icon}'); 
-                background-size: 24px;"></div>
-
-                <p class="grid-text">${folder.name.substring(0, 13)}</p>
+                <div class="grid-icon" style="background-image: url('../../${folder.icon}'); background-size: 24px;"></div>
+                <p class="grid-folder-text">${folder.name}</p>
             </div>`);
     }
 

@@ -283,7 +283,7 @@ namespace Vault.Models
         /// <param name="ext"></param>
         /// <param name="type"></param>
         /// <returns></returns>
-        public string GetFileAttribute(string id, string ext, AttributeTypes type = AttributeTypes.FileIcon)
+        public string GetFileAttribute(string id = null, string ext = ".svg", AttributeTypes type = AttributeTypes.FileIcon)
         {
             // Setup our default action so we don't repeat ourselves...
             var defaultAction = "0";

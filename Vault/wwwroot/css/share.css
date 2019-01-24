@@ -224,7 +224,7 @@ input[type=submit]:hover {
 }
 
 .gridItem-folder {
-    width: 182px;
+    width: 150px;
     border-radius: 3px;
     height: 10px;
     display: inline-block;
@@ -255,6 +255,17 @@ input[type=submit]:hover {
     white-space: nowrap;
     background-repeat: no-repeat;
     background-position: center;
+}
+
+.grid-folder-text {
+    font-size: 13px;
+    margin-top: -3px;
+    margin-left: 29px;
+    color: #bfbfbff2;
+    pointer-events: none;
+    width: 125px;
+    overflow: hidden;
+    height: 15px;
 }
 
 .grid-text {
@@ -365,6 +376,7 @@ input[type=submit]:hover {
 .file-viewer-content p {
     margin-bottom: 20px;
 }
+
 .file-viewer-content {
     position: relative;
     background-color: #232323;
@@ -454,11 +466,11 @@ input[type=submit]:hover {
     padding: 21px;
     cursor: pointer;
     box-sizing: border-box;
-    -webkit-animation: fadein 0.5s;
-    -moz-animation: fadein 0.5s;
-    -ms-animation: fadein 0.5s;
-    -o-animation: fadein 0.5s;
-    animation: fadein 0.5s;
+    -webkit-animation: fadein 0.2s;
+    -moz-animation: fadein 0.2s;
+    -ms-animation: fadein 0.2s;
+    -o-animation: fadein 0.2s;
+    animation: fadein 0.2s;
     overflow: hidden;
 }
 
