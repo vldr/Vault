@@ -1,34 +1,6 @@
 var fadeOutTimer;
 var rendered = 0;
 
-window.onkeypress = function (event)
-{
-    if (event.keyCode === 32) return;
-
-    var display = document.getElementById("file-viewer").style.display;
-
-    var alert = document.getElementsByClassName("sweet-alert");
-    var hide = document.getElementsByClassName("hideSweetAlert");
-
-    if ( (display === "" || display === "none")
-        && (alert.length === 0 || alert.length > 0 && hide.length > 0))
-    {
-        showSearch();
-    }
-};
-
-window.onclick = function (event)
-{
-    resetContextMenu();
-
-    if (event.target.id === "file-viewer") event.target.style.display = "none";
-};
-
-window.onresize = function (event)
-{
-    resetContextMenu();
-};
-
 function createCookie(name, value, expires, path, domain) {
     var cookie = name + "=" + escape(value) + ";";
 

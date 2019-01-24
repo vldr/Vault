@@ -86,7 +86,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("share/folder/{shareId}")]
-        public IActionResult ShareFolder(string shareId)
+        public IActionResult FolderViewer(string shareId)
         {
             // Check if our share id given is null!
             if (shareId == null)

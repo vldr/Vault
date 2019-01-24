@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="6 6 37 37" version="1.1" width="32px" height="32px">
-<g id="surface1">
-<path style=" fill:#26A69A;" d="M 31 33 C 31 33.554688 31.445313 34 32 34 L 41 34 C 41.554688 34 42 33.554688 42 33 L 42 11 C 42 10.445313 41.554688 10 41 10 L 32 10 C 31.445313 10 31 10.445313 31 11 Z "/>
-<path style=" fill:#00796B;" d="M 31 11 L 31 17.335938 L 35 18 L 36.6875 17.664063 L 36.6875 14.289063 L 31.296875 10.289063 C 31.113281 10.472656 31 10.722656 31 11 Z "/>
-<path style=" fill:#57C4B4;" d="M 36 14 L 20 14 L 20 38 L 36 38 C 36.554688 38 37 37.554688 37 37 L 37 15 C 37 14.445313 36.554688 14 36 14 Z "/>
-<path style=" fill:#E0F2F1;" d="M 20 28 L 34 28 L 34 30 L 20 30 Z "/>
-<path style=" fill:#E0F2F1;" d="M 20 24 L 34 24 L 34 26 L 20 26 Z "/>
-<path style=" fill:#E0F2F1;" d="M 20 18 L 34 18 L 34 22 L 20 22 Z "/>
-<path style=" fill:#E0F2F1;" d="M 20 32 L 34 32 L 34 34 L 20 34 Z "/>
-<path style=" fill:#00897B;" d="M 27 42 L 6 38 L 6 10 L 27 6 Z "/>
-<path style=" fill:#FFFFFF;" d="M 16.828125 17 L 12 17 L 12 31 L 15 31 L 15 26.175781 L 16.550781 26.175781 C 18.207031 26.175781 19.527344 25.742188 20.515625 24.871094 C 21.503906 24.003906 22 22.867188 22 21.460938 C 22 18.488281 20.273438 17 16.828125 17 Z M 16.292969 23.785156 L 15 23.785156 L 15 19.421875 L 16.292969 19.421875 C 17.933594 19.421875 18.753906 20.140625 18.753906 21.578125 C 18.753906 23.050781 17.933594 23.785156 16.292969 23.785156 Z "/>
-</g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #087366 } 
+		.shp1 { fill: #ffffff } 
+		.txt2 { font-size: 25px;font-weight: 700;fill: #087366;font-family: Arial; } 
+	</style>
+	<path id="Publisher" class="shp0" d="M0,32h32v-32h-32z" />
+	<path id="Shape 1" class="shp1" d="M6,24l11,2v-20l-11,2" />
+	<text id="P " style="transform: matrix(0.44,0,0,0.480,8,20.804)" >
+		<tspan x="0" y="0" class="txt2">P</tspan>
+	</text>
+	<path id="Shape 19" class="shp1" d="M18,11v2h3c0,0 -0.03,4.06 0,4c0.03,-0.06 -3,0 -3,0c0,0 -0.03,2.06 0,2c0.03,-0.06 3.04,-0.07 3,0c-0.04,0.07 0,2 0,2h-3v3h5c0,0 -0.03,-13.01 0,-13c0.03,0.01 -5,0 -5,0z" />
+	<path id="Shape 20" class="shp1" d="null" />
+	<path id="Shape 21" class="shp1" d="M20,8l4,3v9h2v-12z" />
 </svg>

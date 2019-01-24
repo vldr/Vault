@@ -310,6 +310,16 @@ namespace Vault.Models
                         return "images/file/video-icon.svg";
                     else
                         return "2";
+                case ".mp3":
+                case ".ogg":
+                case ".wav":
+                case ".flac":
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
+                        return "images/file/music-icon.svg";
+                    else
+                        return "4";
                 case ".docx":
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
@@ -359,6 +369,14 @@ namespace Vault.Models
                         return "images/file/shell-icon.svg";
                     else
                         return defaultAction;
+                case ".dll":
+                case ".a":
+                case ".so":
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
+                        return "images/file/dll-icon.svg";
+                    else return defaultAction;
                 case ".xlsx":
                 case ".xls":
                     if (type == AttributeTypes.FileIcon
@@ -374,6 +392,13 @@ namespace Vault.Models
                         return "images/file/pdf-icon.svg";
                     else
                         return "3";
+                case ".svg":
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
+                        return "images/file/image-icon.svg";
+                    else
+                        return "1";
                 case ".png":
                 case ".jpg":
                 case ".jpeg":

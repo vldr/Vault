@@ -36,6 +36,11 @@ else if (ViewBag.Preview == "3")
     </div>
     <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
 }
+else if (ViewBag.Preview == "4")
+{
+    <audio controls src="@ViewBag.Relative@ViewBag.Url" class="file-viewer-preview" style="box-shadow: none;"></audio>
+    <form id="download-form" action="@ViewBag.Relative@ViewBag.Url" method="post"></form>
+}
 else
 {
     <div class="file-viewer-content">
