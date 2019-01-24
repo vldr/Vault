@@ -1,15 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 194 194" width="32" height="32">
 	<style>
 		tspan { white-space:pre }
-		.shp0 { fill: #1f7246 } 
-		.shp1 { fill: #ffffff } 
-		.txt2 { font-size: 25px;font-weight: 600;fill: #1f7246;font-family: Arial; } 
+		.shp0 { fill: #ffffff } 
+		.shp1 { fill: #1e7145 } 
 	</style>
-	<path id="Publisher" class="shp0" d="M0,32h32v-32h-32z" />
-	<path id="Shape 1" class="shp1" d="M6,24l11,2v-20l-11,2" />
-	<path id="Shape 24" class="shp1" d="M18,11h2v0c0,0 1.03,-0.06 1,0c-0.03,0.06 3,0 3,0v2h-3h-1h-2v2h2v0h1h3v2h-3h-1h-2v2h2v0h1h3v2h-3h-1h-2v3h8v-16h-8z" />
-	<path id="Shape 25" class="shp1" d="M20,21h1v-10h-1z" />
-	<text id="X " style="transform: matrix(0.42,0,0,0.489,8,20.804)" >
-		<tspan x="0" y="0" class="txt2">X</tspan>
-	</text>
+	<path id="Shape 9" class="shp0" d="M0,195h194v-195h-194z" />
+	<g id="Layer_x0020_1">
+		<path id="Layer" class="shp1" d="M-0.8,-0.28h195.61l-0.03,195.58h-195.55zM112.48,47.46h22.45v15.49h-22.45v4.64h22.45v15.47h-22.45v4.64h22.45v15.49h-22.45v4.64h22.45v15.49h-22.45v4.64h22.45v15.47h-22.45v10.07h58.82c3.25,0 3.88,-0.64 3.88,-3.88v-106.82c0,-3.24 -0.62,-3.88 -3.88,-3.88h-58.82zM19.69,37.1v118.27l88.57,15.36v-148.98z" />
+		<path id="Layer" class="shp1" d="M72.47,68.58l-8.07,18.46l-6.27,-17.34l-10.09,0.45l10.01,25.27l-11.28,24.72l9.91,0.74l7.95,-17.78l7.4,18.81l11.41,0.62l-12.37,-27.21l11.83,-27.49z" />
+		<path id="Layer" class="shp1" d="M139.57,143.44h25.54v-15.47h-25.54z" />
+		<path id="Layer" class="shp1" d="M139.57,123.32h25.54v-15.49h-25.54z" />
+		<path id="Layer" class="shp1" d="M139.57,103.19h25.54v-15.49h-25.54z" />
+		<path id="Layer" class="shp1" d="M139.57,62.94h25.54v-15.49h-25.54z" />
+		<path id="Layer" class="shp1" d="M139.57,83.06h25.54v-15.47h-25.54z" />
+	</g>
 </svg>

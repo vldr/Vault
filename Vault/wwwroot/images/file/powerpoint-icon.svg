@@ -1,20 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 194 194" width="32" height="32">
 	<style>
 		tspan { white-space:pre }
-		.shp0 { fill: #d04626 } 
-		.shp1 { fill: #ffffff } 
-		.txt2 { font-size: 25px;font-weight: 600;fill: #d04626;font-family: Arial; } 
+		.shp0 { fill: #ffffff } 
+		.shp1 { fill: #d04525 } 
+		.shp2 { fill: none } 
 	</style>
-	<g id="PowerPoint">
-		<path id="Shape 10" class="shp0" d="M0,32h32v-32h-32z" />
+	<g id="Layer_x0020_1">
+		<path id="Shape 7" class="shp0" d="M0,194h194v-194h-194z" />
+		<path id="Layer" class="shp1" d="M-0.8,-0.28h195.58l0.03,195.58h-195.61zM119.01,69.87v18.94h19.46c0.32,6.92 -3.96,22.03 -26.11,18.42v6.68h34.82v6.65h-34.82v6.15h34.82v7.16h-34.79l-0.03,8.2h50.17v-80.39l-50.1,-0.01l-0.07,9.23c1.8,-0.58 4.35,-0.74 6.65,-1.02zM112.36,57.07h55.8v68.1h5.63l0.03,-73.22l-61.46,-0.03zM19.14,157.48l89.56,13.29v-147.56l-89.53,16.43z" />
+		<path id="Layer" class="shp1" d="M80.48,84.28c0.78,6.49 -0.86,12.97 -4.17,16.62c-3.6,3.96 -8.98,4.08 -15.96,4.73l-0.26,17.26l-8.4,-0.54l0.19,-49.74c14.05,-0.26 26.66,-4.17 28.61,11.67zM60.38,96.51c6.46,0.36 10.06,-0.84 10.35,-7.3c0.33,-7.55 -3.13,-8.69 -10.25,-8.01z" />
+		<path id="Layer" class="shp1" d="M122.09,85.73h18.94c0,-10.74 -5.63,-18.43 -18.91,-18.43z" />
+		<path id="Layer" class="shp2" d="M60.38,96.51c6.46,0.36 10.06,-0.84 10.35,-7.3c0.33,-7.55 -3.13,-8.69 -10.25,-8.01z" />
 	</g>
-	<path id="Shape 1" class="shp1" d="M6,24l11,2v-20l-11,2" />
-	<path id="Shape 12" class="shp1" d="M18,23h8v-14h-8z" />
-	<text id="P " style="transform: matrix(0.44,0,0,0.480,8,20.804)" >
-		<tspan x="0" y="0" class="txt2">P</tspan>
-	</text>
-	<path id="Shape 11" class="shp0" d="M18,17c0,0 0.65,0.38 2,0c1.35,-0.38 2,-3 2,-3c0,0 -2.91,-0.06 -3,0c-0.09,0.06 0,-3 0,-3h-1z" />
-	<path id="Shape 13" class="shp0" d="null" />
-	<path id="Shape 14" class="shp0" d="M18,21h4v-2h-4z" />
-	<path id="Shape 15" class="shp0" d="M20,13c0,0 3.01,-0.06 3,0c-0.01,0.06 -0.33,-0.84 -1,-2c-0.67,-1.16 -2,-1 -2,-1z" />
 </svg>

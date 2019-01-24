@@ -1199,10 +1199,12 @@ input[type=submit]:hover {
 .grid-text {
     font-size: 13px;
     margin-top: -4px;
-    margin-left: 8px;
+    margin-left: 29px;
     color: #000000f2;
-    pointer-events:none;
-    float: left;
+    pointer-events: none;
+    width: 125px;
+    overflow: hidden;
+    height: 15px;
 }
 
 .grid-text-right {
@@ -1474,7 +1476,7 @@ p {
     padding-left: 10px;
 }
 
-.folder-path {
+#folder-path {
     position: absolute;
     left: 100px;
     top: 22px;
@@ -1484,7 +1486,7 @@ p {
     color: #d4d4d4;
 }
 
-.folder-path a {
+#folder-path a {
     color: #cccccc;
     text-decoration: none;
 }

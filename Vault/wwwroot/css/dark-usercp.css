@@ -1240,10 +1240,12 @@ progress::-moz-progress-bar {
 .grid-text {
     font-size: 13px;
     margin-top: -4px;
-    margin-left: 8px;
+    margin-left: 29px;
     color: #fffffff2;
     pointer-events: none;
-    float: left;
+    width: 125px;
+    overflow: hidden;
+    height: 15px;
 }
 
 .grid-text-right {
@@ -1508,7 +1510,7 @@ p {
     padding-left: 10px;
 }
 
-.folder-path {
+#folder-path {
     position: absolute;
     left: 100px;
     top: 22px;
@@ -1518,7 +1520,7 @@ p {
     color: #5d5c5c;
 }
 
-.folder-path a {
+#folder-path a {
     color: #5d5c5c;
     text-decoration: none;
 }

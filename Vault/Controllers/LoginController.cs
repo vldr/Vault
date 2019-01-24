@@ -178,28 +178,6 @@ namespace Vault.Controllers
             return View();
         }
 
-
-        /// <summary>
-        /// Our help page...
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("about")]
-        public IActionResult About()
-        {
-            // Check if not logged in!
-            if (!IsLoggedIn()) return StatusCode(500);
-
-            // Setup a user session!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Save our user to the view bag...
-            ViewBag.User = _loginService.GetUser(userSession.Id);
-
-            // Return our control view...
-            return View();
-        }
-
         /// <summary>
         /// Our settings page...
         /// </summary>
@@ -219,27 +197,6 @@ namespace Vault.Controllers
 
             // Setup our storage space variable...
             ViewBag.Storage = _processService.StorageFormatted(ViewBag.User);
-
-            // Return our control view...
-            return View();
-        }
-
-        /// <summary>
-        /// Our sort page...
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("sort")]
-        public IActionResult Sort()
-        {
-            // Check if not logged in!
-            if (!IsLoggedIn()) return StatusCode(500);
-
-            // Setup a user session!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Save our user to the view bag...
-            ViewBag.User = _loginService.GetUser(userSession.Id);
 
             // Return our control view...
             return View();

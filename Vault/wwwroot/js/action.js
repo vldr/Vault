@@ -128,7 +128,7 @@ function renderListings(json, isSilent = false) {
                 <div class="grid-icon" data-folder-title="${folder.name}" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
                 style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                <p class="grid-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
+                <p class="grid-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name}</p>
             </div>`);
     }
 
@@ -272,10 +272,10 @@ function contextMenuFolder(event) {
     setPosition(origin);
 
     var folderId = event.target.getAttribute('data-folder-id');
-    var folderTitle = event.target.getAttribute('data-folder-title');
+    var folderTitle = event.target.getAttribute('data-folder-title').replace(/"/g, '&quot;');
 
     menuOptions.innerHTML = `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
-        + `<li class="menu-option" onclick="processRenameFolder(${folderId}, '${folderTitle}')">Rename</li>`
+        + `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(${folderId})">Rename</li>`
         + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
         + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
@@ -329,11 +329,11 @@ function contextMenuFile(event)
     setPosition(origin);
 
     var fileId = event.target.getAttribute('data-file-id');
-    var fileTitle = event.target.getAttribute('data-file-title');
+    var fileTitle = event.target.getAttribute('data-file-title').replace(/"/g, '&quot;');
 
     menuOptions.innerHTML = `<li class="menu-option"
             onclick="processDownloadFile(${fileId})">Download</li>`
-        + `<li class="menu-option" onclick="processRenameFile(${fileId}, '${fileTitle}')">Rename</li>`
+        + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
@@ -376,64 +376,6 @@ function showSettings() {
     };
 
     xhr.open('POST', 'settings');
-    xhr.send();
-}
-
-function showSort() {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            document.getElementById("loader-horizontal").style.display = "none";
-            if (xhr.status === 200 && xhr.status < 300) {
-                swal({
-                    title: "Sort",
-                    html: true,
-                    animation: false,
-                    showConfirmButton: false,
-                    allowOutsideClick: true,
-                    text: xhr.responseText
-                });
-            }
-            else {
-                swal("Error!", "Failed to connect!", "error");
-            }
-        }
-        else if (xhr.readyState < 4) {
-            document.getElementById("loader-horizontal").style.display = "block";
-        }
-    };
-
-    xhr.open('POST', 'sort');
-    xhr.send();
-}
-
-function showAbout() {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            document.getElementById("loader-horizontal").style.display = "none";
-            if (xhr.status === 200 && xhr.status < 300) {
-                swal({
-                    title: "About",
-                    html: true,
-                    animation: false,
-                    showConfirmButton: false,
-                    allowOutsideClick: true,
-                    text: xhr.responseText
-                });
-            }
-            else {
-                swal("Error!", "Failed to connect!", "error");
-            }
-        }
-        else if (xhr.readyState < 4) {
-            document.getElementById("loader-horizontal").style.display = "block";
-        }
-    };
-
-    xhr.open('POST', 'about');
     xhr.send();
 }
 
@@ -611,7 +553,8 @@ function processShareFolder(id) {
     });
 }
 
-function processRenameFile(id, title) {
+function processRenameFile(id) {
+    var title = event.target.getAttribute('data-file-title');
 
     swal({
         title: "Rename File",
@@ -658,8 +601,10 @@ function processRenameFile(id, title) {
     });
 }
 
-function processRenameFolder(id, title)
+function processRenameFolder(id)
 {
+    var title = event.target.getAttribute('data-folder-title');
+
     swal({
         title: "Rename Folder",
         text: null,
@@ -1309,7 +1254,7 @@ function processSearchQuery(event, callback)
                             data-folder-title="${folder.name}"
                             style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
 
-                        <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name.substring(0, 13)}</p>
+                        <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name}</p>
                     </div>`);
                 }
 
