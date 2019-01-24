@@ -130,7 +130,7 @@ function renderListings(json, isSilent = false) {
 
             <div class="grid-icon" data-folder-id="${json.previous}"
                     ondragstart="dragStart(event)" draggable="true" 
-                    style="background-image: url('images/folder-icon.png'); background-size: 24px;">
+                    style="background-image: url('images/file/folder-icon.svg'); background-size: 24px;">
             </div>
 
             <p class="grid-text" data-folder-id="${json.previous}">...</p>
@@ -1468,7 +1468,7 @@ function renderSharedListings(json) {
                 data-folder-id='${json.previous}'
                 onclick='processSharedListFiles(${json.previous}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('../../images/folder-icon.png'); 
+                <div class="grid-icon" style="background-image: url('../../images/file/folder-icon.svg'); 
                 background-size: 24px;"></div>
 
                 <p class="grid-text">...</p>

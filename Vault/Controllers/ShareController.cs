@@ -377,7 +377,7 @@ namespace Vault.Controllers
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/image-icon.png");
+            if (!System.IO.File.Exists(thumbnailPath)) return Redirect(_relativeDirectory + "images/file/image-icon.svg");
 
             // Return the file...
             return PhysicalFile(thumbnailPath, "image/*", file.Name, true);

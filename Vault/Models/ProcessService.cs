@@ -250,27 +250,27 @@ namespace Vault.Models
             {
                 case 1:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/folder-icon2.png";
+                        return "images/file/folder-icon2.svg";
                     else
                         return "purple-icon";
                 case 2:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/folder-icon3.png";
+                        return "images/file/folder-icon3.svg";
                     else
                         return "green-icon";
                 case 3:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/folder-icon4.png";
+                        return "images/file/folder-icon4.svg";
                     else
                         return "red-icon";
                 case 4:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/folder-icon5.png";
+                        return "images/file/folder-icon5.svg";
                     else
                         return "blue-icon";
                 default:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/folder-icon.png";
+                        return "images/file/folder-icon.svg";
                     else
                         return "orange-icon";
             }
@@ -298,7 +298,7 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon 
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/zip-icon.png";
+                        return "images/file/zip-icon.svg";
                     else
                         return defaultAction;
                 case ".mov":
@@ -307,14 +307,14 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/video-icon.png";
+                        return "images/file/video-icon.svg";
                     else
                         return "2";
                 case ".docx":
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/word-icon.png";
+                        return "images/file/word-icon.svg";
                     else
                         return "3";
                 case ".asd":
@@ -325,7 +325,7 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/word-icon.png";
+                        return "images/file/word-icon.svg";
                     else
                         return defaultAction;
                 case ".pptx":
@@ -333,14 +333,14 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/PowerPoint-icon.png";
+                        return "images/file/powerpoint-icon.svg";
                     else
                         return defaultAction;
                 case ".pub":
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/Publisher-icon.png";
+                        return "images/file/pub-icon.svg";
                     else
                         return defaultAction;
                 case ".exe":
@@ -356,7 +356,7 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/shell-icon.png";
+                        return "images/file/shell-icon.svg";
                     else
                         return defaultAction;
                 case ".xlsx":
@@ -364,14 +364,14 @@ namespace Vault.Models
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/Excel-icon.png";
+                        return "images/file/excel-icon.svg";
                     else
                         return defaultAction;
                 case ".pdf":
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/pdf-icon.png";
+                        return "images/file/pdf-icon.svg";
                     else
                         return "3";
                 case ".png":
@@ -382,13 +382,13 @@ namespace Vault.Models
                 case ".gif":
                     if (type == AttributeTypes.FileIcon) return "process/thumbnail/" + id;
                     else if (type == AttributeTypes.FileShareIcon) return "share/thumbnail/" + id;
-                    else if (type == AttributeTypes.FileIconNoPreview) return "images/image-icon.png";
+                    else if (type == AttributeTypes.FileIconNoPreview) return "images/file/image-icon.svg";
                     else return "1";
                 default:
                     if (type == AttributeTypes.FileIcon 
                         || type == AttributeTypes.FileIconNoPreview 
                         || type == AttributeTypes.FileShareIcon)
-                        return "images/unknown-icon.png";
+                        return "images/file/unknown-icon.svg";
                     else
                         return defaultAction;
             }

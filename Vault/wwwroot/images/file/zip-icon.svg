@@ -1,0 +1,52 @@
+<svg id="Folder" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+<defs>
+    <style>
+      .cls-1 {
+        fill: #ffb700;
+      }
+
+      .cls-1, .cls-2, .cls-4, .cls-5, .cls-6 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #fcee65;
+      }
+
+      .cls-3, .cls-5 {
+        fill: #979797;
+      }
+
+      .cls-4 {
+        fill: #f2f2f2;
+      }
+
+      .cls-6 {
+        fill: #747474;
+      }
+    </style>
+  </defs>
+  <path id="Outer" class="cls-1" d="M32,16V240H208V135l16-15V16H32Z"/>
+  <path id="Inner" class="cls-2" d="M39,25H179.235v96.385L199,133.67V231H39V25Z"/>
+  <rect class="cls-3" x="120" y="16" width="48" height="109"/>
+  <path class="cls-4" d="M123,19h13V56h16V19h13V122H123V19Z"/>
+  <path class="cls-5" d="M136,93v1h-1v16h1v1h16v-1h1V94h-1V93H136Z"/>
+  <g id="Right">
+    <path id="Chain_Right" data-name="Chain Right" class="cls-5" d="M144,122v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy" data-name="Chain Right copy" class="cls-5" d="M144,137v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy_2" data-name="Chain Right copy 2" class="cls-5" d="M144,153v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy_3" data-name="Chain Right copy 3" class="cls-5" d="M144,169v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy_4" data-name="Chain Right copy 4" class="cls-5" d="M144,185v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy_5" data-name="Chain Right copy 5" class="cls-5" d="M144,201v8h17v-8H144Z"/>
+    <path id="Chain_Right_copy_6" data-name="Chain Right copy 6" class="cls-5" d="M144,217v8h17v-8H144Z"/>
+  </g>
+  <g id="Left">
+    <path id="Chain_Left" data-name="Chain Left" class="cls-6" d="M127,129v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy" data-name="Chain Left copy" class="cls-6" d="M127,145v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy_2" data-name="Chain Left copy 2" class="cls-6" d="M127,161v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy_3" data-name="Chain Left copy 3" class="cls-6" d="M127,177v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy_4" data-name="Chain Left copy 4" class="cls-6" d="M127,193v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy_5" data-name="Chain Left copy 5" class="cls-6" d="M127,209v8h17v-8H127Z"/>
+    <path id="Chain_Left_copy_6" data-name="Chain Left copy 6" class="cls-6" d="M127,225v8h17v-8H127Z"/>
+  </g>
+</svg>

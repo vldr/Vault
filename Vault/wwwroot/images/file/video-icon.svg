@@ -1,0 +1,59 @@
+<svg id="Blue" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+<defs>
+    <style>
+      .cls-1 {
+        fill: #ffb900;
+      }
+
+      .cls-1, .cls-2, .cls-4, .cls-7 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #faec6e;
+      }
+
+      .cls-3 {
+        fill: #69eaff;
+      }
+
+      .cls-4 {
+        fill: #f03a17;
+      }
+
+      .cls-5 {
+        fill: #2b2b2b;
+      }
+
+      .cls-6 {
+        fill: none;
+      }
+
+      .cls-7, .cls-8 {
+        fill: #004e8c;
+      }
+    </style>
+  </defs>
+  <path class="cls-1" d="M4,4V16L2,17V30l9-4H28V13l2-2V0H11Z"/>
+  <path class="cls-2" d="M5,5l6-3V25L3,28V18l2-1V5Z"/>
+  <rect class="cls-3" x="18" y="11" width="10" height="8"/>
+  <path class="cls-4" d="M20,11v2.033A2.424,2.424,0,0,0,21,15l1,1h1a3.51,3.51,0,0,0,1-1c0.024-.027,1.135-2.151,1.009-2.01L25,11H20Z"/>
+  <rect class="cls-5" x="22" y="17" width="1" height="1"/>
+  <rect class="cls-3" x="18" y="21" width="10" height="8"/>
+  <rect class="cls-6" x="15" y="11" width="2" height="2"/>
+  <path class="cls-4" d="M20,29c-0.055.018,2.13-5.654,4.552-4.858A4.8,4.8,0,0,1,28,29"/>
+  <rect class="cls-6" x="14" y="10" width="4" height="4"/>
+  <path class="cls-7" d="M15,11h2v2H15V10H14v4h4V10H15"/>
+  <path id="Shape_14_copy" data-name="Shape 14 copy" class="cls-7" d="M15,15h2v2H15V14H14v4h4V14H15"/>
+  <path id="Shape_14_copy_3" data-name="Shape 14 copy 3" class="cls-7" d="M15,23h2v2H15V22H14v4h4V22H15"/>
+  <path id="Shape_14_copy_4" data-name="Shape 14 copy 4" class="cls-7" d="M15,27h2v2H15V26H14v4h4V26H15"/>
+  <path id="Shape_14_copy_5" data-name="Shape 14 copy 5" class="cls-7" d="M29,27h2v2H29V26H28v4h4V26H29"/>
+  <path id="Shape_14_copy_6" data-name="Shape 14 copy 6" class="cls-7" d="M29,23h2v2H29V22H28v4h4V22H29"/>
+  <path id="Shape_14_copy_7" data-name="Shape 14 copy 7" class="cls-7" d="M29,19h2v2H29V18H28v4h4V18H29"/>
+  <path id="Shape_14_copy_8" data-name="Shape 14 copy 8" class="cls-7" d="M29,15h2v2H29V14H28v4h4V14H29"/>
+  <path id="Shape_14_copy_9" data-name="Shape 14 copy 9" class="cls-7" d="M29,11h2v2H29V10H28v4h4V10H29"/>
+  <path class="cls-7" d="M18,11H28V10H18v1Z"/>
+  <rect class="cls-8" x="18" y="19" width="10" height="2"/>
+  <rect class="cls-8" x="18" y="29" width="10" height="1"/>
+  <path id="Shape_14_copy_2" data-name="Shape 14 copy 2" class="cls-7" d="M15,19h2v2H15V18H14v4h4V18H15"/>
+</svg>

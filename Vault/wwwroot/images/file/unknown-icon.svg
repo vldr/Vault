@@ -1,0 +1,26 @@
+<svg id="File" xmlns="http://www.w3.org/2000/svg" width="29" height="32" viewBox="0 0 29 32">
+<defs>
+    <style>
+      .cls-1, .cls-3 {
+        fill: #a5a49f;
+      }
+
+      .cls-1, .cls-2 {
+        fill-rule: evenodd;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+    </style>
+  </defs>
+  <path id="Background" class="cls-1" d="M3,0V32H26V8L19,0"/>
+  <path id="Foreground" class="cls-2" d="M4,1H17V9h8V31H4V1Z"/>
+  <g id="Lines">
+    <rect id="Line_1" data-name="Line 1" class="cls-3" x="7" y="8" width="7" height="1"/>
+    <rect id="Line_2" data-name="Line 2" class="cls-3" x="7" y="12" width="15" height="1"/>
+    <rect id="Line_3" data-name="Line 3" class="cls-3" x="7" y="16" width="15" height="1"/>
+    <rect id="Line_4" data-name="Line 4" class="cls-3" x="7" y="20" width="15" height="1"/>
+    <rect id="Line_5" data-name="Line 5" class="cls-3" x="7" y="24" width="15" height="1"/>
+  </g>
+</svg>
