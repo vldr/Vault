@@ -29,7 +29,8 @@ namespace Vault2
                 options.Providers.Add<GzipCompressionProvider>();
                 options.EnableForHttps = true;
             });
-            
+
+            services.AddRouting(options => options.LowercaseUrls = true);
             services.AddMvc();
             services.Configure<FormOptions>(x =>
             {

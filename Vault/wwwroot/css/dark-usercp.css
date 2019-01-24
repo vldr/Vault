@@ -777,7 +777,7 @@ div .button {
     position: absolute;
     right: 10px;
     width: 200px;
-    height: 60px;
+    height: 51px;
     z-index: 1;
     background: #191919;
     box-shadow: -7px -1px 20px 1px #191919;
@@ -1050,6 +1050,7 @@ div .button {
     width: 150px;
     border-radius: 3px;
     height: 6px;
+    margin: -3px;
     display: inline-block;
     margin-right: 10px;
     border-bottom: 1px solid #171717;
@@ -1482,12 +1483,12 @@ p {
 }
 
 .green-icon {
-    box-shadow: inset 0px 0px 0px 2px #46ff6378;
+    box-shadow: inset 0px 0px 0px 2px #353535;
     background-color: #2d2d2d;
 }
 
 .purple-icon {
-    box-shadow: inset 0px 0px 0px 2px #ff26e582;
+    box-shadow: inset 0px 0px 0px 2px #353535;
     background-color: #2d2d2d;
 }
 
@@ -1497,12 +1498,12 @@ p {
 }
 
 .blue-icon {
-    box-shadow: inset 0px 0px 0px 2px #29aef7a8;
+    box-shadow: inset 0px 0px 0px 2px #353535;
     background-color: #2d2d2d;
 }
 
 .red-icon {
-    box-shadow: inset 0px 0px 0px 2px #ff0e0e7d;
+    box-shadow: inset 0px 0px 0px 2px #353535;
     background-color: #2d2d2d;
 }
 
