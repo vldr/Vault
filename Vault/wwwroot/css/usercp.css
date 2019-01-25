@@ -1203,7 +1203,7 @@ input[type=submit]:hover {
     margin-left: 29px;
     color: #000000f2;
     pointer-events: none;
-    width: 125px;
+    width: 120px;
     overflow: hidden;
     height: 15px;
 }

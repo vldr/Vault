@@ -1244,7 +1244,7 @@ progress::-moz-progress-bar {
     margin-left: 29px;
     color: #fffffff2;
     pointer-events: none;
-    width: 125px;
+    width: 120px;
     overflow: hidden;
     height: 15px;
 }
