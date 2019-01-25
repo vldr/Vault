@@ -1661,7 +1661,7 @@ p {
     display: none;
 }
 
-@media all and (max-width: 1020px) {
+@media all and (max-width: 1125px) {
     #close-button {
         display: block;
     }

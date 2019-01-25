@@ -275,7 +275,7 @@ function contextMenuFolder(event) {
     var folderTitle = event.target.getAttribute('data-folder-title').replace(/"/g, '&quot;');
 
     menuOptions.innerHTML = `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
-        + `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(${folderId})">Rename</li>`
+        + `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(event, ${folderId})">Rename</li>`
         + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
         + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
         + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
@@ -333,7 +333,7 @@ function contextMenuFile(event)
 
     menuOptions.innerHTML = `<li class="menu-option"
             onclick="processDownloadFile(${fileId})">Download</li>`
-        + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(${fileId})">Rename</li>`
+        + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
@@ -553,7 +553,7 @@ function processShareFolder(id) {
     });
 }
 
-function processRenameFile(id) {
+function processRenameFile(event, id) {
     var title = event.target.getAttribute('data-file-title');
 
     swal({
@@ -601,7 +601,7 @@ function processRenameFile(id) {
     });
 }
 
-function processRenameFolder(id)
+function processRenameFolder(event, id)
 {
     var title = event.target.getAttribute('data-folder-title');
 

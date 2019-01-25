@@ -613,20 +613,20 @@ namespace Vault.Models
 
             ///////////////////////////////////////////////
 
-            // Full path to the file image thumbnail...
-            string filePathPreview = $"{path}.preview";
+            //// Full path to the file image thumbnail...
+            //string filePathPreview = $"{path}.preview";
 
-            // Strip all the metadata...
-            magickImage.Strip();
+            //// Strip all the metadata...
+            //magickImage.Strip();
 
-            // Set to the medium quality...
-            magickImage.Quality = 50;
+            //// Set to the medium quality...
+            //magickImage.Quality = 50;
 
-            // Set our format to be a webp for that amazing compression...
-            magickImage.Format = MagickFormat.WebP;
+            //// Set our format to be a webp for that amazing compression...
+            //magickImage.Format = MagickFormat.Jpg;
 
-            // Write the file!
-            magickImage.Write(filePathPreview);
+            //// Write the file!
+            //magickImage.Write(filePathPreview);
 
             ///////////////////////////////////////////////
 
@@ -643,7 +643,7 @@ namespace Vault.Models
             magickImage.Quality = 25;
 
             // Set our format to be a webp for that amazing compression...
-            magickImage.Format = MagickFormat.WebP;
+            magickImage.Format = MagickFormat.Png;
 
             // Write the file!
             magickImage.Write(filePathThumbnail);
@@ -886,12 +886,12 @@ namespace Vault.Models
                 // Update our content type...
                 contentType = "application/pdf";
             }
-            // Check if we're dealing with an image preview...
-            else if (System.IO.File.Exists($"{path}.preview"))
-            {
-                // Update our path...
-                path = $"{path}.preview";
-            }
+            //// Check if we're dealing with an image preview...
+            //else if (System.IO.File.Exists($"{path}.preview"))
+            //{
+            //    // Update our path...
+            //    path = $"{path}.preview";
+            //}
         }
 
         /// <summary>
