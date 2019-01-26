@@ -215,29 +215,32 @@ function processDelete(str) {
         confirmButtonText: "Yes, delete it!",
         closeOnConfirm: false
     },
-        function () {
-            var xhr = new XMLHttpRequest();
+    function () {
+        var xhr = new XMLHttpRequest();
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200 && xhr.status < 300) {
-                        var json = JSON.parse(xhr.responseText);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4)
+            {
+                if (xhr.status === 200 && xhr.status < 300) {
+                    var json = JSON.parse(xhr.responseText);
 
-                        if (json.success)
-                            swal({ title: "Deleted!", text: "The file has been deleted!", type: "success", timer: 700, showConfirmButton: false });
-                        else
-                            swal("Error!", json.reason, "error");
-                    }
-                    else {
-                        swal("Error!", "Failed to connect!", "error");
-                    }
+                    if (json.success) swal.close();
+                    else swal("Error!", json.reason, "error");
                 }
-            };
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+            else if (xhr.readyState < 4)
+            {
+                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+            }
+        };
 
-            xhr.open('POST', 'process/deletefile');
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("file=" + encodeURIComponent(str));
-        });
+        xhr.open('POST', 'process/deletefile');
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send("file=" + encodeURIComponent(str));
+    });
 }
 
 function resetContextMenu() {
@@ -663,32 +666,30 @@ function processDeleteFolder(event) {
         confirmButtonText: "Yes, delete it!",
         closeOnConfirm: false
     },
-        function () {
-            var xhr = new XMLHttpRequest();
+    function () {
+        var xhr = new XMLHttpRequest();
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState < 4)
-                    swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-                else if (xhr.readyState === 4) {
-                    if (xhr.status === 200 && xhr.status < 300) {
-                        var json = JSON.parse(xhr.responseText);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState < 4)
+                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+            else if (xhr.readyState === 4) {
+                if (xhr.status === 200 && xhr.status < 300) {
+                    var json = JSON.parse(xhr.responseText);
 
-                        if (json.success) swal({ title: "Deleted!", text: "The folder has been deleted!", type: "success", timer: 700, showConfirmButton: false });
-                        else
-                            swal("Error!", json.reason, "error");
-                    }
-                    else {
-                        swal("Error!", "Failed to connect!", "error");
-                    }
+                    if (json.success) swal.close();
+                    else
+                        swal("Error!", json.reason, "error");
                 }
-            };
+                else {
+                    swal("Error!", "Failed to connect!", "error");
+                }
+            }
+        };
 
-            xhr.open('POST', 'process/deletefolder');
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.send("folder=" + encodeURIComponent(str));
-
-
-        });
+        xhr.open('POST', 'process/deletefolder');
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.send("folder=" + encodeURIComponent(str));
+    });
 }
 
 function processChangeName(name) {
