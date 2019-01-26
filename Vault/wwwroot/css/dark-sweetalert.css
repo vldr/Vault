@@ -299,7 +299,7 @@
 .sweet-alert .sa-icon {
     width: 80px;
     height: 80px;
-    border: 4px solid gray;
+    border: 4px solid transparent;
     -webkit-border-radius: 40px;
     border-radius: 40px;
     border-radius: 50%;
@@ -310,7 +310,7 @@
 }
 
 .sweet-alert .sa-icon.sa-error {
-    border-color: #F27474;
+    background-color: #fd4040;
 }
 
 .sweet-alert .sa-icon.sa-error .sa-x-mark {
@@ -322,7 +322,7 @@
     position: absolute;
     height: 5px;
     width: 47px;
-    background-color: #F27474;
+    background-color: white;
     display: block;
     top: 37px;
     border-radius: 2px;
@@ -341,7 +341,7 @@
 }
 
 .sweet-alert .sa-icon.sa-warning {
-    border-color: #F8BB86;
+    background-color: #ffac2f;
 }
 
 .sweet-alert .sa-icon.sa-warning .sa-body {
@@ -353,7 +353,7 @@
     -webkit-border-radius: 2px;
     border-radius: 2px;
     margin-left: -2px;
-    background-color: #F8BB86;
+    background-color: #ffffff;
 }
 
 .sweet-alert .sa-icon.sa-warning .sa-dot {
@@ -958,21 +958,21 @@
 
 @-webkit-keyframes pulseWarning {
     0% {
-        border-color: #F8D486;
+        border-color: #ffffff;
     }
 
     100% {
-        border-color: #F8BB86;
+        border-color: #ffffff;
     }
 }
 
 @keyframes pulseWarning {
     0% {
-        border-color: #F8D486;
+        border-color: #ffffff;
     }
 
     100% {
-        border-color: #F8BB86;
+        border-color: #ffffff;
     }
 }
 
@@ -983,21 +983,21 @@
 
 @-webkit-keyframes pulseWarningIns {
     0% {
-        background-color: #F8D486;
+        background-color: #ffffff;
     }
 
     100% {
-        background-color: #F8BB86;
+        background-color: #ffffff;
     }
 }
 
 @keyframes pulseWarningIns {
     0% {
-        background-color: #F8D486;
+        background-color: #ffffff;
     }
 
     100% {
-        background-color: #F8BB86;
+        background-color: #ffffff;
     }
 }
 

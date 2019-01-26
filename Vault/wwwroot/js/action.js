@@ -218,6 +218,8 @@ function processDelete(str) {
     function () {
         var xhr = new XMLHttpRequest();
 
+        swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4)
             {
@@ -230,10 +232,6 @@ function processDelete(str) {
                 else {
                     swal("Error!", "Failed to connect!", "error");
                 }
-            }
-            else if (xhr.readyState < 4)
-            {
-                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
             }
         };
 
@@ -669,10 +667,10 @@ function processDeleteFolder(event) {
     function () {
         var xhr = new XMLHttpRequest();
 
+        swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+
         xhr.onreadystatechange = function () {
-            if (xhr.readyState < 4)
-                swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
-            else if (xhr.readyState === 4) {
+            if (xhr.readyState === 4) {
                 if (xhr.status === 200 && xhr.status < 300) {
                     var json = JSON.parse(xhr.responseText);
 
