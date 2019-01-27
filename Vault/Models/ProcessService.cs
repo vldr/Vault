@@ -24,6 +24,9 @@ namespace Vault.Models
         // Instance of our hub...
         private readonly IHubContext<VaultHub> _hubContext;
 
+        // Save our little session tag...
+        private readonly string _sessionName;
+
         // Instance of our configuration...
         private IConfiguration _configuration;
 
@@ -51,6 +54,7 @@ namespace Vault.Models
             _context = context;
             _hubContext = hubContext;
             _configuration = configuration;
+            _sessionName = configuration["SessionTagId"];
         }
 
         /// <summary>
@@ -1147,16 +1151,13 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool UpdateFileName(int id, int fileId, string newName)
+        public bool UpdateFileName(int id, File file, string newName)
         {
             // Catch any exceptions...
             try
             {
-                // Get our actual user...
-                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == id).FirstOrDefault();
-
                 // Check if our user is null!
-                if (file == null) return false;
+                if (file == null || file.Owner != id) return false;
 
                 // Double check if we aren't getting null or whitespace...
                 if (string.IsNullOrWhiteSpace(newName)) return false;

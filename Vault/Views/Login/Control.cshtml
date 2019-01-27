@@ -181,7 +181,10 @@
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        connection.on("UpdateListing", () => { processListFiles(); });
+        connection.on("UpdateListing", () =>
+        {
+            processListFiles();
+        });
 
         connection.onclose(() => {
             console.log("Lost connection...");

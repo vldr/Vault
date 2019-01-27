@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http;
 
 namespace Vault2
 {
@@ -38,6 +39,7 @@ namespace Vault2
                 x.MultipartBodyLengthLimit = long.MaxValue;
             });
             services.AddSingleton(Configuration);
+            
 
             services.AddScoped<LoginService>();
             services.AddScoped<ProcessService>();
@@ -64,6 +66,7 @@ namespace Vault2
             app.UseResponseCompression();
 
             app.UseSession();
+
             app.UseDefaultFiles();
             app.UseStaticFiles(new StaticFileOptions
             {

@@ -215,6 +215,7 @@ div .button {
     float: left;
     border: 1px solid #c5c5c5;
     height: 340px;
+    width: 420px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1803921568627451);
     border-radius: 5px;
 }

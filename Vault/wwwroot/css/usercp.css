@@ -1664,7 +1664,7 @@ p {
 }
 
 #intro-box img {
-    margin-top: -5%;
+    margin-top: -9%;
     height: 128px;
     opacity: 0;
     animation: intro-in 0.8s ease-in-out forwards;
@@ -1682,14 +1682,12 @@ p {
 
 @keyframes intro-in {
     0% {
-        transform: scale(0.95);
-        margin-top: -6%;
+        transform: scale(0.90);
         opacity: 0;
     }
 
     20% {
         transform: scale(1);
-        margin-top: -5%;
         opacity: 1;
     }
 

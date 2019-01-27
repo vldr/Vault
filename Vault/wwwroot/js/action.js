@@ -1,5 +1,5 @@
 var fadeOutTimer;
-var rendered = 0;
+var rendered;
 
 function createCookie(name, value, expires, path, domain) {
     var cookie = name + "=" + escape(value) + ";";
@@ -346,7 +346,7 @@ function showLogout() {
         animation: false,
         showConfirmButton: false,
         allowOutsideClick: true,
-        text: `<a href="process/logout" class="btn black">Logout</a>`
+        text: `You will be logged out of your account.<br><br><a href="process/logout" class="btn black">Logout</a>`
     });
 }
 

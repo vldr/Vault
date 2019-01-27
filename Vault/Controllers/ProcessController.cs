@@ -256,8 +256,15 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
+            // Get the correct file...
+            Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
+
+            // Check if the file is valid...
+            if (file == null)
+                return Json(new { Success = false, Reason = "Unable to find the file..." });
+
             // If our update colour by was sucessful, then we're all good!
-            if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), newName))
+            if (_processService.UpdateFileName(userSession.Id, file, newName))
             {
                 // Tell our users to update their listings...
                 _processService.UpdateListings(userSession.Id, Request);
@@ -471,11 +478,17 @@ namespace Vault.Controllers
             if (folder == homeFolder)
                 return Json(new { Success = false, Reason = "You cannot delete the home folder..." });
 
+            // Get our parent folder...
+            int? parentFolder = _processService.GetFolder(id, folder.GetValueOrDefault())?.FolderId;
+
+            // Check if our folder even exists...
+            if (parentFolder == null) return Json(new { Success = false, Reason = "Could not find the specified folder..." });
+
             // Delete the actual folder...
             if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
-                _processService.UpdateListings(userSession.Id, Request);
+                _processService.UpdateListings(id, Request);
 
                 return Json(new { Success = true });
             }
@@ -505,6 +518,12 @@ namespace Vault.Controllers
 
             // Get our user id...
             int id = userSession.Id;
+
+            // Setup our parent folder...
+            int? parentFolder = _processService.GetFile(id, file.GetValueOrDefault())?.Folder;
+
+            // Check if our folder even exists...
+            if (parentFolder == null) return Json(new { Success = false, Reason = "Could not find the specified file..." });
 
             // Move the actual folder...
             if (_processService.DeleteFile(id, file.GetValueOrDefault()))
