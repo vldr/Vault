@@ -394,15 +394,11 @@ function processPaste(folder = currentFolder)
 {
     if (selection.length === 0) return;
 
-    for (i in selection)
-    {
-        var object = selection[i];
+    var files = selection.map(x => {
+        if (x.type === 0) return x.id;
+    });
 
-        if (object.type === 0)
-            processMovingFileToFolder(object.id, folder);
-        else if (object.type === 1 && object.id !== folder)
-            processMovingFolderToFolder(object.id, folder);
-    }
+    processMoveFiles(files, folder);
 
     selection = [];
 }
@@ -1027,6 +1023,25 @@ function processMovingFileToFolder(fileId, folderId)
     xhr.open('POST', 'process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("file=" + encodeURIComponent(fileId) + "&folder=" + encodeURIComponent(folderId));
+}
+
+function processMoveFiles(files, folderId)
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function ()
+    {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
+                var json = JSON.parse(xhr.responseText);
+                if (!json.success) swal("Error!", json.reason, "error");
+            }
+        }
+    };
+
+    xhr.open('POST', 'process/movefiles');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("files=" + encodeURIComponent(JSON.stringify(files)) + "&folder=" + encodeURIComponent(folderId));
 }
 
 function processMovingFolderToFolder(from, to) {

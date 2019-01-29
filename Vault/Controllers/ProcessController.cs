@@ -9,6 +9,7 @@ using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Vault.Controllers
 {
@@ -730,16 +731,64 @@ namespace Vault.Controllers
             // Get the user as an object...
             int parentFolder = _processService.GetFolder(id, currentFolder).FolderId;
 
-            // If our from doesn't exist in our list folders then do not allow to move it...
-            //if (parentFolder != folder && !_processService.CanFolderMove(id, folder.GetValueOrDefault(), currentFolder))
-            //    return Json(new { Success = false, Reason = "Invalid operation, folder not in scope..." });
-
-            // If our from doesn't exist in our list folders then do not allow to move it...
-            //if (!_processService.CanFileMove(id, file.GetValueOrDefault(), currentFolder))
-            //   return Json(new { Success = false, Reason = "Invalid operation, file not in scope..." });
-
             // Move the actual folder...
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                return Json(new { Success = true });
+            }
+            else
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
+
+        /// <summary>
+        /// Move an array of files...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/movefiles")]
+        public IActionResult MoveFiles(string files, int? folder)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Check for nulls...
+            if (files == null || folder == null)
+                return MissingParameters();
+
+            // Setup our file array...
+            int[] fileArray = null;
+
+            // Place our little json converter in a try statement because blah.
+            try
+            {
+                // Convert our json array to a proper array...
+                fileArray = JsonConvert.DeserializeObject<int[]>(files);
+            }
+            catch { }
+
+            // Check if our array is valid...
+            if (fileArray == null) return Json(new { Success = false, Reason = "Invalid parameters given..." });
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our user id...
+            int id = userSession.Id;
+
+            // Get our user's current folder id!
+            int currentFolder = userSession.Folder;
+
+            // Get the user as an object...
+            int parentFolder = _processService.GetFolder(id, currentFolder).FolderId;
+
+            // Move the actual folder...
+            if (_processService.MoveFiles(id, fileArray, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
                 _processService.UpdateListings(userSession.Id, Request);

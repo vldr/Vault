@@ -1660,6 +1660,46 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Move an array of files!
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="files"></param>
+        /// <param name="folderId"></param>
+        /// <returns></returns>
+        public bool MoveFiles(int ownerId, int[] files, int folderId)
+        {
+            // Catch any exceptions...
+            try
+            {
+                Folder newFolder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
+
+                // Check if our folder isn't null...
+                if (newFolder == null) return false;
+
+                // Iterate throughout each file id...
+                foreach (var fileId in files)
+                {
+                    // Get our folders as objects...
+                    File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+
+                    // Modify our folder...
+                    file.Folder = newFolder.Id;
+                }
+
+                // Save our changes...
+                _context.SaveChanges();
+
+                // Respond with a true...
+                return true;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Responds with whether a user can upload with the given file size...
         /// </summary>
         /// <param name="userId"></param>
