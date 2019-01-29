@@ -149,6 +149,12 @@
             }
         });
 
+        window.onkeydown = function (event)
+        {
+            if ((event.ctrlKey || event.metaKey) && event.keyCode == 86)
+                return processPaste();
+        };
+
         window.onkeypress = function (event)
         {
             if (event.keyCode === 32) return;
@@ -170,11 +176,13 @@
 
             if (event.target.id === "file-viewer") event.target.style.display = "none";
         };
-
-        window.onresize = function (event)
+        
+        window.oncontextmenu = function (event)
         {
-            resetContextMenu();
+            if (event.target.className === "") contextMenu(event);
         };
+
+        window.onresize = function (event) { resetContextMenu(); };
 
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("notifications")

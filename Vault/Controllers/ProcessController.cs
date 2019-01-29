@@ -160,6 +160,7 @@ namespace Vault.Controllers
             {
                 Success = true,
                 Sort = userSession.SortBy,
+                Current = folderId,
                 Previous = folder.FolderId,
                 IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
@@ -433,8 +434,8 @@ namespace Vault.Controllers
                 return Json(new { Success = false, Reason = "You can't move the home folder anywhere..." });
 
             // If our from doesn't exist in our list folders then do not allow to move it...
-            if (!_processService.CanFolderMove(id, from.GetValueOrDefault(), currentFolder))
-                return Json(new { Success = false, Reason = "The folder isn't inside the scope..." });
+            //if (!_processService.CanFolderMove(id, from.GetValueOrDefault(), currentFolder))
+            //    return Json(new { Success = false, Reason = "The folder isn't inside the scope..." });
 
             // Move the actual folder...
             if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
@@ -730,12 +731,12 @@ namespace Vault.Controllers
             int parentFolder = _processService.GetFolder(id, currentFolder).FolderId;
 
             // If our from doesn't exist in our list folders then do not allow to move it...
-            if (parentFolder != folder && !_processService.CanFolderMove(id, folder.GetValueOrDefault(), currentFolder))
-                return Json(new { Success = false, Reason = "Invalid operation, folder not in scope..." });
+            //if (parentFolder != folder && !_processService.CanFolderMove(id, folder.GetValueOrDefault(), currentFolder))
+            //    return Json(new { Success = false, Reason = "Invalid operation, folder not in scope..." });
 
             // If our from doesn't exist in our list folders then do not allow to move it...
-            if (!_processService.CanFileMove(id, file.GetValueOrDefault(), currentFolder))
-                return Json(new { Success = false, Reason = "Invalid operation, file not in scope..." });
+            //if (!_processService.CanFileMove(id, file.GetValueOrDefault(), currentFolder))
+            //   return Json(new { Success = false, Reason = "Invalid operation, file not in scope..." });
 
             // Move the actual folder...
             if (_processService.MoveFile(id, file.GetValueOrDefault(), folder.GetValueOrDefault()))

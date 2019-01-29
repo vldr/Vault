@@ -223,6 +223,7 @@ div .button {
 .info-right-video {
     float: right;
     height: 340px;
+    width: 420px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1803921568627451);
     border-radius: 5px;
     border: 1px solid #c5c5c5;
@@ -760,11 +761,13 @@ hr {
     .info-left-video {
         float: none;
         height: 265px;
+        width: 326px;
     }
 
     .info-right-video {
         float: none;
         height: 265px;
+        width: 326px;
     }
 
     .info-right {
@@ -803,7 +806,6 @@ hr {
     }
 }
 
-/* Firefox < 16 */
 @-moz-keyframes fadein {
     from {
         opacity: 0;
@@ -814,7 +816,6 @@ hr {
     }
 }
 
-/* Safari, Chrome and Opera > 12.1 */
 @-webkit-keyframes fadein {
     from {
         opacity: 0;
@@ -825,7 +826,6 @@ hr {
     }
 }
 
-/* Internet Explorer */
 @-ms-keyframes fadein {
     from {
         opacity: 0;
@@ -836,7 +836,6 @@ hr {
     }
 }
 
-/* Opera < 12.1 */
 @-o-keyframes fadein {
     from {
         opacity: 0;

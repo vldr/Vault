@@ -1,5 +1,10 @@
 var fadeOutTimer;
+var currentFolder;
 var rendered;
+
+var multiSelection = null;
+
+var selection = [];
 
 function createCookie(name, value, expires, path, domain) {
     var cookie = name + "=" + escape(value) + ";";
@@ -61,6 +66,8 @@ function renderFiles(json) {
             </div>`);
     }
 
+    highlightCutBoard();
+
     rendered += json.files.length;
 }
 
@@ -70,6 +77,8 @@ function renderListings(json, isSilent = false) {
 
     folderListingElem.innerHTML = "";
     fileListingElem.style.display = "none";
+
+    currentFolder = json.current;
 
     if (json.sort === 0) json.sort = 4;
 
@@ -97,7 +106,7 @@ function renderListings(json, isSilent = false) {
         folderListingElem.insertAdjacentHTML("beforeend",
             `<div class="gridItem-folder" data-folder-id="${json.previous}"
                 ondrop="drop(event)"
-                onclick="processMove(event)"
+                onclick="processMoveId(${json.previous})"
                 style="background-color: rgba(255, 255, 255, 0.19);">
 
             <div class="grid-icon" data-folder-id="${json.previous}"
@@ -121,7 +130,7 @@ function renderListings(json, isSilent = false) {
                 ondragend='dragEnd(event)'
                 ondragstart='dragStart(event)'
                 ondrop='drop(event)'
-                onclick='processMove(event)'
+                onclick='processMoveId(${folder.id})'
                 oncontextmenu="contextMenuFolder(event)"
                 draggable='true'>
 
@@ -339,6 +348,37 @@ function contextMenuFile(event)
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
 }
 
+function contextMenu(event)
+{
+    event.preventDefault();
+
+    var menu = document.getElementById("context-menu");
+    var menuOptions = document.getElementById("context-menu-options");
+
+    menuOptions.innerHTML = "";
+
+    const toggleMenu = command => {
+        menu.style.display = command === "show" ? "block" : "none";
+    };
+
+    const setPosition = ({ top, left }) => {
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+        toggleMenu('show');
+    };
+
+    const origin = {
+        left: event.pageX,
+        top: event.pageY
+    };
+    setPosition(origin);
+
+    menuOptions.innerHTML =
+        `<li class="menu-option" onclick="processFolderCreate()">New Folder</li>`
+        + (selection.length > 0 ? `<li class="menu-option" onclick="processPaste()">Paste</li>`
+        : `<li class="menu-option" style="color:gray;cursor:default;">Paste</li>`);
+}
+
 function showLogout() {
     swal({
         title: "Are you sure?",
@@ -347,6 +387,62 @@ function showLogout() {
         showConfirmButton: false,
         allowOutsideClick: true,
         text: `You will be logged out of your account.<br><br><a href="process/logout" class="btn black">Logout</a>`
+    });
+}
+
+function processPaste(folder = currentFolder)
+{
+    if (selection.length === 0) return;
+
+    for (i in selection)
+    {
+        var object = selection[i];
+
+        if (object.type === 0)
+            processMovingFileToFolder(object.id, folder);
+        else if (object.type === 1 && object.id !== folder)
+            processMovingFolderToFolder(object.id, folder);
+    }
+
+    selection = [];
+}
+
+function resetCutBoard(clear = true)
+{
+    var fileEntries = document.getElementsByClassName("gridItem");
+    var folderEntries = document.getElementsByClassName("gridItem-folder");
+
+    Array.from(fileEntries).forEach(function (item) { item.style.outline = ""; });
+    Array.from(folderEntries).forEach(function (item) { item.style.outline = ""; });
+
+    if (clear) selection = [];
+}
+
+function highlightCutBoard() {
+    var fileEntries = document.getElementsByClassName("gridItem");
+    var folderEntries = document.getElementsByClassName("gridItem-folder");
+
+    resetCutBoard(false);
+
+    Array.from(fileEntries).forEach(function (entry)
+    {
+        for (i in selection)
+        {
+            var object = selection[i];
+
+            if (entry.dataset["fileId"] == object.id || entry.dataset["folderId"] == object.id)
+                entry.style.outline = "rgba(24, 138, 255, 0.43) solid 2px";
+        }
+    });
+
+    Array.from(folderEntries).forEach(function (entry)
+    {
+        for (i in selection) {
+            var object = selection[i];
+
+            if (entry.dataset["folderId"] == object.id)
+                entry.style.outline = "rgba(24, 138, 255, 0.43) solid 2px";
+        }
     });
 }
 
@@ -910,8 +1006,9 @@ function processLogin(str, str2) {
 
 }
 
-function processMovingFileToFolder(str, str2) {
-    if (str2 === null) {
+function processMovingFileToFolder(fileId, folderId)
+{
+    if (folderId === null) {
         contextMenuFile(event);
         return;
     }
@@ -929,11 +1026,11 @@ function processMovingFileToFolder(str, str2) {
 
     xhr.open('POST', 'process/movefile');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("file=" + encodeURIComponent(str) + "&folder=" + encodeURIComponent(str2));
+    xhr.send("file=" + encodeURIComponent(fileId) + "&folder=" + encodeURIComponent(folderId));
 }
 
-function processMovingFolderToFolder(str, str2) {
-    if (str === str2) {
+function processMovingFolderToFolder(from, to) {
+    if (from === to) {
         contextMenuFolder(event);
         return;
     }
@@ -951,7 +1048,7 @@ function processMovingFolderToFolder(str, str2) {
 
     xhr.open('POST', 'process/movefolder');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("from=" + encodeURIComponent(str) + "&to=" + encodeURIComponent(str2));
+    xhr.send("from=" + encodeURIComponent(from) + "&to=" + encodeURIComponent(to));
 }
 
 function processFolderCreate() {
@@ -1017,6 +1114,7 @@ function processMoveId(id)
                 }
 
                 rendered = 0;
+                multiSelection = null;
                 renderListings(json);
 
                 if (json.files.length !== 0) {
@@ -1042,48 +1140,6 @@ function processMoveId(id)
     xhr.send("folderid=" + encodeURIComponent(id));
 }
 
-function processMove(event) {
-    var str = event.target.getAttribute('data-folder-id');
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200 && xhr.status < 300) {
-                document.getElementById("loader-horizontal").style.display = "none";
-
-                var json = JSON.parse(xhr.responseText);
-
-                if (!json.success) {
-                    swal("Error!", json.reason, "error");
-                    return;
-                }
-
-                rendered = 0;
-                renderListings(json);
-
-                if (json.files.length !== 0) {
-                    window.onscroll = function (ev) {
-                        if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
-                            processListFiles(false, rendered);
-                            window.onscroll = null;
-                        }
-                    };
-                }
-            }
-            else {
-                swal("Error!", "Failed to connect!", "error");
-            }
-        }
-        else if (xhr.readyState < 4) {
-            document.getElementById("loader-horizontal").style.display = "block";
-        }
-    };
-
-    xhr.open('POST', 'process/goto');
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("folderid=" + encodeURIComponent(str));
-}
-
 function dragEnd(event) {
     event.target.style.opacity = '1';
 }
@@ -1106,11 +1162,20 @@ function drop(event) {
     if (res == "")
         return;
 
-    if (res[0] !== "null" && res[0] !== "") {
+    if (res[0] !== "null" && res[0] !== "")
+    {
+        if (selection.length > 0)
+        {
+            var indexOf = Array.from(selection).map(x => x.id).indexOf(res[0]);
+
+            if (indexOf !== -1) return processPaste(event.target.getAttribute('data-folder-id'));
+        }
+
         processMovingFileToFolder(res[0], event.target.getAttribute('data-folder-id'));
     }
 
-    if (res[1] !== "null" && res[1] !== "") {
+    if (res[1] !== "null" && res[1] !== "")
+    {
         processMovingFolderToFolder(res[1], event.target.getAttribute('data-folder-id'));
     }
 }
@@ -1144,7 +1209,67 @@ function processDownloadId(id) {
     xhr.send("fileid=" + encodeURIComponent(id));
 }
 
-function processDownload(event) {
+function addSelectionFile(index, id, splice = true)
+{
+    var indexOf = selection.map(x => x.id).indexOf(id);
+
+    if (indexOf === -1) {
+        selection.push({ id: id, type: 0 });
+        multiSelection = index;
+    }
+    else if (splice)
+    {
+        selection.splice(indexOf, 1);
+    }
+
+    highlightCutBoard();
+}
+
+function selectFile(target)
+{
+    var fileEntries = document.getElementsByClassName("gridItem");
+
+    var indexOf = Array.from(fileEntries)
+        .map(x => x.dataset["fileId"])
+        .indexOf(target.dataset["fileId"]);
+
+    return addSelectionFile(indexOf, fileEntries[indexOf].dataset["fileId"]);
+}
+
+function multiSelectFile(target)
+{
+    var fileEntries = document.getElementsByClassName("gridItem");
+
+    if (multiSelection === null)
+    {
+        resetCutBoard();
+
+        selectFile(target);
+    }
+    else if (multiSelection !== null)
+    {
+        var indexOf = Array.from(fileEntries)
+            .map(x => x.dataset["fileId"])
+            .indexOf(target.dataset["fileId"]);
+
+        var range = {
+            start: Math.min(multiSelection, indexOf),
+            end: Math.max(multiSelection, indexOf)
+        };
+
+        for (var i = range.start; i <= range.end; i++)
+            addSelectionFile(indexOf, fileEntries[i].dataset["fileId"], false);
+
+        highlightCutBoard();
+        multiSelection = null;
+    }
+}
+
+function processDownload(event)
+{
+    if (event.shiftKey) return multiSelectFile(event.target);
+    if (event.ctrlKey || event.metaKey) return selectFile(event.target);
+
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1277,6 +1402,8 @@ function processSearchQuery(event, callback)
                         <p class="grid-text-right" data-file-title="${file.name}" data-file-id="${file.id}">${file.date} (${file.size}) ${file.isSharing ? "(S)" : ""}</p>
                     </div>`);
                 }
+
+                highlightCutBoard();
 
                 if (callback !== undefined)
                     callback();
