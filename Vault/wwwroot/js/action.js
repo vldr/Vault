@@ -341,8 +341,12 @@ function contextMenuFile(event)
     var fileId = event.target.getAttribute('data-file-id');
     var fileTitle = event.target.getAttribute('data-file-title').replace(/"/g, '&quot;');
 
-    menuOptions.innerHTML = `<li class="menu-option"
-            onclick="processDownloadFile(${fileId})">Download</li>`
+    var selected = selection.map(x => x.id).indexOf(parseInt(fileId, 10)) === -1 ? true : false;
+
+    menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
+        : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
+
+        + `<li class="menu-option" onclick="processDownloadFile(${fileId})">Download</li>`
         + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;

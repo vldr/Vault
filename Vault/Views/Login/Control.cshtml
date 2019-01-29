@@ -149,11 +149,7 @@
             }
         });
 
-        window.onkeydown = function (event)
-        {
-            if ((event.ctrlKey || event.metaKey) && event.keyCode == 86)
-                return processPaste();
-        };
+        window.addEventListener("paste", function (event) { processPaste(); });
 
         window.onkeypress = function (event)
         {
@@ -169,6 +165,8 @@
                 showSearch();
             }
         };
+
+        window.ondblclick = function (event) { resetCutBoard(); };
 
         window.onclick = function (event)
         {
@@ -189,10 +187,7 @@
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        connection.on("UpdateListing", () =>
-        {
-            processListFiles();
-        });
+        connection.on("UpdateListing", () => { processListFiles(); });
 
         connection.onclose(() => {
             console.log("Lost connection...");
