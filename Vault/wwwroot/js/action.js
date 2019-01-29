@@ -1228,7 +1228,7 @@ function processDownloadId(id) {
     xhr.send("fileid=" + encodeURIComponent(id));
 }
 
-function addSelectionFile(index, id, splice = true)
+function addSelectionFile(index, id, splice = true, render = true)
 {
     var indexOf = selection.map(x => x.id).indexOf(id);
 
@@ -1241,7 +1241,8 @@ function addSelectionFile(index, id, splice = true)
         selection.splice(indexOf, 1);
     }
 
-    highlightCutBoard();
+    if (render)
+        highlightCutBoard();
 }
 
 function selectFile(target)
@@ -1271,13 +1272,14 @@ function multiSelectFile(target)
             .map(x => x.dataset["fileId"])
             .indexOf(target.dataset["fileId"]);
 
-        var range = {
+        var range =
+        {
             start: Math.min(multiSelection, indexOf),
             end: Math.max(multiSelection, indexOf)
         };
 
         for (var i = range.start; i <= range.end; i++)
-            addSelectionFile(indexOf, fileEntries[i].dataset["fileId"], false);
+            addSelectionFile(indexOf, fileEntries[i].dataset["fileId"], false, false);
 
         highlightCutBoard();
         multiSelection = null;
