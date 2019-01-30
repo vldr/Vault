@@ -283,8 +283,11 @@ function contextMenuFolder(event) {
 
     var folderId = event.target.getAttribute('data-folder-id');
     var folderTitle = event.target.getAttribute('data-folder-title').replace(/"/g, '&quot;');
+    var selected = selection.findIndex((x) => x.id == folderId && x.type === 1) === -1 ? true : false;
 
-    menuOptions.innerHTML = `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
+    menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFolder(null, ${folderId})">Select</li>`
+        : `<li class="menu-option" onclick="addSelectionFolder(null, ${folderId})">Deselect</li>`)
+        + `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
         + `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(event, ${folderId})">Rename</li>`
         + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
         + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
@@ -341,7 +344,10 @@ function contextMenuFile(event)
     var fileId = event.target.getAttribute('data-file-id');
     var fileTitle = event.target.getAttribute('data-file-title').replace(/"/g, '&quot;');
 
-    var selected = selection.findIndex((x) => x.id == fileId) === -1 ? true : false;
+    var selected = selection
+        .filter(x => x.type === 0)
+        .findIndex(x => x.id == fileId)
+        === -1 ? true : false;
 
     menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
         : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
@@ -1218,7 +1224,7 @@ function drop(event) {
     {
         if (selection.length > 0)
         {
-            var indexOf = Array.from(selection).map(x => x.id).indexOf(res[0]);
+            var indexOf = selection.findIndex((x) => x.id == res[0] && x.type === 0);
 
             if (indexOf !== -1) return processPaste(event.target.getAttribute('data-folder-id'));
         }
@@ -1228,6 +1234,13 @@ function drop(event) {
 
     if (res[1] !== "null" && res[1] !== "")
     {
+        if (selection.length > 0)
+        {
+            var index = selection.findIndex((x) => x.id == res[1] && x.type === 1);
+
+            if (index !== -1) return processPaste(event.target.getAttribute('data-folder-id'));
+        }
+
         processMovingFolderToFolder(res[1], event.target.getAttribute('data-folder-id'));
     }
 }
@@ -1264,7 +1277,7 @@ function processDownloadId(id)
 
 function addSelectionFile(index, id, splice = true, render = true)
 {
-    var indexOf = selection.findIndex((x) => x.id === id && x.type === 0);
+    var indexOf = selection.findIndex((x) => x.id == id && x.type === 0);
 
     if (indexOf === -1)
     {
@@ -1318,7 +1331,7 @@ function multiSelectFile(target)
 }
 
 function addSelectionFolder(index, id, splice = true, render = true) {
-    var indexOf = selection.findIndex((x) => x.id === id && x.type === 1);
+    var indexOf = selection.findIndex((x) => x.id == id && x.type === 1);
 
     if (indexOf === -1) selection.push({ id: id, type: 1 });
     else if (splice) selection.splice(indexOf, 1);
