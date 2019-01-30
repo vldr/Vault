@@ -130,7 +130,7 @@ function renderListings(json, isSilent = false) {
                 ondragend='dragEnd(event)'
                 ondragstart='dragStart(event)'
                 ondrop='drop(event)'
-                onclick='processMoveId(${folder.id})'
+                onclick='processMoveId(${folder.id}, event)'
                 oncontextmenu="contextMenuFolder(event)"
                 draggable='true'>
 
@@ -341,11 +341,10 @@ function contextMenuFile(event)
     var fileId = event.target.getAttribute('data-file-id');
     var fileTitle = event.target.getAttribute('data-file-title').replace(/"/g, '&quot;');
 
-    var selected = selection.map(x => x.id).indexOf(parseInt(fileId, 10)) === -1 ? true : false;
+    var selected = selection.findIndex((x) => x.id == fileId) === -1 ? true : false;
 
     menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
         : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
-
         + `<li class="menu-option" onclick="processDownloadFile(${fileId})">Download</li>`
         + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
@@ -398,12 +397,12 @@ function processPaste(folder = currentFolder)
 {
     if (selection.length === 0) return;
 
-    var files = selection.map(x => {
-        if (x.type === 0) return x.id;
-    });
+    const files = selection.filter(x => x.type === 0).map(x => x.id);
+    const folders = selection.filter(x => x.type === 1).map(x => x.id);
 
     processMoveFiles(files, folder);
-
+    processMoveFolders(folders, folder);
+ 
     selection = [];
 }
 
@@ -1029,8 +1028,19 @@ function processMovingFileToFolder(fileId, folderId)
     xhr.send("file=" + encodeURIComponent(fileId) + "&folder=" + encodeURIComponent(folderId));
 }
 
+function serialize(paramName, obj) {
+    var str = [];
+
+    for (var p in obj)
+        str.push(encodeURIComponent(paramName) + "=" + encodeURIComponent(obj[p]));
+
+    return str.join("&");
+}
+
 function processMoveFiles(files, folderId)
 {
+    if (files.length === 0) return;
+
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function ()
@@ -1045,7 +1055,26 @@ function processMoveFiles(files, folderId)
 
     xhr.open('POST', 'process/movefiles');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("files=" + encodeURIComponent(JSON.stringify(files)) + "&folder=" + encodeURIComponent(folderId));
+    xhr.send(serialize("files", files) + "&folder=" + encodeURIComponent(folderId));
+}
+
+function processMoveFolders(folders, folderId) {
+    if (folders.length === 0) return;
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
+                var json = JSON.parse(xhr.responseText);
+                if (!json.success) swal("Error!", json.reason, "error");
+            }
+        }
+    };
+
+    xhr.open('POST', 'process/movefolders');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send(serialize("folders", folders) + "&to=" + encodeURIComponent(folderId));
 }
 
 function processMovingFolderToFolder(from, to) {
@@ -1114,8 +1143,12 @@ function processFolderCreate() {
         });
 }
 
-function processMoveId(id)
+function processMoveId(id, event = null)
 {
+    if (event !== null
+        && (event.ctrlKey || event.metaKey))
+        return selectFolder(event.target);
+
     document.getElementById("file-viewer").style.display = "none";
 
     var xhr = new XMLHttpRequest();
@@ -1204,7 +1237,8 @@ function hideFileViewer() {
     document.getElementById("file-viewer").innerHTML = "";
 }
 
-function processDownloadId(id) {
+function processDownloadId(id)
+{
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1230,9 +1264,10 @@ function processDownloadId(id) {
 
 function addSelectionFile(index, id, splice = true, render = true)
 {
-    var indexOf = selection.map(x => x.id).indexOf(id);
+    var indexOf = selection.findIndex((x) => x.id === id && x.type === 0);
 
-    if (indexOf === -1) {
+    if (indexOf === -1)
+    {
         selection.push({ id: id, type: 0 });
         multiSelection = index;
     }
@@ -1249,9 +1284,7 @@ function selectFile(target)
 {
     var fileEntries = document.getElementsByClassName("gridItem");
 
-    var indexOf = Array.from(fileEntries)
-        .map(x => x.dataset["fileId"])
-        .indexOf(target.dataset["fileId"]);
+    var indexOf = Array.from(fileEntries).findIndex((x) => x.dataset["fileId"] === target.dataset["fileId"]);
 
     return addSelectionFile(indexOf, fileEntries[indexOf].dataset["fileId"]);
 }
@@ -1268,9 +1301,7 @@ function multiSelectFile(target)
     }
     else if (multiSelection !== null)
     {
-        var indexOf = Array.from(fileEntries)
-            .map(x => x.dataset["fileId"])
-            .indexOf(target.dataset["fileId"]);
+        var indexOf = Array.from(fileEntries).findIndex((x) => x.dataset["fileId"] === target.dataset["fileId"]);
 
         var range =
         {
@@ -1284,6 +1315,23 @@ function multiSelectFile(target)
         highlightCutBoard();
         multiSelection = null;
     }
+}
+
+function addSelectionFolder(index, id, splice = true, render = true) {
+    var indexOf = selection.findIndex((x) => x.id === id && x.type === 1);
+
+    if (indexOf === -1) selection.push({ id: id, type: 1 });
+    else if (splice) selection.splice(indexOf, 1);
+
+    if (render) highlightCutBoard();
+}
+
+function selectFolder(target) {
+    var folderEntries = document.getElementsByClassName("gridItem-folder");
+
+    var indexOf = Array.from(folderEntries).findIndex((x) => x.dataset["folderId"] === target.dataset["folderId"]);
+
+    return addSelectionFolder(indexOf, folderEntries[indexOf].dataset["folderId"]);
 }
 
 function processDownload(event)

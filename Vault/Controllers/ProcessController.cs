@@ -9,7 +9,6 @@ using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Vault.Controllers
 {
@@ -451,6 +450,56 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Move a collection of folders...
+        /// </summary>
+        /// <param name="folders"></param>
+        /// <param name="to"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/movefolders")]
+        public IActionResult MoveFolders(int[] folders, int? to)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Check for nulls...
+            if (folders == null || to == null)
+                return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Setup our destination...
+            int destination = to.GetValueOrDefault();
+
+            // Get our user's current folder id!
+            int currentFolder = userSession.Folder;
+
+            // Save our home folder id...
+            int homeFolder = _loginService.GetUser(userSession.Id).Folder;
+
+            // Don't move the same folder inside of itself...
+            if (System.Array.IndexOf(folders, destination) != -1)
+                return Json(new { Success = false, Reason = "You cannot move the same folder inside of itself..." });
+
+            // Make sure you can't move the home folder anywhere...
+            if (System.Array.IndexOf(folders, homeFolder) != -1)
+                return Json(new { Success = false, Reason = "You can't move the home folder anywhere..." });
+
+            // Move the actual folder...
+            if (_processService.MoveFolders(userSession.Id, folders, destination))
+            {
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                return Json(new { Success = true });
+            }
+            else
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
+
+        /// <summary>
         /// Delete a folder...
         /// </summary>
         /// <param name="folder"></param>
@@ -751,7 +800,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("process/movefiles")]
-        public IActionResult MoveFiles(string files, int? folder)
+        public IActionResult MoveFiles(int[] files, int? folder)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
@@ -760,20 +809,6 @@ namespace Vault.Controllers
             // Check for nulls...
             if (files == null || folder == null)
                 return MissingParameters();
-
-            // Setup our file array...
-            int[] fileArray = null;
-
-            // Place our little json converter in a try statement because blah.
-            try
-            {
-                // Convert our json array to a proper array...
-                fileArray = JsonConvert.DeserializeObject<int[]>(files);
-            }
-            catch { }
-
-            // Check if our array is valid...
-            if (fileArray == null) return Json(new { Success = false, Reason = "Invalid parameters given..." });
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -788,15 +823,14 @@ namespace Vault.Controllers
             int parentFolder = _processService.GetFolder(id, currentFolder).FolderId;
 
             // Move the actual folder...
-            if (_processService.MoveFiles(id, fileArray, folder.GetValueOrDefault()))
+            if (_processService.MoveFiles(id, files, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
                 _processService.UpdateListings(userSession.Id, Request);
 
                 return Json(new { Success = true });
             }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            else return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /// Goes to a folder, doesn't matter if it's visible or not...

@@ -1620,6 +1620,47 @@ namespace Vault.Models
             }
         }
 
+        public bool MoveFolders(int ownerId, int[] folders, int destination)
+        {
+            // Catch any exceptions...
+            try
+            {
+                // Setup our destination folder...
+                Folder destinationFolder = _context.Folders
+                    .Where(b => b.Id == destination && b.Owner == ownerId)
+                    .FirstOrDefault();
+
+                // Check if our destination folder isn't null...
+                if (destinationFolder == null) return false;
+
+                // Iterate throughout all our folders...
+                foreach (var folderId in folders)
+                {
+                    // Setup our folder for this iteration...
+                    Folder folder = _context.Folders
+                        .Where(b => b.Id == folderId && b.Owner == ownerId)
+                        .FirstOrDefault();
+
+                    // Check if we even found a folder...
+                    if (folder == null) continue;
+
+                    // Modify location of each folder...
+                    folder.FolderId = destinationFolder.Id;
+                }
+
+                // Save our changes...
+                _context.SaveChanges();
+
+                // Respond with a true...
+                return true;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
+        }
+
         /// <summary>
         /// Moves a file to a different folder location...
         /// </summary>
@@ -1681,6 +1722,9 @@ namespace Vault.Models
                 {
                     // Get our folders as objects...
                     File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+
+                    // Check if we even found a file...
+                    if (file == null) continue;
 
                     // Modify our folder...
                     file.Folder = newFolder.Id;
