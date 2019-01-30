@@ -1282,15 +1282,15 @@ function addSelectionFile(index, id, splice = true, render = true)
     if (indexOf === -1)
     {
         selection.push({ id: id, type: 0 });
-        multiSelection = index;
+
+        if (index !== null) multiSelection = index;
     }
     else if (splice)
     {
         selection.splice(indexOf, 1);
     }
 
-    if (render)
-        highlightCutBoard();
+    if (render) highlightCutBoard();
 }
 
 function selectFile(target)
@@ -1305,16 +1305,13 @@ function selectFile(target)
 function multiSelectFile(target)
 {
     var fileEntries = document.getElementsByClassName("gridItem");
+    var indexOf = Array.from(fileEntries).findIndex((x) => x.dataset["fileId"] === target.dataset["fileId"]);
 
-    if (multiSelection === null)
-    {
-        resetCutBoard();
+    if (multiSelection === null) multiSelection = 0;
 
-        selectFile(target);
-    }
-    else if (multiSelection !== null)
+    if (multiSelection !== null)
     {
-        var indexOf = Array.from(fileEntries).findIndex((x) => x.dataset["fileId"] === target.dataset["fileId"]);
+        if (multiSelection === 0) resetCutBoard();
 
         var range =
         {
@@ -1323,10 +1320,9 @@ function multiSelectFile(target)
         };
 
         for (var i = range.start; i <= range.end; i++)
-            addSelectionFile(indexOf, fileEntries[i].dataset["fileId"], false, false);
+            addSelectionFile(null, fileEntries[i].dataset["fileId"], false, false);
 
         highlightCutBoard();
-        multiSelection = null;
     }
 }
 
