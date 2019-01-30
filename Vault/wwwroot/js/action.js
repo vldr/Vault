@@ -1013,11 +1013,6 @@ function processLogin(str, str2) {
 
 function processMovingFileToFolder(fileId, folderId)
 {
-    if (folderId === null) {
-        contextMenuFile(event);
-        return;
-    }
-
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1084,11 +1079,6 @@ function processMoveFolders(folders, folderId) {
 }
 
 function processMovingFolderToFolder(from, to) {
-    if (from === to) {
-        contextMenuFolder(event);
-        return;
-    }
-
     var xhr = new XMLHttpRequest();
 
     xhr.onreadystatechange = function () {
@@ -1222,6 +1212,8 @@ function drop(event) {
 
     if (res[0] !== "null" && res[0] !== "")
     {
+        if (event.target.getAttribute('data-folder-id') === null) return contextMenuFile(event);
+
         if (selection.length > 0)
         {
             var indexOf = selection.findIndex((x) => x.id == res[0] && x.type === 0);
@@ -1234,6 +1226,8 @@ function drop(event) {
 
     if (res[1] !== "null" && res[1] !== "")
     {
+        if (event.target.getAttribute('data-folder-id') === res[1]) return contextMenuFolder(event);
+
         if (selection.length > 0)
         {
             var index = selection.findIndex((x) => x.id == res[1] && x.type === 1);
