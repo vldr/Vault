@@ -791,7 +791,8 @@ function processDeleteFolder(event) {
     });
 }
 
-function processChangeName(name) {
+function processChangeName(name)
+{
     swal
         ({
             title: "Update your name...",
@@ -1230,8 +1231,10 @@ function drop(event) {
 
         if (selection.length > 0)
         {
+            var sameFolder = selection.findIndex((x) => x.id == event.target.getAttribute('data-folder-id') && x.type === 1) !== -1;
             var index = selection.findIndex((x) => x.id == res[1] && x.type === 1);
 
+            if (sameFolder) return contextMenuFolder(event);
             if (index !== -1) return processPaste(event.target.getAttribute('data-folder-id'));
         }
 
@@ -1615,20 +1618,23 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
 
                 var json = JSON.parse(xmlhttp.responseText);
 
-                if (!json.success) {
+                if (!json.success)
+                {
                     swal("Error!", json.reason, "error");
                     return;
                 }
 
                 document.getElementById("download-form").action = `../../share/folder/dl/${folderId}/${shareId}`;
 
-                if (reset) {
+                if (reset)
+                {
                     rendered = 0;
                     renderSharedListings(json);
                 }
                 else renderSharedFiles(json);
 
-                if (json.files.length !== 0) {
+                if (json.files.length !== 0)
+                {
                     window.onscroll = function (ev) {
                         if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
                             processSharedListFiles(folderId, shareId, false, rendered);

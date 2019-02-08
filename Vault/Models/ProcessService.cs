@@ -1294,7 +1294,7 @@ namespace Vault.Models
             while (folder.FolderId != limit)
             {
                 // Insert our folder's name at the start of the string builder.
-                location.Insert(0, $"<a href='#' data-folder-id='{folder.Id}' onclick='processMove(event)'>{folder.Name}</a> / ");
+                location.Insert(0, $"<a href='#' onclick='processMoveId({folder.Id})'>{folder.Name}</a> / ");
 
                 // Get the next folder in the chain!
                 folder = GetFolder(folder.Owner, folder.FolderId);

@@ -163,7 +163,7 @@ namespace Vault.Controllers
                 Current = folderId,
                 Previous = folder.FolderId,
                 IsHome = user.Folder == folder.Id,
-                Path = $"<a href='#' data-folder-id='{user.Folder}' onclick='processMove(event)'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
+                Path = $"<a href='#' onclick='processMoveId({user.Folder})'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
                 Files = _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault())
             };
