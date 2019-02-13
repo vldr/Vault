@@ -151,13 +151,8 @@
 
         window.addEventListener("paste", function (event)
         {
-            var display = document.getElementById("file-viewer").style.display;
-
-            var alert = document.getElementsByClassName("sweet-alert");
-            var hide = document.getElementsByClassName("hideSweetAlert");
-
-            if ((display === "" || display === "none")
-                && (alert.length === 0 || alert.length > 0 && hide.length > 0)) {
+            if (isBusy()) 
+            {
                 event.preventDefault();
                 processPaste();
             }
@@ -167,15 +162,7 @@
         {
             if (event.keyCode === 32) return;
 
-            var display = document.getElementById("file-viewer").style.display;
-
-            var alert = document.getElementsByClassName("sweet-alert");
-            var hide = document.getElementsByClassName("hideSweetAlert");
-
-            if ((display === "" || display === "none")
-                && (alert.length === 0 || alert.length > 0 && hide.length > 0)) {
-                showSearch();
-            }
+            if (isBusy()) showSearch();
         };
 
         window.ondblclick = function (event) { resetCutBoard(); };

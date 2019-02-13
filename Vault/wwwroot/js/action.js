@@ -1656,3 +1656,13 @@ function processSharedListFiles(folderId, shareId, reset = true, offset = 0) {
     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xmlhttp.send("offset=" + offset + "&shareId=" + shareId + "&folderId=" + folderId);
 }
+
+function isBusy()
+{
+    var display = document.getElementById("file-viewer").style.display;
+
+    var alert = document.getElementsByClassName("sweet-alert");
+    var hide = document.getElementsByClassName("hideSweetAlert");
+
+    return (display === "" || display === "none") && (alert.length === 0 || alert.length > 0 && hide.length > 0);
+}
