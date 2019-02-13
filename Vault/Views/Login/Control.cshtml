@@ -149,7 +149,12 @@
             }
         });
 
-        window.addEventListener("paste", function (event) { processPaste(); });
+        window.addEventListener("paste", function (event)
+        {
+            event.preventDefault();
+
+            processPaste();
+        });
 
         window.onkeypress = function (event)
         {
