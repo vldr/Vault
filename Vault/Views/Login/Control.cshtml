@@ -151,9 +151,16 @@
 
         window.addEventListener("paste", function (event)
         {
-            event.preventDefault();
+            var display = document.getElementById("file-viewer").style.display;
 
-            processPaste();
+            var alert = document.getElementsByClassName("sweet-alert");
+            var hide = document.getElementsByClassName("hideSweetAlert");
+
+            if ((display === "" || display === "none")
+                && (alert.length === 0 || alert.length > 0 && hide.length > 0)) {
+                event.preventDefault();
+                processPaste();
+            }
         });
 
         window.onkeypress = function (event)
