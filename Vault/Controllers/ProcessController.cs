@@ -813,17 +813,8 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user id...
-            int id = userSession.Id;
-
-            // Get our user's current folder id!
-            int currentFolder = userSession.Folder;
-
-            // Get the user as an object...
-            int parentFolder = _processService.GetFolder(id, currentFolder).FolderId;
-
             // Move the actual folder...
-            if (_processService.MoveFiles(id, files, folder.GetValueOrDefault()))
+            if (_processService.MoveFiles(userSession.Id, files, folder.GetValueOrDefault()))
             {
                 // Tell our users to update their listings...
                 _processService.UpdateListings(userSession.Id, Request);
@@ -867,6 +858,38 @@ namespace Vault.Controllers
 
             // Return a successful response...
             return List(0);
+        }
+
+        /// <summary>
+        /// Duplicates a file...
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/duplicatefile")]
+        public IActionResult DuplicateFile(int? fileId)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Check for nulls...
+            if (fileId == null)
+                return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Move the actual folder...
+            if (_processService.DuplicateFile(userSession.Id, fileId.GetValueOrDefault()))
+            {
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                // Return a successful response...
+                return Json(new { Success = true });
+            }
+            else return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
         /// <summary>

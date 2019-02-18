@@ -352,6 +352,7 @@ function contextMenuFile(event)
     menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
         : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
         + `<li class="menu-option" onclick="processDownloadFile(${fileId})">Download</li>`
+        + `<li class="menu-option" onclick="processDuplicateFile(${fileId})">Make a Copy</li>`
         + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
@@ -534,6 +535,33 @@ function processToggleFolderSharing(id) {
     xhr.open('POST', 'process/togglefoldershare');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("folderid=" + encodeURIComponent(id));
+}
+
+function processDuplicateFile(fileId)
+{
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
+                var json = JSON.parse(xhr.responseText);
+
+                if (json.success) swal.close();
+                else
+                    swal({ title: "Error!", text: json.reason, type: "error", timer: 1500, showConfirmButton: false });
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            swal({ title: "", html: true, text: "<center><div class=\"loader\"></div></center><br><br>", showConfirmButton: false });
+        }
+    };
+
+    xhr.open('POST', 'process/duplicatefile');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("fileid=" + encodeURIComponent(fileId));
 }
 
 function processToggleSharing(id) {

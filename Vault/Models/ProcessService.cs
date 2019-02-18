@@ -1701,6 +1701,45 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Duplicates a file...
+        /// </summary>
+        /// <param name="ownerId">The owning user of the file.</param>
+        /// <param name="fileId">The file's id.</param>
+        /// <returns></returns>
+        public bool DuplicateFile(int ownerId, int fileId)
+        {
+            // Catch any exceptions...
+            try
+            {
+                // Attempt to find our file...
+                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+
+                // Check if our file even exists...
+                if (file == null) return false;
+
+                // Check if we can "upload" this file, or in other words "do we have enough storage for this file"...
+                if (!CanUpload(ownerId, file.Size)) return false;
+
+                // Generate a brand new file name for our duplicate file...
+                string filePath = _configuration["VaultStorageLocation"] + RandomString(30);
+
+                // Check if our file already exists with that name!
+                if (System.IO.File.Exists(filePath)) return false;
+
+                // Now actually create a copy of the file on the file system...
+                System.IO.File.Copy(file.Path, filePath);
+
+                // Pass the response to the add new file api...
+                return AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath).success;
+            }
+            catch
+            {
+                // Exception, false...
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Move an array of files!
         /// </summary>
         /// <param name="ownerId"></param>
