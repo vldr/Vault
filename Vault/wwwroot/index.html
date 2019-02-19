@@ -9,7 +9,9 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0267eb">
-</head>
+
+    <script src="https://apis.google.com/js/platform.js"></script>
+</head> 
 <body>
     <div class="intro-header"></div>
     <div class="header-nav">
@@ -41,7 +43,9 @@
                     <br>
                     <input placeholder="Password" type="password" name="password" class="textbox-password" id="password" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()">
                     <br>
+                    
                     <a class="btn black" name="signin" id="signin" onclick="processLogin(document.getElementsByName('username')[0].value, document.getElementsByName('password')[0].value)">Login</a>
+                    <a class="google-sign-up btn black" id="google-sign-up"></a>
                     <a href="register.html" style="margin-left:10px;margin-right:10px;">Register</a>
                 </form>
                 <div id="login-loader-box">
@@ -166,7 +170,34 @@
             }
         });
 
-        connection.start();
+        //////////////////////////
+        //         GApi         //
+        //////////////////////////
+
+        gapi.load('auth2', function ()
+        {
+            auth2 = gapi.auth2.init(
+            {
+                client_id: '.apps.googleusercontent.com',
+                fetch_basic_profile: true,
+                scope: 'profile'
+            })
+            .then(function (obj)
+            {
+                if (obj.isSignedIn.get())
+                    processGoogleLogin(obj.currentUser.get(), () => connection.start(), false);
+                else
+                {
+                    document.getElementById("google-sign-up").onclick = () => {
+                        obj.signIn().then(function () {
+                            processGoogleLogin(obj.currentUser.get());
+                        });
+                    };
+
+                    connection.start();
+                }
+            });
+        });
     </script>
 </body>
 </html>
