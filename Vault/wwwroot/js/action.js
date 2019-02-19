@@ -1078,29 +1078,34 @@ function processGoogleLogin(googleUser, callback = null, redirect = true)
                 if (json.success)
                 {
                     var action = json.action;
+                    var errorText = document.getElementById("txtHint");
+                    var loaderBox = document.getElementById("login-loader-box");
+                    var loader = document.getElementById("login-loader");
+                    var welcomeTitle = document.getElementById("welcome-title");
+                    var welcomeButton = document.getElementById("welcome-button");
+                    var logoutButton = document.getElementById("logout-button");
 
-                    if (action === 0) {
+                    if (action === 0)
+                    {
                         if (redirect) window.location = "control";
                     }
                     else if (action === 1)
                     {
-                        var errorText = document.getElementById("txtHint");
-                        var loaderBox = document.getElementById("login-loader-box");
-                        var loader = document.getElementById("login-loader");
-                        var welcomeTitle = document.getElementById("welcome-title");
-                        var welcomeButton = document.getElementById("welcome-button");
-
                         errorText.innerHTML = ``;
 
                         loader.style.display = "none";
                         loaderBox.style.display = "block";
-
-                        welcomeTitle.innerHTML = `Hi, ${googleUser.getBasicProfile().getGivenName()}.`;
-
                         welcomeTitle.style.display = "block";
                         welcomeButton.style.display = "inline-block";
-                        welcomeButton.innerHTML = `Continue`;
-                        welcomeButton.onclick = () => { window.location = 'intermediate' };
+                        logoutButton.style.display = "block";
+
+                        welcomeTitle.innerHTML = `<input id="invite-code-box" placeholder="Invitation Code">`;
+                        welcomeButton.innerHTML = `Finish`;
+                        welcomeButton.onclick = () =>
+                        {
+                            var inviteCodeBox = document.getElementById("invite-code-box");
+                            processGoogleRegister(inviteCodeBox.value);
+                        };
                     }
 
                     if (callback !== null) callback();
@@ -1116,6 +1121,15 @@ function processGoogleLogin(googleUser, callback = null, redirect = true)
     xhr.open('POST', 'googlelogin');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     xhr.send("id=" + encodeURIComponent(idToken));
+}
+
+function processLogout()
+{
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function ()
+    {
+        document.getElementById("login-loader-box").style.display = "none";
+    });
 }
 
 function processMovingFileToFolder(fileId, folderId)

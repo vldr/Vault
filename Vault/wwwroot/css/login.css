@@ -78,7 +78,7 @@ a:hover {
 }
 
 #welcome-title {
-    margin-top: 20%;
+    margin-top: 18%;
     color: #484848;
     font-size: 23px;
     margin-bottom: -5px;
@@ -110,10 +110,30 @@ a:hover {
     color: white;
 }
 
+#logout-button {
+    display: none;
+    cursor: pointer;
+    margin-top: 10px;
+    user-select: none;
+}
+
+#invite-code-box {
+    display: block;
+    outline: 0;
+    border: 0;
+    border-bottom: 2px solid #848484;
+    font-size: 25px;
+    color: #424242;
+    width: 200px;
+    text-align: center;
+    padding: 8px;
+    margin-bottom: 5px;
+    margin-top: -9px;
+}
+
 div .button {
     margin: 0 15px 15px 0;
 }
-
 
 .logo {
     padding-top: 20px;

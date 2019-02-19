@@ -54,6 +54,11 @@ namespace Vault.Models
             }
         }
 
+        /// <summary>
+        /// Checks the login of a Google based account...
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
         public User LoginGoogle(string email)
         {
 
@@ -61,13 +66,7 @@ namespace Vault.Models
             try
             {
                 // Attempt to find the user matching the email address...
-                var user = _context.Users.Where(b => b.Email == email).FirstOrDefault();
-
-                // Check if our password is null...
-                if (user == null) return null;
-
-                // Check if the user's password isn't empty (thus not a OAuth account)...
-                if (user.Password != null) return null;
+                var user = _context.Users.Where(b => b.Email == email && b.Password == null).FirstOrDefault();
 
                 // If all tests pass then go ahead.
                 return user;

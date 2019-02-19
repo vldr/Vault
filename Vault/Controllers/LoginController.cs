@@ -224,7 +224,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Processes a google login...
+        /// Processes a Google login...
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -266,34 +266,8 @@ namespace Vault.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("intermediate")]
-        public async Task<IActionResult> Intermediate()
-        {
-            // Check if our google payload temp data exists...
-            if (!TempData.ContainsKey("GoogleId")) return Redirect(_relativeDirectory);
-
-            // Setup our payload...
-            var googleId = TempData.Get<string>("GoogleId");
-
-            // Check if the google id is null...
-            if (googleId == null) return Redirect(_relativeDirectory);
-
-            // Validate our user's google login...
-            var googlePayload = await GoogleJsonWebSignature.ValidateAsync(googleId);
-
-            // Check if our payload is valid...
-            if (googlePayload == null) return Redirect(_relativeDirectory);
-
-            // Setup our tempdata once again.
-            TempData.Put("GoogleId", googleId);
-
-            // Return our control view...
-            return View();
-        }
-
         /// <summary>
-        /// The processing of registering...
+        /// The processing of registering through Google...
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -316,7 +290,7 @@ namespace Vault.Controllers
             var googleId = TempData.Get<string>("GoogleId");
 
             // Check if the google id is null...
-            if (googleId == null) return Json(new { Success = false, Reason = "Invalid token given..." });
+            if (googleId == null) return Json(new { Success = false, Reason = "Token given did not come out correctly..." });
 
             // Validate our user's google login...
             var googlePayload = await GoogleJsonWebSignature.ValidateAsync(googleId);
@@ -324,24 +298,17 @@ namespace Vault.Controllers
             // Check if our payload is valid...
             if (googlePayload == null) return Json(new { Success = false, Reason = "Failed to validate the Google account..." });
 
+            // Remove our tempdata just incase...
+            TempData.Remove("GoogleId");
+
             // Return the response from our login service...
             if (_loginService.Register(googlePayload.Email, googlePayload.GivenName, null, 
                 HttpContext.Connection.RemoteIpAddress.ToString()))
-            {
-                // Delete our temp data...
-                TempData["GoogleId"] = null;
-
                 // Return sucessful if it is...
                 return await GoogleLogin(googleId);
-            }
             else
-            {
-                // Delete our temp data...
-                TempData["GoogleId"] = null;
-
                 // Return an error if it is an error...
                 return Json(new { Success = false, Reason = "Transaction error..." });
-            }
         }
 
         /// <summary>
