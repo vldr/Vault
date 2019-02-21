@@ -101,7 +101,7 @@ namespace Vault.Controllers
             }
 
             // Redirect out of there...
-            return Redirect($"{_relativeDirectory}#logout");
+            return Redirect(_relativeDirectory);
         }
 
         /// <summary>
