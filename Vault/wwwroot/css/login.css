@@ -361,12 +361,12 @@ div .button {
 .btn.black {
     font-family: sans-serif;
     background: #ffffff;
-    border: #797979 solid 3px;
+    border: #adabab solid 2px;
     border-radius: 25px;
     color: #797979;
     font-size: 11px;
     font-weight: bold;
-    padding: 8px 29px;
+    padding: 8px 23px;
     text-decoration: none;
     text-align: center;
     min-width: 60px;
@@ -377,10 +377,9 @@ div .button {
 }
 
 .btn.black:hover {
-    background: #797979;
-    color: #dedede;
+    background: #adabab;
+    color: #3a3a3a;
 }
-
 
 .return {
     position: absolute;
