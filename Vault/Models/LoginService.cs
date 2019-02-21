@@ -39,38 +39,11 @@ namespace Vault.Models
                 var user = _context.Users.Where(b => b.Email == email).FirstOrDefault();
 
                 // Check if our password is null...
-                if (user == null) return null;
-
-                // Check if it is a OAuth account...
-                if (user.Password == null) return null;
+                if (user == null)
+                    return null;
 
                 // Check if our passwords match...
                 return BCrypt.BCryptHelper.CheckPassword(hash, user.Password) ? user : null;
-            }
-            catch
-            {
-                // If theres an exception, return an error...
-                return null;
-            }
-        }
-
-        public User LoginGoogle(string email)
-        {
-
-            // Catch all our exceptions...
-            try
-            {
-                // Attempt to find the user matching the email address...
-                var user = _context.Users.Where(b => b.Email == email).FirstOrDefault();
-
-                // Check if our password is null...
-                if (user == null) return null;
-
-                // Check if the user's password isn't empty (thus not a OAuth account)...
-                if (user.Password != null) return null;
-
-                // If all tests pass then go ahead.
-                return user;
             }
             catch
             {
@@ -150,13 +123,8 @@ namespace Vault.Models
                 // Set our api key to be empty...
                 user.APIKey = string.Empty;
 
-                // Check if the password given is explicitly null...
-                if (password == null)
-                    // Set it accordingly.
-                    user.Password = null;
-                else
-                    // Hash our user's password using BCrypt...
-                    user.Password = BCrypt.BCryptHelper.HashPassword(password, BCrypt.BCryptHelper.GenerateSalt());
+                // Hash our user's password using BCrypt...
+                user.Password = BCrypt.BCryptHelper.HashPassword(password, BCrypt.BCryptHelper.GenerateSalt());
 
                 // Set our created atribute to now...
                 user.Created = DateTime.Now;

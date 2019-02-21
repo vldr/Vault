@@ -9,30 +9,25 @@
     <br>
     <div style="font-size: 23px;overflow: hidden;height: 26px;width: 99%;">
         @System.Net.WebUtility.HtmlDecode(ViewBag.User.Name)
-
+        
         <img src="images/pencil.svg" style="
             height:15px;
             cursor:pointer;
-            filter: invert(0.6);"
-             onclick="processChangeName('@ViewBag.User.Name')" />
+            filter: invert(0.6);" 
+            onclick="processChangeName('@ViewBag.User.Name')" />
     </div>
 
-    @if (ViewBag.User.Password != null)
-    {
-        <br>
-
-        <b style="font-size:18px;">Password:</b><br>
-        <em style="font-size:14px;">••••••••••</em>
-        <img src="images/pencil.svg" style="
-            height:15px;
-            cursor:pointer;
-            filter: invert(0.6);"
-             onclick="processChangePassword()" />
-
-        <br>
-    }
-
     <br>
+
+    <b style="font-size:18px;">Password:</b><br>
+    <em style="font-size:14px;">••••••••••</em>
+    <img src="images/pencil.svg" style="
+        height:15px;
+        cursor:pointer;
+        filter: invert(0.6);" 
+        onclick="processChangePassword()" />
+
+    <br><br>
 
     <b style="font-size:18px;">Storage:</b><br>
     <em style="font-size:14px;">@ViewBag.Storage</em>

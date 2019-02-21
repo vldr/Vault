@@ -1397,9 +1397,6 @@ namespace Vault.Models
                 if (user == null)
                     return false;
 
-                // Check if our user has no password...
-                if (user.Password == null) return false;
-
                 // If our user's password matches then proceed!
                 if (BCrypt.BCryptHelper.CheckPassword(currentPassword, user.Password))
                 {

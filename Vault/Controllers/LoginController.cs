@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Builder;
 using System.Net;
-using Google.Apis.Auth;
 
 namespace Vault.Controllers
 {
@@ -45,59 +44,6 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// A function which will return a not logged in json response...
-        /// </summary>
-        /// <returns>Json response...</returns>
-        private JsonResult NotLoggedIn()
-        {
-            // Return a simple not logged in json response...
-            return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
-        }
-
-        /// <summary>
-        /// Authenticates a user...
-        /// </summary>
-        /// <param name="user"></param>
-        public void AuthenticateUser(User user)
-        {
-            // Append our logged in user's ip address...
-            _loginService.AppendIPAddress(user.Id, HttpContext.Connection.RemoteIpAddress.ToString());
-
-            // Setup our user's session!
-            UserSession userSession = new UserSession
-            {
-                Id = user.Id,
-                Folder = user.Folder,
-                SortBy = user.SortBy
-            };
-
-            // Set our user session!
-            SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
-
-            // Setup our sync cookie value...
-            var syncValue = _processService.RandomString(55);
-
-            // Setup a brand new cookie...
-            Response.Cookies.Append(
-                _configuration["SyncCookieName"],
-                syncValue,
-                new Microsoft.AspNetCore.Http.CookieOptions()
-                {
-                    Path = "/"
-                }
-            );
-
-            // Set our cookie as an entry in connections...
-            VaultHub.Connections.TryAdd(syncValue, new UserInformation()
-            {
-                Id = user.Id,
-                ConnectionId = string.Empty,
-                Name = user.Name,
-                Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]))
-            });
-        }
-
-        /// <summary>
         /// Called when someone logs in to the website...
         /// </summary>
         /// <param name="Email"></param>
@@ -124,8 +70,41 @@ namespace Vault.Controllers
             // Check if we logged in sucessfully...
             if (user != null)
             {
-                // Authenticate our user...
-                AuthenticateUser(user);
+                // Append our logged in user's ip address...
+                _loginService.AppendIPAddress(user.Id, HttpContext.Connection.RemoteIpAddress.ToString());
+
+                // Setup our user's session!
+                UserSession userSession = new UserSession
+                {
+                    Id = user.Id,
+                    Folder = user.Folder,
+                    SortBy = user.SortBy
+                };
+
+                // Set our user session!
+                SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+
+                // Setup our sync cookie value...
+                var syncValue = _processService.RandomString(55);
+
+                // Setup a brand new cookie...
+                Response.Cookies.Append(
+                    _configuration["SyncCookieName"],
+                    syncValue,
+                    new Microsoft.AspNetCore.Http.CookieOptions()
+                    {
+                        Path = "/"
+                    }
+                );
+
+                // Set our cookie as an entry in connections...
+                VaultHub.Connections.TryAdd(syncValue, new UserInformation()
+                {
+                    Id = user.Id,
+                    ConnectionId = string.Empty,
+                    Name = user.Name,
+                    Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]))
+                });
 
                 // Return a successful response...
                 return Json(new { Success = true });
@@ -208,7 +187,7 @@ namespace Vault.Controllers
         public IActionResult Settings()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return NotLoggedIn();
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -221,127 +200,6 @@ namespace Vault.Controllers
 
             // Return our control view...
             return View();
-        }
-
-        /// <summary>
-        /// Processes a google login...
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("googlelogin")]
-        public async Task<IActionResult> GoogleLogin(string id)
-        {
-            // Check if not logged in!
-            if (IsLoggedIn()) return Json(new { Success = true, Action = 2 });
-
-            // Validate our user's google login...
-            var googlePayload = await GoogleJsonWebSignature.ValidateAsync(id);
-
-            // Check if our payload is valid...
-            if (googlePayload == null) return Json(new { Success = false, Reason = "Failed to validate the Google account..." });
-
-            // Check if the user's email is verified...
-            if (!googlePayload.EmailVerified) return Json(new { Success = false, Reason = "Please verify your email..." });
-
-            // Attempt to find the user and login...
-            User user = _loginService.LoginGoogle(googlePayload.Email);
-
-            // Check if we logged in sucessfully...
-            if (user != null)
-            {
-                // Authenticate our user...
-                AuthenticateUser(user);
-
-                // Return a successful response...
-                return Json(new { Success = true, Action = 0 });
-            }
-            // Otherwise, redirect the user to register...
-            else
-            {
-                // Setup our temp data...
-                TempData.Put("GoogleId", id);
-
-                // Return a successful response...
-                return Json(new { Success = true, Action = 1 });
-            }
-        }
-
-        [HttpGet]
-        [Route("intermediate")]
-        public async Task<IActionResult> Intermediate()
-        {
-            // Check if our google payload temp data exists...
-            if (!TempData.ContainsKey("GoogleId")) return Redirect(_relativeDirectory);
-
-            // Setup our payload...
-            var googleId = TempData.Get<string>("GoogleId");
-
-            // Check if the google id is null...
-            if (googleId == null) return Redirect(_relativeDirectory);
-
-            // Validate our user's google login...
-            var googlePayload = await GoogleJsonWebSignature.ValidateAsync(googleId);
-
-            // Check if our payload is valid...
-            if (googlePayload == null) return Redirect(_relativeDirectory);
-
-            // Setup our tempdata once again.
-            TempData.Put("GoogleId", googleId);
-
-            // Return our control view...
-            return View();
-        }
-
-        /// <summary>
-        /// The processing of registering...
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("googleregister")]
-        public async Task<IActionResult> GoogleRegister(string invite)
-        {
-            // Check if our input is null...
-            if (string.IsNullOrWhiteSpace(invite))
-                return Json(new { Success = false, Reason = "You must supply all required parameters..." });
-
-            // Check that if our invite key matches...
-            if (invite != _configuration["VaultInviteKey"])
-                return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
-
-            // Check if our google payload temp data exists...
-            if (!TempData.ContainsKey("GoogleId"))
-                return Json(new { Success = false, Reason = "Invalid token given..." });
-
-            // Setup our payload...
-            var googleId = TempData.Get<string>("GoogleId");
-
-            // Check if the google id is null...
-            if (googleId == null) return Json(new { Success = false, Reason = "Invalid token given..." });
-
-            // Validate our user's google login...
-            var googlePayload = await GoogleJsonWebSignature.ValidateAsync(googleId);
-
-            // Check if our payload is valid...
-            if (googlePayload == null) return Json(new { Success = false, Reason = "Failed to validate the Google account..." });
-
-            // Return the response from our login service...
-            if (_loginService.Register(googlePayload.Email, googlePayload.GivenName, null, 
-                HttpContext.Connection.RemoteIpAddress.ToString()))
-            {
-                // Delete our temp data...
-                TempData["GoogleId"] = null;
-
-                // Return sucessful if it is...
-                return await GoogleLogin(googleId);
-            }
-            else
-            {
-                // Delete our temp data...
-                TempData["GoogleId"] = null;
-
-                // Return an error if it is an error...
-                return Json(new { Success = false, Reason = "Transaction error..." });
-            }
         }
 
         /// <summary>
