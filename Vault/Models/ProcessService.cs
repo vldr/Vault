@@ -128,6 +128,17 @@ namespace Vault.Models
             => _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Count();
 
         /// <summary>
+        /// Checks whether a folder is empty or not.
+        /// </summary>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public bool IsEmpty(int ownerId, int folderId)
+        {
+            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Any() 
+                || _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).Any();
+        }
+
+        /// <summary>
         /// Gets a list of folder listings with matching owners and folder id...
         /// </summary>
         /// <param name="ownerId"></param>
@@ -141,6 +152,9 @@ namespace Vault.Models
                 Name = x.Name,
                 Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
                 Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
+                IsRecycleBin = x.IsRecycleBin,
+                Empty = !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
+                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any()),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
             });
@@ -159,6 +173,9 @@ namespace Vault.Models
                 Name = x.Name,
                 Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
                 Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
+                IsRecycleBin = x.IsRecycleBin,
+                Empty = !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
+                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any()),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
             }).Take(10);
@@ -831,6 +848,13 @@ namespace Vault.Models
         public User GetUserAPI(string apiKey) => _context.Users.Where(b => b.APIEnabled == true && b.APIKey == apiKey).FirstOrDefault();
 
         /// <summary>
+        /// For internal use. Gets the user from a user id...
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private User GetUser(int userId) => _context.Users.Where(b => b.Id == userId).FirstOrDefault();
+
+        /// <summary>
         /// Handles adding, and generating thumbnails...
         /// </summary>
         /// <param name="userId"></param>
@@ -933,7 +957,7 @@ namespace Vault.Models
         /// <param name="folderName"></param>
         /// <param name="rootFolder"></param>
         /// <returns></returns>
-        public (bool success, Folder folder) AddNewFolder(int ownerId, string folderName, int rootFolder)
+        public (bool success, Folder folder) AddNewFolder(int ownerId, string folderName, int rootFolder, bool isRecycleBin = false)
         {
             // Catch any exceptions...
             try
@@ -946,7 +970,8 @@ namespace Vault.Models
                 {
                     Owner = ownerId,
                     Name = WebUtility.HtmlEncode(folderName),
-                    FolderId = rootFolder
+                    FolderId = rootFolder,
+                    IsRecycleBin = isRecycleBin
                 };
 
                 // Add our folder to the context...
@@ -1035,7 +1060,7 @@ namespace Vault.Models
             try
             {
                 // Get our actual user...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id).FirstOrDefault();
+                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id && b.IsRecycleBin == false).FirstOrDefault();
 
                 // Check if our user is null!
                 if (folder == null) return (false, string.Empty);
@@ -1191,7 +1216,7 @@ namespace Vault.Models
             try
             {
                 // Get our actual user...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id).FirstOrDefault();
+                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id && b.IsRecycleBin == false).FirstOrDefault();
 
                 // Check if our user is null!
                 if (folder == null)
@@ -1345,6 +1370,71 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Check whether a folder is inside a certain folder...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="insideOfFolderId"></param>
+        /// <returns></returns>
+        public bool IsFolderInsideFolder(int ownerId, int folderId, int insideOfFolderId)
+        {
+            // Attempt to get our inside of folder...
+            Folder insideFolder = GetFolder(ownerId, insideOfFolderId);
+
+            // Check if our inside folder is null...
+            if (insideFolder == null) return false;
+
+            // Setup our target folder...
+            Folder targetFolder = GetFolder(ownerId, folderId);
+
+            // Check if the folder we are targetting even exists...
+            if (targetFolder == null) return false;
+
+            // Setup our temp folder...
+            Folder tempFolder = targetFolder;
+
+            // Loop until we've found our inside of folder or until we reach null!
+            while (tempFolder != null && tempFolder != insideFolder)
+            {
+                // Get the next folder in the chain!
+                tempFolder = GetFolder(insideFolder.Owner, tempFolder.FolderId);
+            }
+
+            // Check if our target folder does equal our inside folder...
+            if (tempFolder == insideFolder)
+                // Then we're inside our selected folder...
+                return true;
+            else
+                // Otherwise, we're not inside a folder...
+                return false;
+        }
+
+        /// <summary>
+        /// Checks wether a certain file is inside a certain folder...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="insideOfFolderId"></param>
+        /// <returns></returns>
+        public bool IsFileInsideFolder(int ownerId, int fileId, int insideOfFolderId)
+        {
+            // Attempt to get our inside of folder...
+            Folder insideFolder = GetFolder(ownerId, insideOfFolderId);
+
+            // Check if our inside folder is null...
+            if (insideFolder == null) return false;
+
+            // Setup our target file...
+            File targetFile = GetFile(ownerId, fileId);
+
+            // Check if the file we are targetting even exists...
+            if (targetFile == null) return false;
+
+            // Check if the folder our file is inside of is inside of the folder...
+            return IsFolderInsideFolder(ownerId, targetFile.Folder, insideFolder.Id);
+        }
+
+        /// <summary>
         /// Update our sort by field!
         /// </summary>
         /// <param name="id"></param>
@@ -1457,22 +1547,95 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Attempts to generate a recycle bin...
+        /// </summary>
+        /// <param name="owner"></param>
+        public Folder GetRecycleBin(User owner)
+        {
+            // Check if we were able to find the user...
+            if (owner == null) return null;
+
+            // Attempt to find the folder matching our criteria...
+            Folder recycleBin = _context.Folders.Where(b => b.Owner == owner.Id && b.IsRecycleBin == true).FirstOrDefault();
+
+            // If we haven't found a folder matching our criteria, then gohead and make a new one...
+            if (recycleBin == null)
+            {
+                // Attempt to add our folder to the database...
+                var response = AddNewFolder(owner.Id, "Recycle Bin", owner.Folder, true);
+
+                // Check if we got a successful response...
+                if (!response.success)
+                    // If we got a bad response throw an exception...
+                    throw new InvalidDataException();
+
+                // If everything checks out, then goahead and setup the folder's reference...
+                recycleBin = response.folder;
+            }
+
+            // Return the instance of the recycle bin...
+            return recycleBin;
+        }
+
+        /// <summary>
+        /// Recycles a folder...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folder"></param>
+        /// <returns></returns>
+        public bool RecycleFolder(int ownerId, Folder folder)
+        {
+            // Attempt to find the user...
+            User user = GetUser(ownerId);
+
+            // Check if we were able to find the user...
+            if (user == null) return false;
+
+            // Attempt to get the recycle bin instance...
+            var recycleBin = GetRecycleBin(user);
+
+            // Check if we actually we're given one...
+            if (recycleBin == null) return false;
+
+            // Check if the recycling bin is inside of the folder we want to delete...
+            if (!folder.IsRecycleBin && IsFolderInsideFolder(ownerId, recycleBin.Id, folder.Id))
+                // If so, then move the recycle bin outside to the home folder...
+                MoveFolder(user.Id, recycleBin.Id, user.Folder);
+
+            // Check if our file is already inside our recycle bin...
+            // If so, return true saying that we can proceed to destroy the file...
+            if (IsFolderInsideFolder(ownerId, folder.Id, recycleBin.Id)) return true;
+
+            // Now move our file to the recycle bin...
+            MoveFolder(user.Id, folder.Id, recycleBin.Id);
+
+            // Then finally return false indicating 
+            // that we do not want to destroy our file...
+            return false;
+        }
+
+        /// <summary>
         /// Deletes a file from the dataset...
         /// </summary>
         /// <param name="ownerId"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public bool DeleteFolder(int ownerId, int folderId)
+        public bool DeleteFolder(int ownerId, int folderId, bool doNotRecycle = false)
         {
             // Catch any exceptions...
             try
             {
-                // Get our file...
-                var files = GetFiles(ownerId, folderId);
+                // Get our selected folder that we are going to delete...
+                Folder selectedFolder = GetFolder(ownerId, folderId);
 
-                // Check if the file even exists...
-                if (files == null)
-                    return false;
+                // Check if our selected folder even exists...
+                if (selectedFolder == null) return false;
+
+                // Attempt to recycle our folder...
+                if (!doNotRecycle && !RecycleFolder(ownerId, selectedFolder)) return true;
+
+                // Get our file...
+                var files = GetFiles(ownerId, selectedFolder.Id);
 
                 // Iterate through all our files in the folder...
                 foreach (var file in files)
@@ -1484,22 +1647,20 @@ namespace Vault.Models
                     _context.Files.Remove(file);
                 } 
 
-                // Get our current folder...
-                Folder currentFolder = GetFolder(ownerId, folderId);
-
-                // Get our new folder...
-                int newFolderId = currentFolder.FolderId;
-
                 // Get all folders inside our folder...
-                var folders = GetFolders(ownerId, folderId);
+                var folders = GetFolders(ownerId, selectedFolder.Id);
 
-                // Replace all their folder id's with the new folder id...
+                // Go to every folder and delete them...
                 foreach (var folder in folders)
                 {
-                    folder.FolderId = newFolderId;
+                    // Delete each folder instance by calling this method...
+                    DeleteFolder(ownerId, folder.Id, true);
                 }
-                
-                _context.Folders.Remove(currentFolder);
+
+                // Don't delete our folder if it is a recycling bin.
+                if (!selectedFolder.IsRecycleBin)
+                    // Remove our folder from the database...
+                    _context.Folders.Remove(selectedFolder);
 
                 // Remove our file...
                 _context.SaveChanges();
@@ -1540,6 +1701,40 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Moves a file to the recycle bin...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="file"></param>
+        public bool RecycleFile(int ownerId, File file)
+        {
+            // Attempt to find the user...
+            User user = GetUser(ownerId);
+
+            // Check if we were able to find the user...
+            if (user == null) return false;
+
+            // Check if the file even exists and the owner of it is the correct one...
+            if (file == null || file.Owner != user.Id) return false;
+
+            // Attempt to get the recycle bin instance...
+            var recycleBin = GetRecycleBin(user);
+
+            // Check if we actually we're given one...
+            if (recycleBin == null) return false;
+
+            // Check if our file is already inside our recycle bin...
+            // If so, return true saying that we can proceed to destroy the file...
+            if (IsFileInsideFolder(ownerId, file.Id, recycleBin.Id)) return true;
+
+            // Now move our file to the recycle bin...
+            MoveFile(user.Id, file.Id, recycleBin.Id);
+
+            // Then finally return false indicating 
+            // that we do not want to destroy our file...
+            return false;
+        }
+
+        /// <summary>
         /// Deletes a file from the dataset...
         /// </summary>
         /// <param name="ownerId"></param>
@@ -1556,6 +1751,10 @@ namespace Vault.Models
                 // Check if the file even exists...
                 if (file == null)
                     return false;
+
+                // Attempt to recycle the file...
+                // Otherwise, delete the file...
+                if (!RecycleFile(ownerId, file)) return true;
 
                 ///////////////////////////////////////////
 

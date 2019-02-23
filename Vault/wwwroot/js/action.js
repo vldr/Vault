@@ -122,9 +122,10 @@ function renderListings(json, isSilent = false) {
         var folder = json.folders[i];
 
         folderListingElem.insertAdjacentHTML("beforeend",
-            `<div class='gridItem-folder ${folder.style}'
+            `<div class='gridItem-folder ${folder.isRecycleBin === true ? folder.empty === true ? "recycle-bin-empty" : "recycle-bin" : folder.style}'
                 data-folder-id='${folder.id}'
                 data-folder-title='${folder.name}'
+                data-folder-recyclebin='${folder.isRecycleBin}'
                 data-folder-shared='${folder.isSharing}'
                 data-folder-share='${folder.shareId}'
                 ondragend='dragEnd(event)'
@@ -135,7 +136,7 @@ function renderListings(json, isSilent = false) {
                 draggable='true'>
 
                 <div class="grid-icon" data-folder-title="${folder.name}" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
-                style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
+                style="${folder.isRecycleBin === true ? "" : "background-image: url('" + folder.icon + "'); background-size: 24px;"}"></div>
 
                 <p class="grid-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name}</p>
             </div>`);
@@ -282,23 +283,25 @@ function contextMenuFolder(event) {
     setPosition(origin);
 
     var folderId = event.target.getAttribute('data-folder-id');
+    var folderRecycle = event.target.getAttribute('data-folder-recyclebin');
     var folderTitle = event.target.getAttribute('data-folder-title').replace(/"/g, '&quot;');
     var selected = selection.findIndex((x) => x.id == folderId && x.type === 1) === -1 ? true : false;
 
     menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFolder(null, ${folderId})">Select</li>`
         : `<li class="menu-option" onclick="addSelectionFolder(null, ${folderId})">Deselect</li>`)
         + `<li class="menu-option" onclick="processMoveId(${folderId})">Open</li>`
-        + `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(event, ${folderId})">Rename</li>`
-        + `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`
-        + `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`
-        + `<li class="menu-option" data-folder-id="${folderId}" onclick="processDeleteFolder(event)">Delete</li>`
-        + `<li class="menu-option-color-picker">
+        + (folderRecycle === "true" ? `` : `<li class="menu-option" data-folder-title="${folderTitle}" onclick="processRenameFolder(event, ${folderId})">Rename</li>`)
+        + (folderRecycle === "true" ? `` : `<li class="menu-option" onclick="processDownloadFolder(${folderId})">Download</li>`)
+        + (folderRecycle === "true" ? `` : `<li class="menu-option" onclick="processShareFolder(${folderId})">Share</li>`)
+        + `<li class="menu-option" data-folder-id="${folderId}" data-folder-recyclebin="${folderRecycle}" 
+            onclick="processDeleteFolder(event)">${folderRecycle === "true" ? "Empty Recycle Bin" : "Delete"}</li>`
+        + (folderRecycle === "true" ? `` : `<li class="menu-option-color-picker">
                 <div onclick="processFolderColour(${folderId}, 0)" class="color-circle orange"></div>
                 <div onclick="processFolderColour(${folderId}, 1)" class="color-circle purple"></div>
                 <div onclick="processFolderColour(${folderId}, 2)" class="color-circle green"></div>
                 <div onclick="processFolderColour(${folderId}, 3)" class="color-circle red"></div>
                 <div onclick="processFolderColour(${folderId}, 4)" class="color-circle blue"></div>
-            </li>`;
+            </li>`);
 }
 
 function processDownloadFolder(id) {
@@ -470,7 +473,7 @@ function showSettings() {
                 });
             }
             else {
-                swal("Error!", "Failed to connect!", "error");
+                swal("Error!", "Failed to connect! Check if you are signed in or online...", "error");
             }
         }
         else if (xhr.readyState < 4) {
@@ -781,16 +784,17 @@ function processRenameFolder(event, id)
 
 function processDeleteFolder(event) {
     var str = event.target.getAttribute('data-folder-id');
+    var isRecycleBin = event.target.getAttribute('data-folder-recyclebin');
 
     swal({
         title: "Are you sure?",
-        text: "You will not be able to recover this folder!",
+        text: isRecycleBin === "true" ? "Emptying the recycling bin will permanently delete all files and folders inside..." : "Deleting this folder will place it inside the Recycle Bin!",
         type: "warning",
         animation: "fadein",
         showCancelButton: true,
         dangerMode: true,
         confirmButtonColor: "#DD6B55",
-        confirmButtonText: "Yes, delete it!",
+        confirmButtonText: isRecycleBin === "true" ? "Yes, empty it!" : "Yes, delete it!",
         closeOnConfirm: false
     },
     function () {
@@ -1471,6 +1475,7 @@ function processSearchQuery(event, callback)
                         `<div class='gridItem'
                         data-folder-id='${folder.id}'
                         data-folder-title='${folder.name}'
+                        data-folder-recyclebin='${folder.isRecycleBin}'
                         data-folder-shared='${folder.isSharing}'
                         data-folder-share='${folder.shareId}'
                         oncontextmenu="contextMenuFolder(event)"
@@ -1479,7 +1484,7 @@ function processSearchQuery(event, callback)
                         <div class="grid-file-icon"
                             data-folder-id="${folder.id}"
                             data-folder-title="${folder.name}"
-                            style="background-image: url('${folder.icon}'); background-size: 24px;"></div>
+                            style="background-image: url('${folder.isRecycleBin === true ? (folder.empty === true ? "images/recycle-empty.svg" : "images/recycle.svg") : folder.icon}'); background-size: 24px;"></div>
 
                         <p class="grid-file-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name}</p>
                     </div>`);
@@ -1628,7 +1633,7 @@ function renderSharedListings(json) {
                 data-folder-title='${folder.name}'
                 onclick='processSharedListFiles(${folder.id}, "${json.shareId}")'>
 
-                <div class="grid-icon" style="background-image: url('../../${folder.icon}'); background-size: 24px;"></div>
+                <div class="grid-icon" style="background-image: url('../../${folder.isRecycleBin === true ? "images/recycle.svg" : folder.icon}'); background-size: 24px;"></div>
                 <p class="grid-folder-text">${folder.name}</p>
             </div>`);
     }

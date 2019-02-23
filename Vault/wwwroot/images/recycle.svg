@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 185 256" width="185" height="256">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #cccccc;stroke: #656565;stroke-width: 2.5 } 
+		.shp1 { fill: #ffffff;stroke: #b1b1b1;stroke-width: 2.5 } 
+		.shp2 { fill: #f7f7f7;stroke: #656565;stroke-width: 2.9 } 
+		.shp3 { fill: #0077d7 } 
+	</style>
+	<g id="Folder 8">
+		<path id="Shape 3" class="shp0" d="M166,63c0,-18.25 -33.97,-33 -76,-33c-42.03,0 -76,14.75 -76,33c0,18.25 33.97,33 76,33c42.03,0 76,-14.75 76,-33z" />
+		<path id="Shape 5" class="shp1" d="M72,32l-10,-16l-48,28l21.8,44.7l6.2,2.3c0,0 2.15,-39.28 2,-39c-0.15,0.28 12,2 12,2z" />
+		<path id="Shape 6" class="shp1" d="M43.8,91.37l24,6c0,0 37.05,2.16 37.2,1.63c0.15,-0.53 0,-31 0,-31l-60,-15" />
+		<path id="Shape 8" class="shp1" d="M112,38l14,20l-26,40l1,1c0,0 18.45,-3.2 18.85,-2.97c0.4,0.22 19.62,-7.66 19.62,-7.66l23.53,-52.37l-39,-14l-11,15z" />
+		<path id="Shape 7" class="shp1" d="M54,55l48,14l2,27l25,-37l-37,-51l-38,46" />
+		<path id="Shape 3" class="shp2" d="M14,65l16,145c0,0 7.55,29.33 58.35,29.78c52.55,0.46 58.85,-22.81 59.65,-26.78c0.8,-3.96 17.2,-143.7 17,-144c-0.2,-0.3 -30.8,31.96 -82,28c-51.2,-3.96 -69,-32 -69,-32z" />
+		<path id="Shape 4" class="shp3" d="M60,159l-6,7l12,23h20v-16h-16l3,-5h3l-6,-11h-14z" />
+		<path id="Shape 4" class="shp3" d="M112,173h-10l-1,-3l-7,12l8,10v-3l14,-1l9,-22l-12,-17l-11,8z" />
+		<path id="Shape 4" class="shp3" d="M79,125l-13,19l14,8l10,-15l3,5l-2,3l14,-1l5,-11l-3,1l-5,-9h-24" />
+	</g>
+</svg>

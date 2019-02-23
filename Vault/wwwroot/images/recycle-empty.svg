@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 185 256" width="185" height="256">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #f7f7f7;stroke: #656565;stroke-width: 3.5 } 
+		.shp1 { fill: #cccccc;stroke: #656565;stroke-width: 3.5 } 
+		.shp2 { fill: #0077d7 } 
+	</style>
+	<g id="Folder 8">
+		<path id="Shape 3" class="shp0" d="M14,65l16,145c0,0 7.55,29.33 58.35,29.78c52.55,0.46 58.85,-22.81 59.65,-26.78c0.8,-3.96 17.2,-143.7 17,-144c-0.2,-0.3 -30.8,31.96 -82,28c-51.2,-3.96 -69,-32 -69,-32z" />
+		<path id="Shape 3" class="shp1" d="M166,63c0,-18.25 -33.97,-33 -76,-33c-42.03,0 -76,14.75 -76,33c0,18.25 33.97,33 76,33c42.03,0 76,-14.75 76,-33z" />
+		<path id="Shape 4" class="shp2" d="M60,159l-6,7l12,23h20v-16h-16l3,-5h3l-6,-11h-14z" />
+		<path id="Shape 4" class="shp2" d="M112,173h-10l-1,-3l-7,12l8,10v-3l14,-1l9,-22l-12,-17l-11,8z" />
+		<path id="Shape 4" class="shp2" d="M79,125l-13,19l14,8l10,-15l3,5l-2,3l14,-1l5,-11l-3,1l-5,-9h-24" />
+	</g>
+</svg>

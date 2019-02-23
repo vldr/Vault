@@ -201,6 +201,22 @@ div .button {
     background-color: #0081fe;
 }
 
+.recycle-bin, .recycle-bin-empty {
+    background-color: white;
+}
+
+.recycle-bin .grid-icon {
+    background-image: url(../images/recycle.svg);
+    background-size: 22px;
+    background-position: 3px 2px;
+}
+
+.recycle-bin-empty .grid-icon {
+    background-image: url(../images/recycle-empty.svg);
+    background-size: 22px;
+    background-position: 3px 2px;
+}
+
 .topbar {
     position: relative;
     height: 4em;

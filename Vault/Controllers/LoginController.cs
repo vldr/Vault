@@ -42,18 +42,6 @@ namespace Vault.Controllers
             _sessionName = configuration["SessionTagId"];
             _relativeDirectory = configuration["RelativeDirectory"];
         }
-
-        /// <summary>	
-        /// A function which will return a not logged in json response...	
-        /// </summary>	
-        /// <returns>Json response...</returns>	
-        private JsonResult NotLoggedIn()
-        {
-            // Return a simple not logged in json response...	
-            return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
-        }
-
-        /// <summary>
         /// Called when someone logs in to the website...
         /// </summary>
         /// <param name="Email"></param>
@@ -197,7 +185,7 @@ namespace Vault.Controllers
         public IActionResult Settings()
         {
             // Check if not logged in!
-            if (!IsLoggedIn()) return NotLoggedIn();
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Setup a user session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);

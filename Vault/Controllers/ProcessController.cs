@@ -978,8 +978,7 @@ namespace Vault.Controllers
                 return StatusCode(500);
 
             // Check if the file id is not null...
-            if (id == null)
-                return StatusCode(500);
+            if (id == null) return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -987,12 +986,14 @@ namespace Vault.Controllers
             // Get our current user id...
             int userId = userSession.Id;
 
-            // Get the file...
+            // Get the folder...
             Folder folder = _processService.GetFolder(userId, id.GetValueOrDefault());
 
             // Check if the folder exists....
-            if (folder == null)
-                return StatusCode(500);
+            if (folder == null) return StatusCode(500);
+
+            // Check if the folder is a recycling bin...
+            if (folder.IsRecycleBin) return StatusCode(500);
 
             // Get the folder id!
             int folderId = id.GetValueOrDefault();

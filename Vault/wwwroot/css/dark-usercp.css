@@ -11,6 +11,23 @@ body {
     overflow-x: hidden;
 }
 
+.recycle-bin, .recycle-bin-empty {
+    box-shadow: inset 0px 0px 0px 2px #353535 !important;
+    background-color: #2d2d2d;
+}
+
+.recycle-bin .grid-icon {
+    background-image: url(../images/recycle.svg);
+    background-size: 22px;
+    background-position: 3px 2px;
+}
+
+.recycle-bin-empty .grid-icon {
+    background-image: url(../images/recycle-empty.svg);
+    background-size: 22px;
+    background-position: 3px 2px;
+}
+
 .btn-close-viewer {
     position: absolute;
     border: 1px solid #2f2f2f;
