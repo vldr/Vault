@@ -80,12 +80,7 @@ namespace Vault.Controllers
                 //////////////////////////
 
                 // Setup our user's session!
-                UserSession userSession = new UserSession
-                {
-                    Id = user.Id,
-                    Folder = user.Folder,
-                    SortBy = user.SortBy
-                };
+                UserSession userSession = _loginService.SetupSession(user);
 
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
@@ -221,36 +216,46 @@ namespace Vault.Controllers
             // Attempt to find the session object...
             var idObject = HttpContext.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
 
-            // Check if our user session is null...
-            if (idObject == null) return false;
-
-            // Check if we successfully deserialized the object...
-            if (idObject == null) return false;
+            // If we couldn't find our id object then logout and return false...
+            if (idObject == null) goto logout_and_false;
 
             // Setup our id value...
             int id = -1;
 
-            // Attempt to parse our id object...
-            if (!int.TryParse(idObject, out id)) return false;
+            // If we weren't able to convert our string to an int then logout and return false...
+            if (!int.TryParse(idObject, out id)) goto logout_and_false;
 
-            // Get our user's session!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+            // Get our user...
+            var user = _loginService.GetUser(id);
 
-            // Check if the user exists and our id matches and that we even have a session...
-            if (userSession != null && userSession.Id == id && _loginService.UserExists(id))
-                // Return true and the object itself...
-                return true;
-            else
+            // If our user does not exist, then logout and return false.
+            if (user == null) goto logout_and_false;
+
+            // Check if the user session isn't set...
+            // If it isn't set, then set one up...
+            if (SessionExtension.Get(HttpContext.Session, _sessionName) == null)
             {
-                // Remove our session...
-                HttpContext.Session.Clear();
+                //////////////////////////
+                // Setup our session... //
+                //////////////////////////
 
-                // Sign out of the account...
-                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                // Setup our user's session!
+                UserSession userSession = _loginService.SetupSession(user);
 
-                // Otherwise, return false...
-                return false;
+                // Set our user session!
+                SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
             }
+
+            // Return true and the object itself...
+            return true;
+
+        logout_and_false:
+
+            // Sign out of the account...
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Return false...
+            return false;
         }
     }
 }

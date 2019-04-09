@@ -94,6 +94,21 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Sets up a brand new session object...
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        public UserSession SetupSession(User user)
+        {
+            return new UserSession
+            {
+                Id = user.Id,
+                Folder = user.Folder,
+                SortBy = user.SortBy
+            };
+        }
+
+        /// <summary>
         /// Registers a user to the database...
         /// </summary>
         /// <param name="user"></param>
