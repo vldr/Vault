@@ -9,6 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Builder;
 using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
+using Newtonsoft.Json;
 
 namespace Vault.Controllers
 {
@@ -49,10 +53,10 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("login")]
-        public IActionResult LoginPost(string Email, string Password)
+        public async Task<IActionResult> LoginPost(string Email, string Password, bool? RememberMe)
         {
             // Check if all the parameters were given...
-            if (Email == null || Password == null)
+            if (Email == null || Password == null || RememberMe == null)
                 return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
             // Check if already logged in...
@@ -71,6 +75,10 @@ namespace Vault.Controllers
                 // Append our logged in user's ip address...
                 _loginService.AppendIPAddress(user.Id, HttpContext.Connection.RemoteIpAddress.ToString());
 
+                //////////////////////////
+                // Setup our session... //
+                //////////////////////////
+
                 // Setup our user's session!
                 UserSession userSession = new UserSession
                 {
@@ -82,27 +90,28 @@ namespace Vault.Controllers
                 // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                // Setup our sync cookie value...
-                var syncValue = _processService.RandomString(55);
+                ////////////////////////////////////////////////////////////
 
-                // Setup a brand new cookie...
-                Response.Cookies.Append(
-                    _configuration["SyncCookieName"],
-                    syncValue,
-                    new Microsoft.AspNetCore.Http.CookieOptions()
-                    {
-                        Path = "/"
-                    }
-                );
+                //////////////////////////////
+                // Setup our cookie auth... //
+                //////////////////////////////
 
-                // Set our cookie as an entry in connections...
-                VaultHub.Connections.TryAdd(syncValue, new UserInformation()
+                // Setup our claims...
+                var claims = new [] { new Claim("id", user.Id.ToString()) };
+
+                // Setup our claims identity...
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                // Setup our authentication properties...
+                var authProperties = new AuthenticationProperties
                 {
-                    Id = user.Id,
-                    ConnectionId = string.Empty,
-                    Name = user.Name,
-                    Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]))
-                });
+                    AllowRefresh = true,
+                    IsPersistent = true,
+                    ExpiresUtc = RememberMe.GetValueOrDefault() ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddMinutes(30),
+                };
+
+                // Sign our user in...
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
                 // Return a successful response...
                 return Json(new { Success = true });
@@ -206,21 +215,42 @@ namespace Vault.Controllers
         /// <returns></returns>
         public bool IsLoggedIn()
         {
+            // Check if our user is authenticated...
+            if (!HttpContext.User.Identity.IsAuthenticated) return false;
+
+            // Attempt to find the session object...
+            var idObject = HttpContext.User.Claims.Where(b => b.Type == "id").FirstOrDefault()?.Value;
+
+            // Check if our user session is null...
+            if (idObject == null) return false;
+
+            // Check if we successfully deserialized the object...
+            if (idObject == null) return false;
+
+            // Setup our id value...
+            int id = -1;
+
+            // Attempt to parse our id object...
+            if (!int.TryParse(idObject, out id)) return false;
+
             // Get our user's session!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Check if our user session is null...
-            if (userSession == null)
-                return false;
-
-            // Check if our user even exists...
-            if (_processService.UserExists(userSession.Id)) return true;
+            // Check if the user exists and our id matches and that we even have a session...
+            if (userSession != null && userSession.Id == id && _loginService.UserExists(id))
+                // Return true and the object itself...
+                return true;
             else
-                // Otherwise remove our session...
+            {
+                // Remove our session...
                 HttpContext.Session.Clear();
 
-            return false;
-        }
+                // Sign out of the account...
+                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
+                // Otherwise, return false...
+                return false;
+            }
+        }
     }
 }

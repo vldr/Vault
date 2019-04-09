@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,13 +17,7 @@ namespace Vault.Models
         private readonly LoginService _loginService;
 
         // Instance of our configuration...
-        private readonly IConfiguration _configuration;
-        
-        // Instance of our configuration...
-        private readonly string _syncCookieName;
-
-        // Instance of our dictionary...
-        public static ConcurrentDictionary<string, UserInformation> Connections = new ConcurrentDictionary<string, UserInformation>();
+        private readonly IConfiguration _configuration;  
 
         /// <summary>
         /// Constructor...
@@ -32,8 +27,6 @@ namespace Vault.Models
         {
             _loginService = loginService;
             _configuration = configuration;
-
-            _syncCookieName = _configuration["SyncCookieName"];
         }
 
         /// <summary>
@@ -42,41 +35,49 @@ namespace Vault.Models
         /// <returns></returns>
         public override Task OnConnectedAsync()
         {
-            // Call our original function...
-            var originalTask = base.OnConnectedAsync();
+            // Setup our is logged in variable...
+            var loggedInUser = GetLoggedIn();
 
-            // Check if our cookie exists...
-            if (Context.GetHttpContext().Request.Cookies.ContainsKey(_syncCookieName))
+            // Check if the result is sucessful...
+            if (loggedInUser.result)
             {
-                // Get our value of the cookie...
-                string key = Context.GetHttpContext().Request.Cookies[_syncCookieName];
+                // Add our client to the group id...
+                Groups.AddToGroupAsync(Context.ConnectionId, loggedInUser.id.ToString());
 
-                // Check if our cookie exists in the connections...
-                if (Connections.ContainsKey(key))
-                {
-                    // Check if our session has expired...
-                    if (Connections[key].Expiry < DateTime.Now)
-                    {
-                        // Setup our empty user information... (let this get out of scope so GC cleans it up...)
-                        UserInformation userInformation = null;
-
-                        // Attempt to remove it...
-                        Connections.TryRemove(key, out userInformation);
-                    }
-                    else
-                    // If it is expired, then go ahead and remove it...
-                    {
-                        // If so, then setup a brand new connection id...
-                        Connections[key].ConnectionId = Context.ConnectionId;
-
-                        // Return a successful response...
-                        return Clients.Caller.SendAsync("LoginResponse", new { Success = true, Connections[key].Name });
-                    }
-                }
+                // Send out a custom async response custom login response...
+                Clients.Caller.SendAsync("LoginResponse", new { Success = true, Name = _loginService.GetName(loggedInUser.id) });
             }
 
             // Return our original task...
-            return originalTask;
+            return base.OnConnectedAsync();
+        }
+
+        /// <summary>
+        /// Check if we're logged in...
+        /// </summary>
+        /// <returns></returns>
+        public (bool result, int id) GetLoggedIn()
+        {
+            // Check if our user is authenticated...
+            if (!Context.User.Identity.IsAuthenticated) return (false, -1);
+
+            // Attempt to find the session object...
+            var idObject = Context.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
+
+            // Check if our user session is null...
+            if (idObject == null) return (false, -1);
+
+            // Check if we successfully deserialized the object...
+            if (idObject == null) return (false, -1);
+
+            // Setup our id value...
+            int id = -1;
+
+            // Attempt to parse our id object...
+            if (!int.TryParse(idObject, out id)) return (false, -1);
+
+            // Check if the user exists and our id matches...
+            return (_loginService.UserExists(id), id);
         }
     }
 

@@ -118,14 +118,19 @@ function renderListings(json, isSilent = false) {
         </div>`);
     }
 
-    for (i in json.folders) {
+    var indexOfRecycleBin = json.folders.findIndex((x) => x.isRecycleBin === true);
+
+    for (i in json.folders)
+    {
         var folder = json.folders[i];
 
+        if (folder.isRecycleBin === true) continue;
+
         folderListingElem.insertAdjacentHTML("beforeend",
-            `<div class='gridItem-folder ${folder.isRecycleBin === true ? folder.empty === true ? "recycle-bin-empty" : "recycle-bin" : folder.style}'
+            `<div class='gridItem-folder ${folder.style}'
                 data-folder-id='${folder.id}'
                 data-folder-title='${folder.name}'
-                data-folder-recyclebin='${folder.isRecycleBin}'
+                data-folder-recyclebin='false'
                 data-folder-shared='${folder.isSharing}'
                 data-folder-share='${folder.shareId}'
                 ondragend='dragEnd(event)'
@@ -136,9 +141,31 @@ function renderListings(json, isSilent = false) {
                 draggable='true'>
 
                 <div class="grid-icon" data-folder-title="${folder.name}" data-folder-id="${folder.id}" ondragstart="dragStart(event)" draggable="true" 
-                style="${folder.isRecycleBin === true ? "" : "background-image: url('" + folder.icon + "'); background-size: 24px;"}"></div>
+                style="background-image: url(${folder.icon}); background-size: 24px;"></div>
 
                 <p class="grid-text" data-folder-title="${folder.name}" data-folder-id="${folder.id}">${folder.name}</p>
+            </div>`);
+    }
+
+    if (indexOfRecycleBin !== -1)
+    {
+        var recycleBin = json.folders[indexOfRecycleBin];
+
+        folderListingElem.insertAdjacentHTML("beforeend",
+            `<div class='gridItem-folder ${recycleBin.empty === true ? "recycle-bin-empty" : "recycle-bin"}'
+                data-folder-id='${recycleBin.id}'
+                data-folder-title='${recycleBin.name}'
+                data-folder-recyclebin='true'
+                ondragend='dragEnd(event)'
+                ondragstart='dragStart(event)'
+                ondrop='drop(event)'
+                onclick='processMoveId(${recycleBin.id}, event)'
+                oncontextmenu="contextMenuFolder(event)"
+                draggable='true'>
+
+                <div class="grid-icon" data-folder-title="${recycleBin.name}" data-folder-id="${recycleBin.id}" ondragstart="dragStart(event)" draggable="true"></div>
+
+                <p class="grid-text" data-folder-title="${recycleBin.name}" data-folder-id="${recycleBin.id}">${recycleBin.name}</p>
             </div>`);
     }
 
@@ -1016,7 +1043,7 @@ function processRegister(str, str2, str3, str4) {
         + "&invite=" + encodeURIComponent(str4));
 }
 
-function processLogin(str, str2) {
+function processLogin(username, password, rememberMe) {
     document.getElementById('login-loader-box').style.display = "block";
     document.getElementById('txtHint').innerHTML = "";
 
@@ -1040,7 +1067,7 @@ function processLogin(str, str2) {
 
     xhr.open('POST', 'login');
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.send("email=" + encodeURIComponent(str) + "&password=" + encodeURIComponent(str2));
+    xhr.send("email=" + encodeURIComponent(username) + "&password=" + encodeURIComponent(password) + "&rememberme=" + encodeURIComponent(rememberMe));
 
 }
 

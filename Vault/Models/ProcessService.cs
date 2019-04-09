@@ -2082,41 +2082,6 @@ namespace Vault.Models
             return new string(stringChars);
         }
 
-        /// <summary>
-        /// Keeps the session id alive...
-        /// </summary>
-        public void KeepAlive(HttpRequest httpRequest)
-        {
-            // Get our value of the cookie...
-            string key = httpRequest.Cookies[_configuration["SyncCookieName"]];
-
-            // Check if the key doesn't equal null...
-            if (key != null && VaultHub.Connections.ContainsKey(key))
-            {
-                // Setup our brand new expiry
-                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
-            }
-        }
-
-        /// <summary>
-        /// Keeps the session id alive and updates the name of the user...
-        /// </summary>
-        /// <param name="httpRequest"></param>
-        public void KeepAliveAndUpdateName(HttpRequest httpRequest, string name)
-        {
-            // Get our value of the cookie...
-            string key = httpRequest.Cookies[_configuration["SyncCookieName"]];
-
-            // Check if the key doesn't equal null...
-            if (key != null && VaultHub.Connections.ContainsKey(key))
-            {
-                // Setup our brand new expiry...
-                VaultHub.Connections[key].Expiry = DateTime.Now + TimeSpan.FromMinutes(double.Parse(_configuration["SessionExpiry"]));
-
-                // Setup our brand new name...
-                VaultHub.Connections[key].Name = WebUtility.HtmlEncode(name);
-            }
-        }
 
         /// <summary>
         /// Updates the listings for all our user sessions...
@@ -2124,19 +2089,8 @@ namespace Vault.Models
         /// <param name="userId"></param>
         public void UpdateListings(int userId, HttpRequest httpRequest)
         {
-            // Let all our connections know of what happened...
-            foreach (var item in VaultHub.Connections)
-            {
-                // If our user id matches then we've found the right client...
-                if (item.Value.Expiry > DateTime.Now && item.Value.Id == userId)
-                {
-                    // Send a message to the client telling them to update their listings...
-                    _hubContext.Clients.Client(item.Value.ConnectionId).SendAsync("UpdateListing");
-                }
-            }
-
-            // Keep our session alive...
-            KeepAlive(httpRequest);
+            // Update our listings to everyone in the group...
+            _hubContext.Clients.Group(userId.ToString()).SendAsync("UpdateListing");
         }
     }
 }

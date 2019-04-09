@@ -9,6 +9,9 @@ using System.Text;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
 using Microsoft.Extensions.Logging;
+using System.Linq;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Vault.Controllers
 {
@@ -84,21 +87,8 @@ namespace Vault.Controllers
             if (!IsLoggedIn())
                 return Redirect(_relativeDirectory);
 
-            // Clear out all our sessions...
-            HttpContext.Session.Clear();
-
-            // Get our value of the cookie...
-            string key = Request.Cookies[_configuration["SyncCookieName"]];
-
-            // Check if the key doesn't equal null...
-            if (key != null && VaultHub.Connections.ContainsKey(key))
-            {
-                // Setup our empty user information... (let this get out of scope so GC cleans it up...)
-                UserInformation userInformation = null;
-
-                // Attempt to remove it...
-                VaultHub.Connections.TryRemove(key, out userInformation);
-            }
+            // Sign out of the account...
+            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             // Redirect out of there...
             return Redirect(_relativeDirectory);
@@ -151,9 +141,6 @@ namespace Vault.Controllers
                 // Begin to render the correct folder...
                 folder = _processService.GetFolder(id, folderId);
             }
-
-            // Keep our connection alive...
-            _processService.KeepAlive(Request);
 
             // Setup a new listing...
             Listing listing = new Listing()
@@ -612,9 +599,6 @@ namespace Vault.Controllers
             // Update our user's password!
             if (_processService.UpdateName(userSession.Id, name))
             {
-                // Keep our connection alive...
-                _processService.KeepAliveAndUpdateName(Request, name);
-
                 // Return a successful response...
                 return Json(new { Success = true });
             }
@@ -650,9 +634,6 @@ namespace Vault.Controllers
             // Update our user's password!
             if (_processService.UpdatePassword(userSession.Id, currentPassword, newPassword))
             {
-                // Keep our connection alive...
-                _processService.KeepAlive(Request);
-
                 return Json(new { Success = true });
             }
             else
@@ -1218,16 +1199,38 @@ namespace Vault.Controllers
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
             // Check if our user session is null...
-            if (userSession == null)
-                return false;
+            if (userSession == null) return false;
 
-            // Check if our user even exists...
-            if (_processService.UserExists(userSession.Id)) return true;
+            // Check if our user is authenticated...
+            if (!HttpContext.User.Identity.IsAuthenticated) return false;
+
+            // Attempt to find the session object...
+            var idObject = HttpContext.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
+
+            // Check if our user session is null...
+            if (idObject == null) return false;
+
+            // Check if we successfully deserialized the object...
+            if (idObject == null) return false;
+
+            // Setup our id value...
+            int id = -1;
+
+            // Attempt to parse our id object...
+            if (!int.TryParse(idObject, out id)) return false;
+
+            // Check if the user exists and our id matches...
+            if (id == userSession.Id && _loginService.UserExists(id))
+                // Return true and the object itself...
+                return true;
             else
-                // Otherwise remove our session...
-                HttpContext.Session.Clear();
+            {
+                // Sign out of the account...
+                HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            return false;
+                // Otherwise, return false...
+                return false;
+            }
         }
     }
 }

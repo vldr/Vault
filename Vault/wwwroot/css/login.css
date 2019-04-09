@@ -15,6 +15,80 @@ a:hover {
     text-decoration: underline;
 }
 
+#remember-checkbox {
+    display: block;
+}
+
+#remember-checkbox {
+    display: block;
+    position: relative;
+    padding-left: 20px;
+    margin-left: 65px;
+    margin-top: -10px;
+    margin-bottom: 21px;
+    cursor: pointer;
+    color: #a5a4a4;
+    font-size: 12px;
+    text-align: left;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#remember-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.remember-box {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border-radius: 10px;
+    text-align: left;
+    overflow: hidden;
+}
+
+.checkmark {
+    position: absolute;
+    top: 1px;
+    left: 0;
+    height: 10px;
+    width: 10px;
+    background-color: #eee;
+    border-radius: 2px;
+    border: 1px solid #d2cccc;
+}
+
+#remember-checkbox:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+#remember-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+#remember-checkbox .checkmark:after {
+    left: 3px;
+    top: 1px;
+    width: 2px;
+    height: 5px;
+    border: solid #5f5f5f;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
 .textbox-password {
     outline: 0;
     border: 1px solid rgba(0, 0, 0, 0.10);
@@ -78,10 +152,10 @@ a:hover {
 }
 
 #welcome-title {
-    margin-top: 20%;
+    margin-top: 24%;
     color: #484848;
     font-size: 23px;
-    margin-bottom: -5px;
+    margin-bottom: -6px;
     font-family: 'Abhaya Libre', serif;
     padding: 20px;
     display: none;
@@ -366,7 +440,7 @@ div .button {
     color: #797979;
     font-size: 11px;
     font-weight: bold;
-    padding: 8px 23px;
+    padding: 8px 33px;
     text-decoration: none;
     text-align: center;
     min-width: 60px;

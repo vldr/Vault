@@ -62,6 +62,13 @@ namespace Vault.Models
                     ?.FirstOrDefault()?.Id;
 
         /// <summary>
+        /// Attempts to find the user's ID...
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        public string GetName(int id) => _context.Users.Where(b => b.Id == id).FirstOrDefault()?.Name;
+
+        /// <summary>
         /// Attempts to find the user by given id...
         /// </summary>
         /// <param name="id"></param>

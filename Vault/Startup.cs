@@ -10,6 +10,7 @@ using System.IO.Compression;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Vault2
 {
@@ -40,13 +41,17 @@ namespace Vault2
             });
             services.AddSingleton(Configuration);
             
-
             services.AddScoped<LoginService>();
             services.AddScoped<ProcessService>();
 
             services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(double.Parse(Configuration["SessionExpiry"]));
+                options.IdleTimeout = TimeSpan.MaxValue;
+                options.Cookie.Name = ".vault.session";
+            });
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+            {
                 options.Cookie.Name = ".vault";
             });
 
@@ -64,7 +69,7 @@ namespace Vault2
             }
 
             app.UseResponseCompression();
-
+            app.UseAuthentication();
             app.UseSession();
 
             app.UseDefaultFiles();

@@ -41,7 +41,13 @@
                     <br>
                     <input placeholder="Password" type="password" name="password" class="textbox-password" id="password" onkeydown="if (event.keyCode == 13) document.getElementById('signin').click()">
                     <br>
-                    <a class="btn black" name="signin" id="signin" onclick="processLogin(document.getElementsByName('username')[0].value, document.getElementsByName('password')[0].value)">Login</a>
+                    <label id="remember-checkbox">
+                        Remember Me<input id="remember-checkbox-input" type="checkbox">
+                        <span class="checkmark"></span>
+                    </label>
+                    <a class="btn black" name="signin" id="signin" onclick="processLogin(document.getElementById('username').value,
+                    document.getElementById('password').value,
+                    document.getElementById('remember-checkbox-input').checked)">Login</a>
                     <a href="register.html" style="margin-left:10px;margin-right:10px;">Register</a>
                 </form>
                 <div id="login-loader-box">
