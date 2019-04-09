@@ -1195,17 +1195,11 @@ namespace Vault.Controllers
         /// <returns></returns>
         public bool IsLoggedIn()
         {
-            // Get our user's session!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Check if our user session is null...
-            if (userSession == null) return false;
-
             // Check if our user is authenticated...
             if (!HttpContext.User.Identity.IsAuthenticated) return false;
 
             // Attempt to find the session object...
-            var idObject = HttpContext.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
+            var idObject = HttpContext.User.Claims.Where(b => b.Type == "id").FirstOrDefault()?.Value;
 
             // Check if our user session is null...
             if (idObject == null) return false;
@@ -1219,12 +1213,18 @@ namespace Vault.Controllers
             // Attempt to parse our id object...
             if (!int.TryParse(idObject, out id)) return false;
 
-            // Check if the user exists and our id matches...
-            if (id == userSession.Id && _loginService.UserExists(id))
+            // Get our user's session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Check if the user exists and our id matches and that we even have a session...
+            if (userSession != null && userSession.Id == id && _loginService.UserExists(id))
                 // Return true and the object itself...
                 return true;
             else
             {
+                // Remove our session...
+                HttpContext.Session.Clear();
+
                 // Sign out of the account...
                 HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
