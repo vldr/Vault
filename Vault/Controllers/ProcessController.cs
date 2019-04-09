@@ -1199,7 +1199,7 @@ namespace Vault.Controllers
             if (!HttpContext.User.Identity.IsAuthenticated) return false;
 
             // Attempt to find the session object...
-            var idObject = HttpContext.User.Claims.Where(b => b.Type == "id").FirstOrDefault()?.Value;
+            var idObject = HttpContext.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
 
             // Check if our user session is null...
             if (idObject == null) return false;
