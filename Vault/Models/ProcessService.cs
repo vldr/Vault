@@ -1,9 +1,11 @@
-﻿using GrapeCity.Documents.Word;
-using ImageMagick;
+﻿using ImageMagick;
 using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Syncfusion.DocIO.DLS;
+using Syncfusion.DocIORenderer;
+using Syncfusion.Pdf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -555,20 +557,34 @@ namespace Vault.Models
             // Generate a PDF representation of our DOCX...
             if (ext == ".docx")
             {
-                // Add a try statement because GcWordDocument
-                // might fail for some odd reasons...
-                try
-                {
-                    // Initialize our word document...
-                    var doc = new GcWordDocument();
+                // Open a file handle to our uploaded file...
+                FileStream inputStream = new FileStream(path, FileMode.Open, FileAccess.Read);
 
-                    // Load up our document...
-                    doc.Load(path);
+                // Initialize our word document class...
+                WordDocument wordDocument = new WordDocument(inputStream, Syncfusion.DocIO.FormatType.Docx);
 
-                    // Save it as a preview file...
-                    doc.SaveAsPdf($"{path}.preview.pdf");
-                }
-                catch {}
+                // Create instance for DocIORenderer for Word to PDF conversion
+                DocIORenderer render = new DocIORenderer();
+
+                // Convert Word document to PDF.
+                PdfDocument pdfDocument = render.ConvertToPDF(wordDocument);
+
+                // Release the resources used by the Word document and DocIO Renderer objects.
+                render.Dispose();
+                wordDocument.Dispose();
+
+                // Setup our output stream...
+                FileStream outputStream = new FileStream($"{path}.preview.pdf", FileMode.OpenOrCreate, FileAccess.Write);
+
+                // Save our file...
+                pdfDocument.Save(outputStream);
+
+                // Close the instance of the PDF document object.
+                pdfDocument.Close();
+
+                // Dispose the instance of the FileStreams.
+                outputStream.Dispose();
+                inputStream.Dispose();
 
                 // Return here...
                 return;
