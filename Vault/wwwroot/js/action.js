@@ -1274,8 +1274,6 @@ function processOpenFileLocation(id, event = null) {
                 multiSelection = null;
                 renderListings(json);
 
-                addSelectionFile(null, id, false, true);
-
                 if (json.files.length !== 0) {
                     window.onscroll = function (ev) {
                         if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
