@@ -234,6 +234,12 @@ input[type=submit]:hover {
         max-width: 90% !important;
         word-break: keep-all;
         white-space: nowrap;
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
     }
 
     .grid-text-right {
@@ -897,10 +903,21 @@ div .button {
 
 #search-content .grid-text-right {
     color: #696868;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #search-content .grid-file-text {
     color: #c5c5c5;
+    user-select: none;
+    -webkit-user-select: none !important;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 #close-button {
@@ -1283,6 +1300,12 @@ progress::-moz-progress-bar {
     white-space: nowrap;
     background-repeat: no-repeat;
     background-position: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .grid-icon {
@@ -1320,6 +1343,12 @@ progress::-moz-progress-bar {
     max-width: 50%;
     overflow: hidden;
     height: 16px;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .grid-text {
