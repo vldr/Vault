@@ -179,8 +179,6 @@
             if (event.target.className === "") contextMenu(event);
         };
 
-        window.onresize = function (event) { resetContextMenu(); };
-
         const connection = new signalR.HubConnectionBuilder()
             .withUrl("notifications")
             .configureLogging(signalR.LogLevel.Information)

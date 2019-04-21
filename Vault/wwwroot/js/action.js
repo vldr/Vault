@@ -2,6 +2,11 @@ var fadeOutTimer;
 var currentFolder;
 var rendered;
 
+window.onresize = function (event)
+{
+    adjustContextMenuPosition();
+};
+
 var multiSelection = null;
 
 var selection = [];
@@ -285,6 +290,14 @@ function resetContextMenu() {
     menuOptions.innerHTML = "";
 }
 
+function adjustContextMenuPosition() {
+    let menu = document.getElementById("context-menu");
+    let bounds = menu.getBoundingClientRect(); 
+    let windowWidth = window.innerWidth;
+
+    if (windowWidth - bounds.right < 0) menu.style.left = `${bounds.left + (windowWidth - bounds.right)}px`;
+}
+
 function contextMenuFolder(event) {
     event.preventDefault();
 
@@ -308,7 +321,7 @@ function contextMenuFolder(event) {
         top: event.pageY
     };
     setPosition(origin);
-
+    
     var folderId = event.target.getAttribute('data-folder-id');
     var folderRecycle = event.target.getAttribute('data-folder-recyclebin');
     var folderTitle = event.target.getAttribute('data-folder-title').replace(/"/g, '&quot;');
@@ -329,6 +342,8 @@ function contextMenuFolder(event) {
                 <div onclick="processFolderColour(${folderId}, 3)" class="color-circle red"></div>
                 <div onclick="processFolderColour(${folderId}, 4)" class="color-circle blue"></div>
             </li>`);
+
+    adjustContextMenuPosition();
 }
 
 function processDownloadFolder(id) {
@@ -387,6 +402,8 @@ function contextMenuFile(event, isSearching = false)
         + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
         + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
         + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`;
+
+    adjustContextMenuPosition();
 }
 
 function contextMenu(event)
@@ -406,6 +423,7 @@ function contextMenu(event)
         menu.style.left = `${left}px`;
         menu.style.top = `${top}px`;
         toggleMenu('show');
+        
     };
 
     const origin = {
@@ -417,7 +435,9 @@ function contextMenu(event)
     menuOptions.innerHTML =
         `<li class="menu-option" onclick="processFolderCreate()">New Folder</li>`
         + (selection.length > 0 ? `<li class="menu-option" onclick="processPaste()">Paste</li>`
-        : `<li class="menu-option" style="color:gray;cursor:default;">Paste</li>`);
+            : `<li class="menu-option" style="color:gray;cursor:default;">Paste</li>`);
+
+    adjustContextMenuPosition();
 }
 
 function showLogout() {
