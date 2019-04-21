@@ -346,7 +346,7 @@ function processDownloadFile(id) {
     document.body.removeChild(form);
 }
 
-function contextMenuFile(event)
+function contextMenuFile(event, isSearching = false)
 {
     event.preventDefault();
 
@@ -381,6 +381,7 @@ function contextMenuFile(event)
 
     menuOptions.innerHTML = (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
         : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
+        + (isSearching ? `<li class="menu-option" onclick="processOpenFileLocation(${fileId})">Open File Location</li>` : ``)
         + `<li class="menu-option" onclick="processDownloadFile(${fileId})">Download</li>`
         + `<li class="menu-option" onclick="processDuplicateFile(${fileId})">Make a Copy</li>`
         + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
@@ -1248,6 +1249,56 @@ function processMoveId(id, event = null)
     xhr.send("folderid=" + encodeURIComponent(id));
 }
 
+function processOpenFileLocation(id, event = null) {
+    if (event !== null
+        && (event.ctrlKey || event.metaKey))
+        return selectFolder(event.target);
+
+    document.getElementById("file-viewer").style.display = "none";
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200 && xhr.status < 300) {
+                document.getElementById("loader-horizontal").style.display = "none";
+
+                var json = JSON.parse(xhr.responseText);
+
+                if (!json.success) {
+                    swal("Error!", json.reason, "error");
+                    return;
+                }
+
+                rendered = 0;
+                multiSelection = null;
+                renderListings(json);
+
+                addSelectionFile(null, id, false, true);
+
+                if (json.files.length !== 0) {
+                    window.onscroll = function (ev) {
+                        if ((window.innerHeight + window.pageYOffset) >= (document.body.offsetHeight * 0.8)) {
+                            processListFiles(false, rendered);
+                            window.onscroll = null;
+                        }
+                    };
+                }
+            }
+            else {
+                swal("Error!", "Failed to connect!", "error");
+            }
+        }
+        else if (xhr.readyState < 4) {
+            document.getElementById("loader-horizontal").style.display = "block";
+        }
+    };
+
+    xhr.open('POST', 'process/openfilelocation');
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xhr.send("fileid=" + encodeURIComponent(id));
+}
+
 function dragEnd(event) {
     event.target.style.opacity = '1';
 }
@@ -1526,7 +1577,7 @@ function processSearchQuery(event, callback)
                         data-file-title='${file.name}'
                         data-file-shared='${file.isSharing}'
                         data-file-share='${file.shareId}'
-                        oncontextmenu="contextMenuFile(event)"
+                        oncontextmenu="contextMenuFile(event, true)"
                         onclick='processDownload(event)'>
 
                         <div class="grid-file-icon"

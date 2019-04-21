@@ -101,7 +101,7 @@ namespace Vault.Controllers
         /// <returns>Json formatted response...</returns>
         [HttpPost]
         [Route("process/list")]
-        public IActionResult List(int? offset)
+        public IActionResult List(int? offset, int specificFile = -1)
         {
             // If we're not logged in, redirect...
             if (!IsLoggedIn())
@@ -152,7 +152,9 @@ namespace Vault.Controllers
                 IsHome = user.Folder == folder.Id,
                 Path = $"<a href='#' onclick='processMoveId({user.Folder})'>~</a> / {_processService.GetFolderLocationFormatted(folder)}",
                 Folders = _processService.GetFolderListings(id, folderId),
-                Files = _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault())
+                Files = specificFile == -1 ? 
+                _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault()) :
+                _processService.GetFileListings(id, folderId, userSession.SortBy, offset.GetValueOrDefault(), specificFile)
             };
 
             return Json(listing);
@@ -805,6 +807,7 @@ namespace Vault.Controllers
             else return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
+        /// <summary>
         /// Goes to a folder, doesn't matter if it's visible or not...
         /// </summary>
         /// <param name="folderId"></param>
@@ -839,6 +842,40 @@ namespace Vault.Controllers
 
             // Return a successful response...
             return List(0);
+        }
+
+        /// <summary>
+        /// Redirects user to the location of the file...
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/openfilelocation")]
+        public IActionResult OpenFileLocation(int? fileId)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Check if our input is null...
+            if (fileId == null) return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Attempt to get the file...
+            var file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
+
+            // Check if the file even exists...
+            if (file == null) return Json(new { Success = false, Reason = "Invalid file given..." });
+
+            // Redirect our user to the correct folder...
+            userSession.Folder = file.Folder;
+
+            // Setup our new session!
+            SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+
+            // Return a list response...
+            return List(0, fileId.GetValueOrDefault());
         }
 
         /// <summary>

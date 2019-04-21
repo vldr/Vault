@@ -223,6 +223,27 @@ namespace Vault.Models
             }).Skip(offset).Take(50);
 
         /// <summary>
+        /// Gets a list of file listings with matching owners and folder id...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="folderId"></param>
+        /// <param name="sortBy"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        public IEnumerable<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0, int specificFile = -1)
+            => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy).OrderBy(x => x.Id != specificFile)
+            .Select(x => new FileListing
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
+                Date = x.Created.ToString(),
+                Size = GetBytesReadable(x.Size),
+                IsSharing = x.IsSharing,
+                ShareId = x.ShareId
+            }).Skip(offset).Take(50);
+
+        /// <summary>
         /// Gets a list of file listings which have been shared...
         /// </summary>
         /// <param name="ownerId"></param>
