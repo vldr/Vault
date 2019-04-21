@@ -293,7 +293,7 @@ function resetContextMenu() {
 function adjustContextMenuPosition() {
     let menu = document.getElementById("context-menu");
     let bounds = menu.getBoundingClientRect(); 
-    let windowWidth = window.innerWidth;
+    let windowWidth = window.outerWidth;
 
     if (windowWidth - bounds.right < 0) menu.style.left = `${bounds.left + (windowWidth - bounds.right)}px`;
 }
