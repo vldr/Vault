@@ -1203,10 +1203,14 @@ input[type=submit]:hover {
     max-width: 50%;
     overflow: hidden;
     height: 16px;
+    pointer-events: none;
+    user-select: none;
 }
 
 #search-content .grid-text-right {
     color: #696868;
+    pointer-events: none;
+    user-select: none;
 }
 
 #search-content .grid-file-text {
@@ -1739,7 +1743,7 @@ p {
     }
 
     #intro-box img {
-        height:64px;
+        height: 64px;
     }
 }
 
