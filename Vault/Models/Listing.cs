@@ -8,7 +8,7 @@ namespace Vault.Models
     public class Listing
     {
         public bool Success { get; set; }
-        public string Path { get; set; }
+        public List<RelativePath> Path { get; set; }
         public bool IsHome { get; set; }
         public int Previous { get; set; }
         public int Sort { get; set; }

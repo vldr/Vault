@@ -7,7 +7,7 @@
     outline: 0;
 }
 
-.sweet-alert {
+.swal {
     background-color: #fff;
     padding-top: 45px;
     border: none;
@@ -17,7 +17,7 @@
     box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12), 0 11px 15px -7px rgba(0,0,0,0.2);
 }
 
-.sweet-alert h2 {
+.swal h2 {
     top: 0;
     left: 0;
     right: 0;
@@ -31,7 +31,7 @@
     padding: 10px 19px;
 }
 
-.sweet-alert p {
+.swal p {
     color: #797979;
     font-size: 16px;
     font-weight: 300;
@@ -43,7 +43,7 @@
     line-height: normal;
 }
 
-.sweet-alert button {
+.swal button {
     display: inline-block;
     background: white !important;
     border: 3px solid rgb(121, 121, 121);
@@ -63,30 +63,30 @@
     user-select: none;
 }
 
-.sweet-alert button:hover, .sweet-alert button:focus {
+.swal button:hover, .swal button:focus {
     border-color: #949494;
 }
 
-.sweet-alert button.confirm {
+.swal button.confirm {
     background: #000000;
 }
 
-.sweet-alert button.cancel {
+.swal button.cancel {
     background: white;
     border: 0;
 }
 
-.sweet-alert button.cancel:focus {
+.swal button.cancel:focus {
     box-shadow: none !important;
 }
 
-.sweet-alert .sa-icon:not(.sa-custom) {
+.swal .sa-icon:not(.sa-custom) {
     transform: scale(0.8);
     margin-bottom: -10px;
     margin-top: -10px;
 }
 
-.sweet-alert input {
+.swal input {
     border: none;
     border-radius: 0;
     border-bottom: 1px solid #c9c9c9;
@@ -98,22 +98,22 @@
     box-shadow: none;
 }
 
-.sweet-alert input:focus {
+.swal input:focus {
     border: none;
     border-bottom: 1px solid #000000;
     box-shadow: inset 0 -1px 0 #000000;
 }
 
-.sweet-alert fieldset {
+.swal fieldset {
     padding-left: 20px;
     padding-right: 20px;
 }
 
-.sweet-alert fieldset .sa-input-error {
+.swal fieldset .sa-input-error {
     display: none;
 }
 
-.sweet-alert .sa-error-container {
+.swal .sa-error-container {
     display: none;
     background: none;
     height: auto;
@@ -122,22 +122,22 @@
     text-align: left;
 }
 
-.sweet-alert .sa-error-container.show {
+.swal .sa-error-container.show {
     padding: 0 24px;
     display: block;
 }
 
-.sweet-alert .sa-error-container.show ~ fieldset input {
+.swal .sa-error-container.show ~ fieldset input {
     background: red;
     border-bottom: 1px solid #d9453c;
     box-shadow: inset 0 -1px 0 #d9453c;
 }
 
-.sweet-alert .sa-error-container .icon {
+.swal .sa-error-container .icon {
     display: none;
 }
 
-.sweet-alert .sa-error-container p {
+.swal .sa-error-container p {
     color: #d9453c;
     margin-top: 0;
 }

@@ -1347,23 +1347,27 @@ namespace Vault.Models
         /// <param name="limit"></param>
         /// <param name="location"></param>
         /// <returns></returns>
-        public string GetFolderLocationFormatted(Folder folder, int limit = 0, StringBuilder location = null)
+        public List<RelativePath> GetPath(Folder folder, int homeFolderId, int limit = 0)
         {
-            // If our location parameter is null then initialize it.
-            if (location == null) location = new StringBuilder();
+            // Initialize our paths...
+            var paths = new List<RelativePath>();
 
             // Loop until we've hit our limit folder!
-            while (folder.FolderId != limit)
+            // For now set a limit of 6 folders...
+            while (folder.FolderId != limit && paths.Count < 6)
             {
                 // Insert our folder's name at the start of the string builder.
-                location.Insert(0, $"<a href='#' onclick='processMoveId({folder.Id})'>{folder.Name}</a> / ");
+                paths.Insert(0, new RelativePath { Id = folder.Id, Name = folder.Name });
 
                 // Get the next folder in the chain!
                 folder = GetFolder(folder.Owner, folder.FolderId);
             }
 
+            // Insert our home folder...
+            paths.Insert(0, new RelativePath { Id = homeFolderId, Name = "~" });
+
             // Return the final location string!
-            return location.ToString();
+            return paths;
         }
 
         /// <summary>
