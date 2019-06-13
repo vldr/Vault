@@ -23,20 +23,27 @@
         <link rel="stylesheet" type="text/css" href="css/sweetalert.css">
         <link rel="stylesheet" type="text/css" href="css/dialog.css">
     }
-</head>
 
+    
+</head>
 <body>
+    <div id="root"></div>
+
+    <script type="text/javascript" src="js/react-app/bundle.js"></script>
+    <!--
     <div id="loader-horizontal"></div>
     <div class="content">
-        <div class="topbar">
-            <span class="logo">
-                <img src="images/ui/logo.svg" />
-            </span>
-            <a onclick="showSettings()"><div class="btnSettings"></div></a>
-            <a onclick="showLogout()"><div class="btnLogout"></div></a>
-            <a onclick="showSearch()"><div class="btnHelp"></div></a>
-            <a onclick="processFolderCreate()"><div class="btnSort"></div></a>
-            <a><div class="btnUpload"></div></a>
+        <div id="topbar">
+            <span class="logo"><img src="images/ui/logo.svg" /></span>
+
+
+            <div class="btnSettings" onclick="showSettings()"></div>
+            <div class="btnLogout" onclick="showLogout()"></div>
+            <div class="btnHelp" onclick="showSearch()"></div>
+            <div class="btnSort" onclick="processFolderCreate()"></div>
+            <div class="btnUpload"></div>
+
+
             <div class="topbar-hider"></div>
         </div>
 
@@ -51,7 +58,7 @@
 
     <div id="preview" style="display:none"></div>
 
-    <div id="context-menu" class="menu" oncontextmenu="event.preventDefault()">
+    <div id="context-menu" class="menu">
         <ul id="context-menu-options" class="menu-options"></ul>
     </div>
 
@@ -63,7 +70,7 @@
         </svg>
         <svg id="snack-bar-x" xmlns="http://www.w3.org/2000/svg" viewBox="-81 -80 350 350">
             <path id="snack-bar-x-check" d="M180.607,10.607l-79.696,79.697l79.696,79.697L170,180.607l-79.696-79.696l-79.696,79.696L0,170.001l79.696-79.697L0,10.607
-	        L10.607,0.001l79.696,79.696L170,0.001L180.607,10.607z" />
+            L10.607,0.001l79.696,79.696L170,0.001L180.607,10.607z" />
         </svg>
 
         <div id="snack-bar-text"></div>
@@ -151,7 +158,7 @@
 
         window.addEventListener("paste", function (event)
         {
-            if (isBusy()) 
+            if (isBusy())
             {
                 event.preventDefault();
                 processPaste();
@@ -173,7 +180,7 @@
 
             if (event.target.id === "file-viewer") event.target.style.display = "none";
         };
-        
+
         window.oncontextmenu = function (event)
         {
             if (event.target.className === "") contextMenu(event);
@@ -201,6 +208,6 @@
                 reconnectToSignalR();
             });
         }
-    </script>
+    </script>-->
 </body>
 </html>
