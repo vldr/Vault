@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import swal from '@sweetalert/with-react';
 
 export class Sortbar extends React.Component {
 
@@ -23,7 +24,14 @@ export class Sortbar extends React.Component {
     setSort(sortBy, override) {
         // Setup our sort variable from our props...
         const sort = this.props.sort;
-         
+
+        // Setup a loading dialog...
+        swal(<center><div className="loader" /></center>,
+        {
+            buttons: false,
+            closeOnClickOutside: false
+        });
+
         // Attempt to update the sorting...
         fetch("process/sortby",
             {
@@ -37,7 +45,7 @@ export class Sortbar extends React.Component {
             .then(
                 (result) => 
                 {
-                    // TODO: implement this...
+                    swal.close();
                 },
                 (error) => 
                 {

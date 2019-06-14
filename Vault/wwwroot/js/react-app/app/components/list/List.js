@@ -1,5 +1,4 @@
 ﻿import React from 'react';
-import swal from '@sweetalert/with-react';
 
 import { Pathbar } from '../topbar/Pathbar';
 import { Error } from '../info/Error';
@@ -9,7 +8,6 @@ import { Folder } from './Folder';
 import { File } from './File';
 import { Sortbar } from './Sortbar';
 
-   
 const signalR = require("@aspnet/signalr");
 
 export class List extends React.Component
@@ -192,12 +190,12 @@ export class List extends React.Component
 
         // Otherwise render all our items...
         return (
-            <div>
+            <React.Fragment>
                 <Pathbar path={response.path} gotoFolder={this.gotoFolder.bind(this)} />
                 
                 {folderListing}
                 {fileListing}
-            </div>
+            </React.Fragment>
         );
     }
 }

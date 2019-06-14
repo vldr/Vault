@@ -351,6 +351,7 @@ div .button {
     margin: 0 auto;
     width: 120px;
     height: 120px;
+    margin: 85px;
     -webkit-animation: spin 0.3s linear infinite;
     animation: spin 0.3s linear infinite;
 }
@@ -1530,6 +1531,10 @@ p {
     padding-left: 10px;
 }
 
+    #folder-listing div {
+        display: inline-block;
+    }
+
 #folder-path {
     position: absolute;
     left: 100px;
@@ -1568,7 +1573,6 @@ p {
     background-color: white;
     box-shadow: 1px 4px 12px 0px #00000052;
     animation: fadein 0.6s;
-    display: none;
 }
 
 #snack-bar-progress {
@@ -1588,7 +1592,6 @@ p {
     -webkit-animation: spin 0.3s linear infinite;
     animation: spin 0.3s linear infinite;
     top: 10px;
-    display: none;
 }
 
 #snack-bar-text {
@@ -1607,7 +1610,6 @@ p {
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #7ac142;
     animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-    display: none;
 }
 
 #snack-bar-x {
@@ -1621,7 +1623,6 @@ p {
     stroke-miterlimit: 10;
     box-shadow: inset 0px 0px 0px #c14141;
     animation: fill-red .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
-    display: none;
 }
 
 #snack-bar-checkmark-circle {
@@ -1773,6 +1774,17 @@ p {
     background-size: 28px;
     background-repeat: no-repeat;
     background-position: center;
+    display: none;
+}
+
+.swal-overlay--show-modal, .swal-modal {
+    animation: none !important;
+}
+.dz-preview {
+    display:none;
+}
+
+.filepicker {
     display: none;
 }
 

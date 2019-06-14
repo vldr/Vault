@@ -2,6 +2,8 @@
 
 export class Topbar extends React.Component
 {
+    
+
     render() {
         return (
             <div id="topbar">
@@ -13,7 +15,7 @@ export class Topbar extends React.Component
                 <div className="btnLogout" />
                 <div className="btnHelp" />
                 <div className="btnSort" />
-                <div className="btnUpload" />
+                <div className="btnUpload"  />
 
                 <div className="topbar-hider" />
             </div>
