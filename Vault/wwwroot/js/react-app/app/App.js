@@ -1,24 +1,24 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
 
-
 import { Topbar } from './components/topbar/Topbar';
 import { List } from './components/list/List';
 import { Upload } from './components/upload/Upload';
-
-const LoadingContext = React.createContext('light');
+import ContextMenu from './components/contextmenu/ContextMenu';
 
 export class App extends React.Component
 { 
     render()
     {
         return (
-            
-            <div className="content">
-                <Topbar />
-                <List />
-                <Upload />
-            </div>
+            <>
+                <ContextMenu onRef={ref => (this.child = ref)} />
+                <div className="content">
+                    <Topbar />
+                    <List />
+                    <Upload />
+                </div>
+            </>
         );
     }
 }

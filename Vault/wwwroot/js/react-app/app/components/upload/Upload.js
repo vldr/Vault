@@ -15,6 +15,7 @@ export class Upload extends React.Component
             fileName: null,
             success: false,
             status: "",
+            uploadedItems: 0,
             progress: 0
         };
 
@@ -31,7 +32,18 @@ export class Upload extends React.Component
             error: (file, response) => this.setState({ uploading: true, finished: true, success: false, status: `Failed to upload ${file.name}...` }),
             complete: (file) =>
             {
-                if (!this.state.finished) this.setState({ uploading: true, finished: true, success: true, status: `Successfully uploaded ${file.name}...` })
+                if (!this.state.finished)
+                {
+                    this.setState({
+                        uploading: true,
+                        finished: true,
+                        uploadedItems: this.state.uploadedItems + 1,
+                        success: true,
+                        status: this.state.uploadedItems === 0
+                            ? `Successfully uploaded ${file.name}...`
+                            : `Uploaded ${this.state.uploadedItems + 1} files...`
+                    });
+                }
             }
         };
     }
@@ -63,32 +75,50 @@ export class Upload extends React.Component
         };
     }
 
+    /**
+     * Reset our events upon unmounting...
+     */
+    componentWillUnmount() {
+        document.documentElement.ondragover = undefined;
+        document.documentElement.ondragenter = undefined;
+        document.documentElement.ondrop = undefined;
+    }
+
     render()
     {
         // Setup our snackbar rendering...
         let progressStyle = { width: `${this.state.progress}%` };
 
+        // Make our progress bar change colours depending if the transfer failed or not...
         if (this.state.finished &&!this.state.success)
             progressStyle = { borderColor: "#c14141", width: `${this.state.progress}%` };
         else if (this.state.finished && this.state.success)
             progressStyle = { borderColor: "#7ac142", width: `${this.state.progress}%` };
 
+        // Initialize our snackbar progress bar...
         let snackBarProgress = this.state.uploading ? <div id="snack-bar-progress" style={progressStyle} /> : null;
+
+        // The text of our snackbar...
         let snackBarText = this.state.uploading ? <div id="snack-bar-text">{this.state.status}</div> : null;
+
+        // The failure icon...
         let snackBarFailure = this.state.finished && !this.state.success ?
             (<svg id="snack-bar-x" xmlns="http://www.w3.org/2000/svg" viewBox="-81 -80 350 350">
                 <path id="snack-bar-x-check" d="M180.607,10.607l-79.696,79.697l79.696,79.697L170,180.607l-79.696-79.696l-79.696,79.696L0,170.001l79.696-79.697L0,10.607
                 L10.607,0.001l79.696,79.696L170,0.001L180.607,10.607z" />
             </svg>) : null; 
 
+        // The checkmark icon...
         let snackBarSuccess = this.state.finished && this.state.success ?
             (<svg id="snack-bar-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
                 <circle id="snack-bar-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
                 <path id="snack-bar-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
             </svg>) : null;
 
+        // The loading icon...
         let snackBarLoader = this.state.uploading && !this.state.finished ? <div id="snack-bar-loader" /> : null;
 
+        // The entire snackbar...
         let snackBar = this.state.uploading ? (<div id="snack-bar-upload">  
             {snackBarLoader}
             {snackBarFailure}

@@ -148,10 +148,9 @@ div .button {
 .menu {
     overflow: overlay;
     background-color: white;
-    box-shadow: 0 4px 5px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 5px 0px rgba(0, 0, 0, 0.11);
     position: absolute;
     z-index: 8888;
-    display: none;
 }
 
 .menu-options {
@@ -1780,8 +1779,9 @@ p {
 .swal-overlay--show-modal, .swal-modal {
     animation: none !important;
 }
+
 .dz-preview {
-    display:none;
+    display: none;
 }
 
 .filepicker {

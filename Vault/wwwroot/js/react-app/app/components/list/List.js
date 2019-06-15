@@ -190,12 +190,12 @@ export class List extends React.Component
 
         // Otherwise render all our items...
         return (
-            <React.Fragment>
+            <>
                 <Pathbar path={response.path} gotoFolder={this.gotoFolder.bind(this)} />
                 
                 {folderListing}
                 {fileListing}
-            </React.Fragment>
+            </>
         );
     }
 }
