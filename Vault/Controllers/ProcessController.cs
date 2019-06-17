@@ -694,10 +694,19 @@ namespace Vault.Controllers
 
             // Get our user id...
             int id = userSession.Id;
+            
+            // Process our request...
+            var response = _processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Update our file's shareablity!
-            if (_processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault()).success)
-                return Json(new { Success = true });
+            if (response.success)
+            {
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                // Return the result...
+                return Json(new { Success = true, response.shareId });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
@@ -725,9 +734,18 @@ namespace Vault.Controllers
             // Get our user id...
             int id = userSession.Id;
 
+            // Process our request...
+            var response = _processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault());
+
             // Update our file's shareablity!
-            if (_processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault()).success)
-                return Json(new { Success = true });
+            if (response.success)
+            { 
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
+
+                // Return the result...
+                return Json(new { Success = true, response.shareId });
+            }
             else
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }

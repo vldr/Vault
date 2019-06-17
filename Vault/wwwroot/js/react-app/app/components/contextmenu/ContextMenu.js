@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import AsSingleton from '@peterbee/react-singleton';
+import swal from '@sweetalert/with-react';
 
 class ContextMenu extends React.Component {
     constructor(props) {
@@ -35,9 +36,11 @@ class ContextMenu extends React.Component {
     {
         // Reset our onref...
         this.props.onRef(undefined);
+    }
 
-        // Reset our onclick...
-        document.documentElement.onclick = undefined;
+    closeMenu()
+    {
+        this.setState({ isOpen: false });
     }
 
     /**
@@ -60,15 +63,12 @@ class ContextMenu extends React.Component {
         if (this.props.disabled) return null;
 
         // Setup our menu style...
-        const menuStyle = { left: `${this.state.x}px`, top: `${this.state.y}px` };
-
-        // Setup a variable containing our context menu only when it is open...
-        const contextMenu = this.state.isOpen ? (<div className="menu" style={menuStyle}>
-            <ul className="menu-options">{this.state.options}</ul>
-        </div>) : null;
+        const menuStyle = { left: `${this.state.x}px`, top: `${this.state.y}px`, display: this.state.isOpen ? `block` : `none` };
 
         // Return the context menu...
-        return (<>{contextMenu}</>);
+        return (<div className="menu" style={menuStyle}>
+                <ul className="menu-options">{this.state.options}</ul>
+            </div>);
     }
 }
 
