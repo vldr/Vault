@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import AsSingleton from '@peterbee/react-singleton';
-import swal from '@sweetalert/with-react';
+
+import styles from '../../App.css';
 
 class ContextMenu extends React.Component {
     constructor(props) {
@@ -66,9 +67,9 @@ class ContextMenu extends React.Component {
         const menuStyle = { left: `${this.state.x}px`, top: `${this.state.y}px`, display: this.state.isOpen ? `block` : `none` };
 
         // Return the context menu...
-        return (<div className="menu" style={menuStyle}>
-                <ul className="menu-options">{this.state.options}</ul>
-            </div>);
+        return (<div className={styles['menu']} style={menuStyle}>
+            <ul className={styles['menu-options']}>{this.state.options}</ul>
+        </div>);
     }
 }
 

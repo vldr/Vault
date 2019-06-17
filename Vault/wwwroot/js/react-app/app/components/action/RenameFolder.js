@@ -2,7 +2,7 @@
 import swal from '@sweetalert/with-react';
 import styles from '../../App.css';
 
-export class RenameFile extends React.Component
+export class RenameFolder extends React.Component
 {
     constructor(props)
     {
@@ -37,14 +37,14 @@ export class RenameFile extends React.Component
             started: true
         });
 
-        // Fetch our delete file request...
-        fetch("process/renamefile",
+        // Fetch our rename folder request...
+        fetch("process/renamefolder",
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `fileid=${encodeURIComponent(this.props.file.id)}&newname=${encodeURIComponent(this.newName.value)}`
+                body: `folderid=${encodeURIComponent(this.props.folder.id)}&newname=${encodeURIComponent(this.newName.value)}`
             })
             .then(res => res.json())
             .then(
@@ -73,12 +73,12 @@ export class RenameFile extends React.Component
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Rename</div>
             <div className={styles["warning-message"]}>
-                <p>Please specify a new name for your file:</p>
+                <p>Please specify a new name for your folder:</p>
                 <input type="text"
                     ref={(input) => { this.newName = input; }} 
-                    defaultValue={this.props.file.name}
+                    defaultValue={this.props.folder.name}
                     onKeyDown={(e) => { if (e.key === 'Enter') this.onClick(); }}
-                    onFocus={(e) => { e.target.setSelectionRange(0, e.target.value.lastIndexOf(".")); }}
+                    onFocus={(e) => { e.target.setSelectionRange(0, e.target.value.length); }}
                 />
             </div>
 

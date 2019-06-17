@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import swal from '@sweetalert/with-react';
+import styles from '../../App.css';
 
 export class DeleteFile extends React.Component
 {
@@ -59,13 +60,13 @@ export class DeleteFile extends React.Component
 
     render()
     {
-        const loader = this.state.started && !this.state.finished ? (<center><div className="loader" /></center>) : null;
+        const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
-            <div id="warning-title">Are you sure?</div>
-            <div id="warning-message">
+            <div className={styles["warning-title"]}>Are you sure?</div>
+            <div className={styles["warning-message"]}>
                 <p>You will not be able to restore this file:</p>
-                <div className="file-descriptor">
+                <div className={styles["file-descriptor"]}>
                     <img src={this.props.file.icon} />
                     <div>{this.props.file.name}</div>
                     <div>{this.props.file.size}</div>
@@ -73,13 +74,13 @@ export class DeleteFile extends React.Component
             </div>
 
 
-            <div className="button" onClick={this.onClick.bind(this)}>Delete</div>
-            <div className="button inverse" onClick={this.close.bind(this)}>Close</div>
+            <div className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</div>
+            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</div>
         </div>) : null;
 
         const error = this.state.finished && this.state.error ? (<div>
-            <div id="warning-title">Error!</div>
-            <div id="warning-message">{this.state.error}</div>
+            <div className={styles["warning-title"]}>Error!</div>
+            <div className={styles["warning-message"]}>{this.state.error}</div>
         </div>) : null;
 
         return (

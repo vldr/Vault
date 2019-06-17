@@ -1,5 +1,6 @@
 ﻿import React from 'react';
 import swal from '@sweetalert/with-react';
+import styles from '../../App.css';
 
 export class Sortbar extends React.Component {
 
@@ -26,7 +27,7 @@ export class Sortbar extends React.Component {
         const sort = this.props.sort;
 
         // Setup a loading dialog...
-        swal(<center><div className="loader" /></center>,
+        swal(<center><div className={styles["loader"]} /></center>,
         {
             buttons: false,
             closeOnClickOutside: false
@@ -49,7 +50,9 @@ export class Sortbar extends React.Component {
                 },
                 (error) => 
                 {
-                    swal(error.message);
+                    swal(error.message, {
+                        buttons: false
+                    });
                 }
             );
     }
@@ -60,14 +63,25 @@ export class Sortbar extends React.Component {
         const sort = this.props.sort;
 
         return (
-            <div id="sort-box">
-                <a className="sorting-option-left" style={this.getSelectedStyle(2)} onClick={this.setSort.bind(this, 2, false)}>Name</a>
+            <div className={styles["sort-box"]}>
+                <a className={styles["sorting-option-left"]}
+                    style={this.getSelectedStyle(2)}
+                    onClick={this.setSort.bind(this, 2, false)}>Name</a>
 
-                <img id={sort >= 0 ? "sorting-arrow" : "sorting-arrow-down"} onClick={this.setSort.bind(this, -sort, true)} src="images/ui/arrow.svg" />
+                <img className={sort >= 0 ? styles["sorting-arrow"] : styles["sorting-arrow-down"]}
+                    onClick={this.setSort.bind(this, -sort, true)} src="images/ui/arrow.svg" />
 
-                <a className="sorting-option option-1" style={this.getSelectedStyle(1)} onClick={this.setSort.bind(this, 1, false)}>Size</a>
-                <a className="sorting-option option-2" style={this.getSelectedStyle(3)} onClick={this.setSort.bind(this, 3, false)}>Date</a>
-                <a className="sorting-option option-2" style={this.getSelectedStyle(4)} onClick={this.setSort.bind(this, 4, false)}>Type</a>
+                <a className={`${styles["sorting-option"]} ${styles["option-1"]}`}
+                    style={this.getSelectedStyle(1)}
+                    onClick={this.setSort.bind(this, 1, false)}>Size</a>
+
+                <a className={`${styles["sorting-option"]} ${styles["option-2"]}`}
+                    style={this.getSelectedStyle(3)}
+                    onClick={this.setSort.bind(this, 3, false)}>Date</a>
+
+                <a className={`${styles["sorting-option"]} ${styles["option-2"]}`}
+                    style={this.getSelectedStyle(4)}
+                    onClick={this.setSort.bind(this, 4, false)}>Type</a>
             </div>
         );
     }

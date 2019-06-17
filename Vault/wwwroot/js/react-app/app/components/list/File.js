@@ -7,6 +7,8 @@ import { DeleteFile } from '../action/DeleteFile';
 import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
 
+import styles from '../../App.css';
+
 export class File extends React.Component
 {
     deleteFile()
@@ -30,6 +32,37 @@ export class File extends React.Component
         });
     }
 
+    duplicateFile()
+    {
+        // Setup a loading dialog...
+        swal(<center><div className="loader" /></center>,
+            {
+                buttons: false,
+                closeOnClickOutside: false
+            });
+
+        // Attempt to update the sorting...
+        fetch("process/duplicatefile",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `fileid=${encodeURIComponent(this.props.file.id)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    swal.close();
+                },
+                (error) => {
+                    swal(error.message, {
+                        buttons: false
+                    });
+                }
+            );
+    }
+
     downloadFile()
     {
         var form = document.createElement("form");
@@ -47,26 +80,16 @@ export class File extends React.Component
         // Setup our contextmenu options...
         const options = (
             <>
-                <li className="menu-option">Select</li>
-                <li className="menu-option" onClick={this.downloadFile.bind(this)}>Download</li>
-                <li className="menu-option">Make a Copy</li>
-                <li className="menu-option" onClick={this.renameFile.bind(this)}>Rename</li>
-                <li className="menu-option" onClick={this.shareFile.bind(this)}>Share</li>
-                <li className="menu-option" onClick={this.deleteFile.bind(this)}>Delete</li>
+                <li className={styles["menu-option"]}>Select</li>
+                <li className={styles["menu-option"]} onClick={this.downloadFile.bind(this)}>Download</li>
+                <li className={styles["menu-option"]} onClick={this.duplicateFile.bind(this)}>Make a Copy</li>
+                <li className={styles["menu-option"]} onClick={this.renameFile.bind(this)}>Rename</li>
+                <li className={styles["menu-option"]} onClick={this.shareFile.bind(this)}>Share</li>
+                <li className={styles["menu-option"]} onClick={this.deleteFile.bind(this)}>Delete</li>
             </>
         ); 
 
-        /*
-        (selected ? `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Select</li>`
-        : `<li class="menu-option" onclick="addSelectionFile(null, ${fileId})">Deselect</li>`)
-        + (isSearching ? `<li class="menu-option" onclick="processOpenFileLocation(${fileId})">Open File Location</li>` : ``)
-        + `<li class="menu-option" onclick="processDownloadFile(${fileId})">Download</li>`
-        + `<li class="menu-option" onclick="processDuplicateFile(${fileId})">Make a Copy</li>`
-        + `<li class="menu-option" data-file-title="${fileTitle}" onclick="processRenameFile(event, ${fileId})">Rename</li>`
-        + `<li class="menu-option" onclick="processShareFile(${fileId})">Share</li>`
-        + `<li class="menu-option" onclick="processDelete(${fileId})">Delete</li>`
-        */
-
+        // Toggle the menu of the context menu...
         this.child.toggleMenu(event, options);
     }
 
@@ -88,11 +111,11 @@ export class File extends React.Component
             <>
                 <ContextMenu onRef={ref => (this.child = ref)} disabled />
                 <Draggable type="file" data={file.id} onContextMenu={this.showContextMenu.bind(this)}>
-                    <div className="gridItem">
-                        <div className="grid-file-icon" style={fileIconStyle} />
+                    <div className={styles["gridItem"]}>
+                        <div className={styles["grid-file-icon"]} style={fileIconStyle} />
 
-                        <p className="grid-file-text">{file.name}</p>
-                        <p className="grid-text-right">{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
+                        <p className={styles["grid-file-text"]}>{file.name}</p>
+                        <p className={styles["grid-text-right"]}>{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
                     </div>
                 </Draggable>
             </>

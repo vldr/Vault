@@ -70,14 +70,14 @@ input[type=text]:focus {
 	outline: 0;
 }
 
-#sorting-arrow {
+.sorting-arrow {
 	height: 20px;
 	margin-bottom: -5px;
 	cursor: pointer;
 	filter: invert(0.65);
 }
 
-#sorting-arrow-down {
+.sorting-arrow-down {
 	height: 20px;
 	margin-bottom: -5px;
 	cursor: pointer;
@@ -85,11 +85,11 @@ input[type=text]:focus {
 	filter: invert(0.65);
 }
 
-#sorting-arrow:hover {
+.sorting-arrow:hover {
 	filter: invert(0.25);
 }
 
-#sorting-arrow-down:hover {
+.sorting-arrow-down:hover {
 	filter: invert(0.25);
 }
 
@@ -115,24 +115,24 @@ input[type=text]:focus {
 	margin-right: 36px;
 }
 
-#sort-box {
+.sort-box {
 	padding: 10px 10px 10px 15px;
 	border-bottom: 1px solid #0000001c;
 	margin-bottom: 5px;
 }
 
-#warning-title {
+.warning-title {
 	font-size: 28px;
 	margin: 9px 0px;
 	color: #656565;
 }
 
-#warning-message {
+.warning-message {
 	margin: 25px 0;
 	color: #2f2f2f;
 }
 
-#warning-message {
+.warning-message {
 	line-height: 23px;
 }
 
@@ -236,18 +236,18 @@ div .button {
 }
 
 .recycle-bin .grid-icon {
-	background-image: url(../images/recycle.svg);
+	background-image: url(../../../images/recycle.svg);
 	background-size: 22px;
 	background-position: 3px 2px;
 }
 
 .recycle-bin-empty .grid-icon {
-	background-image: url(../images/recycle-empty.svg);
+	background-image: url(../../../images/recycle-empty.svg);
 	background-size: 22px;
 	background-position: 3px 2px;
 }
 
-#topbar {
+.topbar {
 	position: relative;
 	height: 4em;
 	line-height: 4;
@@ -669,7 +669,7 @@ div .button {
 	top: 14px;
 	z-index: 2;
 	right: 48px;
-	background: url(../images/ui/settings.svg);
+	background: url(../../../images/ui/settings.svg);
 	background-size: 17px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -694,7 +694,7 @@ div .button {
 	top: 14px;
 	right: 10px;
 	z-index: 2;
-	background: url(../images/ui/logout.svg);
+	background: url(../../../images/ui/logout.svg);
 	background-size: 15px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -741,7 +741,7 @@ div .button {
 	top: 14px;
 	right: 86px;
 	z-index: 2;
-	background: url(../images/ui/search.svg);
+	background: url(../../../images/ui/search.svg);
 	background-size: 17px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -767,7 +767,7 @@ div .button {
 	border-bottom-right-radius: 4px;
 	top: 14px;
 	right: 130px;
-	background: url(../images/ui/upload.svg);
+	background: url(../../../images/ui/upload.svg);
 	background-size: 18px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -793,7 +793,7 @@ div .button {
 	top: 14px;
 	right: 165px;
 	z-index: 2;
-	background: url(../images/ui/newfolder.svg);
+	background: url(../../../images/ui/newfolder.svg);
 	background-size: 19px;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -818,7 +818,7 @@ div .button {
 	border-radius: 4px;
 	top: 14px;
 	right: 48px;
-	background: url(../images/ui/home.png) 7px 7px no-repeat;
+	background: url(../../../images/ui/home.png) 7px 7px no-repeat;
 	background-color: #f5f5f5;
 }
 
@@ -835,7 +835,7 @@ div .button {
 	height: 30px;
 	width: 30px;
 	border-radius: 4px;
-	background: url(../images/ui/cross.png) 7px 7px no-repeat;
+	background: url(../../../images/ui/cross.png) 7px 7px no-repeat;
 	background-color: #f5f5f5;
 }
 
@@ -853,7 +853,7 @@ div .button {
 	width: 30px;
 	padding: 0;
 	border-radius: 4px;
-	background: url(../images/ui/download.png) 7px 7px no-repeat;
+	background: url(../../../images/ui/download.png) 7px 7px no-repeat;
 	background-color: #f5f5f5;
 }
 
@@ -919,11 +919,11 @@ div .button {
 	background-color: #0000000a;
 }
 
-#share-checkbox {
+.share-checkbox {
 	display: block;
 }
 
-#share-checkbox {
+.share-checkbox {
 	display: block;
 	position: relative;
 	padding-left: 35px;
@@ -939,7 +939,7 @@ div .button {
 	user-select: none;
 }
 
-#share-checkbox input {
+.share-checkbox input {
 	position: absolute;
 	opacity: 0;
 	cursor: pointer;
@@ -965,11 +965,11 @@ div .button {
 	background-color: #eee;
 }
 
-#share-checkbox:hover input ~ .checkmark {
+.share-checkbox:hover input ~ .checkmark {
 	background-color: #ccc;
 }
 
-#share-checkbox input:checked ~ .checkmark {
+.share-checkbox input:checked ~ .checkmark {
 	background-color: grey;
 }
 
@@ -979,11 +979,11 @@ div .button {
 	display: none;
 }
 
-#share-checkbox input:checked ~ .checkmark:after {
+.share-checkbox input:checked ~ .checkmark:after {
 	display: block;
 }
 
-#share-checkbox .checkmark:after {
+.share-checkbox .checkmark:after {
 	left: 9px;
 	top: 5px;
 	width: 5px;
@@ -1066,7 +1066,7 @@ progress::-moz-progress-bar {
 	background-position: center;
 }
 
-#file-listing {
+.file-listing {
 	background-color: #fffcfc;
 	border-radius: 5px;
 	margin-top: 10px;
@@ -1164,7 +1164,7 @@ progress::-moz-progress-bar {
 	top: 15px;
 	right: 20px;
 	cursor: pointer;
-	background: url(../images/ui/download.svg);
+	background: url(../../../images/ui/download.svg);
 	background-size: 20px;
 	background-color: #1b1b1b;
 	background-repeat: no-repeat;
@@ -1187,7 +1187,7 @@ progress::-moz-progress-bar {
 	top: 15px;
 	right: 65px;
 	cursor: pointer;
-	background: url(../images/x.svg);
+	background: url(../../../images/x.svg);
 	background-size: 20px;
 	background-color: #1b1b1b;
 	background-repeat: no-repeat;
@@ -1345,7 +1345,7 @@ input[type=submit]:hover {
 	.btnDownload {
 		margin: 0px;
 		width: 98%;
-		background: url(../images/ui/download.png) 50% 7px no-repeat;
+		background: url(../../../images/ui/download.png) 50% 7px no-repeat;
 		background-color: #f5f5f5;
 		margin-bottom: 25px;
 	}
@@ -1353,7 +1353,7 @@ input[type=submit]:hover {
 	.btnDelete {
 		margin: 0px;
 		width: 98%;
-		background: url(../images/ui/cross.png) 50% 7px no-repeat;
+		background: url(../../../images/ui/cross.png) 50% 7px no-repeat;
 		background-color: #f5f5f5;
 	}
 
@@ -1541,15 +1541,15 @@ p {
 	background-color: #ffd1d1;
 }
 
-#folder-listing {
+.folder-listing {
 	padding-left: 10px;
 }
 
-#folder-listing div {
+.folder-listing div {
 	display: inline-block;
 }
 
-#folder-path {
+.folder-path {
 	position: absolute;
 	left: 100px;
 	top: 22px;
@@ -1559,17 +1559,17 @@ p {
 	color: #d4d4d4;
 }
 
-#folder-path span {
+.folder-path span {
 	color: #cccccc;
 	text-decoration: none;
 	cursor: pointer;
 }
 
-#folder-path span:hover {
+.folder-path span:hover {
 	color: #9e9e9e;
 }
 
-#snack-bar-upload {
+.snack-bar-upload {
 	padding: 15px;
 	max-width: 500px;
 	color: #545454;
@@ -1589,14 +1589,14 @@ p {
 	animation: fadein 0.6s;
 }
 
-#snack-bar-progress {
+.snack-bar-progress {
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	border-bottom: 5px solid #2c80ff;
 }
 
-#snack-bar-loader {
+.snack-bar-loader {
 	position: absolute;
 	border: 4px solid rgba(238, 238, 238, 0);
 	border-radius: 50%;
@@ -1608,12 +1608,12 @@ p {
 	top: 10px;
 }
 
-#snack-bar-text {
+.snack-bar-text {
 	margin-left: 36px;
 	color: #777777;
 }
 
-#snack-bar-checkmark {
+.snack-bar-checkmark {
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
@@ -1626,7 +1626,7 @@ p {
 	animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
 
-#snack-bar-x {
+.snack-bar-x {
 	width: 24px;
 	height: 24px;
 	border-radius: 50%;
@@ -1639,7 +1639,7 @@ p {
 	animation: fill-red .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
 }
 
-#snack-bar-checkmark-circle {
+.snack-bar-checkmark-circle {
 	stroke-dasharray: 166;
 	stroke-dashoffset: 166;
 	stroke-width: 2;
@@ -1649,14 +1649,14 @@ p {
 	animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
 }
 
-#snack-bar-checkmark-check {
+.snack-bar-checkmark-check {
 	transform-origin: 50% 50%;
 	stroke-dasharray: 48;
 	stroke-dashoffset: 48;
 	animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
 }
 
-#snack-bar-x-check {
+.snack-bar-x-check {
 	fill: white;
 	opacity: 0;
 	animation: fade-x 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
@@ -1718,7 +1718,12 @@ p {
 	animation: loading 1s linear infinite;
 }
 
-#intro-box {
+.wind {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+.intro-box {
 	position: absolute;
 	margin: 0;
 	padding: 0;
@@ -1737,7 +1742,7 @@ p {
 	animation-delay: 0.7s;
 }
 
-#intro-box img {
+.intro-box img {
 	margin-top: -9%;
 	height: 128px;
 	opacity: 0;
@@ -1784,33 +1789,11 @@ p {
 	right: 20px;
 	cursor: pointer;
 	z-index: 2;
-	background: url(../images/x.svg);
+	background: url(../../../images/x.svg);
 	background-size: 28px;
 	background-repeat: no-repeat;
 	background-position: center;
 	display: none;
-}
-
-.swal-overlay--show-modal, .swal-modal {
-	animation: none !important;
-}
-
-.dz-preview {
-	display: none;
-}
-
-.filepicker {
-	display: none;
-}
-
-.swal-content:last-child {
-	margin-bottom: 0;
-}
-
-.swal-content {
-	padding: 33px;
-	margin: 0;
-	font-size: medium;
 }
 
 .file-descriptor {
@@ -1829,7 +1812,7 @@ p {
 .file-descriptor div {
 	margin: 6px;
 	font-size: 13px;
-	text-align: center;
+	text-align: center; 
 	color: #545454;
 	background: #0000000a;
 	padding: 8px 10px;

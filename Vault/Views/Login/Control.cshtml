@@ -9,16 +9,30 @@
     <title>Vault</title>
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .swal-overlay--show-modal, .swal-modal {
+            animation: none !important;
+        }
 
-    @if (ViewBag.NightMode)
-    {
-        <meta name="theme-color" content="#000000">
-        <link rel="stylesheet" type="text/css" href="css/dark-usercp.css">
-    }
-    else
-    {
-        <link rel="stylesheet" type="text/css" href="css/usercp.css">
-    }
+        .dz-preview {
+            display: none;
+        }
+
+        .filepicker {
+            display: none;
+        }
+
+        .swal-content:last-child {
+            margin-bottom: 0;
+        }
+
+        .swal-content {
+            padding: 33px;
+            margin: 0;
+            font-size: medium;
+        }
+    </style>
+    <link rel="stylesheet" type="text/css" href="js/react-app/bundle.css">
 
     
 </head>

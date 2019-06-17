@@ -10,6 +10,8 @@ namespace Vault.Models
         public bool Success { get; set; }
         public List<RelativePath> Path { get; set; }
         public bool IsHome { get; set; }
+        public bool IsRecycleBin { get; set; }
+
         public int Previous { get; set; }
         public int Sort { get; set; }
 

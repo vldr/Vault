@@ -2,7 +2,7 @@
 import swal from '@sweetalert/with-react';
 import styles from '../../App.css';
 
-export class ShareFile extends React.Component
+export class ShareFolder extends React.Component
 {
     constructor(props)
     {
@@ -29,14 +29,14 @@ export class ShareFile extends React.Component
             started: true
         });
 
-        // Fetch our delete file request...
-        fetch("process/toggleshare",
+        // Fetch our delete folder request...
+        fetch("process/togglefoldershare",
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `fileid=${encodeURIComponent(this.props.file.id)}`
+                body: `folderid=${encodeURIComponent(this.props.folder.id)}`
             })
             .then(res => res.json())
             .then(
@@ -51,10 +51,10 @@ export class ShareFile extends React.Component
                     {
                         if (result.shareId)
                         {
-                            this.props.file.shareId = result.shareId;
-                            this.props.file.isSharing = true;
+                            this.props.folder.shareId = result.shareId;
+                            this.props.folder.isSharing = true;
                         }
-                        else this.props.file.isSharing = false;
+                        else this.props.folder.isSharing = false;
  
                         this.setState({
                             started: false
@@ -76,18 +76,19 @@ export class ShareFile extends React.Component
 
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
-        const checkBox = this.props.file.isSharing ?
+        const checkBox = this.props.folder.isSharing ?
             (<div>
                 <label className={styles["share-checkbox"]}>Enable<input className={styles["share-checkbox-input"]} type="checkbox" defaultChecked onClick={this.onClick.bind(this)} />
                     <span className={styles["checkmark"]} />
                 </label>
                 <div className={styles["share-box"]}
-                    onClick={(e) => {
+                    onClick={(e) =>
+                    {
                         var range = document.createRange();
                         range.selectNode(e.target);
                         window.getSelection().removeAllRanges();
                         window.getSelection().addRange(range);
-                    }}>{path}share/{this.props.file.shareId}</div>
+                    }}>{path}share/folder/{this.props.folder.shareId}</div>
             </div>)
             :
             (<label className={styles["share-checkbox"]}>Enable
@@ -98,7 +99,7 @@ export class ShareFile extends React.Component
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Share</div>
             <div className={styles["warning-message"]}>
-                <p>You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p>
+                <p>You can easily share your folders with anybody around the globe. Simply enable sharing and give them the link below!</p>
                 {checkBox}
             </div>
         </div>) : null;

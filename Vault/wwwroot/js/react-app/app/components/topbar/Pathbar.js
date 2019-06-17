@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import styles from '../../App.css';
 
 export class Pathbar extends React.Component
 {
@@ -7,7 +8,7 @@ export class Pathbar extends React.Component
         const path = this.props.path;
 
         return (
-            <div id="folder-path">
+            <div className={styles['folder-path']}>
                 {
                     path.map((item, i) =>
                     {

@@ -1,6 +1,6 @@
 ﻿import React from 'react';
-var ReactDOMServer = require('react-dom/server');
 import DropzoneComponent from 'react-dropzone-component';
+import styles from '../../App.css';
 
 export class Upload extends React.Component
 {
@@ -23,7 +23,7 @@ export class Upload extends React.Component
         this.componentConfig = { postUrl: 'process/upload' };
 
         // Setup our Dropzone.JS config...
-        this.djsConfig = { autoProcessQueue: true, clickable: ".btnUpload", parallelUploads: 1, previewsContainer: false };
+        this.djsConfig = { autoProcessQueue: true, clickable: `.${styles['btnUpload']}`, parallelUploads: 1, previewsContainer: false };
 
         // Setup our handlers...
         this.eventHandlers = {
@@ -96,33 +96,33 @@ export class Upload extends React.Component
             progressStyle = { borderColor: "#7ac142", width: `${this.state.progress}%` };
 
         // Initialize our snackbar progress bar...
-        let snackBarProgress = this.state.uploading ? <div id="snack-bar-progress" style={progressStyle} /> : null;
+        let snackBarProgress = this.state.uploading ? <div className={styles['snack-bar-progress']} style={progressStyle} /> : null;
 
         // The text of our snackbar...
-        let snackBarText = this.state.uploading ? <div id="snack-bar-text">{this.state.status}</div> : null;
+        let snackBarText = this.state.uploading ? <div className={styles['snack-bar-text']} >{this.state.status}</div> : null;
 
         // The failure icon...
         let snackBarFailure = this.state.finished && !this.state.success ?
-            (<svg id="snack-bar-x" xmlns="http://www.w3.org/2000/svg" viewBox="-81 -80 350 350">
-                <path id="snack-bar-x-check" d="M180.607,10.607l-79.696,79.697l79.696,79.697L170,180.607l-79.696-79.696l-79.696,79.696L0,170.001l79.696-79.697L0,10.607
+            (<svg className={styles['snack-bar-x']} xmlns="http://www.w3.org/2000/svg" viewBox="-81 -80 350 350">
+                <path className={styles['snack-bar-x-check']} d="M180.607,10.607l-79.696,79.697l79.696,79.697L170,180.607l-79.696-79.696l-79.696,79.696L0,170.001l79.696-79.697L0,10.607
                 L10.607,0.001l79.696,79.696L170,0.001L180.607,10.607z" />
             </svg>) : null; 
 
         // The checkmark icon...
         let snackBarSuccess = this.state.finished && this.state.success ?
-            (<svg id="snack-bar-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-                <circle id="snack-bar-checkmark-circle" cx="26" cy="26" r="25" fill="none" />
-                <path id="snack-bar-checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+            (<svg className={styles['snack-bar-checkmark']} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle className={styles['snack-bar-checkmark-circle']} cx="26" cy="26" r="25" fill="none" />
+                <path className={styles['snack-bar-checkmark-check']} fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
             </svg>) : null;
 
         // The loading icon...
-        let snackBarLoader = this.state.uploading && !this.state.finished ? <div id="snack-bar-loader" /> : null;
+        let snackBarLoader = this.state.uploading && !this.state.finished ? <div className={styles['snack-bar-loader']} /> : null;
 
         // Setup our snackbar to fade out after two seconds upon transfer completion or failure...
         let snackBarFadeOutStyle = this.state.finished ? { animation: "fadeout 0.6s ease-out 2s 1 normal forwards running" } : {};
 
         // The entire snackbar...
-        let snackBar = this.state.uploading ? (<div id="snack-bar-upload" style={snackBarFadeOutStyle}>  
+        let snackBar = this.state.uploading ? (<div className={styles['snack-bar-upload']} style={snackBarFadeOutStyle}>  
             {snackBarLoader}
             {snackBarFailure}
             {snackBarSuccess}

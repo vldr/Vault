@@ -1,10 +1,12 @@
 ﻿import React from 'react';
 import ReactDOM from 'react-dom';
+import ContextMenu from './components/contextmenu/ContextMenu';
 
 import { Topbar } from './components/topbar/Topbar';
 import { List } from './components/list/List';
 import { Upload } from './components/upload/Upload';
-import ContextMenu from './components/contextmenu/ContextMenu';
+
+import styles from './App.css';
 
 export class App extends React.Component
 { 
@@ -13,7 +15,7 @@ export class App extends React.Component
         return (
             <>
                 <ContextMenu onRef={ref => (this.child = ref)} />
-                <div className="content">
+                <div className={styles['content']}>
                     <Topbar />
                     <List />
                     <Upload />

@@ -149,6 +149,7 @@ namespace Vault.Controllers
                 Sort = userSession.SortBy,
                 Current = folderId,
                 Previous = folder.FolderId,
+                IsRecycleBin = folder.IsRecycleBin,
                 IsHome = user.Folder == folder.Id,
                 Path = _processService.GetPath(folder, user.Folder),
                 Folders = _processService.GetFolderListings(id, folderId),

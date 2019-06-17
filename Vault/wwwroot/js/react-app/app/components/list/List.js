@@ -8,6 +8,8 @@ import { Folder } from './Folder';
 import { File } from './File';
 import { Sortbar } from './Sortbar';
 
+import styles from '../../App.css';
+
 const signalR = require("@aspnet/signalr");
 
 export class List extends React.Component
@@ -155,7 +157,11 @@ export class List extends React.Component
                 <Error message={response.reason} />
             );
 
-        console.log(response);
+        // Check if we have an empty homepage...
+        if (response.isHome && response.files.length === 0 && response.folders.length === 0)
+            return (<center>
+                <img className={styles["wind"]} src="images/ui/wind.png" />
+            </center>);
 
         /////////////////////////////////////////////////////
 
@@ -164,10 +170,10 @@ export class List extends React.Component
 
         // Setup our previous folder...
         const previousFolder = response.isHome ? null :
-            { id: response.previous, name: "...", icon: "images/file/folder-icon.svg", style: "", isRecycleBin: false, isSharing: false };
-
+            { id: response.previous, name: "...", icon: "images/file/folder-icon.svg", style: "", isRecycleBin: false, isSharing: false, isPrevious: true };
+        
         // Setup our file listing...
-        const fileListing = response.files.length ? (<div id="file-listing">
+        const fileListing = response.files.length ? (<div className={styles["file-listing"]}>
             <Sortbar sort={response.sort} />
             {
                 response.files.map((file) =>
@@ -178,7 +184,7 @@ export class List extends React.Component
         </div>) : null;
 
         // Setup our folder listing...
-        const folderListing = (<div id="folder-listing">
+        const folderListing = (<div className={styles["folder-listing"]}>
             <Folder folder={previousFolder} gotoFolder={this.gotoFolder.bind(this)} />
             {
                 response.folders.map((folder) => {
