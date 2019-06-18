@@ -181,30 +181,6 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Our settings page...
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("settings")]
-        public IActionResult Settings()
-        {
-            // Check if not logged in!
-            if (!IsLoggedIn()) return StatusCode(500);
-
-            // Setup a user session!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Save our user to the view bag...
-            ViewBag.User = _loginService.GetUser(userSession.Id);
-
-            // Setup our storage space variable...
-            ViewBag.Storage = _processService.StorageFormatted(ViewBag.User);
-
-            // Return our control view...
-            return View();
-        }
-
-        /// <summary>
         /// Check if we're logged in...
         /// </summary>
         /// <returns></returns>

@@ -26,4 +26,4 @@ export class App extends React.Component
 }
 
 // Render our actual app...
-ReactDOM.render(<App />, document.getElementById("root"));
+ReactDOM.render(<App />, document.getElementById("app"));

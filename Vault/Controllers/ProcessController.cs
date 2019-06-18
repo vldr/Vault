@@ -162,6 +162,35 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Our settings page...
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/settings")]
+        public IActionResult Settings()
+        {
+            // Check if not logged in!
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Setup a user session!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Save our user to the view bag...
+            var user = _loginService.GetUser(userSession.Id);
+
+            // Return our control view...
+            return Json(new Settings()
+            {
+                Success = true,
+                Name = user.Name,
+                APIKey = user.APIKey,
+                APIEnabled = user.APIEnabled,
+                Storage = _processService.StorageFormatted(user)
+            });
+        }
+
+
+        /// <summary>
         /// The search mechanism for finding folders and files...
         /// </summary>
         /// <param name="term"></param>

@@ -22,7 +22,9 @@ export class List extends React.Component
         this.state = {
             error: null,
             finished: false,
-            response: null
+            response: null,
+            stopLoading: false,
+            offset: 0
         };
     }
 
@@ -58,6 +60,16 @@ export class List extends React.Component
 
         // Request our list...
         this.requestList();
+
+        /////////////////////////////////////////////////////
+
+        window.onscroll = (e) =>
+        {
+            const scrollOffset = window.innerHeight + window.pageYOffset;
+
+            if (scrollOffset >= (document.body.offsetHeight * 0.8) && !this.state.stopLoading)
+                this.requestList(this.state.offset);
+        };
     }
 
     /**
@@ -78,24 +90,31 @@ export class List extends React.Component
      * Requests the list of files and folders...
      * @param {any} offset Offset of where we want to display our files...
      */
-    requestList(offset = 0) {
+    requestList(offset = 0)
+    {
+        // Disable loading while we request for a list...
+        this.setState({ stopLoading: true });
+
         fetch("process/list",
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `offset=${encodeURIComponent(offset)}`
+                body: `offset=${encodeURIComponent(this.state.offset)}`
             })
-            .then(res => res.json())
+            .then(res => res.json()) 
             .then(
-                (result) => {
-                    this.setState({
-                        finished: true,
-                        response: result
-                    });
+                (result) => 
+                {
+                    // Increment our file offset and set our state...
+                    this.setState({ response: result, offset: result.files.length, stopLoading: result.files.length === this.state.offset});
+
+                    // Setup a timeout to update our finished state if it isn't set...
+                    if (!this.state.finished) setTimeout(() => this.setState({ finished: true }), 300);
                 },
                 (error) => {
+                    // Set our state accordingly that we have recieved an error...
                     this.setState({
                         finished: true,
                         error
@@ -123,13 +142,13 @@ export class List extends React.Component
             .then(
                 (result) => {
                     this.setState({
-                        finished: true,
-                        response: result
+                        response: result,
+                        stopLoading: false,
+                        offset: 0
                     });
                 },
                 (error) => {
                     this.setState({
-                        finished: true,
                         error
                     });
                 }
@@ -140,16 +159,22 @@ export class List extends React.Component
         // Setup our state variables...
         const { error, finished, response } = this.state;
 
+        /////////////////////////////////////////////////////
+
+        // Our introduction box...
+        const introBox = (<div className={styles["intro-box"]}>
+            <img src="images/ui/logo.svg" />
+        </div>);
+
+        /////////////////////////////////////////////////////
+
         // Check if there is an error loading our files...
-        if (error) 
+        if (error)
             return (
                 <Error message={error.message} />
             );
         // Check if our content is still loading...
-        else if (!finished)
-            return (
-                <Loading />
-            );
+        else if (!finished) return (<>{introBox}</>);
 
         // Check if our request was unsuccessful...
         if (!response.success)
@@ -165,7 +190,6 @@ export class List extends React.Component
 
         /////////////////////////////////////////////////////
 
-        // Find our recycle bin...
         const recycleBin = response.folders.find((folder) => folder.isRecycleBin);
 
         // Setup our previous folder...
@@ -196,12 +220,12 @@ export class List extends React.Component
 
         // Otherwise render all our items...
         return (
-            <>
+            <div className={styles["items"]}>
                 <Pathbar path={response.path} gotoFolder={this.gotoFolder.bind(this)} />
                 
                 {folderListing}
                 {fileListing}
-            </>
+            </div>
         );
     }
 }

@@ -220,7 +220,7 @@ namespace Vault.Models
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
-            }).Skip(offset).Take(50);
+            }).Take(50 + offset);
 
         /// <summary>
         /// Gets a list of file listings with matching owners and folder id...
@@ -241,7 +241,7 @@ namespace Vault.Models
                 Size = GetBytesReadable(x.Size),
                 IsSharing = x.IsSharing,
                 ShareId = x.ShareId
-            }).Skip(offset).Take(50);
+            }).Take(50 + offset);
 
         /// <summary>
         /// Gets a list of file listings which have been shared...

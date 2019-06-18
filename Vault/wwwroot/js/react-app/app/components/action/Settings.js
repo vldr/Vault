@@ -1,0 +1,285 @@
+﻿import React from 'react';
+import swal from '@sweetalert/with-react';
+import styles from '../../App.css';
+
+export class Settings extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // Setup our states...
+        this.state = {
+            finished: false,
+            error: null,
+            response: null,
+            action: 0,
+        };
+    }
+
+    componentDidMount()
+    {
+        // Load our settings page...
+        this.onLoad();
+    }
+
+    onUpdatePassword()
+    {
+        // Set our action accordingly...
+        this.setState({ action: 1 });
+
+        // Janky solution to focus on the input box due to animations...
+        setTimeout(() => this.currentPassword.focus(), 100);
+    }
+
+    onUpdateName() {
+        // Set our action accordingly...
+        this.setState({ action: 2 });
+
+        // Janky solution to focus on the input box due to animations...
+        setTimeout(() => this.name.focus(), 100);
+    }
+
+    onGoBack()
+    {
+        // Set our action back to normal...
+        this.setState({ action: 0 });
+    }
+
+    onLoad() {
+        // Reset our response state...
+        this.setState({
+            finished: false,
+            response: null,
+            error: null,
+            action: 0
+        });
+
+        // Fetch our delete file request...
+        fetch("process/settings",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (!result.success)
+                        this.setState({
+                            error: result.reason,
+                            finished: true
+                        });
+                    else {
+                        this.setState({
+                            response: result,
+                            finished: true
+                        });
+                    }
+                },
+                (error) => {
+                    this.setState({
+                        error: error.message,
+                        finished: true
+                    });
+                }
+            );
+    }
+
+    updatePassword()
+    {
+        // Reset our response state...
+        this.setState({
+            finished: false,
+            response: null,
+            error: null,
+            action: 0
+        });
+
+        // Fetch our delete file request...
+        fetch("process/changepassword",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `currentPassword=${encodeURIComponent(this.currentPassword.value)}&newPassword=${encodeURIComponent(this.newPassword.value)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (!result.success)
+                        this.setState({
+                            error: result.reason,
+                            finished: true
+                        });
+                    else
+                        this.onLoad();
+                },
+                (error) => {
+                    this.setState({
+                        error: error.message,
+                        finished: true
+                    });
+                }
+            );
+    }
+
+    updateName() {
+        // Reset our response state...
+        this.setState({
+            finished: false,
+            response: null,
+            error: null,
+            action: 0
+        });
+
+        // Fetch our delete file request...
+        fetch("process/changename",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `name=${encodeURIComponent(this.name.value)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (!result.success)
+                        this.setState({
+                            error: result.reason,
+                            finished: true
+                        });
+                    else
+                        this.onLoad();
+                },
+                (error) => {
+                    this.setState({
+                        error: error.message,
+                        finished: true
+                    });
+                }
+            );
+    }
+
+    disableAPI()
+    {
+        // Reset our response state...
+        this.setState({
+            finished: false,
+            response: null,
+            error: null,
+            action: 0
+        });
+
+        // Fetch our delete file request...
+        fetch("process/toggleapi",
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+        .then(res => res.json())
+        .then(
+            (result) => {
+                if (!result.success)
+                    this.setState({
+                        error: result.reason,
+                        finished: true
+                    });
+                else
+                    this.onLoad();
+            },
+            (error) => {
+                this.setState({
+                    error: error.message,
+                    finished: true
+                });
+            }
+        );
+    }
+
+    render()
+    {
+        const loader = !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
+
+        const passwordDialog = this.state.action === 1 && !this.state.error && this.state.finished ? (<div>
+            <div className={styles["warning-title"]}>Change Password</div>
+            <div className={styles["warning-message"]}>
+                <p>Please specify your current password:</p>
+                <input type="password"
+                    ref={(input) => { this.currentPassword = input; }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') this.newPassword.focus(); }}
+                />
+
+                <p>Please specify a new password:</p>
+                <input type="password"
+                    ref={(input) => { this.newPassword = input; }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') this.updatePassword(); }}
+                />
+            </div>
+
+            <div className={styles["button"]} onClick={this.updatePassword.bind(this)}>Change</div>
+            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</div>
+        </div>) : null;
+
+        const nameDialog = this.state.action === 2 && !this.state.error && this.state.finished ? (<div>
+            <div className={styles["warning-title"]}>Change Name</div>
+            <div className={styles["warning-message"]}>
+                <p>Please specify a new name:</p>
+                <input type="text"
+                    placeholder="John"
+                    ref={(input) => { this.name = input; }}
+                    defaultValue={this.state.response.name}
+                    onKeyDown={(e) => { if (e.key === 'Enter') this.updateName(); }}
+                />
+            </div>
+
+            <div className={styles["button"]} onClick={this.updateName.bind(this)}>Change</div>
+            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</div>
+        </div>) : null;
+
+        const dialog = this.state.action === 0 && !this.state.error && this.state.finished ?
+            (<div>
+                <div className={styles["warning-title"]}>Settings</div>
+                <div className={styles["warning-message"]}>
+                    <h3>Name: </h3>
+                    <span>{this.state.response.name} <img src="images/pencil.svg" className={styles["edit-button"]} onClick={this.onUpdateName.bind(this)} /></span>
+
+                    <h3>Password: </h3>
+                    <span>••••••••••  <img src="images/pencil.svg" className={styles["edit-button"]} onClick={this.onUpdatePassword.bind(this)} /></span>
+
+                    <h3>Storage: </h3>
+                    <span>{this.state.response.storage}</span>
+
+                    <h3>API: </h3>
+                    <span>
+                        {this.state.response.apiEnabled ?
+                            (<div>
+                                <p>Your API is currently enabled, <a onClick={this.disableAPI.bind(this)}>click here</a> to disable API...</p>
+                                <div className={styles["api-box"]}>{this.state.response.apiKey}</div>
+                            </div>)
+                            : (<div>
+                                <p>Your API is currently disabled, <a onClick={this.disableAPI.bind(this)}>click here</a> to enable API...</p>
+                            </div>)}
+                    </span>
+                </div>
+            </div>) : null;
+
+        const error = this.state.error && this.state.finished ?
+        (<div>
+            <div className={styles["warning-title"]}>Error!</div>
+            <div className={styles["warning-message"]}>{this.state.error}</div>
+        </div>) : null;
+
+        return (
+            <div>
+                {loader}
+                {dialog}
+                {passwordDialog}
+                {nameDialog}
+                {error}
+            </div>);
+    }
+}
