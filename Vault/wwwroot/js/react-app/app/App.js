@@ -10,20 +10,22 @@ import { Search } from './components/search/Search';
 import styles from './App.css';
 
 export class App extends React.Component
-{ 
+{
+    openSearch() { this.search.open(); }
+
     render()
     {
         return (
             <>
-                <ContextMenu onRef={ref => (this.child = ref)} />
+                <ContextMenu />
 
                 <div className={styles['content']}>
-                    <Topbar />
+                    <Topbar openSearch={this.openSearch.bind(this)} />
                     <List />
                     <Upload />
                 </div>
 
-                <Search />
+                <Search ref={(ref) => { this.search = ref; }} />
             </>
         );
     }

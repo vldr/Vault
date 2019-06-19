@@ -28,6 +28,11 @@ export class Search extends React.Component
         // Hook our onkeypress event...
         document.documentElement.onkeypress = (event) =>
         {
+            // Check if a modal or a overlay is open...
+            if (document.querySelector(".swal-overlay--show-modal")
+                || document.querySelector(`.${styles['overlay']}`))
+                return;
+
             // Check if SPACE was pressed...
             if (event.keyCode === 32) return;
 
@@ -46,7 +51,17 @@ export class Search extends React.Component
         };
     }
 
-    onSearch() {
+    onClose(event)
+    {
+        // Make sure the target was the overlay...
+        if (event.target.className !== styles['overlay']) return;
+
+        // Close our overlay...
+        this.close();
+    }
+
+    onSearch()
+    {
         // Don't perform search if the box is empty...
         if (!this.searchBox.value) return;
 
@@ -89,6 +104,16 @@ export class Search extends React.Component
             );
     }
 
+    close() {
+        // Set our state to hide our search overlay...
+        this.setState({ isSearching: false, response: null });
+    }
+
+    open() {
+        // Set our state to display our search overlay...
+        this.setState({ isSearching: true });
+    }
+
 
     render()
     {
@@ -98,20 +123,22 @@ export class Search extends React.Component
         // Setup our loader bar...
         const loaderBar = this.state.isLoading ? (<div className={styles['loader-bar']} />) : null;
 
+        // Setup our files found...
         const filesFound = this.state.response ?
             this.state.response.files.map((file) => {
                 return (<File file={file} />);
             }) : null;
 
-        // Setup our files found...
+        // Setup our folders found...
         const foldersFound = this.state.response ?
             this.state.response.folders.map((folder) =>
             {
                 return (<Folder folder={folder} listView />);
             }) : null;
 
+        // Render our entire search system...
         return (
-            <div className={styles['overlay']}>
+            <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
                 {loaderBar}
 
                 <input type="text"
@@ -121,6 +148,7 @@ export class Search extends React.Component
                     autoFocus placeholder="Search" />
 
                 <div className={styles['search-content']}>
+                    <div className={styles['search-close']} onClick={this.close.bind(this)} />
                     {foldersFound}
                     {filesFound}
                 </div>

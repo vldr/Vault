@@ -109,7 +109,7 @@ export class File extends React.Component
         // Return our rendering of the item...
         return (
             <>
-                <ContextMenu onRef={ref => (this.child = ref)} disabled />
+                <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                 <Draggable type="file" data={file.id} onContextMenu={this.showContextMenu.bind(this)}>
                     <div className={styles["gridItem"]}>
                         <div className={styles["grid-file-icon"]} style={fileIconStyle} />

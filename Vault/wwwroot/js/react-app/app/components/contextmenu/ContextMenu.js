@@ -20,23 +20,11 @@ class ContextMenu extends React.Component {
      */
     componentDidMount()
     {
-        // Setup our onref...
-        this.props.onRef(this);
-
         // Check if our context menu isn't disabled...
         if (this.props.disabled) return;
 
         // Close our contextmenu when we click on something...
         document.documentElement.onclick = (e) => this.setState({ isOpen: false });
-    }
-
-    /**
-     * When our component will be unmounted... 
-     */
-    componentWillUnmount()
-    {
-        // Reset our onref...
-        this.props.onRef(undefined);
     }
 
     closeMenu()

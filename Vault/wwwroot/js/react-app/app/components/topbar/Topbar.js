@@ -9,6 +9,7 @@ export class Topbar extends React.Component
 {
     openSettings() { new ActionAlert(<Settings />); }
     openNewFolder() { new ActionAlert(<NewFolder />); }
+    openSearch() { this.props.openSearch(); }
 
     render() {
         return (
@@ -19,7 +20,7 @@ export class Topbar extends React.Component
 
                 <div className={styles['btnSettings']} onClick={this.openSettings.bind(this)} />
                 <div className={styles['btnLogout']} />
-                <div className={styles['btnHelp']} />
+                <div className={styles['btnHelp']} onClick={this.openSearch.bind(this)} />
                 <div className={styles['btnSort']} onClick={this.openNewFolder.bind(this)} />
                 <div className={styles['btnUpload']}  />
 

@@ -175,7 +175,7 @@ export class Folder extends React.Component {
             // Return our listview division...
             return (
                 <div>
-                    <ContextMenu onRef={ref => (this.child = ref)} disabled />
+                    <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                     <div className={`${styles["gridItem"]}`} onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
                         <div className={styles["grid-file-icon"]} style={folderIconStyle} />
                         <p className={styles["grid-file-text"]}>{folder.name}</p>
@@ -187,7 +187,7 @@ export class Folder extends React.Component {
             // Return our normal view...
             return (
                 <Droppable types={['file', 'folder']} onDrop={this.onDrop.bind(this)}>
-                    <ContextMenu onRef={ref => (this.child = ref)} disabled />
+                    <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                     <Draggable className={`${styles["gridItem-folder"]} ${folderClassName}`}
                         onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}
                         onClick={this.props.gotoFolder.bind(this, folder.id)}
