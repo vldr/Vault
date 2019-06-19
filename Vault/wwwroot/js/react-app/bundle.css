@@ -575,6 +575,7 @@ div .button {
 }
 
 .button {
+	outline: 0;
 	display: inline-block;
 	background-color: #f5f5f5;
 	background-image: -webkit-linear-gradient(top, #f5f5f5, #f1f1f1);
@@ -591,10 +592,10 @@ div .button {
 	font-size: 11px;
 	font-weight: bold;
 	text-align: center;
-	height: 27px;
+	height: 30px;
 	line-height: 27px;
-	min-width: 54px;
-	padding: 0 8px;
+	min-width: 73px;
+	padding: 0 7px;
 	text-decoration: none;
 	cursor: pointer;
 	-webkit-user-select: none;
@@ -719,20 +720,21 @@ div .button {
 	cursor: pointer;
 }
 
-#search-box {
+.search-box {
 	margin: 0 auto;
 	display: inherit;
-	width: 100%;
+	width: 100% !important;
+	text-align: unset !important;
 	box-sizing: border-box;
 	max-width: 1020px;
 	margin-top: 20px;
-	background: transparent;
-	color: white;
+	background: transparent !important;
+	color: white !important;
 	font-size: 3em;
-	border-bottom: 3px solid #464646;
+	border-bottom: 3px solid #4646466b !important;
 }
 
-#search-content {
+.search-content {
 	margin: 0 auto;
 	max-width: 1020px;
 	padding-top: 14px;
@@ -1091,8 +1093,7 @@ progress::-moz-progress-bar {
 	margin-right: 7px;
 }
 
-#file-viewer {
-	display: none;
+.overlay {
 	position: fixed;
 	top: 0;
 	z-index: 9;
@@ -1110,7 +1111,7 @@ progress::-moz-progress-bar {
 	animation: fadein 0.2s;
 }
 
-.file-viewer-content {
+.overlay-content {
 	position: relative;
 	background-color: #232323;
 	border-radius: 4px;
@@ -1129,7 +1130,7 @@ progress::-moz-progress-bar {
 	border: 2px solid #2d2d2d;
 }
 
-.file-viewer-topbar {
+.overlay-topbar {
 	position: absolute;
 	left: 10px;
 	top: 0;
@@ -1139,12 +1140,12 @@ progress::-moz-progress-bar {
 	height: 50px;
 }
 
-.file-viewer-icon {
+.overlay-icon {
 	margin-right: 5px;
 	margin-bottom: -9px;
 }
 
-.file-viewer-preview {
+.overlay-preview {
 	max-width: 80%;
 	max-height: 80%;
 	margin: 0 auto;
@@ -1161,7 +1162,7 @@ progress::-moz-progress-bar {
 	-ms-transform-origin: center center;
 }
 
-#file-viewer-box {
+.overlay-box {
 	margin-bottom: 30px;
 }
 
@@ -1252,7 +1253,7 @@ input[type=submit]:hover {
 	-ms-user-select: none;
 }
 
-#search-content .grid-text-right {
+.search-content .grid-text-right {
 	color: #696868;
 	pointer-events: none;
 	user-select: none;
@@ -1262,7 +1263,7 @@ input[type=submit]:hover {
 	-ms-user-select: none;
 }
 
-#search-content .grid-file-text {
+.search-content .grid-file-text {
 	color: #c5c5c5;
 	user-select: none;
 	-webkit-user-select: none !important;
@@ -1709,7 +1710,7 @@ p {
 	}
 }
 
-#loader-horizontal {
+.loader-bar {
 	height: 4px;
 	width: 100%;
 	position: fixed;
@@ -1720,14 +1721,14 @@ p {
 	background-color: transparent;
 }
 
-#loader-horizontal:before {
+.loader-bar:before {
 	display: block;
 	position: absolute;
 	content: "";
 	left: -500px;
 	width: 30%;
 	height: 4px;
-	background-color: #737373;
+	background-color: white;
 	animation: loading 1s linear infinite;
 }
 

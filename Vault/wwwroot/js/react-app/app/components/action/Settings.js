@@ -220,8 +220,8 @@ export class Settings extends React.Component {
                 />
             </div>
 
-            <div className={styles["button"]} onClick={this.updatePassword.bind(this)}>Change</div>
-            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</div>
+            <button className={styles["button"]} onClick={this.updatePassword.bind(this)}>Change</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</button>
         </div>) : null;
 
         const nameDialog = this.state.action === 2 && !this.state.error && this.state.finished ? (<div>
@@ -236,8 +236,8 @@ export class Settings extends React.Component {
                 />
             </div>
 
-            <div className={styles["button"]} onClick={this.updateName.bind(this)}>Change</div>
-            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</div>
+            <button className={styles["button"]} onClick={this.updateName.bind(this)}>Change</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</button>
         </div>) : null;
 
         const dialog = this.state.action === 0 && !this.state.error && this.state.finished ?

@@ -82,8 +82,8 @@ export class RenameFolder extends React.Component
                 />
             </div>
 
-            <div className={styles["button"]} onClick={this.onClick.bind(this)}>Rename</div>
-            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</div>
+            <button className={styles["button"]} onClick={this.onClick.bind(this)}>Rename</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</button>
         </div>) : null;
 
         const error = this.state.finished && this.state.error ? (<div>

@@ -2,7 +2,7 @@
 import swal from '@sweetalert/with-react';
 import styles from '../../App.css';
 
-export class EmptyRecycleBin extends React.Component
+export class NewFolder extends React.Component
 {
     constructor(props)
     {
@@ -16,7 +16,15 @@ export class EmptyRecycleBin extends React.Component
         };
     }
 
-    // Close our dialog when close is needed...
+    componentDidMount()
+    {
+        // Janky solution because browser restrictions of animations...
+        setTimeout(() => this.newName.focus(), 100);
+    }
+
+    /**
+     * Close our dialog when close is needed...
+     */ 
     close()
     {
         swal.close();
@@ -29,14 +37,14 @@ export class EmptyRecycleBin extends React.Component
             started: true
         });
 
-        // Fetch our delete folder request...
-        fetch("process/deletefolder",
+        // Fetch our rename folder request...
+        fetch("process/newfolder",
             {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `folder=${encodeURIComponent(this.props.folder.id)}`
+                body: `foldername=${encodeURIComponent(this.newName.value)}`
             })
             .then(res => res.json())
             .then(
@@ -60,21 +68,19 @@ export class EmptyRecycleBin extends React.Component
 
     render()
     {
-        const folderIconStyle =
-        {
-            backgroundImage: `url(${this.props.folder.icon})`,
-            backgroundSize: `24px`
-        };
-
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
-            <div className={styles["warning-title"]}>Are you sure?</div>
+            <div className={styles["warning-title"]}>New Folder</div>
             <div className={styles["warning-message"]}>
-                <p>Emptying the recycling bin will result in all the files inside to be permanently deleted!</p>
+                <p>Please specify a name for your new folder:</p>
+                <input type="text"
+                    ref={(input) => { this.newName = input; }} 
+                    onKeyDown={(e) => { if (e.key === 'Enter') this.onClick(); }}
+                />
             </div>
 
-            <button className={styles["button"]} onClick={this.onClick.bind(this)}>Empty</button>
+            <button className={styles["button"]} onClick={this.onClick.bind(this)}>Create</button>
             <button className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</button>
         </div>) : null;
 

@@ -156,6 +156,10 @@ export class Folder extends React.Component {
         // Setup a simple variable of the this folder...
         const folder = this.props.folder;
 
+        // Set our folder's icon accordingly...
+        if (folder.isRecycleBin)
+            folder.icon = (folder.empty === true ? "images/recycle-empty.svg" : "images/recycle.svg");
+
         // Setup our folder icon style...
         const folderIconStyle =
         {
@@ -167,19 +171,33 @@ export class Folder extends React.Component {
         const folderClassName = folder.isRecycleBin ? folder.empty === true ? styles["recycle-bin-empty"] : styles["recycle-bin"] : styles[folder.style];
 
         // Return a rendered result of this folder...
-        return (
-            <Droppable types={['file', 'folder']} onDrop={this.onDrop.bind(this)}>
-                <ContextMenu onRef={ref => (this.child = ref)} disabled />
-                <Draggable className={`${styles["gridItem-folder"]} ${folderClassName}`}
-                    onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}
-                    onClick={this.props.gotoFolder.bind(this, folder.id)}
+        if (this.props.listView)
+            // Return our listview division...
+            return (
+                <div>
+                    <ContextMenu onRef={ref => (this.child = ref)} disabled />
+                    <div className={`${styles["gridItem"]}`} onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
+                        <div className={styles["grid-file-icon"]} style={folderIconStyle} />
+                        <p className={styles["grid-file-text"]}>{folder.name}</p>
+                        <p className={styles["grid-text-right"]} />
+                    </div>
+                </div>
+            );
+        else
+            // Return our normal view...
+            return (
+                <Droppable types={['file', 'folder']} onDrop={this.onDrop.bind(this)}>
+                    <ContextMenu onRef={ref => (this.child = ref)} disabled />
+                    <Draggable className={`${styles["gridItem-folder"]} ${folderClassName}`}
+                        onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}
+                        onClick={this.props.gotoFolder.bind(this, folder.id)}
 
-                    type="folder"
-                    data={folder.id}>
-                    <div className={styles["grid-icon"]} style={folder.isRecycleBin ? {} : folderIconStyle} />
-                    <p className={styles["grid-text"]}>{folder.name}</p>
-                </Draggable>
-            </Droppable>
-        );
+                        type="folder"
+                        data={folder.id}>
+                        <div className={styles["grid-icon"]} style={folder.isRecycleBin ? {} : folderIconStyle} />
+                        <p className={styles["grid-text"]}>{folder.name}</p>
+                    </Draggable>
+                </Droppable>
+            );
     }
 }

@@ -78,8 +78,8 @@ export class DeleteFolder extends React.Component
                 </div>
             </div>
 
-            <div className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</div>
-            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</div>
+            <button className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</button>
         </div>) : null;
 
         const error = this.state.finished && this.state.error ? (<div>

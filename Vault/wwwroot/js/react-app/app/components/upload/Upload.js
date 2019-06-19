@@ -27,13 +27,23 @@ export class Upload extends React.Component
 
         // Setup our handlers...
         this.eventHandlers = {
+            // Set our state according to if we're processing a file...
             processing: (file) => this.setState({ uploading: true, finished: false, success: false, progress: 0, status: `Uploading ${file.name}` }),
+
+            // Set our state according to update the progress of each transfer...
             totaluploadprogress: (totalProgress, totalBytes, totalBytesSent) => this.setState({ progress: totalProgress }),
+
+            // Set our state according if we just got recieved an error...
             error: (file, response) => this.setState({ uploading: true, finished: true, success: false, status: `Failed to upload ${file.name}...` }),
+
+            // Setup our state accordingly to display if we've completed a transfer...
             complete: (file) =>
             {
+                // I forgot why I made this check... 
                 if (!this.state.finished)
                 {
+                    // Set our state to inform that we've finished everything
+                    // and update our status text...
                     this.setState({
                         uploading: true,
                         finished: true,
@@ -53,18 +63,21 @@ export class Upload extends React.Component
      */
     componentDidMount()
     {
+        // Hook ondragover so everything else works...
         document.documentElement.ondragover = (e) =>
         {
             e.preventDefault();
             e.stopPropagation();
         };
 
+        // Hook ondragenter so everything else works...
         document.documentElement.ondragenter = (e) =>
         {
             e.preventDefault();
             e.stopPropagation();
         };
 
+        // Hook on drop...
         document.documentElement.ondrop = (e) =>
         {
             e.preventDefault();

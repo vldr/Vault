@@ -16,6 +16,11 @@ export class DeleteFile extends React.Component
         };
     }
 
+    componentDidMount() {
+        // Janky solution because browser restrictions of animations...
+        setTimeout(() => this.deleteButton.focus(), 100);
+    }
+
     // Close our dialog when close is needed...
     close()
     {
@@ -73,9 +78,8 @@ export class DeleteFile extends React.Component
                 </div>
             </div>
 
-
-            <div className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</div>
-            <div className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</div>
+            <button className={styles["button"]} ref={(input) => { this.deleteButton = input; }} onClick={this.onClick.bind(this)}>Delete</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</button>
         </div>) : null;
 
         const error = this.state.finished && this.state.error ? (<div>
