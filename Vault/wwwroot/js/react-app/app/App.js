@@ -12,6 +12,16 @@ import styles from './App.css';
 
 export class App extends React.Component
 {
+    /**
+     * Starts up our upload component only if the topbar and upload
+     * references are present... (needed so dropzone has a clickable attribute)
+     */
+    update()
+    {
+        // Check if topbar and upload are set...
+        if (this.topbar && this.upload) this.upload.start();
+    }
+
     openViewer(fileId) { this.viewer.onOpen(fileId); }
 
     openSearch() { this.search.open(); }
@@ -31,15 +41,15 @@ export class App extends React.Component
                 <ContextMenu />
 
                 <div className={styles['content']}>
-                    <Topbar openSearch={this.openSearch.bind(this)} />
+                    <Topbar ref={(ref) => { this.topbar = ref; this.update(); }} openSearch={this.openSearch.bind(this)} />
 
                     <List ref={(ref) => { this.list = ref; }}
                         updateSearch={this.updateSearch.bind(this)}
                         closeSearch={this.closeSearch.bind(this)}
                         openViewer={this.openViewer.bind(this)}
-                    />
+                    /> 
 
-                    <Upload />
+                    <Upload ref={(ref) => { this.upload = ref; this.update(); }} />
                 </div>
 
                 <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} openViewer={this.openViewer.bind(this)} />

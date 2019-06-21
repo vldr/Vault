@@ -16,7 +16,8 @@ class Upload extends React.Component
             success: false,
             status: "",
             uploadedItems: 0,
-            progress: 0
+            progress: 0,
+            initialized: false
         };
 
         // Setup our component config...
@@ -97,6 +98,12 @@ class Upload extends React.Component
         document.documentElement.ondrop = undefined;
     }
 
+    start() {
+        this.setState({
+            initialized: true
+        });
+    }
+
     render()
     {
         // Setup our snackbar rendering...
@@ -146,9 +153,10 @@ class Upload extends React.Component
         // Return our rendering of the item...
         return (
             <React.Fragment>
-                <DropzoneComponent className="dropzone" config={this.componentConfig}
-                eventHandlers={this.eventHandlers}
-                djsConfig={this.djsConfig} />
+                {
+                    this.state.initialized
+                    && <DropzoneComponent className="dropzone" config={this.componentConfig} eventHandlers={this.eventHandlers} djsConfig={this.djsConfig} />
+                }
                 {snackBar}
             </React.Fragment>
         );

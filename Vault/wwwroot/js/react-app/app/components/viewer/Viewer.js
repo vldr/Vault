@@ -3,6 +3,7 @@ import styles from '../../App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
 import { PhotoView } from './PhotoView';
+import { VideoView } from './VideoView';
 
 class Viewer extends React.Component {
     constructor(props) {
@@ -139,6 +140,10 @@ class Viewer extends React.Component {
                 // PhotoView
                 case "1":
                     view = <PhotoView view={this.state.response} />;
+                    break;
+                // VideoView
+                case "2":
+                    view = <VideoView view={this.state.response} />;
                     break;
             }
 
