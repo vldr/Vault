@@ -12,7 +12,7 @@ export class Pathbar extends React.Component
                 {
                     path.map((item, i) =>
                     {
-                        return (<span onClick={this.props.gotoFolder.bind(this, item.id)}>{item.name} / </span>)
+                        return (<span key={item.id} onClick={this.props.gotoFolder.bind(this, item.id)}>{item.name} / </span>)
                     })
                 }
             </div>

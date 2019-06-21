@@ -914,16 +914,22 @@ namespace Vault.Controllers
             var file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Check if the file even exists...
-            if (file == null) return Json(new { Success = false, Reason = "Invalid file given..." });
+            if (file != null)
+            {
+                // Redirect our user to the correct folder...
+                userSession.Folder = file.Folder;
 
-            // Redirect our user to the correct folder...
-            userSession.Folder = file.Folder;
+                // Setup our new session!
+                SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-            // Setup our new session!
-            SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
+                // Tell our users to update their listings...
+                _processService.UpdateListings(userSession.Id, Request);
 
-            // Return a list response...
-            return List(0, fileId.GetValueOrDefault());
+                // Return successful response...
+                return Json(new { Success = true });
+            }
+            else
+                return Json(new { Success = false, Reason = "Invalid file given..." });
         }
 
         /// <summary>
@@ -1140,11 +1146,13 @@ namespace Vault.Controllers
         [Route("process/viewer")]
         public IActionResult Viewer(int? fileId)
         {
-            // Check if we're logged in...
-            if (!IsLoggedIn()) return StatusCode(500);
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
 
-            // Check if the file id is not null...
-            if (fileId == null) return StatusCode(500);
+            // Check for nulls...
+            if (fileId == null)
+                return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
@@ -1153,34 +1161,41 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null) return StatusCode(500);
+            if (file == null)
+                return Json(new { Success = false, Reason = "Cannot view the file specified..." });
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
+            if (!System.IO.File.Exists(file.Path))
+                return Json(new { Success = false, Reason = "The file physically does not exist..." });
 
-            // Setup our shared file variable in our viewbag!
-            ViewBag.File = file;
+            // Setup a new viewer...
+            Viewer viewer = new Viewer() { Success = true };
+
+            // Setup our file attributes...
+            viewer.Name = file.Name;
+            viewer.Ext = file.Ext;
+            viewer.Size = file.Size;
 
             // Setup our icon to not display a preview icon...
-            ViewBag.Icon = _processService.GetFileAttribute(
+            viewer.Icon = _processService.GetFileAttribute(
                 file.Id.ToString(), 
                 file.Ext, 
                 ProcessService.AttributeTypes.FileIconNoPreview);
 
             // Setup our view bag action as a preview variable...
-            ViewBag.Preview = _processService.GetFileAttribute(
+            viewer.Action = _processService.GetFileAttribute(
                 file.Id.ToString(),
                 file.Ext,
                 ProcessService.AttributeTypes.FileAction);
 
             // Setup our url...
-            ViewBag.Url = $"process/download/{file.Id}";
+            viewer.URL = $"process/download/{file.Id}";
 
             // Setup our relative part...
-            ViewBag.Relative = string.Empty;
+            viewer.RelativeURL = string.Empty;
 
             // Return the partial view...
-            return View();
+            return Json(viewer);
         }
 
         /// <summary>

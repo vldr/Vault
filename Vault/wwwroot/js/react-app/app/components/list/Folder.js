@@ -176,7 +176,9 @@ export class Folder extends React.Component {
             return (
                 <div>
                     <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
-                    <div className={`${styles["gridItem"]}`} onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
+                    <div className={`${styles["gridItem"]}`}
+                        onClick={this.props.gotoFolder.bind(this, folder.id)}
+                        onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
                         <div className={styles["grid-file-icon"]} style={folderIconStyle} />
                         <p className={styles["grid-file-text"]}>{folder.name}</p>
                         <p className={styles["grid-text-right"]} />

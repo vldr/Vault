@@ -1,0 +1,134 @@
+﻿import React from 'react';
+import styles from '../../App.css';
+
+import { ActionAlert } from '../info/ActionAlert';
+import { PhotoView } from './PhotoView';
+
+class Viewer extends React.Component {
+    constructor(props) {
+        super(props);
+
+        // Setup our states...
+        this.state = {
+            isOpen: false,
+            isLoading: false,
+            response: null
+        };
+    }
+
+    onClose(event) {
+        // Make sure the target was the overlay...
+        if (event.target.className !== styles['overlay']) return;
+
+        // Close our overlay...
+        this.close();
+    }
+
+    onOpen(fileId)
+    {
+        // Close our search if it is open...
+        if (this.props.closeSearch) this.props.closeSearch();
+
+        // Set our state to be started...
+        this.setState({
+            isOpen: true,
+            isLoading: true
+        });
+
+        // Fetch our delete file request...
+        fetch("process/viewer",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `fileid=${encodeURIComponent(fileId)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    // Check if we're not logged in or something...
+                    if (!result.success) {
+                        // Stop our loading state...
+                        this.setState({ isLoading: false });
+
+                        // Render a action alert...
+                        new ActionAlert(<p>{result.reason}</p>);
+                    }
+                    // Set our response and turn off isLoading...
+                    else
+                        this.setState({ response: result, isLoading: false });
+                },
+                (error) => {
+                    // Stop our loading state...
+                    this.setState({ isLoading: false });
+
+                    // Render a action alert...
+                    new ActionAlert(<p>{error.message}</p>);
+                }
+            );
+    }
+
+    close()
+    {
+        // Set our state to hide our search overlay...
+        this.setState({ isOpen: false, response: null });
+    }
+
+    open()
+    {
+        // Set our state to display our search overlay...
+        this.setState({ isOpen: true });
+    }
+
+    render() {
+        // Don't display anything if we're not open...
+        if (!this.state.isOpen) return null;
+
+        // Setup a variable to track if everything has loaded...
+        const hasLoaded = !this.state.isLoading && this.state.response;
+
+        // Setup our loader bar...
+        const loaderBar = this.state.isLoading ? (<center><div className={styles['loader']} /></center>) : null;
+
+        // Setup our viewer content...
+        const viewerTopbar = hasLoaded ?
+            (<div className={styles['overlay-topbar']} >
+                <h4>
+                    <img src={this.state.response.icon} />
+                    {this.state.response.name}
+                </h4>
+
+                <div className={styles['overlay-topbar-right']}>
+                    <div className={styles['btn-download-viewer']} />
+                    <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
+                </div>
+            </div>) : null;
+
+        // Setup our view...
+        let view = <div className={styles['overlay-message']}>No preview available</div>;
+
+        // Check if our view has loaded...
+        if (hasLoaded)
+            // Perform a switch to choose our...
+            switch (this.state.response.action)
+            {
+                // PhotoView
+                case "1":
+                    view = <PhotoView view={this.state.response} />;
+                    break;
+            }
+
+        // Render our entire search system...
+        return (
+            <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
+                {loaderBar}
+                {viewerTopbar}
+
+                {hasLoaded && view}
+            </div>
+        );
+    }
+}
+
+export default Viewer;

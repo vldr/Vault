@@ -2,7 +2,7 @@
 import DropzoneComponent from 'react-dropzone-component';
 import styles from '../../App.css';
 
-export class Upload extends React.Component
+class Upload extends React.Component
 {
     constructor(props)
     {
@@ -154,3 +154,5 @@ export class Upload extends React.Component
         );
     }
 }
+
+export default Upload;

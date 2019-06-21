@@ -1,14 +1,16 @@
 ﻿const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 const extractCSS = new ExtractTextPlugin('bundle.css');
+var webpack = require('webpack');
 
 module.exports = {
-    context: __dirname,
+    context: __dirname, 
     entry: "./app/app.js",
     mode: "development",
     output: {
-        path: __dirname, 
-        filename: "bundle.js"
+        path: __dirname + "/dist", 
+        filename: "bundle.js",
+        publicPath: './js/react-app/dist/'
     },
     watch: true,
     module: {
@@ -25,6 +27,7 @@ module.exports = {
                         loader: "css-loader",
                         options: {
                             modules: {//-[hash:base64:6]
+                                
                                 localIdentName: '[local]',
                             },
                             
@@ -40,6 +43,7 @@ module.exports = {
                 use: {
                     loader: "babel-loader",
                     options: {
+                        plugins: ["@babel/plugin-syntax-dynamic-import"],
                         presets: ["@babel/preset-env", "@babel/preset-react"]
                     }
                 }
@@ -47,6 +51,11 @@ module.exports = {
         ]
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'process.env': {
+                'NODE_ENV': JSON.stringify('production')
+            }
+        }),
         extractCSS
     ]
 }

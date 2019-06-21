@@ -12,7 +12,7 @@ import styles from '../../App.css';
 
 const signalR = require("@aspnet/signalr");
 
-export class List extends React.Component
+class List extends React.Component
 {
     constructor(props)
     { 
@@ -28,8 +28,7 @@ export class List extends React.Component
         };
     }
 
-    componentDidMount()
-    {
+    componentDidMount() {
         /////////////////////////////////////////////////////
         // SignalR setup...
         /////////////////////////////////////////////////////
@@ -41,7 +40,13 @@ export class List extends React.Component
             .build();
 
         // Capture our update listing command...
-        this.connection.on("UpdateListing", () => this.requestList());
+        this.connection.on("UpdateListing", () => {
+            // Update our search if it is set...
+            if (this.props.updateSearch) this.props.updateSearch();
+
+            // Update our list...
+            this.requestList();
+        });
 
         // Capture our onclose event...
         this.connection.onclose(() =>
@@ -107,6 +112,16 @@ export class List extends React.Component
             .then(
                 (result) => 
                 {
+                    // Check if we're logged out...
+                    if (!result.success)
+                    {
+                        // Set our state accordingly...
+                        this.setState({ response: null, error: result.reason, finished: true });
+
+                        // Return here...
+                        return;
+                    }
+
                     // Increment our file offset and set our state...
                     this.setState({ response: result, offset: result.files.length, stopLoading: result.files.length === this.state.offset});
 
@@ -117,7 +132,7 @@ export class List extends React.Component
                     // Set our state accordingly that we have recieved an error...
                     this.setState({
                         finished: true,
-                        error
+                        error: error.message
                     });
                 }
             );
@@ -141,6 +156,19 @@ export class List extends React.Component
             .then(res => res.json())
             .then(
                 (result) => {
+                    // Check if we're logged out...
+                    if (!result.success) {
+                        // Set our state accordingly...
+                        this.setState({ response: null, error: result.reason, finished: true });
+
+                        // Return here...
+                        return;
+                    }
+
+                    // Close our search if it is set...
+                    if (this.props.closeSearch) this.props.closeSearch();
+
+                    // Set state accordingly...
                     this.setState({
                         response: result,
                         stopLoading: false,
@@ -149,7 +177,7 @@ export class List extends React.Component
                 },
                 (error) => {
                     this.setState({
-                        error
+                        error: error.message
                     });
                 }
             );
@@ -171,17 +199,17 @@ export class List extends React.Component
         // Check if there is an error loading our files...
         if (error)
             return (
-                <Error message={error.message} />
+                <Error message={error} />
             );
         // Check if our content is still loading...
-        else if (!finished) return (<>{introBox}</>);
+        else if (!finished) return (<div>{introBox}</div>);
 
         // Check if our request was unsuccessful...
         if (!response.success)
             return (
                 <Error message={response.reason} />
             );
-
+         
         // Check if we have an empty homepage...
         if (response.isHome && response.files.length === 0 && response.folders.length === 0)
             return (<center>
@@ -202,7 +230,7 @@ export class List extends React.Component
             {
                 response.files.map((file) =>
                 {
-                    return (<File file={file} />);
+                    return (<File key={file.id} file={file} openViewer={this.props.openViewer} />);
                 })
             }
         </div>) : null;
@@ -212,7 +240,7 @@ export class List extends React.Component
             <Folder folder={previousFolder} gotoFolder={this.gotoFolder.bind(this)} />
             {
                 response.folders.map((folder) => {
-                    if (!folder.isRecycleBin) return (<Folder folder={folder} gotoFolder={this.gotoFolder.bind(this)} />);
+                    if (!folder.isRecycleBin) return (<Folder key={folder.id} folder={folder} gotoFolder={this.gotoFolder.bind(this)} />);
                 })
             }
             <Folder folder={recycleBin} gotoFolder={this.gotoFolder.bind(this)} />
@@ -229,3 +257,5 @@ export class List extends React.Component
         );
     }
 }
+
+export default List;

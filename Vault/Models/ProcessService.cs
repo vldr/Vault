@@ -338,6 +338,7 @@ namespace Vault.Models
                 case ".rar":
                 case ".tar":
                 case ".gz":
+                case ".7z":
                 case ".zipx":
                     if (type == AttributeTypes.FileIcon 
                         || type == AttributeTypes.FileIconNoPreview

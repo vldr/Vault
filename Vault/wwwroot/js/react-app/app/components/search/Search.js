@@ -5,7 +5,7 @@ import { ActionAlert } from '../info/ActionAlert';
 import { File } from '../list/File';
 import { Folder } from '../list/Folder';
 
-export class Search extends React.Component
+class Search extends React.Component
 {
     constructor(props)
     {
@@ -63,7 +63,7 @@ export class Search extends React.Component
     onSearch()
     {
         // Don't perform search if the box is empty...
-        if (!this.searchBox.value) return;
+        if (!this.state.isSearching || !this.searchBox.value) return;
 
         // Set our state to be started...
         this.setState({
@@ -114,7 +114,6 @@ export class Search extends React.Component
         this.setState({ isSearching: true });
     }
 
-
     render()
     {
         // Don't display anything if we're not searching anything...
@@ -126,14 +125,14 @@ export class Search extends React.Component
         // Setup our files found...
         const filesFound = this.state.response ?
             this.state.response.files.map((file) => {
-                return (<File file={file} />);
+                return (<File file={file} key={file.id} searchCallback={this.close.bind(this)} />);
             }) : null;
 
         // Setup our folders found...
         const foldersFound = this.state.response ?
             this.state.response.folders.map((folder) =>
             {
-                return (<Folder folder={folder} listView />);
+                return (<Folder folder={folder} key={folder.id} gotoFolder={this.props.gotoFolder} listView />);
             }) : null;
 
         // Render our entire search system...
@@ -156,3 +155,5 @@ export class Search extends React.Component
         );
     }
 }
+
+export default Search;

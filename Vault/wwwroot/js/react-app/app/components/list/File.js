@@ -6,6 +6,7 @@ import { Draggable, Droppable } from 'react-drag-and-drop';
 import { DeleteFile } from '../action/DeleteFile';
 import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
+import { ActionAlert } from '../info/ActionAlert';
 
 import styles from '../../App.css';
 
@@ -13,23 +14,17 @@ export class File extends React.Component
 {
     deleteFile()
     {
-        swal(<DeleteFile file={this.props.file} />, {
-            buttons: false
-        });
+        new ActionAlert(<DeleteFile file={this.props.file} />);
     }
 
     shareFile()
     {
-        swal(<ShareFile file={this.props.file} />, {
-            buttons: false
-        });
+        new ActionAlert(<ShareFile file={this.props.file} />);
     }
 
     renameFile()
     {
-        swal(<RenameFile file={this.props.file} />, {
-            buttons: false
-        });
+        new ActionAlert(<RenameFile file={this.props.file} />);
     }
 
     duplicateFile()
@@ -53,12 +48,64 @@ export class File extends React.Component
             .then(res => res.json())
             .then(
                 (result) => {
+                    // Check if result failed...
+                    if (!result.success) {
+                        // Alert of the error...
+                        new ActionAlert(<p>result.reason</p>);
+
+                        // Return here...
+                        return;
+                    }
+
+                    // Close our swal...
                     swal.close();
                 },
                 (error) => {
-                    swal(error.message, {
-                        buttons: false
-                    });
+                    // Alert of the error...
+                    new ActionAlert(<p>error.message</p>);
+                }
+            );
+    }
+
+    openFileLocation() {
+        // Setup a loading dialog...
+        swal(<center><div className="loader" /></center>,
+            {
+                buttons: false,
+                closeOnClickOutside: false
+            });
+
+        // Attempt to update the sorting...
+        fetch("process/openfilelocation",
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `fileid=${encodeURIComponent(this.props.file.id)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => 
+                {
+                    // Check if result failed...
+                    if (!result.success) {
+                        // Alert of the error...
+                        new ActionAlert(<p>result.reason</p>);
+
+                        // Return here...
+                        return;
+                    }
+
+                    // Call our callback...
+                    this.props.searchCallback();
+
+                    // Close our swal...
+                    swal.close();
+                },
+                (error) => {
+                    // Alert of the error...
+                    new ActionAlert(<p>error.message</p>);
                 }
             );
     }
@@ -81,6 +128,10 @@ export class File extends React.Component
         const options = (
             <>
                 <li className={styles["menu-option"]}>Select</li>
+
+                {this.props.searchCallback
+                    && <li className={styles["menu-option"]} onClick={this.openFileLocation.bind(this)}>Open File Location</li>}
+
                 <li className={styles["menu-option"]} onClick={this.downloadFile.bind(this)}>Download</li>
                 <li className={styles["menu-option"]} onClick={this.duplicateFile.bind(this)}>Make a Copy</li>
                 <li className={styles["menu-option"]} onClick={this.renameFile.bind(this)}>Rename</li>
@@ -111,7 +162,7 @@ export class File extends React.Component
             <>
                 <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                 <Draggable type="file" data={file.id} onContextMenu={this.showContextMenu.bind(this)}>
-                    <div className={styles["gridItem"]}>
+                    <div className={styles["gridItem"]} onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
                         <div className={styles["grid-file-icon"]} style={fileIconStyle} />
 
                         <p className={styles["grid-file-text"]}>{file.name}</p>
