@@ -1,5 +1,16 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([[2],{
 
+/***/ "./node_modules/@peterbee/react-singleton/dist/singleton.min.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/@peterbee/react-singleton/dist/singleton.min.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+eval("!function(t,e){ true?module.exports=e():undefined}(this,function(){\"use strict\";class t{constructor(t){this.instances=[],this.state=t}register(t){this.instances.push(t)}deregister(t){const e=this.instances.indexOf(t);-1!==e&&this.instances.splice(e,1)}syncState(t){this.state=t,this.instances.forEach(e=>{e._superSetState(t)})}}return e=>{let s;return class extends e{constructor(e){super(e),s||(s=new t(this.state)),this.state=s.state,this._superSetState=super.setState}componentDidMount(){s.register(this),super.componentDidMount&&super.componentDidMount()}componentWillUnmount(){s.deregister(this),super.componentWillUnmount&&super.componentWillUnmount()}setState(t,e){super.setState(t,()=>{s.syncState(this.state),e&&e()})}}}});\r\n\n\n//# sourceURL=webpack:///./node_modules/@peterbee/react-singleton/dist/singleton.min.js?");
+
+/***/ }),
+
 /***/ "./node_modules/react-drag-and-drop/lib/Draggable.js":
 /*!***********************************************************!*\
   !*** ./node_modules/react-drag-and-drop/lib/Draggable.js ***!

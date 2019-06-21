@@ -1,12 +1,14 @@
 ﻿import React, { Suspense }  from 'react';
 import ReactDOM from 'react-dom';
-import ContextMenu from './components/contextmenu/ContextMenu';
 
+const ContextMenu = React.lazy(() => import('./components/contextmenu/ContextMenu'));
 const Topbar = React.lazy(() => import('./components/topbar/Topbar'));
 const List = React.lazy(() => import('./components/list/List'));
 const Upload = React.lazy(() => import('./components/upload/Upload'));
 const Search = React.lazy(() => import('./components/search/Search'));
 const Viewer = React.lazy(() => import('./components/viewer/Viewer'));
+
+import { ErrorBoundary } from './components/info/ErrorBoundary';
 
 import styles from './App.css';
 
@@ -37,24 +39,26 @@ export class App extends React.Component
         </div>);
 
         return (
-            <Suspense fallback={loader}>
-                <ContextMenu />
+            <ErrorBoundary>
+                <Suspense fallback={loader}>
+                    <ContextMenu />
 
-                <div className={styles['content']}>
-                    <Topbar ref={(ref) => { this.topbar = ref; this.update(); }} openSearch={this.openSearch.bind(this)} />
+                    <div className={styles['content']}>
+                        <Topbar ref={(ref) => { this.topbar = ref; this.update(); }} openSearch={this.openSearch.bind(this)} />
 
-                    <List ref={(ref) => { this.list = ref; }}
-                        updateSearch={this.updateSearch.bind(this)}
-                        closeSearch={this.closeSearch.bind(this)}
-                        openViewer={this.openViewer.bind(this)}
-                    /> 
+                        <List ref={(ref) => { this.list = ref; }}
+                            updateSearch={this.updateSearch.bind(this)}
+                            closeSearch={this.closeSearch.bind(this)}
+                            openViewer={this.openViewer.bind(this)}
+                        /> 
 
-                    <Upload ref={(ref) => { this.upload = ref; this.update(); }} />
-                </div>
+                        <Upload ref={(ref) => { this.upload = ref; this.update(); }} />
+                    </div>
 
-                <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} openViewer={this.openViewer.bind(this)} />
-                <Viewer ref={(ref) => { this.viewer = ref; }} closeSearch={this.closeSearch.bind(this)} />
-            </Suspense>
+                    <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} openViewer={this.openViewer.bind(this)} />
+                    <Viewer ref={(ref) => { this.viewer = ref; }} closeSearch={this.closeSearch.bind(this)} />
+                </Suspense>
+            </ErrorBoundary>
         );
     }
 }

@@ -1,8 +1,6 @@
 ﻿import React from 'react';
 
 import { Pathbar } from '../topbar/Pathbar';
-import { Error } from '../info/Error';
-import { Loading } from '../info/Loading';
 
 import { Folder } from './Folder';
 import { File } from './File';
@@ -199,7 +197,7 @@ class List extends React.Component
         // Check if there is an error loading our files...
         if (error)
             return (
-                <Error message={error} />
+                <p>{error}</p>
             );
         // Check if our content is still loading...
         else if (!finished) return (<div>{introBox}</div>);
@@ -207,7 +205,7 @@ class List extends React.Component
         // Check if our request was unsuccessful...
         if (!response.success)
             return (
-                <Error message={response.reason} />
+                <p>{response.reason}</p>
             );
          
         // Check if we have an empty homepage...

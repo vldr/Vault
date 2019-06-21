@@ -3,7 +3,10 @@ import styles from '../../App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
 import { PhotoView } from './PhotoView';
+import { AudioView } from './AudioView';
 import { VideoView } from './VideoView';
+
+const PDFView = React.lazy(() => import('./PDFView'));
 
 class Viewer extends React.Component {
     constructor(props) {
@@ -112,8 +115,9 @@ class Viewer extends React.Component {
         // Setup a variable to track if everything has loaded...
         const hasLoaded = !this.state.isLoading && this.state.response;
 
+
         // Setup our loader bar...
-        const loaderBar = this.state.isLoading ? (<center><div className={styles['loader']} /></center>) : null;
+        const loaderBar = <center><div className={styles['loader']} /></center>;
 
         // Setup our viewer content...
         const viewerTopbar = hasLoaded ?
@@ -145,15 +149,25 @@ class Viewer extends React.Component {
                 case "2":
                     view = <VideoView view={this.state.response} />;
                     break;
+                // PDFView
+                case "3":
+                    view = <PDFView view={this.state.response} />;
+                    break;
+                // AudioView
+                case "4":
+                    view = <AudioView view={this.state.response} />;
+                    break;
             }
 
         // Render our entire search system...
         return (
             <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
-                {loaderBar}
+                {this.state.isLoading && loaderBar}
                 {viewerTopbar}
 
-                {hasLoaded && view}
+                <React.Suspense fallback={loaderBar}>
+                    {hasLoaded && view}
+                </React.Suspense>
             </div>
         );
     }

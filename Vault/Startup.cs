@@ -11,6 +11,7 @@ using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Linq;
 
 namespace Vault2
 {
@@ -29,6 +30,7 @@ namespace Vault2
             services.AddResponseCompression(options =>
             {
                 options.Providers.Add<GzipCompressionProvider>();
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "image/svg+xml" });
                 options.EnableForHttps = true;
             });
 
