@@ -54,6 +54,9 @@ class Viewer extends React.Component {
 
                         // Render a action alert...
                         new ActionAlert(<p>{result.reason}</p>);
+
+                        // Close our overlay...
+                        this.close();
                     }
                     // Set our response and turn off isLoading...
                     else
@@ -65,8 +68,28 @@ class Viewer extends React.Component {
 
                     // Render a action alert...
                     new ActionAlert(<p>{error.message}</p>);
+
+                    // Close our overlay...
+                    this.close();
                 }
             );
+    }
+
+    downloadFile()
+    {
+        // Setup a form...
+        let form = document.createElement("form");
+        form.method = "POST";
+        form.action = this.state.response.url;
+
+        // Append it to the document...
+        document.body.appendChild(form);
+
+        // Submit it...
+        form.submit();
+
+        // Remove it from the document...
+        document.body.removeChild(form);
     }
 
     close()
@@ -100,7 +123,7 @@ class Viewer extends React.Component {
                 </h4>
 
                 <div className={styles['overlay-topbar-right']}>
-                    <div className={styles['btn-download-viewer']} />
+                    <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
                     <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
                 </div>
             </div>) : null;

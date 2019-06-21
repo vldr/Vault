@@ -112,13 +112,18 @@ export class File extends React.Component
 
     downloadFile()
     {
-        var form = document.createElement("form");
-
+        // Setup a form...
+        let form = document.createElement("form");
         form.method = "POST";
         form.action = `process/download/${this.props.file.id}`;
 
+        // Append it to the document...
         document.body.appendChild(form);
+
+        // Submit it...
         form.submit();
+
+        // Remove it from the document...
         document.body.removeChild(form);
     }
 

@@ -114,6 +114,17 @@ class Search extends React.Component
         this.setState({ isSearching: true });
     }
 
+    submit(event)
+    {
+        // Check if we're pressing the enter key...
+        if (event.key !== 'Enter') return;
+        
+        // Check if our folders aren't empty, then go ahead and goto to the folder...
+        if (this.state.response.folders.length) this.props.gotoFolder(this.state.response.folders[0].id);
+        // Check if instead our files aren't empty, then go ahead and open the viewer...
+        else if (this.state.response.files.length) this.props.openViewer(this.state.response.files[0].id);
+    }
+
     render()
     {
         // Don't display anything if we're not searching anything...
@@ -125,7 +136,7 @@ class Search extends React.Component
         // Setup our files found...
         const filesFound = this.state.response ?
             this.state.response.files.map((file) => {
-                return (<File file={file} key={file.id} searchCallback={this.close.bind(this)} />);
+                return (<File file={file} key={file.id} openViewer={this.props.openViewer} searchCallback={this.close.bind(this)} />);
             }) : null;
 
         // Setup our folders found...
@@ -144,6 +155,7 @@ class Search extends React.Component
                     className={styles['search-box']}
                     ref={(input) => { this.searchBox = input; }}
                     onChange={this.onSearch.bind(this)}
+                    onKeyPress={this.submit.bind(this)}
                     autoFocus placeholder="Search" />
 
                 <div className={styles['search-content']}>

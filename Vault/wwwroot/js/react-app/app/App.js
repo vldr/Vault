@@ -42,7 +42,7 @@ export class App extends React.Component
                     <Upload />
                 </div>
 
-                <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} />
+                <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} openViewer={this.openViewer.bind(this)} />
                 <Viewer ref={(ref) => { this.viewer = ref; }} closeSearch={this.closeSearch.bind(this)} />
             </Suspense>
         );
