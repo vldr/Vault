@@ -22,14 +22,14 @@ namespace Vault2
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                 /*.UseKestrel()
+                 .UseKestrel()
                  .UseIISIntegration()
                  .UseStartup<Startup>()
                  .ConfigureKestrel((context, options) =>
                  {
-                  
-                 });*/
-                 .UseHttpSys(options =>
+                     options.ListenAnyIP(5555);
+                 });
+                 /*.UseHttpSys(options =>
                  { 
                      options.Authentication.Schemes = AuthenticationSchemes.None; 
                      options.Authentication.AllowAnonymous = true;
@@ -48,7 +48,7 @@ namespace Vault2
                      options.UrlPrefixes.Add("http://upx.me:80/");
 #endif
                  })
-                .UseStartup<Startup>();
+                .UseStartup<Startup>();*/
                
     }
 }

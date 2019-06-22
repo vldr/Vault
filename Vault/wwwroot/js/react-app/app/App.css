@@ -1179,18 +1179,30 @@ progress::-moz-progress-bar {
 }
 
 .overlay-topbar img {
-	margin-bottom: -17px;
 	margin-right: 16px;
 	margin-left: 9px;
+	margin-bottom: -12px;
 	height: 45px;
+	width: 45px;
 }
 
+.overlay-topbar-text {
+	font-weight: unset;
+	height: 21px;
+	width: 45%;
+	overflow: hidden;
+	white-space: nowrap;
+	margin: 0;
+	font-size: 19px;
+	user-select: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+}
 
 .overlay-topbar * {
 	display: inline-block;
-	font-weight: unset;
-	margin: 0;
-	font-size: 19px;
 	user-select: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
@@ -1927,13 +1939,17 @@ p {
 	border-radius: 4px;
 }
 
+.load-progress {
+	background: #ffffff36;
+	height: 2px;
+}
 
 @media all and (max-width: 1125px) {
 	#close-button {
 		display: block;
 	}
 
-	#intro-box img {
+	.intro-box img {
 		height: 64px;
 	}
 }

@@ -10,10 +10,12 @@ class PDFView extends React.Component {
 
         this.pdf = null;
         this.pages = 0;
-        this.currentPage = 0;
+        this.currentPage = 1;
 
         this.state = {
-            isLoading: true
+            isLoading: true,
+            error: null,
+            progress: 0
         };
     }
 
@@ -28,8 +30,21 @@ class PDFView extends React.Component {
         // Setup our worker path...
         pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
-        // Attempt to get the document...
-        pdfjs.getDocument(url).then((pdf) =>
+        // Setup our loading task by getting the PDF...
+        let loadingTask = pdfjs.getDocument(url);
+
+        // Setup a on progress 
+        loadingTask.onProgress = (progress) =>
+        {
+            // Setup our percentage...
+            const percent = progress.loaded / progress.total * 100;
+
+            // Update our state according to our progress...
+            this.setState({ progress: percent, isLoading: percent < 100  });
+        };
+
+        // Setup a promise...
+        loadingTask.promise.then((pdf) =>
         {
             // Setup our PDF instance...
             this.pdf = pdf;
@@ -39,14 +54,22 @@ class PDFView extends React.Component {
 
             //Start with first page
             pdf.getPage(1).then(this.handlePages.bind(this));
-        });
+        }).catch(error => this.setState({ error: error }));
     }
 
     handlePages(page)
     {
+        // Check if container still exists...
+        if (!this.container) return;
+
         // Setup our scale and viewport...
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale: scale });
+        let viewport = page.getViewport(1);
+
+        // Setup our scale to be relative to the size of the image...
+        const scale = (document.body.clientWidth * 0.8)/ viewport.width;
+
+        // Overwrite our viewport using the updated scale...
+        viewport = page.getViewport({ scale: scale });
 
         // Create our canvas element...
         const canvas = document.createElement("canvas");
@@ -70,8 +93,6 @@ class PDFView extends React.Component {
         // Then get the current page...
         if (this.pdf && this.currentPage <= this.pages)
             this.pdf.getPage(this.currentPage).then(this.handlePages.bind(this));
-        else
-            this.setState({ isLoading: false });
     }
 
     render() {
@@ -81,13 +102,17 @@ class PDFView extends React.Component {
         // Setup a constant...
         const view = this.props.view;
 
+        // Setup our loader style...
+        const loaderStyle = {
+            width: `${this.state.progress}%`,
+            display: !this.state.isLoading ? "none" : "block"
+        };
+
         // Return our view...
         return (<>
-            <center>
-                <div className={styles['loader']} style={{ display: !this.state.isLoading ? "none" : "block" }} />
-            </center>
-
-            <div className={styles['overlay-preview']} style={{ display: this.state.isLoading ? "none" : "block" }}
+            <div className={styles['load-progress']} style={loaderStyle} />
+            {!this.state.isLoading && this.state.error && <div className={styles['overlay-message']}>Unable to preview document...</div>}
+            <div className={styles['overlay-preview']} style={{ display: this.state.isLoading && !this.state.error ? "none" : "block" }}
                 ref={(ref) => { this.container = ref; }} />
         </>);
     }

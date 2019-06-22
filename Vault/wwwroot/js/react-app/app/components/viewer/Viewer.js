@@ -115,18 +115,14 @@ class Viewer extends React.Component {
         // Setup a variable to track if everything has loaded...
         const hasLoaded = !this.state.isLoading && this.state.response;
 
-
         // Setup our loader bar...
         const loaderBar = <center><div className={styles['loader']} /></center>;
 
         // Setup our viewer content...
         const viewerTopbar = hasLoaded ?
             (<div className={styles['overlay-topbar']} >
-                <h4>
-                    <img src={this.state.response.icon} />
-                    {this.state.response.name}
-                </h4>
-
+                <img src={this.state.response.icon} />
+                <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
                 <div className={styles['overlay-topbar-right']}>
                     <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
                     <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
