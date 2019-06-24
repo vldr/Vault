@@ -2,7 +2,9 @@
 import ContextMenu from '../contextmenu/ContextMenu';
 import swal from '@sweetalert/with-react';
 
-import { Draggable, Droppable } from 'react-drag-and-drop';
+import { DragDropContainer } from '../dnd/DragDropContainer';
+import { DropTarget } from '../dnd/DropTarget';
+
 import { DeleteFile } from '../action/DeleteFile';
 import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
@@ -158,7 +160,7 @@ export class File extends React.Component
 
         // Setup our folder icon style...
         const fileIconStyle =
-        {
+        { 
             backgroundImage: `url(${file.icon})`
         };
          
@@ -166,14 +168,16 @@ export class File extends React.Component
         return (
             <>
                 <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
-                <Draggable type="file" data={file.id} onContextMenu={this.showContextMenu.bind(this)}>
-                    <div className={styles["gridItem"]} onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
+                <DragDropContainer targetKey="file" dragData={file} contextMenu={this.showContextMenu.bind(this)}>
+                    <div className={styles["gridItem"]}
+                        onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
+
                         <div className={styles["grid-file-icon"]} style={fileIconStyle} />
 
                         <p className={styles["grid-file-text"]}>{file.name}</p>
                         <p className={styles["grid-text-right"]}>{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
                     </div>
-                </Draggable>
+                </DragDropContainer>
             </>
         );
     }

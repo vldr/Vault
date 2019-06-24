@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
+    <Folder Include="wwwroot\js\react-app\app\components\dnd\" />
   </ItemGroup>
 
   <ItemGroup>

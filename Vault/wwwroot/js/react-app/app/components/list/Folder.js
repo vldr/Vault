@@ -2,7 +2,9 @@
 import ContextMenu from '../contextmenu/ContextMenu';
 import swal from '@sweetalert/with-react';
 
-import { Draggable, Droppable } from 'react-drag-and-drop';
+import { DragDropContainer } from '../dnd/DragDropContainer';
+import { DropTarget } from '../dnd/DropTarget';
+
 import { RenameFolder } from '../action/RenameFolder';
 import { ShareFolder } from '../action/ShareFolder';
 import { DeleteFolder } from '../action/DeleteFolder';
@@ -13,7 +15,7 @@ import styles from '../../App.css';
 
 export class Folder extends React.Component {
 
-    moveFileToFolder(fileId, folderId)
+    moveFileToFolder(fileId, folderId, draggedElement)
     {
         // Fetch our new result...
         fetch("process/movefile",
@@ -27,21 +29,40 @@ export class Folder extends React.Component {
             .then(res => res.json())
             .then(
                  (result) => {
-                    if (!result.success)
-                        swal(result.reason, {
-                            buttons: false
-                        });
+                     if (!result.success)
+                     {
+                         // Bring up a dialog of what happened...
+                         swal(result.reason, {
+                             buttons: false
+                         });
+
+                         // Reset our opacity...
+                         draggedElement.style.opacity = "unset";
+                     }
                 },
                 (error) => {
+                    // Bring up a dialog of what happened...
                     swal(error.message, {
                         buttons: false
                     });
+
+                    // Reset our opacity...
+                    draggedElement.style.opacity = "unset";
                 }
             ); 
     }
 
-    moveFolderToFolder(folderId, locationFolderId)
+    moveFolderToFolder(folderId, locationFolderId, draggedElement)
     {
+        // Ignore passing the folder inside of itself...
+        if (folderId === locationFolderId) {
+            // Reset our opacity...
+            draggedElement.style.opacity = "unset";
+
+            // Return here...
+            return;
+        }
+
         // Fetch our new result...
         fetch("process/movefolder",
             {
@@ -54,15 +75,24 @@ export class Folder extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    if (!result.success)
+                    if (!result.success) {
+                        // Bring up a dialog of what happened...
                         swal(result.reason, {
                             buttons: false
                         });
+
+                        // Reset our opacity...
+                        draggedElement.style.opacity = "unset";
+                    }
                 },
                 (error) => {
+                    // Bring up a dialog of what happened...
                     swal(error.message, {
                         buttons: false
                     });
+
+                    // Reset our opacity...
+                    draggedElement.style.opacity = "unset";
                 }
             );
     }
@@ -97,10 +127,22 @@ export class Folder extends React.Component {
             );
     }
 
-    onDrop(data)
+    onDrop(event)
     {
-        if (data.file) this.moveFileToFolder(data.file, this.props.folder.id);
-        else if (data.folder) this.moveFolderToFolder(data.folder, this.props.folder.id);
+        if (event.type === 'fileDrop') {
+            // Set our opacity to indicate that it is about to disappear...
+            event.containerElem.style.opacity = "0.3";
+
+            // Move our file to the folder indicated...
+            this.moveFileToFolder(event.dragData.id, this.props.folder.id, event.containerElem);
+        }
+        else if (event.type === 'folderDrop') {
+            // Set our opacity to indicate that it is about to disappear...
+            event.containerElem.style.opacity = "0.3";
+
+            // Move our folder to the folder indicated...
+            this.moveFolderToFolder(event.dragData.id, this.props.folder.id, event.containerElem);
+        }
     }
 
     renameFolder() {
@@ -188,18 +230,22 @@ export class Folder extends React.Component {
         else
             // Return our normal view...
             return (
-                <Droppable types={['file', 'folder']} onDrop={this.onDrop.bind(this)}>
-                    <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
-                    <Draggable className={`${styles["gridItem-folder"]} ${folderClassName}`}
-                        onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}
-                        onClick={this.props.gotoFolder.bind(this, folder.id)}
+                <DropTarget targetKey="folder" onHit={this.onDrop.bind(this)}>
+                    <DropTarget targetKey="file" onHit={this.onDrop.bind(this)}>
 
-                        type="folder"
-                        data={folder.id}>
-                        <div className={styles["grid-icon"]} style={folder.isRecycleBin ? {} : folderIconStyle} />
-                        <p className={styles["grid-text"]}>{folder.name}</p>
-                    </Draggable>
-                </Droppable>
+                        <DragDropContainer targetKey="folder" dragData={folder} contextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
+                            <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
+
+                            <div className={`${styles["gridItem-folder"]} ${folderClassName}`}
+                                onClick={this.props.gotoFolder.bind(this, folder.id)}>
+
+                                <div className={styles["grid-icon"]} style={folder.isRecycleBin ? {} : folderIconStyle} />
+                                <p className={styles["grid-text"]}>{folder.name}</p>
+                            </div>
+                        </DragDropContainer>
+
+                    </DropTarget>
+                </DropTarget>
             );
     }
 }
