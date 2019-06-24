@@ -41,6 +41,7 @@ export class RenameFile extends React.Component
         fetch("process/renamefile",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

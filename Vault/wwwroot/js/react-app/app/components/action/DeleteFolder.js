@@ -33,6 +33,7 @@ export class DeleteFolder extends React.Component
         fetch("process/deletefolder",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

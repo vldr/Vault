@@ -57,6 +57,7 @@ export class Settings extends React.Component {
         fetch("process/settings",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -99,6 +100,7 @@ export class Settings extends React.Component {
         fetch("process/changepassword",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -137,6 +139,7 @@ export class Settings extends React.Component {
         fetch("process/changename",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -176,6 +179,7 @@ export class Settings extends React.Component {
         fetch("process/toggleapi",
         {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }

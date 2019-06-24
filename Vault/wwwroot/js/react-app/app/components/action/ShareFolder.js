@@ -33,6 +33,7 @@ export class ShareFolder extends React.Component
         fetch("process/togglefoldershare",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

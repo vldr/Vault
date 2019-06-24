@@ -37,6 +37,7 @@ export class Sortbar extends React.Component {
         fetch("process/sortby",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

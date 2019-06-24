@@ -42,6 +42,7 @@ export class File extends React.Component
         fetch("process/duplicatefile",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -81,6 +82,7 @@ export class File extends React.Component
         fetch("process/openfilelocation",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

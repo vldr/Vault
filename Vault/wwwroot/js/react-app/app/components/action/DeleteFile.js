@@ -38,6 +38,7 @@ export class DeleteFile extends React.Component
         fetch("process/deletefile",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

@@ -41,6 +41,7 @@ export class NewFolder extends React.Component
         fetch("process/newfolder",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

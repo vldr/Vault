@@ -43,6 +43,7 @@ class Viewer extends React.Component {
         fetch("process/viewer",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

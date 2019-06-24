@@ -79,6 +79,27 @@ input[type=text]:focus {
 	outline: 0;
 }
 
+.text-overlay {
+	position: absolute;
+	left: 0;
+	margin: 0 auto;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	overflow: hidden;
+	opacity: 0.2;
+	line-height: 1.0;
+}
+
+.text-overlay span {
+	color: transparent;
+	position: absolute;
+	white-space: pre;
+	cursor: text;
+	transform-origin: 0% 0%;
+	user-select: text;
+}
+
 .sorting-arrow {
 	height: 20px;
 	margin-bottom: -5px;

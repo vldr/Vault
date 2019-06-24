@@ -74,6 +74,7 @@ class Search extends React.Component
         fetch("process/search",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

@@ -21,6 +21,7 @@ export class Folder extends React.Component {
         fetch("process/movefile",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -67,6 +68,7 @@ export class Folder extends React.Component {
         fetch("process/movefolder",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -109,6 +111,7 @@ export class Folder extends React.Component {
         fetch("process/setcolour",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },

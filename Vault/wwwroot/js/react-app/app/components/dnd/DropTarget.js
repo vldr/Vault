@@ -81,9 +81,9 @@ export class DropTarget extends React.Component {
 
     render() {
         return (
-            <span ref={(t) => { this.elem = t; }}>
+            <div ref={(t) => { this.elem = t; }}>
                 {this.props.render ? this.props.render() : this.props.children}
-            </span>
+            </div>
         );
     }
 }

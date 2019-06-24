@@ -53,7 +53,7 @@ class List extends React.Component
             console.log("Lost connection...");
 
             // Attempt to reconnect...
-            connectToSignalR();
+            this.connectToSignalR();
         });
 
         // Start our connection and attempt to catch any errors...
@@ -101,6 +101,7 @@ class List extends React.Component
         fetch("process/list",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
@@ -146,6 +147,7 @@ class List extends React.Component
         fetch("process/goto",
             {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
