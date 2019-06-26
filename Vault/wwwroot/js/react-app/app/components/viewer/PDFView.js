@@ -148,8 +148,11 @@ class PDFView extends React.Component {
                 <div className={styles['text-overlay']} ref={(ref) => { this.textContainer = ref; }} />
             </div>
 
-            <div>
+            <div className={styles['page-select']}>
                 {this.page > 1 && <button onClick={this.previousPage.bind(this)}>Back</button>}
+                <button disabled>
+                    <span>{this.page} </span>
+                    / {this.maxPage}</button>
                 {this.page < this.maxPage && <button onClick={this.nextPage.bind(this)}>Next</button>}
             </div>
         </>);

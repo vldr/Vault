@@ -173,7 +173,7 @@ export class Folder extends React.Component {
     {
         // Setup our contextmenu options depending if it is a recycle bin or a folder...
         const options = !this.props.folder.isRecycleBin ? (<>
-            <li className={styles["menu-option"]}>Select</li>
+            <li className={styles["menu-option"]} onClick={this.props.gotoFolder.bind(this, this.props.folder.id)}>Open</li>
             <li className={styles["menu-option"]} onClick={this.downloadFolder.bind(this)}>Download</li>
             <li className={styles["menu-option"]} onClick={this.renameFolder.bind(this)}>Rename</li>
             <li className={styles["menu-option"]} onClick={this.shareFolder.bind(this)}>Share</li>
@@ -219,7 +219,7 @@ export class Folder extends React.Component {
         if (this.props.listView)
             // Return our listview division...
             return (
-                <div>
+                <DragDropContainer targetKey="folder" dragData={folder} contextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
                     <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                     <div className={`${styles["gridItem"]}`}
                         onClick={this.props.gotoFolder.bind(this, folder.id)}
@@ -228,7 +228,7 @@ export class Folder extends React.Component {
                         <p className={styles["grid-file-text"]}>{folder.name}</p>
                         <p className={styles["grid-text-right"]} />
                     </div>
-                </div>
+                </DragDropContainer>
             );
         else
             // Return our normal view...

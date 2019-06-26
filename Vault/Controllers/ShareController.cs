@@ -191,6 +191,7 @@ namespace Vault.Controllers
                 Previous = sharedFolder.FolderId,
                 SharedFolder = sharedFolder.Id,
                 Sort = sortBy,
+                TotalFiles = _processService.GetFileCount(sharedFolder.Owner, folder.Id),
                 Folders = _processService.GetFolderListings(sharedFolder.Owner, sharedFolder.Id),
                 Files = _processService.GetSharedFileListings(sharedFolder.Owner, 
                     sharedFolder.Id, 
@@ -570,9 +571,6 @@ namespace Vault.Controllers
                 // Check we were successful in adding a new file...
                 if (result.success)
                 {
-                    // Tell our users to update their listings...
-                    _processService.UpdateListings(user.Id, Request);
-
                     // Setup a path for our uploaders to know where this is located...
                     var path = $"{_configuration["ShareUploadLocation"]}{result.shareId}{fileExtension}";
 

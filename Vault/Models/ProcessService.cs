@@ -119,7 +119,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<Folder> GetFolders(int ownerId, int folderId) 
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId);
-
+  
         /// <summary>
         /// Gets a list of folder listings with matching owners and folder id...
         /// </summary>
@@ -136,7 +136,7 @@ namespace Vault.Models
         /// <returns></returns>
         public bool IsEmpty(int ownerId, int folderId)
         {
-            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Any() 
+            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Any()
                 || _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).Any();
         }
 
@@ -148,18 +148,10 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FolderListing> GetFolderListings(int ownerId, int folderId)
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId)
-            .Select(x => new FolderListing
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
-                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
-                IsRecycleBin = x.IsRecycleBin,
-                Empty = !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
-                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any()),
-                IsSharing = x.IsSharing,
-                ShareId = x.ShareId
-            });
+            .Select(x => GetFolderListing(x, 
+                !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
+                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any())
+            ));
 
         /// <summary>
         /// Searches for folders matching the search term criteria...
@@ -169,18 +161,10 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FolderListing> SearchFolderListings(int ownerId, string term)
             => _context.Folders.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId).OrderByDescending(b => b.Id)
-            .Select(x => new FolderListing
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Icon = GetFolderAttribute(x.Colour, AttributeTypes.FolderIcon),
-                Style = GetFolderAttribute(x.Colour, AttributeTypes.FolderStyle),
-                IsRecycleBin = x.IsRecycleBin,
-                Empty = !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
-                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any()),
-                IsSharing = x.IsSharing,
-                ShareId = x.ShareId
-            }).Take(10);
+            .Select(x => GetFolderListing(x, 
+                !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
+                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any()) 
+            )).Take(10);
 
         /// <summary>
         /// Searches for files matching the search term criteria...
@@ -190,16 +174,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FileListing> SearchFileListings(int ownerId, string term)
            => _context.Files.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId).OrderByDescending(b => b.Id)
-           .Select(x => new FileListing
-           {
-               Id = x.Id,
-               Name = x.Name,
-               Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
-               Date = x.Created.ToString(),
-               Size = GetBytesReadable(x.Size),
-               IsSharing = x.IsSharing,
-               ShareId = x.ShareId
-           }).Take(10);
+           .Select(x => GetFileListing(x)).Take(10);
 
         /// <summary>
         /// Gets a list of file listings with matching owners and folder id...
@@ -211,16 +186,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0)
             => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
-            .Select(x => new FileListing
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
-                Date = x.Created.ToString(),
-                Size = GetBytesReadable(x.Size),
-                IsSharing = x.IsSharing,
-                ShareId = x.ShareId
-            }).Take(50 + offset);
+            .Select(x => GetFileListing(x)).Skip(offset).Take(50);
 
         /// <summary>
         /// Gets a list of file listings with matching owners and folder id...
@@ -232,16 +198,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FileListing> GetFileListings(int ownerId, int folderId, int sortBy, int offset = 0, int specificFile = -1)
             => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy).OrderBy(x => x.Id != specificFile)
-            .Select(x => new FileListing
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Icon = GetFileAttribute(x.Id.ToString(), x.Ext, AttributeTypes.FileIcon),
-                Date = x.Created.ToString(),
-                Size = GetBytesReadable(x.Size),
-                IsSharing = x.IsSharing,
-                ShareId = x.ShareId
-            }).Take(50 + offset);
+            .Select(x => GetFileListing(x)).Skip(offset).Take(50);
 
         /// <summary>
         /// Gets a list of file listings which have been shared...
@@ -253,15 +210,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FileListing> GetSharedFileListings(int ownerId, int folderId, string shareId, int sortBy, int offset = 0)
            => SortFiles(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId), sortBy)
-           .Select(x => new FileListing
-           {
-               Id = x.Id,
-               Name = x.Name,
-               Icon = GetFileAttribute($"{shareId}/{x.Id}/{folderId}", x.Ext, AttributeTypes.FileShareIcon),
-               Folder = x.Folder,
-               Size = GetBytesReadable(x.Size),
-               Date = x.Created.ToString()
-           }).Skip(offset).Take(50);
+           .Select(x => GetFileListing(x)).Skip(offset).Take(50);
 
         /// <summary>
         /// Gives all the files inside a folder...
@@ -799,8 +748,8 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        public bool IsShareIdTaken(int ownerId, int fileId, string shareId)
-            => _context.Files.Any(b => b.Id == fileId && b.Owner == ownerId && b.ShareId == shareId);
+        public bool CheckShareId(string shareId)
+            => _context.Files.Any(b => b.ShareId == shareId);
 
         /// <summary>
         /// Check whether a folder's share id is already taken...
@@ -809,8 +758,8 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        public bool IsShareIdTakenFolder(int ownerId, int folderId, string shareId)
-            => _context.Folders.Any(b => b.Id == folderId && b.Owner == ownerId && b.ShareId == shareId);
+        public bool CheckFolderShareId(string shareId)
+            => _context.Folders.Any(b => b.ShareId == shareId);
 
         /// <summary>
         /// Checks if a folder can move there...
@@ -932,6 +881,9 @@ namespace Vault.Models
             // Save all our changes...
             _context.SaveChanges();
 
+            // Send out an update...
+            UpdateFileListing(userId, fileObj);
+
             // Return true that the operation was successful...
             return (true, fileObj.Id);
         }
@@ -970,22 +922,25 @@ namespace Vault.Models
         /// <param name="ext"></param>
         /// <param name="path"></param>
         /// <returns>Tuple, (success and the shareId filled if it was successful...)</returns>
-        public (bool success, string shareId) AddNewFileAPI(User user, long size, string name, string ext, string path)
+        public (bool success, string shareId, int fileId) AddNewFileAPI(User user, long size, string name, string ext, string path)
         {
             // Add new folder or use folder if it already exists...
             Folder folder = FolderCreateOrExists(user, "API");
 
             // Check if the folder was able to be used or created...
-            if (folder == null) return (false, string.Empty);
+            if (folder == null) return (false, string.Empty, -1);
 
             // Call our original add new file...
             var result = AddNewFile(user.Id, size, name, ext, folder.Id, path);
 
             // Make sure adding our file was successful, if not, return false...
-            if (!result.success) return (false, string.Empty);
+            if (!result.success) return (false, string.Empty, -1);
+
+            // Get our share result...
+            var shareResult = ToggleShareFile(user.Id, result.fileId);
 
             // Respond with a tuple...
-            return ToggleShareFile(user.Id, result.fileId);
+            return (shareResult.success, shareResult.shareId, result.fileId);
         }
 
         /// <summary>
@@ -1018,6 +973,9 @@ namespace Vault.Models
                 // Save our changes!
                 _context.SaveChanges();
 
+                // Send out an listing update...
+                UpdateFolderListing(ownerId, folder);
+
                 // Return the folder object...
                 return (true, folder);
             }
@@ -1034,17 +992,16 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public (bool success, string shareId) ToggleShareFile(int id, int fileId)
+        public (bool success, string shareId) ToggleShareFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
             try
             {
                 // Get our actual user...
-                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == id).FirstOrDefault();
+                File file = GetFile(ownerId, fileId);
 
                 // Check if our user is null!
-                if (file == null)
-                    return (false, string.Empty);
+                if (file == null) return (false, string.Empty);
 
                 // If we want to toggle off our share, then it is simple!
                 if (file.IsSharing)
@@ -1058,16 +1015,16 @@ namespace Vault.Models
                 // Otherwise, turn everything on...
                 else
                 {
-                    // Set our is sharing accordingly!
-                    file.IsSharing = true;
-
                     // Setup a variable to store our share id!
                     string shareId = $"{RandomString(7)}";
 
                     // Check if our share id is taken!
-                    if (IsShareIdTaken(id, fileId, shareId))
+                    if (CheckShareId(shareId))
                         // Return false if it is taken!
                         return (false, string.Empty);
+
+                    // Set our is sharing accordingly!
+                    file.IsSharing = true;
 
                     // Generate our random string for our share id!
                     file.ShareId = shareId;
@@ -1075,6 +1032,9 @@ namespace Vault.Models
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Update our listing...
+                UpdateFileListing(ownerId, file);
 
                 // Return true as it was successful...
                 return (true, file.ShareId);
@@ -1092,19 +1052,19 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public (bool success, string shareId) ToggleShareFolder(int id, int folderId)
+        public (bool success, string shareId) ToggleShareFolder(int ownerId, int folderId)
         {
             // Catch any exceptions...
             try
             {
                 // Get our actual user...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id && b.IsRecycleBin == false).FirstOrDefault();
+                Folder folder = GetFolder(ownerId, folderId);
 
                 // Check if our user is null!
                 if (folder == null) return (false, string.Empty);
 
                 // Get our user...
-                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+                User user = GetUser(ownerId);
 
                 // Check if our user exists...
                 if (user == null) return (false, string.Empty);
@@ -1124,16 +1084,16 @@ namespace Vault.Models
                 // Otherwise, turn everything on...
                 else
                 {
-                    // Set our is sharing accordingly!
-                    folder.IsSharing = true;
-
                     // Setup a variable to store our share id!
                     string shareId = $"{RandomString(25)}";
 
                     // Check if our share id is taken!
-                    if (IsShareIdTakenFolder(id, folderId, shareId))
+                    if (CheckFolderShareId(shareId))
                         // Return false if it is taken!
                         return (false, string.Empty);
+
+                    // Set our is sharing accordingly!
+                    folder.IsSharing = true;
 
                     // Generate our random string for our share id!
                     folder.ShareId = shareId;
@@ -1141,6 +1101,9 @@ namespace Vault.Models
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Update our listing...
+                UpdateFolderListing(ownerId, folder);
 
                 // Return true as it was successful...
                 return (true, folder.ShareId);
@@ -1214,22 +1177,28 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool UpdateFileName(int id, File file, string newName)
+        public bool UpdateFileName(int ownerId, int fileId, string newName)
         {
             // Catch any exceptions...
             try
             {
-                // Check if our user is null!
-                if (file == null || file.Owner != id) return false;
-
                 // Double check if we aren't getting null or whitespace...
                 if (string.IsNullOrWhiteSpace(newName)) return false;
+
+                // Get the correct file...
+                File file = GetFile(ownerId, fileId);
+
+                // Check if the file is valid...
+                if (file == null) return false;
 
                 // Update our users name!
                 file.Name = WebUtility.HtmlEncode(newName);
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Send out an file update listing...
+                UpdateFileListing(ownerId, file);
 
                 // Return true as it was successful...
                 return true;
@@ -1248,26 +1217,34 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool UpdateFolderName(int id, int folderId, string newName)
+        public bool UpdateFolderName(int ownerId, int folderId, string newName)
         {
             // Catch any exceptions...
             try
-            {
-                // Get our actual user...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id && b.IsRecycleBin == false).FirstOrDefault();
-
-                // Check if our user is null!
-                if (folder == null)
-                    return false;
-
+            { 
                 // Double check if we aren't getting null or whitespace...
                 if (string.IsNullOrWhiteSpace(newName)) return false;
+
+                // Get the correct file...
+                Folder folder = GetFolder(ownerId, folderId);
+
+                // Check if our user is null!
+                if (folder == null) return false;
+
+                // Get our home folder...
+                int homeFolder = GetUser(ownerId).Folder;
+
+                // Make sure you don't rename the home folder...
+                if (folderId == homeFolder) return false;
 
                 // Update our users name!
                 folder.Name = WebUtility.HtmlEncode(newName);
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Update our listing...
+                UpdateFolderListing(ownerId, folder);
 
                 // Return true as it was successful...
                 return true;
@@ -1286,23 +1263,25 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="newColour"></param>
         /// <returns></returns>
-        public bool UpdateFolderColour(int id, int folderId, int newColour)
+        public bool UpdateFolderColour(int ownerId, int folderId, int newColour)
         {
             // Catch any exceptions...
             try
             {
                 // Get our actual user...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == id).FirstOrDefault();
+                Folder folder = GetFolder(ownerId, folderId);
 
                 // Check if our user is null!
-                if (folder == null)
-                    return false;
+                if (folder == null) return false;
 
                 // Update our users name!
                 folder.Colour = newColour;
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                // Update our listing...
+                UpdateFolderListing(ownerId, folder);
 
                 // Return true as it was successful...
                 return true;
@@ -1482,23 +1461,35 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="newSortBy"></param>
         /// <returns></returns>
-        public bool UpdateSortBy(int id, int newSortBy)
+        public bool UpdateSortBy(int id, int newSortBy, HttpContext httpContext, UserSession userSession)
         {
             // Catch any exceptions...
             try
             {
                 // Get our actual user...
-                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+                User user = GetUser(id);
 
                 // Check if our user is null!
-                if (user == null)
-                    return false;
+                if (user == null) return false;
 
                 // Update our users name!
                 user.SortBy = newSortBy;
 
                 // Save our changes!
                 _context.SaveChanges();
+
+                ////////////////////////////////////////////
+
+                // Setup our new sort by!
+                userSession.SortBy = newSortBy;
+
+                // Setup our new session value!
+                SessionExtension.Set(httpContext.Session, _sessionName, userSession);
+
+                ////////////////////////////////////////////
+
+                // Update our entire listing for that specific folder...
+                UpdateAllListings(user.Id, userSession.Folder);
 
                 // Return true as it was successful...
                 return true;
@@ -1675,6 +1666,8 @@ namespace Vault.Models
 
                 // Attempt to recycle our folder...
                 if (!doNotRecycle && !RecycleFolder(ownerId, selectedFolder)) return true;
+                
+                /////////////////////////////////////////////
 
                 // Get our file...
                 var files = GetFiles(ownerId, selectedFolder.Id);
@@ -1706,6 +1699,16 @@ namespace Vault.Models
 
                 // Remove our file...
                 _context.SaveChanges();
+
+                /////////////////////////////////////////////
+
+                // Indicate that this folder is being deleted...
+                if (!selectedFolder.IsRecycleBin) selectedFolder.FolderId = -1;
+
+                UpdateAllListings(ownerId, folderId);
+                UpdateFolderListing(ownerId, selectedFolder);
+
+                /////////////////////////////////////////////
 
                 // Return true as it was successful...
                 return true;
@@ -1805,6 +1808,14 @@ namespace Vault.Models
 
                 ///////////////////////////////////////////
 
+                // Set our parent folder to be negative one, indicating a deletion...
+                file.Folder = -1;
+
+                // Send out an update...
+                UpdateFileListing(ownerId, file);
+
+                ///////////////////////////////////////////
+
                 // Remove our file...
                 _context.Files.Remove(file);
 
@@ -1835,24 +1846,50 @@ namespace Vault.Models
             try
             {
                 // Get our folders as objects...
-                Folder folder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
-                Folder newFolder = _context.Folders.Where(b => b.Id == newFolderId && b.Owner == ownerId).FirstOrDefault();
+                Folder folder = GetFolder(ownerId, folderId);
+                Folder newFolder = GetFolder(ownerId, newFolderId);
 
-                // Check if our new folder and our current folder isn't null...
-                if (folder != null && newFolder != null)
-                {
-                    // Modify
-                    folder.FolderId = newFolder.Id;
+                // Check if our folders exist...
+                if (folder == null || newFolder == null) return false;
 
-                    // Save our changes...
-                    _context.SaveChanges();
+                // Get our parent folder object...
+                Folder parentFolder = GetFolder(ownerId, folder.FolderId);
 
-                    // Respond with a true...
-                    return true;
-                }
-                else
-                    // Otherwise return false...
-                    return false;
+                // Check if our parent folder exists...
+                if (parentFolder == null) return false;
+
+                // Get our user...
+                User user = GetUser(ownerId);
+
+                // Check if user is valid...
+                if (user == null) return false;
+
+                ///////////////////////////////////////////////////
+
+                // Modify our parent...
+                folder.FolderId = newFolder.Id;
+
+                // Save our changes...
+                _context.SaveChanges();
+
+                ///////////////////////////////////////////////////
+
+                // Update our listing inside our moved folder...
+                UpdatePathBar(ownerId, folder, user.Folder);
+
+                // Update our moved folder...
+                UpdateFolderListing(ownerId, folder);
+
+                // Update our folder that we placed the original folder inside of...
+                UpdateFolderListing(ownerId, newFolder);
+                
+                // Update our folder that we placed the original folder inside of...
+                UpdateFolderListing(ownerId, parentFolder);
+
+                ///////////////////////////////////////////////////
+
+                // Respond with a true...
+                return true;
             }
             catch
             {
@@ -1914,25 +1951,40 @@ namespace Vault.Models
             // Catch any exceptions...
             try
             {
-                // Get our folders as objects...
-                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
-                Folder newFolder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
+                // Get our file and folder objects...
+                File file = GetFile(ownerId, fileId);
+                Folder newFolder = GetFolder(ownerId, folderId);
 
-                // Check if our new folder and our current folder isn't null...
-                if (file != null && newFolder != null)
-                {
-                    // Modify
-                    file.Folder = newFolder.Id;
+                // Check if our objects exist...
+                if (file == null || newFolder == null) return false;
 
-                    // Save our changes...
-                    _context.SaveChanges();
+                // Attempt to get our parent folder...
+                Folder parentFolder = GetFolder(ownerId, file.Folder);
 
-                    // Respond with a true...
-                    return true;
-                }
-                else
-                    // Otherwise return false...
-                    return false;
+                // Check if our parent folder exists...
+                if (parentFolder == null) return false;
+
+                // Modify our parent folder of our file...
+                file.Folder = newFolder.Id;
+
+                // Save our changes...
+                _context.SaveChanges();
+
+                ////////////////////////////////////////////////
+                
+                // Update the file listing...
+                UpdateFileListing(ownerId, file);
+
+                // Update the new folder's listing...
+                UpdateFolderListing(ownerId, newFolder);
+
+                // Update the parent folder listing...
+                UpdateFolderListing(ownerId, parentFolder);
+
+                ////////////////////////////////////////////////
+
+                // Respond with a true...
+                return true;
             }
             catch
             {
@@ -1947,36 +1999,36 @@ namespace Vault.Models
         /// <param name="ownerId">The owning user of the file.</param>
         /// <param name="fileId">The file's id.</param>
         /// <returns></returns>
-        public bool DuplicateFile(int ownerId, int fileId)
+        public (bool success, int fileId) DuplicateFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
             try
             {
                 // Attempt to find our file...
-                File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
+                File file = GetFile(ownerId, fileId);
 
                 // Check if our file even exists...
-                if (file == null) return false;
+                if (file == null) return (false, -1);
 
                 // Check if we can "upload" this file, or in other words "do we have enough storage for this file"...
-                if (!CanUpload(ownerId, file.Size)) return false;
+                if (!CanUpload(ownerId, file.Size)) return (false, -1);
 
                 // Generate a brand new file name for our duplicate file...
                 string filePath = _configuration["VaultStorageLocation"] + RandomString(30);
 
                 // Check if our file already exists with that name!
-                if (System.IO.File.Exists(filePath)) return false;
+                if (System.IO.File.Exists(filePath)) return (false, -1);
 
                 // Now actually create a copy of the file on the file system...
                 System.IO.File.Copy(file.Path, filePath);
 
                 // Pass the response to the add new file api...
-                return AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath).success;
+                return AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath);
             }
             catch
             {
                 // Exception, false...
-                return false;
+                return (false, -1);
             }
         }
 
@@ -2034,12 +2086,10 @@ namespace Vault.Models
             try
             {
                 // Setup our user...
-                User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
+                User user = GetUser(userId);
 
                 // Check if our user exists...
-                if (user == null)
-                    // If it doesn't then return here...
-                    return false;
+                if (user == null) return false;
 
                 // Setup our max bytes variable...
                 var max = user.MaxBytes;
@@ -2124,15 +2174,79 @@ namespace Vault.Models
             return new string(stringChars);
         }
 
+        public FolderListing GetFolderListing(Folder folder, bool? empty = null)
+        {
+            // Check if empty is set...
+            if (empty == null && folder.IsRecycleBin)
+                empty = !(_context.Files.Where(b => b.Folder == folder.Id && b.Owner == folder.Owner).Any()
+                || _context.Folders.Where(b => b.FolderId == folder.Id && b.Owner == folder.Owner).Any());
+
+            return new FolderListing
+            {
+                Id = folder.Id,
+                Name = folder.Name,
+                Folder = folder.FolderId,
+                Icon = GetFolderAttribute(folder.Colour, AttributeTypes.FolderIcon),
+                Style = GetFolderAttribute(folder.Colour, AttributeTypes.FolderStyle),
+                IsRecycleBin = folder.IsRecycleBin,
+                Empty = empty.GetValueOrDefault(),
+                IsSharing = folder.IsSharing,
+                ShareId = folder.ShareId
+            };
+        }
+
+        public FileListing GetFileListing(File file)
+        {
+            return new FileListing
+            {
+                Id = file.Id,
+                Name = file.Name,
+                Folder = file.Folder,
+                Icon = GetFileAttribute(file.Id.ToString(), file.Ext, AttributeTypes.FileIcon),
+                Date = file.Created.ToString(),
+                Size = GetBytesReadable(file.Size),
+                IsSharing = file.IsSharing,
+                ShareId = file.ShareId
+            };
+        }
+
+        ////////////////////////////////////////////////////////
+        /// SignalR methods...
+        ////////////////////////////////////////////////////////
 
         /// <summary>
         /// Updates the listings for all our user sessions...
         /// </summary>
         /// <param name="userId"></param>
-        public void UpdateListings(int userId, HttpRequest httpRequest)
+        private void UpdateAllListings(int userId, int folderId) =>
+            _hubContext.Clients.Group(userId.ToString()).SendAsync("UpdateListing", folderId);
+
+        private void UpdatePathBar(int userId, Folder folder, int homeFolderId)
         {
-            // Update our listings to everyone in the group...
-            _hubContext.Clients.Group(userId.ToString()).SendAsync("UpdateListing");
+            // Get all folders inside our folder...
+            var folders = GetFolders(folder.Owner, folder.Id);
+
+            // Go to every folder and delete them...
+            foreach (var item in folders)
+            {
+                // Update the path bar for their folders...
+                UpdatePathBar(userId, item, homeFolderId);
+            }
+
+            // Send out an update...
+            _hubContext.Clients.Group(userId.ToString())
+                .SendAsync("UpdatePathBar", folder.Id, GetPath(folder, homeFolderId));
         }
+
+        ////////////////////////////////////////////////////////
+        // UPDATE - operation
+        // Adds a file or folder on the UI...
+        ////////////////////////////////////////////////////////
+
+        private void UpdateFileListing(int userId, File file) 
+            => _hubContext.Clients.Group(userId.ToString()).SendAsync("UpdateFile", GetFileListing(file));
+
+        private void UpdateFolderListing(int userId, Folder folder)
+            => _hubContext.Clients.Group(userId.ToString()).SendAsync("UpdateFolder", GetFolderListing(folder));
     }
 }

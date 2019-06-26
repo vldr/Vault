@@ -1,7 +1,8 @@
 ﻿import React from 'react';
+import swal from '@sweetalert/with-react';
 
+import { ActionAlert } from '../info/ActionAlert';
 import { Pathbar } from '../topbar/Pathbar';
-
 import { Folder } from './Folder';
 import { File } from './File';
 import { Sortbar } from './Sortbar';
@@ -21,7 +22,7 @@ class List extends React.Component
             error: null,
             finished: false,
             response: null,
-            stopLoading: false,
+            shouldScroll: false,
             offset: 0
         };
     }
@@ -38,13 +39,11 @@ class List extends React.Component
             .build();
 
         // Capture our update listing command...
-        this.connection.on("UpdateListing", () => {
-            // Update our search if it is set...
-            if (this.props.updateSearch) this.props.updateSearch();
+        this.connection.on("UpdateListing", (folderId) => this.updateListing(folderId));
 
-            // Update our list...
-            this.requestList();
-        });
+        this.connection.on("UpdatePathBar", (folderId, path) => this.updatePathBar(folderId, path));
+        this.connection.on("UpdateFolder", (obj) => this.updateObject(obj, 'FOLDER'));
+        this.connection.on("UpdateFile", (obj) => this.updateObject(obj, 'FILE'));
 
         // Capture our onclose event...
         this.connection.onclose(() =>
@@ -70,9 +69,83 @@ class List extends React.Component
         {
             const scrollOffset = window.innerHeight + window.pageYOffset;
 
-            if (scrollOffset >= (document.body.offsetHeight * 0.8) && !this.state.stopLoading)
-                this.requestList(this.state.offset);
+            if (this.state.shouldScroll && scrollOffset >= document.body.offsetHeight * 0.8)
+                this.requestList();
         };
+    }
+
+    updateObject(object, type)
+    {
+        // Setup our response...
+        const { response } = this.state;
+
+        // Check if our response exists...
+        if (!response) return;
+
+        // Setup our response objects depending whether file or folder...
+        const responseObjects = type === 'FILE' ? response.files : response.folders;
+
+        // Attempt to find our file...
+        const index = responseObjects.findIndex((x) => x.id === object.id && x.folder === response.current);
+
+        // Check if index exists...
+        if (index !== -1)
+        {
+            // UPDATE operation...
+            if (object.folder === response.current)
+                // Copy the new object to our folders list...
+                responseObjects[index] = object;
+            // REMOVE operation...
+            else
+                // Splice our file listing...
+                responseObjects.splice(index, 1);
+
+            // Update our state...
+            this.setState({ response: response });
+
+            // Update our search if it is set...
+            if (this.props.updateSearch) this.props.updateSearch();
+        }
+        // ADD operation...
+        else if (object.folder === response.current)
+        {
+            // Place our added item to the top of the list...
+            responseObjects.push(object);
+
+            // Update our state...
+            this.setState({ response: response });
+
+            // Update our search if it is set...
+            if (this.props.updateSearch) this.props.updateSearch();
+        }
+    }
+
+    updatePathBar(folderId, path)
+    {
+        // Setup our response...
+        const { response } = this.state;
+
+        // Check if the last item was updated...
+        if (folderId !== response.current) return;
+
+        // Find the index of our folder...
+        const index = path.findIndex((x) => x.id === folderId);
+
+        // Update our pathbar...
+        response.path = path;
+        response.previous = path[index - 1].id;
+
+        // Update our state...
+        this.setState({ response: response });
+    }
+
+    updateListing(folderId)
+    {
+        // Check if were responsible for this...
+        if (folderId !== this.state.response.current) return;
+
+        // Update our list...
+        this.requestList(true);
     }
 
     /**
@@ -91,12 +164,12 @@ class List extends React.Component
 
     /**
      * Requests the list of files and folders...
-     * @param {any} offset Offset of where we want to display our files...
+     * @param {any} reset Prevents concatting...
      */
-    requestList(offset = 0)
+    requestList(reset = false)
     {
         // Disable loading while we request for a list...
-        this.setState({ stopLoading: true });
+        this.setState({ shouldScroll: false });
 
         fetch("process/list",
             {
@@ -121,8 +194,33 @@ class List extends React.Component
                         return;
                     }
 
+                    // Setup our relative offset...
+                    const offset = this.state.offset + result.files.length;
+
+                    // If our response is already set, then concat the new files...
+                    if (this.state.response)
+                    {
+                        // Filter repeating items...
+                        const filteredResult = result.files.filter(
+                            (o1) =>
+                            {
+                                return !this.state.response.files.some(
+                                    (o2) =>
+                                    {
+                                        return o1.id === o2.id;
+                                    });
+                            });
+
+                        // Concat our filtered result...
+                        this.state.response.files = this.state.response.files.concat(filteredResult);
+                    }
+
                     // Increment our file offset and set our state...
-                    this.setState({ response: result, offset: result.files.length, stopLoading: result.files.length === this.state.offset});
+                    this.setState({
+                        response: this.state.response ? this.state.response : result,
+                        offset: offset,
+                        shouldScroll: offset !== result.totalFiles
+                    });
 
                     // Setup a timeout to update our finished state if it isn't set...
                     if (!this.state.finished) setTimeout(() => this.setState({ finished: true }), 300);
@@ -171,14 +269,66 @@ class List extends React.Component
                     // Set state accordingly...
                     this.setState({
                         response: result,
-                        stopLoading: false,
-                        offset: 0
+                        offset: result.files.length,
+                        shouldScroll: result.files.length !== result.totalFiles
                     });
                 },
                 (error) => {
                     this.setState({
                         error: error.message
                     });
+                }
+            );
+    }
+
+    /**
+     * Opens the folder that a file is located in...
+     * @param {any} fileId The id of the file...
+     */
+    openFileLocation(fileId) {
+        // Show a loading dialog...
+        new ActionAlert(<center><div className="loader" /></center>);
+
+        // Attempt to update the sorting...
+        fetch("process/openfilelocation",
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `fileid=${encodeURIComponent(fileId)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => 
+                {
+                    // Check if we're logged out...
+                    if (!result.success)
+                    {
+                        // Show an error dialog...
+                        new ActionAlert(<p>{result.reason}</p>);
+
+                        // Return here...
+                        return;
+                    }
+
+                    // Close our search if it is set...
+                    if (this.props.closeSearch) this.props.closeSearch();
+
+                    // Set state accordingly...
+                    this.setState({
+                        response: result,
+                        offset: result.files.length,
+                        shouldScroll: result.files.length !== result.totalFiles
+                    });
+
+                    // Close our dialog...
+                    swal.close();
+                },
+                (error) => {
+                    // Show an error dialog...
+                    new ActionAlert(<p>{error.message}</p>);
                 }
             );
     }
@@ -190,9 +340,7 @@ class List extends React.Component
         /////////////////////////////////////////////////////
 
         // Our introduction box...
-        const introBox = (<div className={styles["intro-box"]}>
-            <img src="images/ui/logo.svg" />
-        </div>);
+        const introBox = <div className={styles["intro-box"]}><img src="images/ui/logo.svg" /></div>;
 
         /////////////////////////////////////////////////////
 
@@ -228,9 +376,9 @@ class List extends React.Component
         const fileListing = response.files.length ? (<div className={styles["file-listing"]}>
             <Sortbar sort={response.sort} />
             {
-                response.files.map((file) =>
+                response.files.map((file, i) =>
                 {
-                    return (<File key={file.id} file={file} openViewer={this.props.openViewer} />);
+                    return <File key={file.id} file={file} openViewer={this.props.openViewer} />;
                 })
             }
         </div>) : null;
@@ -239,8 +387,9 @@ class List extends React.Component
         const folderListing = (<div className={styles["folder-listing"]}>
             <Folder folder={previousFolder} gotoFolder={this.gotoFolder.bind(this)} />
             {
-                response.folders.map((folder) => {
-                    if (!folder.isRecycleBin) return (<Folder key={folder.id} folder={folder} gotoFolder={this.gotoFolder.bind(this)} />);
+                response.folders.map((folder) =>
+                {
+                    if (!folder.isRecycleBin) return <Folder key={folder.id} folder={folder} gotoFolder={this.gotoFolder.bind(this)} />;
                 })
             }
             <Folder folder={recycleBin} gotoFolder={this.gotoFolder.bind(this)} />

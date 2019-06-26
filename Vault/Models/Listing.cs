@@ -19,6 +19,8 @@ namespace Vault.Models
         public int SharedFolder { get; set; }
         public int Current { get; set; }
 
+        public int TotalFiles { get; set; }
+
         public IEnumerable<FolderListing> Folders { get; set; }
         public IEnumerable<FileListing> Files { get; set; }
     }
@@ -40,6 +42,7 @@ namespace Vault.Models
     public class FolderListing
     {
         public int Id { get; set; }
+        public int Folder { get; set; }
         public string Name { get; set; }
         public string Icon { get; set; }
         public string Style { get; set; }

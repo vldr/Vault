@@ -31,6 +31,7 @@ export class App extends React.Component
     closeSearch() { this.search.close(); }
 
     gotoFolder(folderId) { this.list.gotoFolder(folderId); }
+    openFileLocation(fileId) { this.list.openFileLocation(fileId); }
 
     render()
     {
@@ -55,7 +56,12 @@ export class App extends React.Component
                         <Upload ref={(ref) => { this.upload = ref; this.update(); }} />
                     </div>
 
-                    <Search ref={(ref) => { this.search = ref; }} gotoFolder={this.gotoFolder.bind(this)} openViewer={this.openViewer.bind(this)} />
+                    <Search ref={(ref) => { this.search = ref; }}
+                        gotoFolder={this.gotoFolder.bind(this)}
+                        openFileLocation={this.openFileLocation.bind(this)}
+                        openViewer={this.openViewer.bind(this)}
+                    />
+
                     <Viewer ref={(ref) => { this.viewer = ref; }} closeSearch={this.closeSearch.bind(this)} />
                 </Suspense>
             </ErrorBoundary>

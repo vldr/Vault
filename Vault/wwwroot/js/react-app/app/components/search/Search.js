@@ -137,7 +137,11 @@ class Search extends React.Component
         // Setup our files found...
         const filesFound = this.state.response ?
             this.state.response.files.map((file) => {
-                return (<File file={file} key={file.id} openViewer={this.props.openViewer} searchCallback={this.close.bind(this)} />);
+                return (<File file={file} key={file.id}
+                    openViewer={this.props.openViewer}
+                    openFileLocation={this.props.openFileLocation}
+                    searchCallback={this.close.bind(this)}
+                />);
             }) : null;
 
         // Setup our folders found...
