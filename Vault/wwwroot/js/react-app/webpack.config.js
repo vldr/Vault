@@ -29,11 +29,12 @@ module.exports = {
                             modules: {//-[hash:base64:6]
                                 
                                 localIdentName: '[local]',
+                                //localIdentName: '[hash:base64:6]',
                             },
-                            
-                            importLoaders: 1
+                            url: false,
+                            importLoaders: 2
                         }
-                    }
+                    }, 'postcss-loader'
                 ])
             },
             {

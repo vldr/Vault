@@ -136,8 +136,8 @@ namespace Vault.Models
         /// <returns></returns>
         public bool IsEmpty(int ownerId, int folderId)
         {
-            return _context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Any()
-                || _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).Any();
+            return !(_context.Files.Where(b => b.Folder == folderId && b.Owner == ownerId).Any()
+                || _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId).Any());
         }
 
         /// <summary>
@@ -1440,12 +1440,9 @@ namespace Vault.Models
             }
 
             // Check if our target folder does equal our inside folder...
-            if (tempFolder == insideFolder)
-                // Then we're inside our selected folder...
-                return true;
-            else
-                // Otherwise, we're not inside a folder...
-                return false;
+            // Then we're inside our selected folder...
+            // Otherwise, we're not inside a folder...
+            return (tempFolder == insideFolder);
         }
 
         /// <summary>
@@ -1879,12 +1876,6 @@ namespace Vault.Models
                 // Check if our parent folder exists...
                 if (parentFolder == null) return false;
 
-                // Get our user...
-                User user = GetUser(ownerId);
-
-                // Check if user is valid...
-                if (user == null) return false;
-
                 ///////////////////////////////////////////////////
 
                 // Modify our parent...
@@ -1901,11 +1892,15 @@ namespace Vault.Models
                 // Update our moved folder...
                 UpdateFolderListing(ownerId, folder);
 
-                // Update our folder that we placed the original folder inside of...
-                UpdateFolderListing(ownerId, newFolder);
-                
-                // Update our folder that we placed the original folder inside of...
-                UpdateFolderListing(ownerId, parentFolder);
+                // Check if our new folder is a recycle bin...
+                if (newFolder.IsRecycleBin)
+                    // Update our folder that we placed the original folder inside of...
+                    UpdateFolderListing(ownerId, newFolder);
+
+                // Check if our parent folder is a recycle bin...
+                if (parentFolder.IsRecycleBin)
+                    // Update our folder that we placed the original folder inside of...
+                    UpdateFolderListing(ownerId, parentFolder);
 
                 ///////////////////////////////////////////////////
 
@@ -2197,11 +2192,13 @@ namespace Vault.Models
 
         public FolderListing GetFolderListing(Folder folder, bool? empty = null)
         {
-            // Check if empty is set...
+            // Check if empty isn't set and that the folder is a recycle bin.
+            // We don't want to waste data fetches on non recycle bins...
             if (empty == null && folder.IsRecycleBin)
-                empty = !(_context.Files.Where(b => b.Folder == folder.Id && b.Owner == folder.Owner).Any()
-                || _context.Folders.Where(b => b.FolderId == folder.Id && b.Owner == folder.Owner).Any());
+                // Call our is empty method...
+                empty = IsEmpty(folder.Owner, folder.Id);
 
+            // Setup our folder listing...
             return new FolderListing
             {
                 Id = folder.Id,
@@ -2218,6 +2215,7 @@ namespace Vault.Models
 
         public FileListing GetFileListing(File file)
         {
+            // Setup our file listing...
             return new FileListing
             {
                 Id = file.Id,

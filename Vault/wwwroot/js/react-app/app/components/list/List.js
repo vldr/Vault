@@ -371,8 +371,11 @@ class List extends React.Component
         // Check if there is an error loading our files...
         if (error)
             return (
-                <p>{error}</p>
-            );
+                <div className={styles['error']}>
+                    <img src="images/paper.svg" />
+                    <h2>Something went wrong.</h2>
+                    <p>{error}</p>
+                </div>);
         // Check if our content is still loading...
         else if (!finished) return (<div>{introBox}</div>);
 

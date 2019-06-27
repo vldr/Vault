@@ -22,7 +22,7 @@ export class ErrorBoundary extends React.Component {
         if (this.state.hasError)
         {
             return (
-                <div className={styles['error-boundary']}>
+                <div className={styles['error']}>
                     <img src="images/paper.svg" />
                     <h2>Something went wrong.</h2>
                     <p>Try reloading the webpage to fix the problem...</p>

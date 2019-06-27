@@ -40,8 +40,8 @@ class PDFView extends React.Component {
             this.maxPage = pdf.numPages;
 
             // Start with first page...
-            this.nextPage();
-        }).catch(error => this.setState({ error: error }));
+            this.handleNextPage();
+        }).catch(error => this.setState({ isLoading: false, error: error }));
     }
 
     handleCanvas(page) {
@@ -66,8 +66,8 @@ class PDFView extends React.Component {
 
         // Render our page to the canvas...
         page.render({ canvasContext: context, viewport: this.viewport })
-            .then(() => { this.setState({ isLoading: false }); })
-            .catch(error => this.setState({ isLoading: false }));
+            .then(() => this.setState({ isLoading: false }) )
+            .catch(error => this.setState({ isLoading: false, error: error }) );
 
     }
 
@@ -90,7 +90,8 @@ class PDFView extends React.Component {
         });     
     }
 
-    nextPage() {
+    handleNextPage()
+    {
         // Check if we've reached max page...
         if (this.page === this.maxPage) return;
 
@@ -103,7 +104,8 @@ class PDFView extends React.Component {
             .catch(error => this.setState({ error: error }));
     }
 
-    previousPage() {
+    handlePreviousPage()
+    {
         // Check if we've reached last page...
         if (this.page === 1) return;
 
@@ -114,6 +116,24 @@ class PDFView extends React.Component {
         this.pdf.getPage(this.page)
             .then(this.handleCanvas.bind(this))
             .catch(error => this.setState({ error: error }));
+    }
+
+    nextPage()
+    {
+        // Check if we're loading...
+        if (this.state.isLoading) return;
+
+        // Call our handler...
+        this.handleNextPage();
+    }
+
+    previousPage()
+    {
+        // Check if we're loading...
+        if (this.state.isLoading) return;
+
+        // Call our handler...
+        this.handlePreviousPage();
     }
 
     render() {
@@ -131,7 +151,7 @@ class PDFView extends React.Component {
 
         // Setup our overlay style...
         const overlayStyle = {
-            display: this.state.isLoading && !this.state.error ? "none" : "block",
+            display: this.state.isLoading ? "none" : "block",
             textAlign: "center"
         };
 
@@ -141,18 +161,20 @@ class PDFView extends React.Component {
                 <div className={styles['loader']} style={loaderStyle} />
             </center>
 
-            {!this.state.isLoading && this.state.error && <div className={styles['overlay-message']}>Unable to preview document...</div>}
-
             <div className={styles['overlay-preview']} style={overlayStyle}>
                 <canvas ref={(ref) => { this.canvas = ref; }} />
                 <div className={styles['text-overlay']} ref={(ref) => { this.textContainer = ref; }} />
             </div>
 
+            {!this.state.isLoading && this.state.error && <div className={styles['overlay-message']}>Unable to preview document...</div>}
+
             <div className={styles['page-select']}>
                 {this.page > 1 && <button onClick={this.previousPage.bind(this)}>Back</button>}
+
                 <button disabled>
                     <span>{this.page} </span>
                     / {this.maxPage}</button>
+
                 {this.page < this.maxPage && <button onClick={this.nextPage.bind(this)}>Next</button>}
             </div>
         </>);
