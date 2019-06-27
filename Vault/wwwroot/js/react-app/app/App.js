@@ -27,7 +27,7 @@ export class App extends React.Component
     openViewer(fileId) { this.viewer.onOpen(fileId); }
 
     openSearch() { this.search.open(); }
-    updateSearch() { this.search.onSearch(); }
+    updateSearch(object, type) { this.search.updateSearch(object, type); }
     closeSearch() { this.search.close(); }
 
     gotoFolder(folderId) { this.list.gotoFolder(folderId); }

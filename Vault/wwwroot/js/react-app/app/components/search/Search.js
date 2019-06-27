@@ -105,6 +105,31 @@ class Search extends React.Component
             );
     }
 
+    updateSearch(object, type)
+    {
+        // Setup our response...
+        const { response } = this.state;
+
+        // Check if our response exists...
+        if (!response) return;
+
+        // Setup our response objects depending whether file or folder...
+        const responseObjects = type === 'FILE' ? response.files : response.folders;
+
+        // Attempt to find our file or folder...
+        const index = responseObjects.findIndex((x) => x.id === object.id);
+
+        // Check if index exists...
+        if (index !== -1)
+        {
+            // Copy the new object to our folders list...
+            responseObjects[index] = object;
+
+            // Update our state...
+            this.setState({ response: response });
+        }
+    }
+
     close() {
         // Set our state to hide our search overlay...
         this.setState({ isSearching: false, response: null });
