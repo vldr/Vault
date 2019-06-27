@@ -709,6 +709,33 @@ namespace Vault.Controllers
                 return Json(new { Success = false, Reason = "Transaction error..." });
         }
 
+        /// <summary>
+        /// Gets the pathbar of the current folder...
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/getpathbar")]
+        public IActionResult GetPathBar()
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn())
+                return NotLoggedIn();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our path!
+            var path = _processService.GetPath(userSession.Id, userSession.Folder);
+
+            // Update our file's shareablity!
+            if (path != null)
+            {
+                // Return the result...
+                return Json(new { Success = true, path });
+            }
+            else
+                return Json(new { Success = false, Reason = "Transaction error..." });
+        }
 
         /// <summary>
         /// Move a file...

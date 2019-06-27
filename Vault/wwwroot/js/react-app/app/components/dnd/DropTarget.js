@@ -52,6 +52,9 @@ export class DropTarget extends React.Component {
     }
 
     handleDrop(e) {
+        // Check if our container is valid...
+        if (!e.containerElem) return;
+
         // tell the drop source about the drop, then do the callback
         const evt = this.createEvent(
             `${this.props.targetKey}Dropped`,
@@ -77,7 +80,6 @@ export class DropTarget extends React.Component {
         this.props.highlightClassName && this.setState({ highlighted: false });
         this.props.onDragLeave(_e);
     }
-
 
     render() {
         return (

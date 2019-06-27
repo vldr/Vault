@@ -39,9 +39,9 @@ class List extends React.Component
             .build();
 
         // Capture our update listing command...
+        this.connection.on("UpdatePathBar", () => this.updatePathBar());
         this.connection.on("UpdateListing", (folderId) => this.updateListing(folderId));
 
-        this.connection.on("UpdatePathBar", (folderId, path) => this.updatePathBar(folderId, path));
         this.connection.on("UpdateFolder", (obj) => this.updateObject(obj, 'FOLDER'));
         this.connection.on("UpdateFile", (obj) => this.updateObject(obj, 'FILE'));
 
@@ -120,29 +120,48 @@ class List extends React.Component
         }
     }
 
-    updatePathBar(folderId, path)
+    /**
+     * Updates the pathbar...
+     */
+    updatePathBar()
     {
-        // Setup our response...
-        const { response } = this.state;
+        fetch("process/getpathbar",
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    // Check if we're logged out...
+                    if (!result.success) {
+                        // Show an error dialog...
+                        new ActionAlert(<p>{result.reason}</p>);
 
-        // Check if the last item was updated...
-        if (folderId !== response.current) return;
+                        // Return here...
+                        return;
+                    }
 
-        // Find the index of our folder...
-        const index = path.findIndex((x) => x.id === folderId);
+                    // Update our pathbar...
+                    this.state.response.path = result.path;
 
-        // Update our pathbar...
-        response.path = path;
-        response.previous = path[index - 1].id;
-
-        // Update our state...
-        this.setState({ response: response });
+                    // Set state accordingly...
+                    this.setState({ response: this.state.response });
+                },
+                (error) => {
+                    // Show an error dialog...
+                    new ActionAlert(<p>{error.message}</p>);
+                }
+            );
     }
 
     updateListing(folderId)
     {
         // Check if were responsible for this...
-        if (folderId !== this.state.response.current) return;
+        if (!this.state.response || this.state.response.current !== folderId) return;
 
         // Update our list...
         this.requestList(true);
@@ -170,6 +189,14 @@ class List extends React.Component
     {
         // Disable loading while we request for a list...
         this.setState({ shouldScroll: false });
+
+        // Check if reset is enabled...
+        if (reset)
+        {
+            // Uh oh, modify our stale copy of the state...
+            this.state.response = null;
+            this.state.offset = 0;
+        }
 
         fetch("process/list",
             {

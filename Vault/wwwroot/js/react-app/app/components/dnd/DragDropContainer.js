@@ -59,9 +59,14 @@ export class DragDropContainer extends React.Component {
         this.xScroll = 0;
         this.yScroll = 0;
 
-        // Our timeouts for touch...
+        this.initialX = 0;
+        this.initialY = 0;
+
         this.dragTimeout = null;
         this.contextMenuTimeout = null;
+
+        this.handleMouseMove = this.handleMouseMove.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
     }
 
     /**
@@ -90,7 +95,7 @@ export class DragDropContainer extends React.Component {
      * @param {any} e Event
      * @returns {Boolean} True/False
      */
-    usesLeftButton(e) {
+    isLeftMouse(e) {
         const button = e.buttons || e.which || e.button;
         return button === 1;
     }
@@ -100,18 +105,34 @@ export class DragDropContainer extends React.Component {
      * @param {any} e Event
      * @returns {Boolean} True/False
      */
-    usesRightButton(e) {
+    isRightMouse(e) {
         const button = e.buttons || e.which || e.button;
         return button === 2 || button === 3;
     }
 
-    getFixedOffset() {
-        // When browser window is zoomed, IOS browsers will offset "location:fixed" component coordinates
-        // from the actual window coordinates
+    /**
+     * Gets the fixed offset
+     * 
+     * When browser window is zoomed, IOS browsers will offset "location:fixed" component coordinates
+     * from the actual window coordinates
+     * 
+     * @returns {any} Fixed offset...
+     */
+    getFixedOffset()
+    {
+        // Create a div element...
         let fixedElem = document.createElement('div');
+
+        // Set the style of the element...
         fixedElem.style.cssText = 'position:fixed; top: 0; left: 0';
+
+        // Append the element to the body...
         document.body.appendChild(fixedElem);
+
+        // Get the bounding rect of it...
         const rect = fixedElem.getBoundingClientRect();
+
+        // Remove it from the document...
         document.body.removeChild(fixedElem);
 
         return [rect.left, rect.top];
@@ -119,6 +140,7 @@ export class DragDropContainer extends React.Component {
 
     /**
      * Check if we're zooming... 
+     * @returns {any} Whether we're zoomed in or not...
      */
     isZoomed() {
         // Somewhat arbitrary figure to decide whether we need to use getFixedOffset (above) or not...
@@ -130,11 +152,11 @@ export class DragDropContainer extends React.Component {
      * @param {any} elem The element...
      */
     addListeners(elem) {
-        elem.addEventListener('mousedown', (e) => { this.handleMouseDown(e); }, false);
+        elem.addEventListener('mousedown', (e) => this.handleMouseDown(e), false);
         
-        elem.addEventListener('touchstart', this.handleTouchStart.bind(this), false);
-        elem.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-        elem.addEventListener('touchend', this.handleTouchEnd.bind(this));
+        elem.addEventListener('touchstart', (e) => this.handleTouchStart(e), false);
+        elem.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+        elem.addEventListener('touchend', (e) => this.handleTouchEnd(e));
     }
 
     /**
@@ -166,7 +188,15 @@ export class DragDropContainer extends React.Component {
         return e;
     }
 
+    /**
+     * Sets the drag elements position when dragging...
+     * @param {any} x X pos.
+     * @param {any} y Y pos.
+     */
     setCurrentTarget(x, y) {
+        // Don't do anything if it is invalid...
+        if (!this.dragElem) return;
+
         // Drop the z-index to get this elem out of the way, 
         // figure out what we're dragging over, then reset the z index...
         this.dragElem.style.zIndex = -1;
@@ -204,26 +234,21 @@ export class DragDropContainer extends React.Component {
         this.scrollTimer = null;
     }
 
-    generateEnterLeaveEvents(x, y) {
-        // generate events as we enter and leave elements while dragging
-        const prefix = this.props.targetKey;
-        this.setCurrentTarget(x, y);
-        if (this.currentTarget !== this.prevTarget) {
-            if (this.prevTarget) { this.prevTarget.dispatchEvent(this.buildCustomEvent(`${prefix}DragLeave`)); }
-            if (this.currentTarget) { this.currentTarget.dispatchEvent(this.buildCustomEvent(`${prefix}DragEnter`)); }
-        }
-        this.prevTarget = this.currentTarget;
-    }
-
-    generateDropEvent(x, y) {
-        // generate a drop event in whatever we're currently dragging over
+    /**
+     * 
+     * @param {any} x X position...
+     * @param {any} y Y position...
+     */
+    generateDropEvent(x, y)
+    {
+        // Generate a drop event in whatever we're currently dragging over...
         this.setCurrentTarget(x, y);
         const customEvent = this.buildCustomEvent(`${this.props.targetKey}Drop`, { x, y });
         this.currentTarget.dispatchEvent(customEvent);
     }
 
     startDrag(clickX, clickY) {
-        document.addEventListener(`${this.props.targetKey}Dropped`, this.props.onDrop.bind(this));
+        //document.addEventListener(`${this.props.targetKey}Dropped`, this.props.onDrop.bind(this));
         const rect = this.containerElem.getBoundingClientRect();
 
         this.dragElem.style.display = "block";
@@ -240,6 +265,10 @@ export class DragDropContainer extends React.Component {
         this.props.onDragStart(this.props.dragData);
     }
 
+    /**
+     * When the user stops touching the screen...
+     * @param {any} e Touch Event
+     */
     handleTouchEnd(e)
     {
         // Check if our drag timeout is set and clear it if it is...
@@ -253,6 +282,10 @@ export class DragDropContainer extends React.Component {
         if (this.state.dragging) this.drop(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
     }
 
+    /**
+     * When the user begins touching the screen...
+     * @param {any} e Touch Event
+     */
     handleTouchStart(e)
     {
         // If we aren't dragging return here...
@@ -284,6 +317,10 @@ export class DragDropContainer extends React.Component {
         }, 1000);
     }
 
+    /**
+     * When 
+     * @param {any} e Touch Event
+     */
     handleTouchMove(e)
     {
         // If we aren't dragging return here...
@@ -307,8 +344,14 @@ export class DragDropContainer extends React.Component {
             if (this.dragTimeout) clearTimeout(this.dragTimeout);
     }
 
-    getOffscreenCoordinates(x, y) {
-        // are we offscreen (or very close, anyway)? if so by how much?
+    /**
+     * Gets the offscreen coords
+     * @param {any} x X position...
+     * @param {any} y Y position...
+     * @returns {any} The bool of y or x if offscreen or not...
+     */
+    getOffscreenCoordinates(x, y)
+    {
         const LEFTEDGE = 10;
         const RIGHTEDGE = window.innerWidth - 10;
         const TOPEDGE = 10;
@@ -318,69 +361,112 @@ export class DragDropContainer extends React.Component {
         return yOff || xOff ? [xOff, yOff] : false;
     }
 
-    // Start the Drag
-    handleMouseDown(e) {
-        if (this.usesRightButton(e) && !this.props.noDragging) {
-            // Open our context menu...
+    /**
+     * Whenever our mouse is down...
+     * @param {any} e The mouse event...
+     */
+    handleMouseDown(e)
+    {
+        // Check if we're right clicking...
+        if (this.isRightMouse(e))
+        {
+            // If we are, open our context menu...
             if (this.props.contextMenu) this.props.contextMenu(e);
         }
 
-        if (this.usesLeftButton(e) && !this.props.noDragging) {
-            document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-            document.addEventListener('mouseup', this.handleMouseUp.bind(this));
-            this.startDrag(e.clientX, e.clientY);
+        // Check if we're left clicking...
+        if (this.isLeftMouse(e))
+        {
+            // Setup our initials...
+            this.initialX = e.clientX;
+            this.initialY = e.clientY;
+
+            // Setup our mouse move listener...
+            document.addEventListener('mousemove', this.handleMouseMove);
+
+            // Setup our mouse up listener...
+            document.addEventListener('mouseup', this.handleMouseUp);
         }
     }
 
-    // During Drag
-    handleMouseMove(e) {
+    /**
+     * When our mouse is moving...
+     * @param {any} e The mouse event...
+     */
+    handleMouseMove(e)
+    {
         // If we aren't dragging return here...
         if (this.props.noDragging) return;
 
+        // Check if our mouse moved...
+        if (e.clientX === this.initialX && e.clientY === this.initialY) return;
+
         // Prevent our default behaviour...
         e.preventDefault();
+        
+        // If we haven't started dragging, then goahead start it...
+        if (!this.state.clicked) this.startDrag(e.clientX, e.clientY);
 
-        // If we haven't clicked return here...
-        if (!this.state.clicked) return;
-
+        // Drag our element...
         this.drag(e.clientX, e.clientY);
-        window.getSelection().removeAllRanges(); // prevent firefox native-drag issue when image is highlighted
+
+        // Prevent firefox native-drag issue when image is highlighted...
+        window.getSelection().removeAllRanges(); 
     }
 
-    // Drop
-    handleMouseUp(e) {
+    /**
+     * When our mouse is up...
+     * @param {any} e The mouse event...
+     */
+    handleMouseUp(e)
+    {
+        // Remove our listeners...
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseup', this.handleMouseUp);
+
+        // Drop our item...
+        this.drop(e.clientX, e.clientY);
+
+        // Update our state...
         this.setState({ clicked: false });
-        if (this.state.dragging) {
-            document.removeEventListener('mousemove', this.handleMouseMove.bind(this));
-            document.removeEventListener('mouseup', this.handleMouseUp.bind(this));
 
-            this.drop(e.clientX, e.clientY);
-            window.getSelection().removeAllRanges(); // prevent weird-looking highlights
-        }
+        // prevent weird-looking highlights
+        window.getSelection().removeAllRanges(); 
     }
 
-
+    /**
+     * The drag method...
+     * @param {any} x X position...
+     * @param {any} y Y position...
+     */
     drag(x, y) {
-        this.generateEnterLeaveEvents(x, y);
         const stateChanges = { dragging: true };
         const offScreen = this.getOffscreenCoordinates(x, y);
-        if (offScreen) {
-            this.startScrolling(...offScreen);
-        } else {
+
+        if (offScreen) this.startScrolling(...offScreen);
+        else {
             this.stopScrolling();
             if (!this.props.yOnly) { stateChanges.left = (this.state.leftOffset + x) - this.fixedOffsetLeft; }
             if (!this.props.xOnly) { stateChanges.top = (this.state.topOffset + y) - this.fixedOffsetTop; }
         }
+
         this.setState(stateChanges);
         this.props.onDrag(this.props.dragData, this.currentTarget, x, y);
     }
 
-    
-    drop(x, y) {
+    /**
+     * The drop method...
+     * @param {any} x X position...
+     * @param {any} y Y position...
+     */
+    drop(x, y)
+    {
         this.stopScrolling();
         this.generateDropEvent(x, y);
         document.removeEventListener(`${this.props.targetKey}Dropped`, this.props.onDrop);
+
         this._isMounted && this.setState({ dragging: false });
+
         this.props.onDragEnd(this.props.dragData, this.currentTarget, x, y);
     }
 
