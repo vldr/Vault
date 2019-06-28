@@ -1,24 +1,27 @@
 ﻿const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-const extractCSS = new ExtractTextPlugin('bundle.css');
+const extractCSS = new ExtractTextPlugin("[name].css", {
+    allChunks: true
+});
+
 var webpack = require('webpack');
 
 module.exports = {
-    context: __dirname, 
-    entry: "./app/app.js",
+    context: __dirname,
+    entry: {
+        app: "./app/app.js",
+        login: "./app/login.js"
+    },
     mode: "development",
     output: {
         path: __dirname + "/dist", 
-        filename: "bundle.js",
+        filename: "[name].js",
+        //chunkFilename: '[chunkhash].js',
         publicPath: './js/react-app/dist/'
     },
     watch: true,
     module: {
         rules: [
-            {
-                test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/,
-                loader: 'url-loader?limit=true,100000'
-            },
             {
                 test: /\.css$/,
                 exclude: /node_modules/,
