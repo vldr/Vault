@@ -1095,12 +1095,10 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null)
-                return Json(new { Success = false, Reason = "Cannot view the file specified..." });
+            if (file == null) return Json(new { Success = false, Reason = "Cannot view the file specified..." });
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path))
-                return Json(new { Success = false, Reason = "The file physically does not exist..." });
+            if (!System.IO.File.Exists(file.Path)) return Json(new { Success = false, Reason = "The file physically does not exist..." });
 
             // Setup a new viewer...
             Viewer viewer = new Viewer() { Success = true };

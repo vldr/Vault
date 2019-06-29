@@ -151,15 +151,15 @@ namespace Vault.Controllers
             if (_loginService.Register(email, name, password, HttpContext.Connection.RemoteIpAddress.ToString()))
                 return Json(new { Success = true });
             else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+                return Json(new { Success = false, Reason = "An error occurred processing your request. (Usually the email might already be taken...)" });
         }
 
         /// <summary>
         /// Our main page...
         /// </summary>
         /// <returns></returns>
-        [Route("control")]
-        public IActionResult Control()
+        [Route("dashboard")]
+        public IActionResult Dashboard()
         {
             // Check if not logged in!
             if (!IsLoggedIn()) return Redirect(_relativeDirectory);

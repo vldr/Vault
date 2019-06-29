@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
 import { Settings } from '../action/Settings';

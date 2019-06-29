@@ -1,0 +1,33 @@
+﻿@{ Layout = null; }
+@model Vault.Controllers.ShareController
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>@System.Net.WebUtility.HtmlDecode(@ViewBag.Name) - Vault</title>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            .swal-overlay--show-modal, .swal-modal {
+                animation: none !important;
+                outline: 0;
+            }
+
+            .swal-content:last-child {
+                margin-bottom: 0;
+            }
+
+            .swal-content {
+                padding: 33px;
+                margin: 0;
+                font-size: medium;
+            }
+        </style>
+        <meta name="theme-color" content="#262525" />
+        <link rel="stylesheet" type="text/css" href="../js/react-app/dist/share.css">
+    </head>
+    <body>
+        <div id="share" data-type="@ViewBag.Type" data-id="@ViewBag.Id"></div>
+        <script type="text/javascript" src="../js/react-app/dist/share.js"></script>
+    </body>
+</html>

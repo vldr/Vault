@@ -11,7 +11,7 @@ import { DeleteFolder } from '../action/DeleteFolder';
 import { EmptyRecycleBin } from '../action/EmptyRecycleBin';
 
 import { ActionAlert } from '../info/ActionAlert';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 export class Folder extends React.Component {
 
@@ -171,12 +171,16 @@ export class Folder extends React.Component {
 
     showContextMenu(event)
     {
+        /*
+         * Use this when implementing share folder...
+        <li className={styles["menu-option"]} onClick={this.shareFolder.bind(this)}>Share</li>
+        */
+
         // Setup our contextmenu options depending if it is a recycle bin or a folder...
         const options = !this.props.folder.isRecycleBin ? (<>
             <li className={styles["menu-option"]} onClick={this.props.gotoFolder.bind(this, this.props.folder.id)}>Open</li>
             <li className={styles["menu-option"]} onClick={this.downloadFolder.bind(this)}>Download</li>
             <li className={styles["menu-option"]} onClick={this.renameFolder.bind(this)}>Rename</li>
-            <li className={styles["menu-option"]} onClick={this.shareFolder.bind(this)}>Share</li>
             <li className={styles["menu-option"]} onClick={this.deleteFolder.bind(this)}>Delete</li>
             <li className={styles["menu-option-color-picker"]}>
                 <div className={`${styles["color-circle"]} ${styles["orange"]}`} onClick={this.changeFolderColour.bind(this, 0)} />

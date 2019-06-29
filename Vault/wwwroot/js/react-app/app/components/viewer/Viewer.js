@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
 import { PhotoView } from './PhotoView';
@@ -15,9 +15,14 @@ class Viewer extends React.Component {
         // Setup our states...
         this.state = {
             isOpen: false,
+            isStandalone: false,
             isLoading: false,
             response: null
         };
+    }
+
+    componentDidMount() {
+        if (this.props.shareId) this.onOpenWithShareId(this.props.shareId);
     }
 
     onClose(event) {
@@ -80,12 +85,55 @@ class Viewer extends React.Component {
             );
     }
 
+    onOpenWithShareId(shareId) {
+        // Set our state to be started...
+        this.setState({
+            isOpen: true,
+            isStandalone: true,
+            isLoading: true
+        });
+
+        // Fetch our delete file request...
+        fetch("viewer",
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `shareid=${encodeURIComponent(shareId)}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    // Check if we're not logged in or something...
+                    if (!result.success) {
+                        // Stop our loading state...
+                        this.setState({ isLoading: false });
+
+                        // Render a action alert...
+                        new ActionAlert(<p>{result.reason}</p>);
+                    }
+                    // Set our response and turn off isLoading...
+                    else
+                        this.setState({ response: result, isLoading: false });
+                },
+                (error) => {
+                    // Stop our loading state...
+                    this.setState({ isLoading: false });
+
+                    // Render a action alert...
+                    new ActionAlert(<p>{error.message}</p>);
+                }
+            );
+    }
+
     downloadFile()
     {
         // Setup a form...
         let form = document.createElement("form");
         form.method = "POST";
-        form.action = this.state.response.url;
+        form.action = this.state.response.relativeURL + this.state.response.url;
 
         // Append it to the document...
         document.body.appendChild(form);
@@ -122,11 +170,12 @@ class Viewer extends React.Component {
         // Setup our viewer content...
         const viewerTopbar = hasLoaded ?
             (<div className={styles['overlay-topbar']} >
-                <img src={this.state.response.icon} />
+                <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
                 <div className={styles['overlay-topbar-right']}>
                     <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
-                    <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
+
+                    {!this.state.isStandalone && <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />}
                 </div>
             </div>) : null;
 
@@ -158,7 +207,7 @@ class Viewer extends React.Component {
 
         // Render our entire search system...
         return (
-            <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
+            <div className={styles['overlay']} onClick={!this.state.isStandalone && this.onClose.bind(this)}>
                 {this.state.isLoading && loaderBar}
                 {viewerTopbar}
 

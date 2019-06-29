@@ -9,8 +9,9 @@ var webpack = require('webpack');
 module.exports = {
     context: __dirname,
     entry: {
-        app: "./app/app.js",
-        login: "./app/login.js"
+        app: "./app/app/app.js",
+        login: "./app/login/login.js",
+        share: "./app/share/share.js"
     },
     mode: "development",
     output: {

@@ -1,7 +1,7 @@
 ﻿import React, { Suspense }  from 'react';
 import ReactDOM from 'react-dom';
 
-const LoginBox = React.lazy(() => import('./components/login/LoginBox'));
+const IntroBox = React.lazy(() => import('../components/login/IntroBox'));
 
 import styles from './Login.css';
 
@@ -14,7 +14,7 @@ export class Login extends React.Component
 
         return (<div className={styles["login-container"]}>
                 <Suspense fallback={loader}>
-                    <LoginBox />
+                    <IntroBox />
                 </Suspense>
             </div>);
     }

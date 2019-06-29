@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import DropzoneComponent from 'react-dropzone-component';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 class Upload extends React.Component
 {

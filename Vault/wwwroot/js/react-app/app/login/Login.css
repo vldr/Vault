@@ -37,7 +37,7 @@ hr {
 	height: 0;
 	margin: 30px 0 17px;
 	border-top: 1px solid rgba(0,0,0,.1);
-	border-bottom: 1px solid hsla(0,0%,100%,.3);
+	border-bottom: 1px solid hsla(0,0%,100%,.3)
 }
 
 .welcome-title {
@@ -61,12 +61,12 @@ hr {
 	text-align: center;
 	min-width: 60px;
 	position: relative;
-	transition: all .3s ease;
+	transition: all .1s ease;
 	cursor: pointer;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
-	user-select: none
+	user-select: none;
 }
 
 .welcome-button:hover {
@@ -141,7 +141,9 @@ hr {
 	font-size: 14px;
 	margin: -50px 0 15px;
 	padding: 15px;
-	background: rgba(255,0,0,.12157)
+	background: rgba(255,0,0,.12157);
+	-webkit-animation: fadein .2s;
+	animation: fadein .2s
 }
 
 .login-container {
@@ -151,7 +153,6 @@ hr {
 	overflow-y: auto;
 	min-height: 165px;
 	width: 300px;
-	float: right;
 	margin-bottom: 15px;
 	padding-top: 50px;
 	padding-bottom: 35px;
@@ -163,7 +164,9 @@ hr {
 	height: 136px;
 	opacity: .2;
 	margin: 15px 0 30px;
-	-webkit-animation: rotation 1.5s linear infinite;
+	will-change: transform;
+	transform: translateZ(0);
+	-webkit-animation: rotation 1s linear infinite;
 	transform-origin: 50% 50%
 }
 
@@ -183,6 +186,10 @@ hr {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none
+}
+
+.remember-checkbox a {
+	font-size: 12px
 }
 
 .remember-checkbox input {
@@ -240,6 +247,13 @@ div .button {
 	transform: rotate(45deg)
 }
 
+@media screen and (max-width: 965px) {
+	.login-container {
+		float: none;
+		margin: 0 auto
+	}
+}
+
 @-webkit-keyframes rotation {
 	0% {
 		-webkit-transform: rotate(0deg)
@@ -247,13 +261,6 @@ div .button {
 
 	to {
 		-webkit-transform: rotate(359deg)
-	}
-}
-
-@media screen and (max-width: 965px) {
-	.login-container {
-		float: none;
-		margin: 0 auto
 	}
 }
 

@@ -23,7 +23,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 export class DragDropContainer extends React.Component {
 

@@ -7,7 +7,7 @@ import { Folder } from './Folder';
 import { File } from './File';
 import { Sortbar } from './Sortbar';
 
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 const signalR = require("@aspnet/signalr");
 
@@ -168,7 +168,7 @@ class List extends React.Component
      * Attempts to reconnect to our signalR server... 
      */
     connectToSignalR() {
-        this.connection.start().catch(function (err)
+        this.connection.start().catch((err) =>
         {
             // Log our errors...
             console.error(err.toString());

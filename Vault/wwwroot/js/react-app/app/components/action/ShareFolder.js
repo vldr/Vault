@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import swal from '@sweetalert/with-react';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 export class ShareFolder extends React.Component
 {
@@ -89,7 +89,7 @@ export class ShareFolder extends React.Component
                         range.selectNode(e.target);
                         window.getSelection().removeAllRanges();
                         window.getSelection().addRange(range);
-                    }}>{path}share/folder/{this.props.folder.shareId}</div>
+                    }}>{path}share/{this.props.folder.shareId}</div>
             </div>)
             :
             (<label className={styles["share-checkbox"]}>Enable

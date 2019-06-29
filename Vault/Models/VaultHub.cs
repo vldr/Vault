@@ -47,6 +47,9 @@ namespace Vault.Models
                 // Send out a custom async response custom login response...
                 Clients.Caller.SendAsync("LoginResponse", new { Success = true, Name = _loginService.GetName(loggedInUser.id) });
             }
+            else
+                // Send our response indicating that it is false...
+                Clients.Caller.SendAsync("LoginResponse", new { Success = false });
 
             // Return our original task...
             return base.OnConnectedAsync();

@@ -523,7 +523,7 @@ namespace Vault.Models
         /// </summary>
         /// <param name="ext"></param>
         /// <param name="path"></param>
-        public void GenerateThumbnails(string ext, string path)
+        public void GenerateThumbnails(string ext, string path, long size)
         {
             // Generate a PDF representation of our DOCX...
             if (ext == ".docx")
@@ -561,8 +561,8 @@ namespace Vault.Models
                 return;
             }
 
-            // Check if our file is a PNG, JPEG, or JPG....
-            if (!(ext == ".png" || ext == ".jpeg" || ext == ".jpg"))
+            // Check if our file is a PNG, JPEG, or JPG or if the image is larger than 10 MB....
+            if (!(ext == ".png" || ext == ".jpeg" || ext == ".jpg") || size > 10485760)
                 return;
 
             // Setup a magick image and see if this file is an image!
@@ -861,7 +861,7 @@ namespace Vault.Models
                 return (false, -1);
 
             // Call our generate thumbnail which will generate a thumbnails...
-            GenerateThumbnails(ext, path);
+            GenerateThumbnails(ext, path, size);
 
             // Generate a file object...
             File fileObj = new File

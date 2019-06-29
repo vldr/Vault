@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import pdfjs from "@bundled-es-modules/pdfjs-dist/build/pdf";
 
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 class PDFView extends React.Component {
     constructor(props) {
@@ -162,8 +162,8 @@ class PDFView extends React.Component {
             </center>
 
             <div className={styles['overlay-preview']} style={overlayStyle}>
-                <canvas ref={(ref) => { this.canvas = ref; }} />
-                <div className={styles['text-overlay']} ref={(ref) => { this.textContainer = ref; }} />
+                <canvas height="0" width="0" ref={(ref) => { this.canvas = ref; }} />
+                <div ref={(ref) => { this.textContainer = ref; }} className={styles['text-overlay']} />
             </div>
 
             {!this.state.isLoading && this.state.error && <div className={styles['overlay-message']}>Unable to preview document...</div>}

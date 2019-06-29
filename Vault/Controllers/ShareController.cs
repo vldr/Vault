@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Vault.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
+using System.ComponentModel.DataAnnotations;
 
 namespace Vault.Controllers
 {
@@ -76,21 +77,94 @@ namespace Vault.Controllers
             // Return our sort by in the end...
             return sortBy;
         }
-
+       
         ////////////////////////////////////////////////////////////////////////////////////////////////
+
+        [HttpPost]
+        [Route("share/viewer")]
+        public IActionResult Viewer(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null) return MissingParameters();
+
+            // Get the file...
+            Models.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null) return Json(new { Success = false, Reason = "We could not find a the file specified..." });
+
+            // Check if the file even exists on the disk...
+            if (!System.IO.File.Exists(file.Path)) return Json(new { Success = false, Reason = "The file physically does not exist..." });
+
+            // Setup a new viewer...
+            Viewer viewer = new Viewer() { Success = true };
+
+            // Setup our file attributes...
+            viewer.Name = file.Name;
+            viewer.Ext = file.Ext;
+            viewer.Size = file.Size;
+
+            // Setup our icon to not display a preview icon...
+            viewer.Icon = _processService.GetFileAttribute(
+                file.Id.ToString(),
+                file.Ext,
+                ProcessService.AttributeTypes.FileIconNoPreview);
+
+            // Setup our view bag action as a preview variable...
+            viewer.Action = _processService.GetFileAttribute(
+                file.Id.ToString(),
+                file.Ext,
+                ProcessService.AttributeTypes.FileAction);
+
+            // Setup our url...
+            viewer.URL = $"i/{shareId}";
+
+            // Setup our relative part...
+            viewer.RelativeURL = "../";
+
+            // Return the partial view...
+            return Json(viewer);
+        }
+
+        /// <summary>
+        /// Displays the share page for a shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("share/{shareId:length(7)}")]
+        public IActionResult Share(string shareId)
+        {
+            // Check if our share id given is null!
+            if (shareId == null) return Redirect(_relativeDirectory);
+
+            // Get the file...
+            Models.File file = _processService.GetSharedFile(shareId);
+
+            // Check if the file exists or is valid!
+            if (file == null) return Redirect(_relativeDirectory);
+
+            // Setup our viewbag...
+            ViewBag.Name = file.Name;
+            ViewBag.Id = file.ShareId;
+            ViewBag.Type = "FILE";
+
+            // Return our view!
+            return View("Share");
+        }
 
         /// <summary>
         /// Displays the share page for a shared folder...
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
+        /*
         [HttpGet]
-        [Route("share/folder/{shareId}")]
-        public IActionResult FolderViewer(string shareId)
+        [Route("share/{shareId:length(25)}")]
+        public IActionResult ShareFolder(string shareId)
         {
             // Check if our share id given is null!
-            if (shareId == null)
-                return Redirect(_relativeDirectory);
+            if (shareId == null) return Redirect(_relativeDirectory);
 
             // Get the file...
             Folder folder = _processService.GetSharedFolder(shareId);
@@ -98,337 +172,15 @@ namespace Vault.Controllers
             // Check if the file exists or is valid!
             if (folder == null) return Redirect(_relativeDirectory);
 
-            // Setup our shared file variable in our viewbag!
-            ViewBag.Folder = folder;
-
-            // Setup our share id...
-            ViewBag.ShareId = shareId;
+            // Setup our viewbag...
+            ViewBag.Name = folder.Name;
+            ViewBag.Id = folder.ShareId;
+            ViewBag.Type = "FOLDER";
 
             // Return our view!
-            return View();
+            return View("Share");
         }
-
-        /// <summary>
-        /// Downloads the entire shared folder...
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/folder/dl/{folderId}/{shareId}")]
-        public async Task<IActionResult> DownloadFolder(CancellationToken cancellationToken, int? folderId, string shareId)
-        {
-            // Check if our share id or folder id given is null!
-            if (folderId == null || shareId == null)
-                return StatusCode(500);
-
-            // Get our relative folder...
-            var folder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if our folder isn't null...
-            if (folder == null) return StatusCode(500);
-
-            // Make sure you don't download the home folder...
-            if (folder.Id == 0) return StatusCode(500);
-
-            // Register our encoding provider...
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-
-            // Setup our response...
-            Response.StatusCode = 200;
-            Response.ContentType = "application/octet-stream";
-            Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(folder.Name)}.zip");
-
-            // Setup our zip stream to point to our response body!
-            using (var zip = new Ionic.Zip.ZipOutputStream(Response.Body))
-            {
-                // Await our zip files method...
-                await _processService.ZipFiles(folder.Id, folder.Owner, zip, cancellationToken, folder.FolderId);
-            }
-
-            // Return an empty result.
-            return new EmptyResult();
-        }
-
-        /// <summary>
-        /// Displays a list of shared folders and files...
-        /// </summary>
-        /// <param name="offset"></param>
-        /// <param name="folderId"></param>
-        /// <param name="shareId"></param>
-        /// <param name="sortBy"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/list")]
-        public IActionResult List(int? offset, int? folderId, string shareId)
-        {
-            // Check if our parameters given are null!
-            if (offset == null 
-                || folderId == null 
-                || shareId == null)
-                return MissingParameters();
-
-            // Get our shared folder...
-            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if the file exists or is valid!
-            if (sharedFolder == null)
-                // Inform the user of what happened...
-                return Json(new { Success = false, Reason = "The given folder is not being shared or doesn't exist..." });
-
-            // Create a cookie if it doesn't exist already of our sort by...
-            var sortBy = InitializeSortBy();
-
-            // Get the file...
-            Folder folder = _processService.GetSharedFolder(shareId);
-
-            // Setup a listing for our folder...
-            Listing listing = new Listing()
-            {
-                Success = true,
-                ShareId = shareId,
-                IsHome = (folder.Id == sharedFolder.Id),
-                Previous = sharedFolder.FolderId,
-                SharedFolder = sharedFolder.Id,
-                Sort = sortBy,
-                TotalFiles = _processService.GetFileCount(sharedFolder.Owner, folder.Id),
-                Folders = _processService.GetFolderListings(sharedFolder.Owner, sharedFolder.Id),
-                Files = _processService.GetSharedFileListings(sharedFolder.Owner, 
-                    sharedFolder.Id, 
-                    shareId,
-                    sortBy,
-                    offset.GetValueOrDefault())
-            };
-
-            // Return our listing...
-            return Json(listing);
-        }
-
-        /// <summary>
-        /// Returns the view for our file viewer...
-        /// </summary>
-        /// <param name="fileId"></param>
-        /// <param name="folderId"></param>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/viewer")]
-        public IActionResult SharedViewer(int? fileId, int? folderId, string shareId)
-        {
-            // Check if our parameters given are null!
-            if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
-
-            // Get our shared folder...
-            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if the file exists or is valid!
-            if (sharedFolder == null) return StatusCode(500);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(fileId.GetValueOrDefault(),
-                sharedFolder.Id,
-                sharedFolder.Owner);
-
-            // Check if we were able to find the file...
-            if (file == null) return StatusCode(500);
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
-
-            // Setup our shared file variable in our viewbag!
-            ViewBag.File = file;
-
-            // Setup our file icon with no preview...
-            ViewBag.Icon = "../../" + _processService.GetFileAttribute(file.Id.ToString(), 
-                file.Ext, 
-                ProcessService.AttributeTypes.FileIconNoPreview);
-
-            // Setup our view bag action as a preview variable...
-            ViewBag.Preview = _processService.GetFileAttribute(file.Id.ToString(),
-                file.Ext,
-                ProcessService.AttributeTypes.FileAction);
-
-            // Setup our view bag url...
-            ViewBag.Url = $"share/dl/{shareId}/{fileId}/{folderId}";
-
-            // Setup our relative part...
-            ViewBag.Relative = $"../../";
-
-            // Return the partial view...
-            return View("/Views/Process/Viewer.cshtml");
-        }
-
-        /// <summary>
-        /// Downloads a file from a shared folder...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <param name="fileId"></param>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/dl/{shareId}/{fileId}/{folderId}")]
-        public IActionResult FolderFileDownload(string shareId, int? fileId, int? folderId)
-        {
-            // Check if our parameters given are null!
-            if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
-
-            // Get our shared folder...
-            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if the file exists or is valid!
-            if (sharedFolder == null) return StatusCode(500);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(fileId.GetValueOrDefault(),
-                sharedFolder.Id,
-                sharedFolder.Owner);
-
-            // Check if we were able to find the file...
-            if (file == null) return StatusCode(500);
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
-
-            // Return an empty result.
-            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
-        }
-
-        /// <summary>
-        /// Downloads a file from a shared folder...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <param name="fileId"></param>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("share/dl/{shareId}/{fileId}/{folderId}")]
-        public IActionResult FolderFilePreview(string shareId, int? fileId, int? folderId)
-        {
-            // Check if our parameters given are null!
-            if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
-
-            // Get our shared folder...
-            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if the file exists or is valid!
-            if (sharedFolder == null) return StatusCode(500);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(fileId.GetValueOrDefault(), 
-                sharedFolder.Id, 
-                sharedFolder.Owner);
-
-            // Check if we were able to find the file...
-            if (file == null) return StatusCode(500);
-
-            // Setup our file path string...
-            string filePath = file.Path;
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
-
-            // Setup our mime type string...
-            string mimeType = "application/octet-stream";
-
-            // Attempt to get the content type...
-            new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
-
-            // Check if our mime type is null or not...
-            if (mimeType == null) mimeType = "application/octet-stream";
-
-            // Setup our preview info...
-            _processService.SetupPreview(ref mimeType, ref filePath);
-
-            // Return an empty result.
-            return PhysicalFile(filePath, mimeType, true);
-        }
-
-        /// <summary>
-        /// Returns the thumbnail of a file...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <param name="fileId"></param>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("share/thumbnail/{shareId}/{fileId}/{folderId}")]
-        public IActionResult FolderFileThumbnail(string shareId, int? fileId, int? folderId)
-        {
-            // Check if our parameters given are null!
-            if (shareId == null || fileId == null || folderId == null) return StatusCode(500);
-
-            // Get our shared folder...
-            var sharedFolder = _processService.GetSharedFolderRelative(folderId.GetValueOrDefault(), shareId);
-
-            // Check if the file exists or is valid!
-            if (sharedFolder == null) return StatusCode(500);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(fileId.GetValueOrDefault(),
-                sharedFolder.Id,
-                sharedFolder.Owner);
-
-            // Check if we were able to find the file...
-            if (file == null) return StatusCode(500);
-
-            // Setup our thumbnails path!
-            string thumbnailPath = file.Path + ".thumb";
-
-            // Setup some simple client side caching for the thumbnails!
-            HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
-
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(thumbnailPath))
-                return Redirect(_relativeDirectory + _processService.GetFileAttribute());
-
-            // Return the file...
-            return PhysicalFile(thumbnailPath, "image/*", file.Name, true);
-        }
-
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-        
-        /// <summary>
-        /// Displays the share page for a shared file...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("share/{shareId}")]
-        public IActionResult Share(string shareId)
-        {
-            // Check if our share id given is null!
-            if (shareId == null)
-                return Redirect(_relativeDirectory);
-
-            // Get the file...
-            Models.File file = _processService.GetSharedFile(shareId);
-
-            // Check if the file exists or is valid!
-            if (file == null)
-                return Redirect(_relativeDirectory);
-
-            // Setup our shared file variable in our viewbag!
-            ViewBag.File = file;
-
-            // Setup our icon which should have no preview...
-            ViewBag.Icon = "../" + _processService.GetFileAttribute(file.Id.ToString(), 
-                file.Ext,
-                ProcessService.AttributeTypes.FileIconNoPreview);
-
-            // Setup our view bag action as a preview variable...
-            ViewBag.Preview = _processService.GetFileAttribute(file.Id.ToString(),
-                file.Ext,
-                ProcessService.AttributeTypes.FileAction);
-
-            // Setup our file url...
-            ViewBag.Url = $"i/{file.ShareId}";
-
-            // Setup our relative part...
-            ViewBag.Relative = $"../";
-
-            // Return our view!
-            return View("/Views/Process/Viewer.cshtml");
-        }
+        */
 
         /// <summary>
         /// Gets the file...

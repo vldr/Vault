@@ -10,7 +10,7 @@ import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
 import { ActionAlert } from '../info/ActionAlert';
 
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 export class File extends React.Component
 {

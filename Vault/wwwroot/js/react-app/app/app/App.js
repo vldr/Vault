@@ -1,14 +1,14 @@
 ﻿import React, { Suspense }  from 'react';
 import ReactDOM from 'react-dom';
 
-const ContextMenu = React.lazy(() => import('./components/contextmenu/ContextMenu'));
-const Topbar = React.lazy(() => import('./components/topbar/Topbar'));
-const List = React.lazy(() => import('./components/list/List'));
-const Upload = React.lazy(() => import('./components/upload/Upload'));
-const Search = React.lazy(() => import('./components/search/Search'));
-const Viewer = React.lazy(() => import('./components/viewer/Viewer'));
+const ContextMenu = React.lazy(() => import('../components/contextmenu/ContextMenu'));
+const Topbar = React.lazy(() => import('../components/topbar/Topbar'));
+const List = React.lazy(() => import('../components/list/List'));
+const Upload = React.lazy(() => import('../components/upload/Upload'));
+const Search = React.lazy(() => import('../components/search/Search'));
+const Viewer = React.lazy(() => import('../components/viewer/Viewer'));
 
-import { ErrorBoundary } from './components/info/ErrorBoundary';
+import { ErrorBoundary } from '../components/info/ErrorBoundary';
 
 import styles from './App.css';
 

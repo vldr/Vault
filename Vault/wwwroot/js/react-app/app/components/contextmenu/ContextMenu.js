@@ -1,7 +1,7 @@
 ﻿import React from 'react';
 import AsSingleton from '@peterbee/react-singleton';
 
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 class ContextMenu extends React.Component {
     constructor(props) {

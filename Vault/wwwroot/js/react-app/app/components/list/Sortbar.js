@@ -1,6 +1,6 @@
 ﻿import React from 'react';
 import swal from '@sweetalert/with-react';
-import styles from '../../App.css';
+import styles from '../../app/App.css';
 
 export class Sortbar extends React.Component {
 

@@ -1,9 +1,9 @@
 ﻿import React from 'react';
 const signalR = require("@aspnet/signalr");
 
-import styles from '../../Login.css';
+import styles from '../../login/Login.css';
 
-class LoginBox extends React.Component
+class IntroBox extends React.Component
 {
     constructor(props) {
         super(props);
@@ -15,6 +15,8 @@ class LoginBox extends React.Component
             name: null,
             error: null
         };
+
+        this.onHashBang = this.onHashBang.bind(this);
     }
 
     componentDidMount()
@@ -33,18 +35,16 @@ class LoginBox extends React.Component
         this.connection.on("LoginResponse", (message) =>
         {
             // Check if successful...
-            if (!message.success) return;
-
-            // Update our state...
-            this.setState({ isLoggedIn: true, name: message.name });
+            if (message.success)
+                // Update our state...
+                this.setState({ isLoading: false, isLoggedIn: true, name: message.name });
+            else
+                // Disable loading...
+                this.setState({ isLoading: false });
         });
 
         // Start our connection to our signalr...
         this.connection.start()
-            .then(() => {
-                // Disable loading...
-                this.setState({ isLoading: false });
-            })
             .catch((err) => {
                 // Disable loading and display an error...
                 this.setState({
@@ -52,9 +52,36 @@ class LoginBox extends React.Component
                     error: err.toString()
                 });
             });
+
+        // Add a listener for our hashbang catcher...
+        window.onhashchange = this.onHashBang;
     }
 
-    onOpen() { window.location = "control"; }
+    componentWillUnmount()
+    {
+        // Reset our event...
+        window.onhashchange = null;
+    }
+
+    onOpen() { window.location = "dashboard"; }
+
+    onHashBang(event)
+    {
+        // Check if our register hashbang is set...
+        if (!event.newURL.includes("#register")) return;
+
+        // Check if we're logged in or we're loading...
+        if (this.state.isLoading || this.state.isLoggedIn) return;
+
+        // Remove our hash...
+        history.replaceState(null, null, ' ');
+
+        // Grab focus...
+        this.username.focus();
+
+        // Set our state to is registering...
+        this.setState({ isRegistering: true });      
+    }
 
     toggleForm(event)
     {
@@ -92,7 +119,7 @@ class LoginBox extends React.Component
                 body: `email=${encodeURIComponent(this.username.value)}`
                     + `&password=${encodeURIComponent(this.password.value)}`
                     + `&name=${encodeURIComponent(this.name.value)}`
-                    + `&invite=${encodeURIComponent(this.invitekey.checked)}`
+                    + `&invite=${encodeURIComponent(this.invitekey.value)}`
             })
             .then(res => res.json())
             .then(
@@ -105,7 +132,12 @@ class LoginBox extends React.Component
                         });
                     }
                     // If we've logged in, redirect...
-                    else window.location = "control";
+                    else {
+                        this.setState({
+                            isLoading: false,
+                            isRegistering: false
+                        });
+                    }
                 },
                 (error) => {
                     // Set our state to an error...
@@ -149,7 +181,7 @@ class LoginBox extends React.Component
                         });
                     }
                     // If we've logged in, redirect...
-                    else window.location = "control";
+                    else window.location = "dashboard";
                 },
                 (error) => {
                     // Set our state to an error...
@@ -175,7 +207,7 @@ class LoginBox extends React.Component
         };
 
         // Setup our login form...
-        const form = (<form style={formStyle}>
+        const form = !this.state.isLoggedIn && (<form style={formStyle}>
             <input type="text" ref={(input) => { this.username = input; }} onSubmit={this.onLogin.bind(this)} placeholder="Email" />
             <input type="password" ref={(input) => { this.password = input; }} onSubmit={this.onLogin.bind(this)}  placeholder="Password" />
 
@@ -190,7 +222,7 @@ class LoginBox extends React.Component
         </form>); 
 
         // Our register form....
-        const registerForm = (<form style={formStyle}>
+        const registerForm = !this.state.isLoggedIn && (<form style={formStyle}>
             <input type="text" ref={(input) => { this.username = input; }} onSubmit={this.onRegister.bind(this)} placeholder="Email" />
             <input type="password" ref={(input) => { this.password = input; }} onSubmit={this.onRegister.bind(this)} placeholder="Password" />
             <input type="text" ref={(input) => { this.name = input; }} onSubmit={this.onRegister.bind(this)} placeholder="Name" />
@@ -200,7 +232,8 @@ class LoginBox extends React.Component
             <input type="password" ref={(input) => { this.invitekey = input; }} onSubmit={this.onRegister.bind(this)} placeholder="Invite Key" />
 
             <label className={styles["remember-checkbox"]}>
-                I accept the terms of service.<input className={styles["remember-checkbox-input"]} ref={(input) => { this.rememberMe = input; }} type="checkbox" />
+                I accept the <a href="https://vldr.org/legal">terms of service</a>.
+                <input className={styles["remember-checkbox-input"]} ref={(input) => { this.rememberMe = input; }} type="checkbox" />
                 <span className={styles["checkmark"]} />
             </label>
 
@@ -224,4 +257,4 @@ class LoginBox extends React.Component
     }
 }
 
-export default LoginBox;
+export default IntroBox;
