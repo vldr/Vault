@@ -5,6 +5,7 @@
 	<MvcBuildViews>true</MvcBuildViews>
 	<ServerGarbageCollection>false</ServerGarbageCollection>
 	<IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
+	<TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,9 +36,6 @@
 
   <ItemGroup>
     <Content Update="wwwroot\index.html">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="wwwroot\register.html">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

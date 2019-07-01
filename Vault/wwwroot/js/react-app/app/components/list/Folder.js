@@ -183,11 +183,12 @@ export class Folder extends React.Component {
             <li className={styles["menu-option"]} onClick={this.renameFolder.bind(this)}>Rename</li>
             <li className={styles["menu-option"]} onClick={this.deleteFolder.bind(this)}>Delete</li>
             <li className={styles["menu-option-color-picker"]}>
-                <div className={`${styles["color-circle"]} ${styles["orange"]}`} onClick={this.changeFolderColour.bind(this, 0)} />
+                <div className={styles["color-circle"]} onClick={this.changeFolderColour.bind(this, 0)} />
                 <div className={`${styles["color-circle"]} ${styles["purple"]}`} onClick={this.changeFolderColour.bind(this, 1)} />
                 <div className={`${styles["color-circle"]} ${styles["green"]}`} onClick={this.changeFolderColour.bind(this, 2)} />
                 <div className={`${styles["color-circle"]} ${styles["red"]}`} onClick={this.changeFolderColour.bind(this, 3)} />
                 <div className={`${styles["color-circle"]} ${styles["blue"]}`} onClick={this.changeFolderColour.bind(this, 4)} />
+                <div className={`${styles["color-circle"]} ${styles["orange"]}`} onClick={this.changeFolderColour.bind(this, 5)} />
             </li>
         </>) : (<>
                 <li className={styles["menu-option"]}>Select</li>
@@ -205,19 +206,28 @@ export class Folder extends React.Component {
         // Setup a simple variable of the this folder...
         const folder = this.props.folder;
 
-        // Set our folder's icon accordingly...
-        if (folder.isRecycleBin)
-            folder.icon = (folder.empty === true ? "images/recycle-empty.svg" : "images/recycle.svg");
-
-        // Setup our folder icon style...
+        // Setup our folder icon style (for lis...
         const folderIconStyle =
         {
             backgroundImage: `url(${folder.icon})`,
             backgroundSize: `24px`
         };
 
+        // Setup our folder icon...
+        let icon = "";
+
+        // If our folder is the API folder...
+        if (folder.name === "API" && this.props.isHome === true)
+            icon = "url(../../../images/a-folder.svg)";
+        // If our folder is the recycle bin...
+        else if (folder.isRecycleBin)
+            icon = "url(../../../images/trash-folder.svg)";
+        else if (this.props.isPrevious)
+            icon = "url(../../../images/back-folder.svg)";
+
         // Setup our folder's class name...
-        const folderClassName = folder.isRecycleBin ? folder.empty === true ? styles["recycle-bin-empty"] : styles["recycle-bin"] : styles[folder.style];
+        const folderClassName = folder.isRecycleBin ? null : styles[folder.style];
+        const folderStyle = { backgroundImage: icon };
 
         // Return a rendered result of this folder...
         if (this.props.listView)
@@ -239,18 +249,18 @@ export class Folder extends React.Component {
             return (
                 <DropTarget targetKey="folder" onHit={this.onDrop.bind(this)}>
                     <DropTarget targetKey="file" onHit={this.onDrop.bind(this)}>
-
                         <DragDropContainer targetKey="folder" dragData={folder} contextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
                             <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
 
-                            <div className={`${styles["gridItem-folder"]} ${folderClassName}`}
-                                onClick={this.props.gotoFolder.bind(this, folder.id)}>
+                            <div className={styles["gridItem-folder"]} onClick={this.props.gotoFolder.bind(this, folder.id)}>
 
-                                <div className={styles["grid-icon"]} style={folder.isRecycleBin ? {} : folderIconStyle} />
-                                <p className={styles["grid-text"]}>{folder.name}</p>
+                                <div className={styles["grid-icon"]} style={folderStyle} />
+                                <p className={styles["grid-text"]}>
+                                    <div className={folderClassName} />
+                                    {folder.name}
+                                </p>
                             </div>
                         </DragDropContainer>
-
                     </DropTarget>
                 </DropTarget>
             );

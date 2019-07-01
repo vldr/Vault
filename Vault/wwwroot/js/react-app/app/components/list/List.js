@@ -400,35 +400,38 @@ class List extends React.Component
             { id: response.previous, name: "...", icon: "images/file/folder-icon.svg", style: "", isRecycleBin: false, isSharing: false, isPrevious: true };
         
         // Setup our file listing...
-        const fileListing = response.files.length ? (<div className={styles["file-listing"]}>
-            <Sortbar sort={response.sort} />
+        //<Sortbar sort={response.sort} />
+        // className={styles["file-listing"]}
+        const fileListing = response.files.length ? (<>
             {
                 response.files.map((file, i) =>
                 {
                     return <File key={file.id} file={file} openViewer={this.props.openViewer} />;
                 })
             }
-        </div>) : null;
+        </>) : null;
 
         // Setup our folder listing...
-        const folderListing = (<div className={styles["folder-listing"]}>
-            <Folder folder={previousFolder} gotoFolder={this.gotoFolder.bind(this)} />
+        const folderListing = (<>
+            <Folder folder={previousFolder} isPrevious gotoFolder={this.gotoFolder.bind(this)} />
             {
                 response.folders.map((folder) =>
                 {
-                    if (!folder.isRecycleBin) return <Folder key={folder.id} folder={folder} gotoFolder={this.gotoFolder.bind(this)} />;
+                    if (!folder.isRecycleBin) return <Folder key={folder.id} folder={folder} isHome={response.isHome} gotoFolder={this.gotoFolder.bind(this)}  />;
                 })
             }
             <Folder folder={recycleBin} gotoFolder={this.gotoFolder.bind(this)} />
-        </div>);
+        </>);
 
         // Otherwise render all our items...
         return (
             <div className={styles["items"]}>
                 <Pathbar path={response.path} gotoFolder={this.gotoFolder.bind(this)} />
-                
-                {folderListing}
-                {fileListing}
+
+                <div className={styles["listing"]}>
+                    {folderListing}
+                    {fileListing}
+                </div>
             </div>
         );
     }

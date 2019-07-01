@@ -44,6 +44,44 @@ export class Settings extends React.Component {
         this.setState({ action: 0 });
     }
 
+    downloadShareXConfig()
+    {
+        // Check that API is enabled or response is set...
+        if (!this.state.response || !this.state.response.apiEnabled)
+            return;
+
+        // Setup our path...
+        const path = window.location.href.substr(0, window.location.href.lastIndexOf('/') + 1);
+
+        // Setup our text...
+        var text = `{"Name": "Vault", 
+                "DestinationType": "ImageUploader, TextUploader, FileUploader",
+                "RequestURL": "${path}share/upload",
+                "FileFormName": "file",
+                "Arguments": {"apikey": "${this.state.response.apiKey}"}, 
+                "URL": "$json:path$"}`;
+
+        // Replace all the tabs...
+        text = text.replace(/\s/g, '');
+
+        // Create an element...
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', `sharex.${this.state.response.name.toLowerCase()}.sxcu`);
+
+        // Hide our element...
+        element.style.display = 'none';
+
+        // Append it to the document...
+        document.body.appendChild(element);
+
+        // Click it...
+        element.click();
+
+        // Remove it from the document...
+        document.body.removeChild(element);
+    }
+
     onLoad() {
         // Reset our response state...
         this.setState({
@@ -262,7 +300,10 @@ export class Settings extends React.Component {
                         {this.state.response.apiEnabled ?
                             (<div>
                                 <p>Your API is currently enabled, <a onClick={this.disableAPI.bind(this)}>click here</a> to disable API...</p>
-                                <div className={styles["api-box"]}>{this.state.response.apiKey}</div>
+                                <div className={styles["api-box"]}>{this.state.response.apiKey}
+                                    <img className={styles["sharex"]} src="images/sharex.svg" onClick={this.downloadShareXConfig.bind(this)} />
+                                </div>
+                                
                             </div>)
                             : (<div>
                                 <p>Your API is currently disabled, <a onClick={this.disableAPI.bind(this)}>click here</a> to enable API...</p>

@@ -105,6 +105,28 @@ export class File extends React.Component
         this.child.toggleMenu(event, options);
     }
 
+    formatDate(unix)
+    {
+        // Setup our current date...
+        const now = new Date();   
+
+        // Set our file creation date...
+        let date = new Date(unix * 1000);
+
+        // Format our date...
+        let formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+
+        if (date.getDate() === now.getDate()
+            && date.getMonth() === now.getMonth()
+            && date.getFullYear() === now.getFullYear()) formattedDate = `Today`;
+        else if (date.getDate() === now.getDate() - 1
+            && date.getMonth() === now.getMonth()
+            && date.getFullYear() === now.getFullYear()) formattedDate = `Yesterday`;
+
+        // Return our final formatted date...
+        return `${formattedDate} at ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`;
+    }
+
     render() {
         // Check if our prop is valid...
         if (!this.props.file) return null;
@@ -115,24 +137,47 @@ export class File extends React.Component
         // Setup our folder icon style...
         const fileIconStyle =
         { 
-            backgroundImage: `url(${file.icon})`
+            backgroundImage: `url(${file.icon})`,
+            backgroundSize: `50px`
         };
-         
-        // Return our rendering of the item...
-        return (
-            <>
-                <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
-                <DragDropContainer targetKey="file" dragData={file} contextMenu={this.showContextMenu.bind(this)}>
-                    <div className={styles["gridItem"]}
-                        onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
 
-                        <div className={styles["grid-file-icon"]} style={fileIconStyle} />
+        // Format our time...
+        const timeFormatted = this.formatDate(file.date);
 
-                        <p className={styles["grid-file-text"]}>{file.name}</p>
-                        <p className={styles["grid-text-right"]}>{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
-                    </div>
-                </DragDropContainer>
-            </>
-        );
+        // Return a rendered result of this folder...
+        if (this.props.listView)
+            // Return our listview division...
+            return (
+                <>
+                    <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
+                    <DragDropContainer targetKey="file" dragData={file} contextMenu={this.showContextMenu.bind(this)}>
+                        <div className={styles["gridItem"]}
+                            onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
+
+                            <div className={styles["grid-file-icon"]} style={fileIconStyle} />
+
+                            <p className={styles["grid-file-text"]}>{file.name}</p>
+                            <p className={styles["grid-text-right"]}>{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
+                        </div>
+                    </DragDropContainer>
+                </>
+            );
+        else
+            return (
+                <>
+                    <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
+                    <DragDropContainer targetKey="file" dragData={file} contextMenu={this.showContextMenu.bind(this)}>
+                        <div className={styles["gridItem-folder"]}
+                            onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
+
+                            <div className={styles["grid-icon"]} style={fileIconStyle} />
+
+                            <p className={styles["grid-text"]}>{file.name}</p>
+                            <p className={styles["grid-subtext"]}>{timeFormatted}</p>
+                            <p className={styles["grid-subtext"]}>{file.size}</p>
+                        </div>
+                    </DragDropContainer>
+                </>
+            );
     }
 }

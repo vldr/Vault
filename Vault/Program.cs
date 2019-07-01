@@ -22,33 +22,33 @@ namespace Vault2
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                 .UseKestrel()
-                 .UseIISIntegration()
-                 .UseStartup<Startup>()
-                 .ConfigureKestrel((context, options) =>
-                 {
-                     options.ListenAnyIP(5555);
-                 });
-                 /*.UseHttpSys(options =>
+#if DEBUG
+                .UseKestrel()
+                .UseIISIntegration()
+                .UseStartup<Startup>()
+                .ConfigureKestrel((context, options) =>
+                {
+                    options.ListenAnyIP(5555);
+                });
+
+#else
+                 .UseHttpSys(options =>
                  { 
                      options.Authentication.Schemes = AuthenticationSchemes.None; 
                      options.Authentication.AllowAnonymous = true;
                      options.EnableResponseCaching = true;
                      options.MaxConnections = -1;  
                      options.MaxRequestBodySize = null;
-#if DEBUG
-                     //options.UrlPrefixes.Add("http://127.0.0.1:6969");
-                     options.UrlPrefixes.Add("http://127.0.0.1:6969/manager/");
-#else
+
                      options.UrlPrefixes.Add("http://vldr.org:80/manager/");
                      options.UrlPrefixes.Add("https://vldr.org:443/manager/");
                      options.UrlPrefixes.Add("https://www.vldr.org:443/manager/");
                      options.UrlPrefixes.Add("http://www.vldr.org:80/manager/");
 
                      options.UrlPrefixes.Add("http://upx.me:80/");
-#endif
+
                  })
-                .UseStartup<Startup>();*/
-               
+                .UseStartup<Startup>();
+#endif
     }
 }

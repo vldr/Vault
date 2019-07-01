@@ -79,6 +79,22 @@ input[type=text]:focus {
 	outline: 0
 }
 
+.blank {
+	background: #fff;
+	border: 3px solid grey
+}
+
+.sharex {
+	height: 15px;
+	margin-bottom: -3px;
+	margin-left: 12px;
+	cursor: pointer
+}
+
+.sharex:hover {
+	opacity: .5
+}
+
 .text-overlay {
 	position: absolute;
 	left: 0;
@@ -300,8 +316,8 @@ div .button {
 
 .color-circle {
 	border-radius: 100%;
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 	margin-right: 10px;
 	background-color: #5f5f5f
 }
@@ -332,12 +348,6 @@ div .button {
 
 .recycle-bin, .recycle-bin-empty {
 	background-color: #fff
-}
-
-.recycle-bin .grid-icon {
-	background-image: url(../../../images/recycle.svg);
-	background-size: 22px;
-	background-position: 3px 2px
 }
 
 .recycle-bin-empty .grid-icon {
@@ -935,12 +945,13 @@ div .button {
 }
 
 .gridItem-folder {
-	width: 150px;
-	border-radius: 3px;
-	margin: -3px 10px -3px -3px;
-	border-bottom: 1px solid #d4d4d4;
-	box-shadow: 0 1px 4px 0 rgba(0,0,0,.09);
+	width: 84px;
+	height: 142px;
+	background: unset !important;
+	transition: all .05s;
+	word-break: break-all;
 	padding: 17px;
+	border: 2px solid hsla(0,0%,100%,0);
 	font-family: Arial,sans-serif;
 	text-decoration: none;
 	-moz-user-select: -moz-none;
@@ -949,9 +960,13 @@ div .button {
 	user-select: none
 }
 
+.gridItem-folder:hover {
+	background: hsla(0,0%,100%,.38824) !important;
+	border-radius: 5px;
+	border: 2px solid #fff
+}
+
 .gridItem, .gridItem-folder {
-	height: 6px;
-	display: inline-block;
 	cursor: pointer
 }
 
@@ -1086,19 +1101,17 @@ progress::-moz-progress-bar {
 }
 
 .grid-file-icon, .grid-icon {
-	height: 37px;
-	float: left;
-	width: 32px;
-	margin-left: -7px;
+	height: 68px;
+	width: 86px;
 	outline: none;
 	white-space: nowrap;
 	background-repeat: no-repeat;
 	background-position: 50%;
-	pointer-events: none
-}
-
-.grid-icon {
-	margin-top: -15px
+	pointer-events: none;
+	background-image: url(../../../images/folder.svg);
+	background-size: 75px;
+	-webkit-filter: drop-shadow(0 1px 2px rgba(0,0,0,.13333));
+	filter: drop-shadow(0 1px 2px rgba(0,0,0,.13333))
 }
 
 .file-listing {
@@ -1319,17 +1332,26 @@ input[type=submit]:hover {
 }
 
 .grid-text {
-	margin-top: -4px;
-	margin-left: 29px;
-	color: rgba(0,0,0,.7098);
-	width: 120px;
+	margin: 5px 0 4px;
+	color: rgba(0,0,0,.59);
+	width: 96px;
+	font-size: 13px;
+	max-height: 32px
+}
+
+.grid-subtext, .grid-text {
 	overflow: hidden;
-	height: 15px;
-	text-align: left
+	text-align: center
+}
+
+.grid-subtext {
+	margin: 0;
+	font-size: 9px;
+	width: 99px;
+	color: #a0a0a0
 }
 
 .grid-text, .grid-text-right {
-	font-size: 13px;
 	pointer-events: none
 }
 
@@ -1350,49 +1372,6 @@ input[type=submit]:hover {
 ::-webkit-scrollbar-thumb {
 	border-radius: 5px;
 	background: rgba(0,0,0,.2)
-}
-
-@media (max-width: 535px) {
-	.grid-file-text {
-		max-width: 90% !important;
-		word-break: keep-all;
-		white-space: nowrap;
-		pointer-events: none;
-		user-select: none;
-		-webkit-user-select: none;
-		-khtml-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none
-	}
-
-	.grid-text-right {
-		display: none
-	}
-
-	.grid-icon {
-		background-size: 18px !important;
-		background-position: 50% !important;
-		height: 23px;
-		width: 18px;
-		margin-top: -8px
-	}
-
-	.grid-file-text {
-		font-size: 12px;
-		width: 100px;
-		color: #6d6d6d
-	}
-
-	.grid-text {
-		font-size: 12px;
-		margin-top: -3px;
-		margin-left: 18px;
-		width: unset
-	}
-
-	.gridItem-folder {
-		width: 140px
-	}
 }
 
 @media (max-width: 800px) {
@@ -1595,31 +1574,52 @@ p {
 }
 
 .green-icon {
-	background-color: #d1ffe1
+	background: #19f522
+}
+
+.green-icon, .purple-icon {
+	width: 10px;
+	height: 10px;
+	margin-right: 7px;
+	margin-top: 4px;
+	border-radius: 50%
 }
 
 .purple-icon {
-	background-color: #efd1ff
+	background: #cd6eff
 }
 
 .orange-icon {
-	background-color: #ffffd1
+	background: #ffbe00
+}
+
+.blue-icon, .orange-icon {
+	width: 10px;
+	height: 10px;
+	margin-right: 5px;
+	margin-top: 4px;
+	border-radius: 50%;
 }
 
 .blue-icon {
-	background-color: #d1f7ff
+	background: #63e4ff
 }
 
 .red-icon {
-	background-color: #ffd1d1
+	width: 10px;
+	height: 10px;
+	margin-right: 7px;
+	margin-top: 4px;
+	border-radius: 50%;
+	background: #ff2121
 }
 
-.folder-listing {
+.listing {
 	padding-left: 10px
 }
 
-.folder-listing div {
-	display: inline-block
+.listing div {
+	display: inline-grid
 }
 
 .folder-path {
@@ -1872,7 +1872,7 @@ p {
 }
 
 .intro-box .loader {
-	margin-top: -50px;
+	margin-top: -50px
 }
 
 @-webkit-keyframes intro-out {
@@ -1961,6 +1961,11 @@ p {
 	background-repeat: no-repeat;
 	background-position: 50%;
 	display: none
+}
+
+.drag-ghost {
+	-webkit-animation: fadein .4s;
+	animation: fadein .4s
 }
 
 .drag-ghost .gridItem {

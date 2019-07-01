@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.5 0.5 27 21" width="28" height="33">
+	<style>
+		tspan { white-space:pre }
+		.shp0 { fill: #69eaff } 
+		.shp1 { fill: #47d041 } 
+		.shp2 { fill: #10893e } 
+		.shp3 { fill: #00bcf2 } 
+		.shp4 { fill: #faec6e } 
+		.shp5 { fill: none;stroke: #cccccc;paint-order:stroke fill markers } 
+	</style>
+	<path id="Shape 3" class="shp0" d="M1,20h26v-19h-26z"/>
+	<path id="Shape 7" class="shp1" d="M8.76,3l-12.76,13.64l26,-0.16z"/>
+	<path id="Shape 7" class="shp2" d="M23.88,9.49l-8.88,8.45l17,0.26z"/>
+	<path id="Shape 8" class="shp3" d="M1,20h26v-2h-26z"/>
+	<path id="Shape 8" class="shp2" d="M1,18h26v-2h-26z"/>
+	<path id="Shape 8" class="shp4" d="M23,5c0,-1.11 -0.89,-2 -2,-2c-1.11,0 -2,0.89 -2,2c0,1.11 0.89,2 2,2c1.11,0 2,-0.89 2,-2z"/>
+	<path id="Shape 2" class="shp5" d="M1,20h26v-19h-26z"/>
+</svg>

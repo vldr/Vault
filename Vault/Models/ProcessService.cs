@@ -261,11 +261,14 @@ namespace Vault.Models
                         return "images/file/folder-icon5.svg";
                     else
                         return "blue-icon";
-                default:
+                case 5:
                     if (type == AttributeTypes.FolderIcon)
-                        return "images/file/folder-icon.svg";
+                        return "images/file/folder-icon5.svg";
                     else
                         return "orange-icon";
+                default:
+                    if (type == AttributeTypes.FolderIcon) return "images/file/folder-icon.svg";
+                    else return "";
             }
         }
 
@@ -2171,6 +2174,7 @@ namespace Vault.Models
             }
         }
 
+
         /// <summary>
         /// Generates a random string given the count...
         /// </summary>
@@ -2222,7 +2226,7 @@ namespace Vault.Models
                 Name = file.Name,
                 Folder = file.Folder,
                 Icon = GetFileAttribute(file.Id.ToString(), file.Ext, AttributeTypes.FileIcon),
-                Date = file.Created.ToString(),
+                Date = ((DateTimeOffset)file.Created).ToUnixTimeSeconds(),
                 Size = GetBytesReadable(file.Size),
                 IsSharing = file.IsSharing,
                 ShareId = file.ShareId
