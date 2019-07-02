@@ -2068,9 +2068,8 @@ p {
 
 .share-comments {
 	width: 500px;
-	padding: -2px;
 	margin: 0;
-	height: 100vh;
+	min-height: 100vh;
 	background: #e5e5e5;
 	border-left: 1px solid #dcd9d9
 }
@@ -2110,6 +2109,10 @@ p {
 	margin: 10px
 }
 
+.comment-editor > .loader {
+	margin: 80px auto
+}
+
 .comment-editor {
 	padding: 12px
 }
@@ -2130,14 +2133,61 @@ p {
 	border-top: 1px solid #d2d2d2
 }
 
+.comment-section > div > button {
+	margin: 15px;
+	padding: 5px 30px;
+	height: auto;
+	background: #d8d8d8
+}
+
+.comment-section > .loader {
+	margin: 80px auto
+}
+
 .comment-error {
 	color: #ce0000;
-	border-bottom: 1px solid rgba(241, 167, 167, 0.72941);
+	border-bottom: 1px solid rgba(241,167,167,.72941);
 	font-size: 14px;
 	padding: 15px;
 	background: rgba(255,0,0,.12157);
 	-webkit-animation: fadein .2s;
-	animation: fadein .2s;
+	animation: fadein .2s
+}
+
+.comment-avatar {
+	line-height: 35px;
+	width: 35px;
+	margin: 15px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	color: #fff;
+	text-shadow: 0 0 3px #000;
+	text-align: center;
+	vertical-align: 100px;
+	height: 35px;
+	border-radius: 50%
+}
+
+.comment-box {
+	min-height: 100px;
+	border-bottom: 1px solid #ccc;
+	width: 100%
+}
+
+.comment-box p {
+	margin: 0 0 15px 8px;
+	padding: 10px
+}
+
+.comment-author {
+	padding-top: 24px;
+	color: #3e3e3e
+}
+
+.comment-topbar {
+	display: flex
 }
 
 @media (max-width: 1125px) {

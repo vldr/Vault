@@ -1,15 +1,19 @@
 ﻿import React from 'react';
 import styles from '../../app/App.css';
 
+import { Comment } from './Comment';
+
 class Comments extends React.Component
 {
     constructor(props) {
         super(props);
 
         this.state = {
-            isLoading: true,
+            isLoading: false,
+            isCommentsLoading: true,
             error: null,
-            response: null
+            response: null,
+            offset: 0
         };
     }
 
@@ -22,6 +26,16 @@ class Comments extends React.Component
     {
         // Check if we were given a share id...
         if (!this.props.shareId) return;
+
+        // Check if comments are loading...
+        if (this.isCommentsLoading)
+        {
+            // Stop our loading state...
+            this.setState({ error: "Please wait while the comments load..." });
+
+            // Return here..
+            return;
+        }
 
         // Set our state to be started...
         this.setState({
@@ -48,7 +62,39 @@ class Comments extends React.Component
                         // Stop our loading state...
                         this.setState({ isLoading: false, error: result.reason });
                     // Set our response and turn off isLoading...
-                    else this.getComments();
+                    else
+                    {
+                        // Add our comment if our response is set...
+                        if (this.state.response)
+                        {
+                            // Add our item to the top...
+                            this.state.response.comments.unshift(result.comment);
+
+                            // Increase our total...
+                            this.state.response.total += 1;
+
+                            // Update our offset...
+                            this.state.offset = this.state.response.comments.length;
+                        }
+                        // Otherwise, create our own...
+                        else {
+                            // Setup a blank array...
+                            let comments = [];
+
+                            // Push our new comment into it...
+                            comments.push(result.comment);
+
+                            // Set a dummy response...
+                            this.state.response = { success: true, comments: comments };
+                        }
+
+                        // Empty our boxes...
+                        this.name.value = '';
+                        this.content.value = '';
+
+                        // Set our loading to be false...
+                        this.setState({ isLoading: false, response: this.state.response, offset: this.state.offset });  
+                    }
                 },
                 (error) => {
                     // Stop our loading state...
@@ -60,7 +106,10 @@ class Comments extends React.Component
     getComments()
     {
         // Check if we were given a share id...
-        if (!this.props.shareId) return;
+        if (!this.props.shareId || this.state.isFinished) return;
+
+        // Set our comments to be loading to true...
+        this.setState({ isCommentsLoading: true });
 
         // Fetch our delete file request...
         fetch("comments",
@@ -70,22 +119,37 @@ class Comments extends React.Component
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `shareId=${encodeURIComponent(this.props.shareId)}`
+                body: `shareId=${encodeURIComponent(this.props.shareId)}&offset=${this.state.offset}`
             })
             .then(res => res.json())
             .then(
                 (result) => {
                     // Check if we're not logged in or something...
-                    if (!result.success) 
+                    if (!result.success)
                         // Stop our loading state...
-                        this.setState({ isLoading: false, error: result.reason, response: null });
+                        this.setState({ isCommentsLoading: false, error: result.reason, response: null });
                     // Set our response and turn off isLoading...
                     else
-                        this.setState({ isLoading: false, response: result, error: null });
+                    {
+                        // Setup our response...
+                        let response = null;
+
+                        // Check if our response is set and then concat if it is...
+                        if (this.state.response)
+                        {
+                            response = this.state.response;
+                            response.comments = this.state.response.comments.concat(result.comments);
+                        }
+                        // Otherwise simply set result as the response...
+                        else response = result;
+
+                        // Set our state...
+                        this.setState({ isCommentsLoading: false, response: response, error: null, offset: response.comments.length });
+                    }
                 },
                 (error) => {
                     // Stop our loading state...
-                    this.setState({ isLoading: false, error: error.message, response: null });
+                    this.setState({ isCommentsLoading: false, error: error.message, response: null });
                 }
             );
     }
@@ -98,27 +162,42 @@ class Comments extends React.Component
         const error = this.state.error && (<div className={styles["comment-error"]}>{this.state.error}</div>);
 
         // Setup our comments
-        const comments = this.state.response && this.state.response.comments.map((comment, i) => <div key={comment.id}>{comment.content}</div>);
+        const comments = this.state.response && this.state.response.comments.map((comment, i) => <Comment key={comment.id} comment={comment} />);
 
-        // Return loader if we're loading...
-        if (this.state.isLoading) return <div className={styles['loader']} />;
-        // Return actual content if we're done loading...
-        else
-            return (<>
-                {error}
+        // Setup our post box's style...
+        const postBoxStyle = { display: this.state.isLoading ? "none" : "block" };
+        const postBoxLoaderStyle = { display: !this.state.isLoading ? "none" : "block" };
 
-                <div className={styles["comment-editor"]}>
+        // Setup our post box's style...
+        const commentBoxStyle = { display: this.state.isCommentsLoading ? "none" : "block" };
+        const commentBoxLoaderStyle = { display: !this.state.isCommentsLoading ? "none" : "block" };
+
+        // Return our rendered result...
+        return (<>
+            {error}
+
+            <div className={styles["comment-editor"]}>
+                <div className={styles['loader']} style={postBoxLoaderStyle} />
+
+                <div style={postBoxStyle}>
                     <h2>Comments</h2>
                     <input ref={(input) => { this.name = input; }} type="text" placeholder="Name" />
                     <textarea ref={(input) => { this.content = input; }} placeholder="Write a comment" />
-
                     <button className={styles["button"]} onClick={this.onClick.bind(this)}>Post</button>
                 </div>
+            </div> 
 
-                <div className={styles["comment-section"]}>
+            <div className={styles["comment-section"]}>
+                <div>
                     {comments}
+                    {
+                        this.state.response && this.state.response.comments.length !== this.state.response.total
+                        && <button style={commentBoxStyle} className={styles["button"]} onClick={this.getComments.bind(this)}>Load more comments...</button>
+                    }
                 </div>
-            </>);
+                <div className={styles['loader']} style={commentBoxLoaderStyle} />
+            </div>
+        </>);
     }
 }
 

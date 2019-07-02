@@ -160,19 +160,19 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("share/comments")]
-        public IActionResult Comments(string shareId)
+        public IActionResult Comments(string shareId, int? offset)
         {
             // Check if our share id given is null!
-            if (shareId == null) return MissingParameters();
+            if (shareId == null || offset == null) return MissingParameters();
 
             // Get our comment....
-            var comments = _processService.GetComments(shareId);
+            var comments = _processService.GetComments(shareId, offset.GetValueOrDefault());
 
             // Check we were successful in adding a new file...
-            if (comments != null)
+            if (comments.Item1 != null)
             {
                 // Respond with a successful message...
-                return Json(new { Success = true, comments });
+                return Json(new { Success = true, comments.comments, comments.total });
             }
             else
                 // Respond that something bad happened...
@@ -200,11 +200,14 @@ namespace Vault.Controllers
             // Check if name is too long...
             if (name.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
 
+            // Attempt to add a comment...
+            var comment = _processService.AddComment(shareId, name, content, HttpContext.Connection.RemoteIpAddress.ToString());
+
             // Check we were successful in adding a new file...
-            if (_processService.AddComment(shareId, name, content, HttpContext.Connection.RemoteIpAddress.ToString()))
+            if (comment != null)
             {
                 // Respond with a successful message...
-                return Json(new { Success = true });
+                return Json(new { Success = true, comment });
             }
             else
                 // Respond that something bad happened...

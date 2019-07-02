@@ -80,16 +80,22 @@ namespace Vault.Models
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        public IEnumerable<Comment> GetComments(string shareId)
+        public (IEnumerable<Comment> comments, int total) GetComments(string shareId, int offset = 0)
         {
             // Get our shared file...
             File file = GetSharedFile(shareId);
 
             // Check if file exists...
-            if (file == null) return null;
+            if (file == null) return (null, -1);
+
+            // Count all the comments...
+            int totalComments = _context.Comments.Count(b => b.FileId == file.Id);
 
             // Attempt to get all the comments...
-            return _context.Comments.Where(b => b.FileId == file.Id).ToList();
+            return (_context.Comments.Where(b => b.FileId == file.Id)
+                .OrderByDescending(b => b.Created)
+                .Skip(offset)
+                .Take(3).ToList(), totalComments);
         }
 
         /// <summary>
@@ -491,16 +497,16 @@ namespace Vault.Models
         /// <param name="content"></param>
         /// <param name="ipAddress"></param>
         /// <returns></returns>
-        public bool AddComment(string shareId, string name, string content, string ipAddress)
+        public Comment AddComment(string shareId, string name, string content, string ipAddress)
         {
             // Attempt to find out shared file...
             File file = GetSharedFile(shareId);
 
             // Check if our file exists...
-            if (file == null) return false;
+            if (file == null) return null;
 
             // Check that name and content are within our limits...
-            if (name.Length > 30 || content.Length > 120) return false;
+            if (name.Length > 30 || content.Length > 120) return null;
 
             // Create a new comment...
             Comment comment = new Comment();
@@ -517,7 +523,7 @@ namespace Vault.Models
             _context.SaveChanges();
 
             // Return true...
-            return true;
+            return comment;
         }
 
         /// <summary>
