@@ -99,7 +99,7 @@ export class ShareFile extends React.Component
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Share</div>
             <div className={styles["warning-message"]}>
-                <p>You can easily share your files with anybody around the globe. Simply enable sharing and give them the link below!</p>
+                <p>You can toggle whether you want a randomly generated shareable link to be associated to your file:</p>
                 {checkBox}
             </div>
         </div>) : null;

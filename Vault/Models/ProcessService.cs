@@ -76,6 +76,23 @@ namespace Vault.Models
             => _context.Users.Where(b => b.Id == id).FirstOrDefault().Password;
 
         /// <summary>
+        /// Gets all the comments of a shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        public IEnumerable<Comment> GetComments(string shareId)
+        {
+            // Get our shared file...
+            File file = GetSharedFile(shareId);
+
+            // Check if file exists...
+            if (file == null) return null;
+
+            // Attempt to get all the comments...
+            return _context.Comments.Where(b => b.FileId == file.Id).ToList();
+        }
+
+        /// <summary>
         /// Checks if the folder even exists
         /// </summary>
         /// <param name="ownerId"></param>
@@ -466,6 +483,42 @@ namespace Vault.Models
             return readable.ToString("0.### ") + suffix;
         }
 
+        /// <summary>
+        /// Adds a comment to a given post...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <param name="ipAddress"></param>
+        /// <returns></returns>
+        public bool AddComment(string shareId, string name, string content, string ipAddress)
+        {
+            // Attempt to find out shared file...
+            File file = GetSharedFile(shareId);
+
+            // Check if our file exists...
+            if (file == null) return false;
+
+            // Check that name and content are within our limits...
+            if (name.Length > 30 || content.Length > 120) return false;
+
+            // Create a new comment...
+            Comment comment = new Comment();
+            comment.FileId = file.Id;
+            comment.Author = name;
+            comment.Content = content;
+            comment.Created = DateTimeOffset.Now.ToUnixTimeSeconds();
+            comment.IPAddress = ipAddress;
+
+            // Add our comment to the file...
+            _context.Comments.Add(comment);
+
+            // Save all our changes...
+            _context.SaveChanges();
+
+            // Return true...
+            return true;
+        }
 
         /// <summary>
         /// Gets a folder given an id using a list...

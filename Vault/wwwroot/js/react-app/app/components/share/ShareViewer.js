@@ -194,7 +194,7 @@ class ShareViewer extends React.Component {
 
                 <div className={styles['share-comments']}>
                     <React.Suspense fallback={loaderBar}>
-                        <Comments />
+                        <Comments shareId={this.props.shareId} />
                     </React.Suspense>
                 </div>
             </div>

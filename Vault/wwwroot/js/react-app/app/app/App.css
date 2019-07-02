@@ -980,9 +980,9 @@ div .button {
 
 .gridItem {
 	width: 100%;
-	padding: 0px 18px;
+	padding: 0 18px;
 	box-sizing: border-box;
-	overflow: hidden;
+	overflow: hidden
 }
 
 .gridItem:hover {
@@ -1317,13 +1317,12 @@ input[type=submit]:hover {
 
 .grid-file-text {
 	font-size: 13px;
-	/* margin-top: -8px; */
 	margin-left: 8px;
 	color: rgba(82,82,82,.94902);
 	float: left;
 	max-width: 50%;
 	overflow: hidden;
-	height: 16px;
+	height: 16px
 }
 
 .grid-file-text, .search-content .grid-text-right {
@@ -1385,9 +1384,8 @@ input[type=submit]:hover {
 }
 
 .grid-text-right {
-	/* margin-top: -8px; */
 	color: hsla(0,0%,68.6%,.94902);
-	float: right;
+	float: right
 }
 
 ::-webkit-scrollbar {
@@ -2070,6 +2068,8 @@ p {
 
 .share-comments {
 	width: 500px;
+	padding: -2px;
+	margin: 0;
 	height: 100vh;
 	background: #e5e5e5;
 	border-left: 1px solid #dcd9d9
@@ -2079,8 +2079,65 @@ p {
 	margin: 35vh auto 0
 }
 
+.comment-editor h2 {
+	margin: 10px;
+	font-size: 19px;
+	width: 100px;
+	padding-bottom: 8px;
+	border-bottom: 2px solid #bdbdbd;
+	color: #5a5a5a
+}
+
+.comment-editor input[type=text] {
+	background: #fff;
+	border: 1px solid #d6d6d6;
+	margin: 10px;
+	padding: 14px;
+	border-radius: 4px;
+	text-align: left
+}
+
+.comment-editor textarea {
+	height: 32px;
+	width: 76%;
+	border-radius: 4px;
+	resize: none;
+	outline: 0;
+	font-family: unset;
+	padding: 17px;
+	background: #fff;
+	border: 1px solid #d6d6d6;
+	margin: 10px
+}
+
 .comment-editor {
-	background:black;
+	padding: 12px
+}
+
+.comment-editor button:hover {
+	background: #419eff;
+	border: 0;
+	color: #fff
+}
+
+.comment-editor button {
+	margin: 5px 0 10px 10px;
+	background: #007cff;
+	color: #fff
+}
+
+.comment-section {
+	border-top: 1px solid #d2d2d2
+}
+
+.comment-error {
+	color: #ce0000;
+	border-bottom: 1px solid rgba(241, 167, 167, 0.72941);
+	font-size: 14px;
+	padding: 15px;
+	background: rgba(255,0,0,.12157);
+	-webkit-animation: fadein .2s;
+	animation: fadein .2s;
 }
 
 @media (max-width: 1125px) {

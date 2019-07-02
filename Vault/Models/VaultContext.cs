@@ -11,6 +11,7 @@ namespace Vault.Models
         public VaultContext(DbContextOptions options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public DbSet<File> Files { get; set; }
         public DbSet<Folder> Folders { get; set; }
 

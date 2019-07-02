@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vault.Models;
 
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    partial class VaultContextModelSnapshot : ModelSnapshot
+    [Migration("20190702062953_Comments")]
+    partial class Comments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,19 +25,31 @@ namespace Vault.Migrations
 
                     b.Property<string>("Author");
 
+                    b.Property<int?>("CommentId");
+
                     b.Property<string>("Content");
 
-                    b.Property<long>("Created");
+                    b.Property<DateTime>("Created");
 
-                    b.Property<int>("FileId");
+                    b.Property<int>("Dislikes");
+
+                    b.Property<int?>("FileId");
 
                     b.Property<string>("IPAddress");
 
-                    b.Property<int>("Parent");
+                    b.Property<int>("Likes");
+
+                    b.Property<int?>("OwnerId");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Comments");
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Comment");
                 });
 
             modelBuilder.Entity("Vault.Models.File", b =>
@@ -128,6 +142,21 @@ namespace Vault.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Vault.Models.Comment", b =>
+                {
+                    b.HasOne("Vault.Models.Comment")
+                        .WithMany("Replies")
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("Vault.Models.File")
+                        .WithMany("Comments")
+                        .HasForeignKey("FileId");
+
+                    b.HasOne("Vault.Models.User", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId");
                 });
 #pragma warning restore 612, 618
         }

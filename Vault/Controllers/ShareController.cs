@@ -154,34 +154,63 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Displays the share page for a shared folder...
+        /// Returns the comments of a shared file...
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
-        /*
-        [HttpGet]
-        [Route("share/{shareId:length(25)}")]
-        public IActionResult ShareFolder(string shareId)
+        [HttpPost]
+        [Route("share/comments")]
+        public IActionResult Comments(string shareId)
         {
             // Check if our share id given is null!
-            if (shareId == null) return Redirect(_relativeDirectory);
+            if (shareId == null) return MissingParameters();
 
-            // Get the file...
-            Folder folder = _processService.GetSharedFolder(shareId);
+            // Get our comment....
+            var comments = _processService.GetComments(shareId);
 
-            // Check if the file exists or is valid!
-            if (folder == null) return Redirect(_relativeDirectory);
-
-            // Setup our viewbag...
-            ViewBag.Name = folder.Name;
-            ViewBag.Id = folder.ShareId;
-            ViewBag.Type = "FOLDER";
-
-            // Return our view!
-            return View("Share");
+            // Check we were successful in adding a new file...
+            if (comments != null)
+            {
+                // Respond with a successful message...
+                return Json(new { Success = true, comments });
+            }
+            else
+                // Respond that something bad happened...
+                return Json(new { Success = false, Reason = "Failed to retrieve the comments for the given shared file..." });
         }
-        */
 
+        /// <summary>
+        /// Posts a comment...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("share/postcomment")]
+        public IActionResult PostComment(string shareId, string name, string content)
+        {
+            // Check if our share id given is null!
+            if (shareId == null || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(content))
+                return MissingParameters();
+
+            // Check if name is too long...
+            if (name.Length > 30) return Json(new { Success = false, Reason = "Your name must be within 30 characters..." });
+
+            // Check if name is too long...
+            if (name.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
+
+            // Check we were successful in adding a new file...
+            if (_processService.AddComment(shareId, name, content, HttpContext.Connection.RemoteIpAddress.ToString()))
+            {
+                // Respond with a successful message...
+                return Json(new { Success = true });
+            }
+            else
+                // Respond that something bad happened...
+                return Json(new { Success = false, Reason = "Failed to add a comment to the given shared file..." });
+        }
+        
         /// <summary>
         /// Gets the file...
         /// </summary>
