@@ -141,8 +141,14 @@ export class File extends React.Component
             backgroundSize: `50px`
         };
 
+        const fileListIconStyle =
+        {
+            backgroundImage: `url(${file.icon})`,
+            backgroundSize: `24px`
+        };
+
         // Format our time...
-        const timeFormatted = this.formatDate(file.date);
+        const date = this.formatDate(file.date);
 
         // Return a rendered result of this folder...
         if (this.props.listView)
@@ -154,10 +160,10 @@ export class File extends React.Component
                         <div className={styles["gridItem"]}
                             onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
 
-                            <div className={styles["grid-file-icon"]} style={fileIconStyle} />
+                            <div className={styles["grid-search-icon"]} style={fileListIconStyle} />
 
                             <p className={styles["grid-file-text"]}>{file.name}</p>
-                            <p className={styles["grid-text-right"]}>{file.date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
+                            <p className={styles["grid-text-right"]}>{date} ({file.size}) {file.isSharing ? "(S)" : ""}</p>
                         </div>
                     </DragDropContainer>
                 </>
@@ -173,7 +179,7 @@ export class File extends React.Component
                             <div className={styles["grid-icon"]} style={fileIconStyle} />
 
                             <p className={styles["grid-text"]}>{file.name}</p>
-                            <p className={styles["grid-subtext"]}>{timeFormatted}</p>
+                            <p className={styles["grid-subtext"]}>{date}</p>
                             <p className={styles["grid-subtext"]}>{file.size}</p>
                         </div>
                     </DragDropContainer>

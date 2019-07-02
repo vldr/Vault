@@ -2,7 +2,7 @@
 import ReactDOM from 'react-dom';
 import styles from '../app/App.css';
 
-const Viewer = React.lazy(() => import('../components/viewer/Viewer'));
+const ShareViewer = React.lazy(() => import('../components/share/ShareViewer'));
 
 // Set our webpack public path...
 __webpack_public_path__ = "../" + __webpack_public_path__;
@@ -19,10 +19,9 @@ export class Share extends React.Component
             <div className={styles["loader"]} />
         </div>);
 
-
         // Return our visual rendering...
         return (<Suspense fallback={loader}>
-            {this.props.type === "FILE" && <Viewer shareId={this.props.id} />}
+            {this.props.type === "FILE" && <ShareViewer shareId={this.props.id} />}
             </Suspense>);
     }
 }

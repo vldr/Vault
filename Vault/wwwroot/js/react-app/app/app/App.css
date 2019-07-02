@@ -1,4 +1,4 @@
-﻿html {
+﻿body, html {
 	height: 100%;
 	margin: 0
 }
@@ -6,7 +6,6 @@
 body {
 	font-family: sans-serif;
 	background-color: #eee;
-	margin: 0;
 	padding: 0;
 	-webkit-tap-highlight-color: transparent;
 	overflow-x: hidden
@@ -319,7 +318,7 @@ div .button {
 	width: 16px;
 	height: 16px;
 	margin-right: 10px;
-	background-color: #5f5f5f
+	box-shadow: inset 0 0 0 2px #6f6f6f
 }
 
 .color-circle:hover {
@@ -330,6 +329,10 @@ div .button {
 	background-color: #ffac00
 }
 
+.orange, .purple {
+	box-shadow: unset
+}
+
 .purple {
 	background-color: #9c1cff
 }
@@ -338,12 +341,17 @@ div .button {
 	background-color: #06b73b
 }
 
+.green, .red {
+	box-shadow: unset
+}
+
 .red {
 	background-color: #d63131
 }
 
 .blue {
-	background-color: #0081fe
+	background-color: #0081fe;
+	box-shadow: unset
 }
 
 .recycle-bin, .recycle-bin-empty {
@@ -945,7 +953,7 @@ div .button {
 }
 
 .gridItem-folder {
-	width: 84px;
+	width: 93px;
 	height: 142px;
 	background: unset !important;
 	transition: all .05s;
@@ -972,9 +980,9 @@ div .button {
 
 .gridItem {
 	width: 100%;
-	padding: 21px;
+	padding: 0px 18px;
 	box-sizing: border-box;
-	overflow: hidden
+	overflow: hidden;
 }
 
 .gridItem:hover {
@@ -1102,7 +1110,7 @@ progress::-moz-progress-bar {
 
 .grid-file-icon, .grid-icon {
 	height: 68px;
-	width: 86px;
+	width: 88px;
 	outline: none;
 	white-space: nowrap;
 	background-repeat: no-repeat;
@@ -1167,7 +1175,7 @@ progress::-moz-progress-bar {
 	color: #fff
 }
 
-.overlay-topbar img {
+.overlay-topbar img, .share-overlay-topbar img {
 	margin-right: 16px;
 	margin-left: 9px;
 	margin-bottom: -12px;
@@ -1185,6 +1193,10 @@ progress::-moz-progress-bar {
 	font-size: 19px
 }
 
+.share-overlay-topbar * {
+	color: #5a5a5a
+}
+
 .overlay-topbar *, .overlay-topbar-text {
 	user-select: none;
 	-webkit-user-select: none;
@@ -1193,8 +1205,13 @@ progress::-moz-progress-bar {
 	-ms-user-select: none
 }
 
-.overlay-topbar * {
+.overlay-topbar *, .share-overlay-topbar * {
 	display: inline-block
+}
+
+.share-overlay-topbar > .overlay-topbar-right {
+	-webkit-filter: invert(1);
+	filter: invert(1)
 }
 
 .overlay-topbar-right {
@@ -1300,13 +1317,13 @@ input[type=submit]:hover {
 
 .grid-file-text {
 	font-size: 13px;
-	margin-top: -8px;
+	/* margin-top: -8px; */
 	margin-left: 8px;
 	color: rgba(82,82,82,.94902);
 	float: left;
 	max-width: 50%;
 	overflow: hidden;
-	height: 16px
+	height: 16px;
 }
 
 .grid-file-text, .search-content .grid-text-right {
@@ -1316,6 +1333,18 @@ input[type=submit]:hover {
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none
+}
+
+.grid-search-icon {
+	height: 37px;
+	float: left;
+	width: 32px;
+	margin-left: -7px;
+	outline: none;
+	white-space: nowrap;
+	background-repeat: no-repeat;
+	background-position: 50%;
+	pointer-events: none
 }
 
 .search-content .grid-text-right {
@@ -1334,7 +1363,7 @@ input[type=submit]:hover {
 .grid-text {
 	margin: 5px 0 4px;
 	color: rgba(0,0,0,.59);
-	width: 96px;
+	width: 86px;
 	font-size: 13px;
 	max-height: 32px
 }
@@ -1356,9 +1385,9 @@ input[type=submit]:hover {
 }
 
 .grid-text-right {
-	margin-top: -8px;
+	/* margin-top: -8px; */
 	color: hsla(0,0%,68.6%,.94902);
-	float: right
+	float: right;
 }
 
 ::-webkit-scrollbar {
@@ -1581,7 +1610,7 @@ p {
 	width: 10px;
 	height: 10px;
 	margin-right: 7px;
-	margin-top: 4px;
+	margin-top: 2px;
 	border-radius: 50%
 }
 
@@ -1596,9 +1625,9 @@ p {
 .blue-icon, .orange-icon {
 	width: 10px;
 	height: 10px;
-	margin-right: 5px;
-	margin-top: 4px;
-	border-radius: 50%;
+	margin-right: 7px;
+	margin-top: 3px;
+	border-radius: 50%
 }
 
 .blue-icon {
@@ -1609,7 +1638,7 @@ p {
 	width: 10px;
 	height: 10px;
 	margin-right: 7px;
-	margin-top: 4px;
+	margin-top: 2px;
 	border-radius: 50%;
 	background: #ff2121
 }
@@ -2009,6 +2038,49 @@ p {
 .load-progress {
 	background: hsla(0,0%,100%,.21176);
 	height: 2px
+}
+
+.share-overlay-topbar {
+	height: 40px;
+	margin: 0 auto;
+	padding: 18px 15px 22px;
+	color: #fff;
+	background: hsla(0,0%,46.7%,.07059)
+}
+
+.share-overlay {
+	display: inline-flex;
+	width: 100%;
+	height: 100%
+}
+
+.share-view {
+	width: 100%;
+	background: #eee
+}
+
+.share-view > .overlay-message {
+	background: #e5e5e5;
+	color: #565656
+}
+
+.share-view > .loader {
+	margin: 35vh auto 0
+}
+
+.share-comments {
+	width: 500px;
+	height: 100vh;
+	background: #e5e5e5;
+	border-left: 1px solid #dcd9d9
+}
+
+.share-comments > .loader {
+	margin: 35vh auto 0
+}
+
+.comment-editor {
+	background:black;
 }
 
 @media (max-width: 1125px) {

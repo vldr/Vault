@@ -47,7 +47,6 @@ namespace Vault.Models
         public string Icon { get; set; }
         public string Style { get; set; }
         public bool IsRecycleBin { get; set; }
-        public bool Empty { get; set; }
 
         public bool IsSharing { get; set; }
         public string ShareId { get; set; }

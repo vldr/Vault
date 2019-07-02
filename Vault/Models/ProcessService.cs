@@ -148,10 +148,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FolderListing> GetFolderListings(int ownerId, int folderId)
             => _context.Folders.Where(b => b.FolderId == folderId && b.Owner == ownerId)
-            .Select(x => GetFolderListing(x,
-                !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
-                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any())
-            ));
+            .Select(x => GetFolderListing(x));
 
         /// <summary>
         /// Searches for folders matching the search term criteria...
@@ -161,10 +158,7 @@ namespace Vault.Models
         /// <returns></returns>
         public IEnumerable<FolderListing> SearchFolderListings(int ownerId, string term)
             => _context.Folders.Where(b => b.Name.ToLower().Contains(term) && b.Owner == ownerId).OrderByDescending(b => b.Id)
-            .Select(x => GetFolderListing(x,
-                !(_context.Files.Where(b => b.Folder == x.Id && b.Owner == ownerId).Any()
-                || _context.Folders.Where(b => b.FolderId == x.Id && b.Owner == ownerId).Any())
-            )).Take(10);
+            .Select(x => GetFolderListing(x)).Take(10);
 
         /// <summary>
         /// Searches for files matching the search term criteria...
@@ -1896,14 +1890,14 @@ namespace Vault.Models
                 UpdateFolderListing(ownerId, folder);
 
                 // Check if our new folder is a recycle bin...
-                if (newFolder.IsRecycleBin)
+                //if (newFolder.IsRecycleBin)
                     // Update our folder that we placed the original folder inside of...
-                    UpdateFolderListing(ownerId, newFolder);
+                    //UpdateFolderListing(ownerId, newFolder);
 
                 // Check if our parent folder is a recycle bin...
-                if (parentFolder.IsRecycleBin)
+                //if (parentFolder.IsRecycleBin)
                     // Update our folder that we placed the original folder inside of...
-                    UpdateFolderListing(ownerId, parentFolder);
+                    //UpdateFolderListing(ownerId, parentFolder);
 
                 ///////////////////////////////////////////////////
 
@@ -2194,14 +2188,8 @@ namespace Vault.Models
             return new string(stringChars);
         }
 
-        public FolderListing GetFolderListing(Folder folder, bool? empty = null)
+        public FolderListing GetFolderListing(Folder folder)
         {
-            // Check if empty isn't set and that the folder is a recycle bin.
-            // We don't want to waste data fetches on non recycle bins...
-            if (empty == null && folder.IsRecycleBin)
-                // Call our is empty method...
-                empty = IsEmpty(folder.Owner, folder.Id);
-
             // Setup our folder listing...
             return new FolderListing
             {
@@ -2211,7 +2199,6 @@ namespace Vault.Models
                 Icon = GetFolderAttribute(folder.Colour, AttributeTypes.FolderIcon),
                 Style = GetFolderAttribute(folder.Colour, AttributeTypes.FolderStyle),
                 IsRecycleBin = folder.IsRecycleBin,
-                Empty = empty.GetValueOrDefault(),
                 IsSharing = folder.IsSharing,
                 ShareId = folder.ShareId
             };

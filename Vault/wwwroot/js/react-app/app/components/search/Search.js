@@ -122,8 +122,13 @@ class Search extends React.Component
         // Check if index exists...
         if (index !== -1)
         {
-            // Copy the new object to our folders list...
-            responseObjects[index] = object;
+            // Check if object was deleted entirely...
+            if (object.folder === -1)
+                responseObjects.splice(index, 1);
+            // Otherwise, update it...
+            else
+                // Copy the new object to our folders list...
+                responseObjects[index] = object;
 
             // Update our state...
             this.setState({ response: response });
@@ -163,6 +168,7 @@ class Search extends React.Component
         const filesFound = this.state.response ?
             this.state.response.files.map((file) => {
                 return (<File file={file} key={file.id}
+                    listView
                     openViewer={this.props.openViewer}
                     openFileLocation={this.props.openFileLocation}
                     searchCallback={this.close.bind(this)}

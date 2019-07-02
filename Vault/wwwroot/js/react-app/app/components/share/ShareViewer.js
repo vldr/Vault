@@ -2,13 +2,14 @@
 import styles from '../../app/App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
-import { PhotoView } from './PhotoView';
-import { AudioView } from './AudioView';
-import { VideoView } from './VideoView';
+import { PhotoView } from '../viewer/PhotoView';
+import { AudioView } from '../viewer/AudioView';
+import { VideoView } from '../viewer/VideoView';
 
-const PDFView = React.lazy(() => import('./PDFView'));
+const PDFView = React.lazy(() => import('../viewer/PDFView'));
+const Comments = React.lazy(() => import('../comments/Comments'));
 
-class Viewer extends React.Component {
+class ShareViewer extends React.Component {
     constructor(props) {
         super(props);
 
@@ -24,16 +25,7 @@ class Viewer extends React.Component {
         if (this.props.shareId) this.onOpenWithShareId(this.props.shareId);
     }
 
-    onClose(event) {
-        // Make sure the target was the overlay...
-        if (event.target.className !== styles['overlay']) return;
-
-        // Close our overlay...
-        this.close();
-    }
-
-    onOpen(fileId)
-    {
+    onOpen(fileId) {
         // Close our search if it is open...
         if (this.props.closeSearch) this.props.closeSearch();
 
@@ -126,8 +118,7 @@ class Viewer extends React.Component {
             );
     }
 
-    downloadFile()
-    {
+    downloadFile() {
         // Setup a form...
         let form = document.createElement("form");
         form.method = "POST";
@@ -143,36 +134,25 @@ class Viewer extends React.Component {
         document.body.removeChild(form);
     }
 
-    close()
-    {
-        // Set our state to hide our search overlay...
-        this.setState({ isOpen: false, response: null });
-    }
-
-    open()
-    {
-        // Set our state to display our search overlay...
-        this.setState({ isOpen: true });
-    }
-
     render() {
-        // Don't display anything if we're not open...
-        if (!this.state.isOpen) return null;
-
         // Setup a variable to track if everything has loaded...
         const hasLoaded = !this.state.isLoading && this.state.response;
 
         // Setup our loader bar...
-        const loaderBar = <center><div className={styles['loader']} /></center>;
+        const loaderBar = <div className={styles['loader']} />;
+
+        // Setup our intro box...
+        const introBox = (<div className={styles["intro-box"]}>
+            <img src="../images/ui/logo.svg" />
+        </div>);
 
         // Setup our viewer content...
-        const viewerTopbar = hasLoaded ?
-            (<div className={styles['overlay-topbar']} >
+        const topbar = hasLoaded ?
+            (<div className={styles['share-overlay-topbar']} >
                 <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
                 <div className={styles['overlay-topbar-right']}>
                     <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
-                    <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
                 </div>
             </div>) : null;
 
@@ -182,8 +162,7 @@ class Viewer extends React.Component {
         // Check if our view has loaded...
         if (hasLoaded)
             // Perform a switch to choose our...
-            switch (this.state.response.action)
-            {
+            switch (this.state.response.action) {
                 // PhotoView
                 case "1":
                     view = <PhotoView view={this.state.response} />;
@@ -202,18 +181,25 @@ class Viewer extends React.Component {
                     break;
             }
 
-        // Render our entire search system...
+        // Render our entire share view system...
         return (
-            <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
-                {this.state.isLoading && loaderBar}
-                {viewerTopbar}
+            
+            <div className={styles['share-overlay']}>
+                <div className={styles['share-view']}>
+                    <React.Suspense fallback={loaderBar}>
+                        {topbar}
+                        {hasLoaded && view}
+                    </React.Suspense>
+                </div>
 
-                <React.Suspense fallback={loaderBar}>
-                    {hasLoaded && view}
-                </React.Suspense>
+                <div className={styles['share-comments']}>
+                    <React.Suspense fallback={loaderBar}>
+                        <Comments />
+                    </React.Suspense>
+                </div>
             </div>
         );
     }
 }
 
-export default Viewer;
+export default ShareViewer;

@@ -50,24 +50,23 @@ class PDFView extends React.Component {
 
         this.setState({ isLoading: true });
 
-        // Setup our scale and viewport...
-        this.viewport = page.getViewport(1);
-
         // Setup our scale to be relative to the size of the image...
-        const scale = (document.body.clientWidth * 0.65) / this.viewport.width;
+        const scale = 5;
 
-        // Overwrite our viewport using the updated scale...
-        this.viewport = page.getViewport({ scale: scale });
+        // Setup our scale and viewport...
+        this.viewport = page.getViewport(scale);
 
         // Setup our canvas context...
         const context = this.canvas.getContext('2d');
         this.canvas.height = this.viewport.height;
         this.canvas.width = this.viewport.width;
+        this.canvas.style.width = "100%";
+        this.canvas.style.height = "100%";
 
         // Render our page to the canvas...
         page.render({ canvasContext: context, viewport: this.viewport })
             .then(() => this.setState({ isLoading: false }) )
-            .catch(error => this.setState({ isLoading: false, error: error }) );
+            .catch(error => this.setState({ isLoading: false }) );
 
     }
 
@@ -161,9 +160,8 @@ class PDFView extends React.Component {
                 <div className={styles['loader']} style={loaderStyle} />
             </center>
 
-            <div className={styles['overlay-preview']} style={overlayStyle}>
+            <div className={styles['overlay-preview']} style={overlayStyle} ref={(ref) => { this.wrapper = ref; }} >
                 <canvas height="0" width="0" ref={(ref) => { this.canvas = ref; }} />
-                <div ref={(ref) => { this.textContainer = ref; }} className={styles['text-overlay']} />
             </div>
 
             {!this.state.isLoading && this.state.error && <div className={styles['overlay-message']}>Unable to preview document...</div>}

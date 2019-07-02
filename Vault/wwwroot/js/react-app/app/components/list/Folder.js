@@ -206,24 +206,21 @@ export class Folder extends React.Component {
         // Setup a simple variable of the this folder...
         const folder = this.props.folder;
 
-        // Setup our folder icon style (for lis...
-        const folderIconStyle =
-        {
-            backgroundImage: `url(${folder.icon})`,
-            backgroundSize: `24px`
-        };
-
         // Setup our folder icon...
-        let icon = "";
+        let icon = "url(../../../images/folder.svg)";
 
-        // If our folder is the API folder...
-        if (folder.name === "API" && this.props.isHome === true)
-            icon = "url(../../../images/a-folder.svg)";
         // If our folder is the recycle bin...
-        else if (folder.isRecycleBin)
+        if (folder.isRecycleBin)
             icon = "url(../../../images/trash-folder.svg)";
         else if (this.props.isPrevious)
             icon = "url(../../../images/back-folder.svg)";
+
+        // Setup our folder icon style (for lis...
+        const folderIconStyle =
+        {
+            backgroundImage: icon,
+            backgroundSize: `29px`
+        };
 
         // Setup our folder's class name...
         const folderClassName = folder.isRecycleBin ? null : styles[folder.style];
@@ -237,8 +234,9 @@ export class Folder extends React.Component {
                     <ContextMenu ref={(ref) => { this.child = ref; }} disabled />
                     <div className={`${styles["gridItem"]}`}
                         onClick={this.props.gotoFolder.bind(this, folder.id)}
-                        onContextMenu={folder.isPrevious ? null : this.showContextMenu.bind(this)}>
-                        <div className={styles["grid-file-icon"]} style={folderIconStyle} />
+                        onContextMenu={this.showContextMenu.bind(this)}>
+
+                        <div className={styles["grid-search-icon"]} style={folderIconStyle} />
                         <p className={styles["grid-file-text"]}>{folder.name}</p>
                         <p className={styles["grid-text-right"]} />
                     </div>

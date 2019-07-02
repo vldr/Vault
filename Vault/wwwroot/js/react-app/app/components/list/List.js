@@ -107,7 +107,7 @@ class List extends React.Component
         else if (object.folder === response.current)
         {
             // Place our added item to the top of the list...
-            responseObjects.push(object);
+            responseObjects.unshift(object);
 
             // Update our state...
             this.setState({ response: response });
