@@ -184,7 +184,7 @@ class Search extends React.Component
 
         // Render our entire search system...
         return (
-            <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
+            <div className={styles['overlay']} style={{display: "unset"}} onClick={this.onClose.bind(this)}>
                 {loaderBar}
 
                 <input type="text"

@@ -10,6 +10,8 @@ using Vault.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using System.Threading;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace Vault.Controllers
 {
@@ -26,6 +28,9 @@ namespace Vault.Controllers
         
         // Instance of our sort by cookie...
         private readonly string _sortByCookie;
+
+        // Save our little session tag...
+        private readonly string _sessionName;
 
         /// <summary>
         /// A function which will return a missing parameters json response...
@@ -47,6 +52,7 @@ namespace Vault.Controllers
             _processService = processService;
             _configuration = configuration;
 
+            _sessionName = configuration["SessionTagId"];
             _relativeDirectory = configuration["RelativeDirectory"];
             _sortByCookie = configuration["VaultSortByCookie"];
         }
@@ -160,13 +166,13 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("share/comments")]
-        public IActionResult Comments(string shareId, int? offset)
+        public IActionResult Comments(string id, int? offset)
         {
             // Check if our share id given is null!
-            if (shareId == null || offset == null) return MissingParameters();
+            if (id == null || offset == null) return MissingParameters();
 
             // Get our comment....
-            var comments = _processService.GetComments(shareId, offset.GetValueOrDefault());
+            var comments = _processService.GetComments(id, offset.GetValueOrDefault());
 
             // Check we were successful in adding a new file...
             if (comments.Item1 != null)
@@ -188,20 +194,20 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("share/postcomment")]
-        public IActionResult PostComment(string shareId, string name, string content)
+        public IActionResult PostComment(string id, string name, string content)
         {
             // Check if our share id given is null!
-            if (shareId == null || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(content))
+            if (id == null || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(content))
                 return MissingParameters();
 
             // Check if name is too long...
             if (name.Length > 30) return Json(new { Success = false, Reason = "Your name must be within 30 characters..." });
 
             // Check if name is too long...
-            if (name.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
+            if (content.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
 
             // Attempt to add a comment...
-            var comment = _processService.AddComment(shareId, name, content, HttpContext.Connection.RemoteIpAddress.ToString());
+            var comment = _processService.AddComment(id, name, content, HttpContext.Connection.RemoteIpAddress.ToString());
 
             // Check we were successful in adding a new file...
             if (comment != null)

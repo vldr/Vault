@@ -872,6 +872,100 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Posts a comment as the logged in user...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/deletecomment")]
+        public IActionResult DeleteComment(int? fileId, int? commentId)
+        {
+            // Check if our share id given is null!
+            if (fileId == null || commentId == null) return MissingParameters();
+
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Check we were successful in adding a new file...
+            if (_processService.DeleteComment(userSession.Id, fileId.GetValueOrDefault(), commentId.GetValueOrDefault()))
+                // Respond with a successful message...
+                return Json(new { Success = true });
+            else
+                // Respond that something bad happened...
+                return Json(new { Success = false, Reason = "Failed to remove the comment..." });
+        }
+
+        /// <summary>
+        /// Posts a comment as the logged in user...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/postcomment")]
+        public IActionResult PostComment(int? id, string content)
+        {
+            // Check if our share id given is null!
+            if (id == null || string.IsNullOrWhiteSpace(content)) return MissingParameters();
+
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Check if name is too long...
+            if (content.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
+
+            // Attempt to add a comment...
+            var comment = _processService.AddComment(userSession.Id, id.GetValueOrDefault(), content, HttpContext.Connection.RemoteIpAddress.ToString());
+
+            // Check we were successful in adding a new file...
+            if (comment != null)
+            {
+                // Respond with a successful message...
+                return Json(new { Success = true, comment });
+            }
+            else
+                // Respond that something bad happened...
+                return Json(new { Success = false, Reason = "Failed to add a comment to the given file..." });
+        }
+
+        /// <summary>
+        /// Returns the comments of a shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/comments")]
+        public IActionResult Comments(int? id, int? offset)
+        {
+            // If we're not logged in, redirect...
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            // Check if our share id given is null!
+            if (id == null || offset == null) return MissingParameters();
+
+            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            // Get our comment....
+            var comments = _processService.GetComments(userSession.Id, id.GetValueOrDefault(), offset.GetValueOrDefault());
+
+            // Check we were successful in adding a new file...
+            if (comments.comments != null)
+            {
+                // Respond with a successful message...
+                return Json(new { Success = true, comments.comments, comments.total });
+            }
+            else
+                // Respond that something bad happened...
+                return Json(new { Success = false, Reason = "Failed to retrieve the comments for the given shared file..." });
+        }
+
+        /// <summary>
         /// Duplicates a file...
         /// </summary>
         /// <param name="fileId"></param>
@@ -1107,6 +1201,7 @@ namespace Vault.Controllers
             viewer.Name = file.Name;
             viewer.Ext = file.Ext;
             viewer.Size = file.Size;
+            viewer.IsSharing = file.IsSharing;
 
             // Setup our icon to not display a preview icon...
             viewer.Icon = _processService.GetFileAttribute(
@@ -1122,6 +1217,9 @@ namespace Vault.Controllers
 
             // Setup our url...
             viewer.URL = $"process/download/{file.Id}";
+
+            // Setup our id...
+            viewer.Id = file.Id;
 
             // Setup our relative part...
             viewer.RelativeURL = string.Empty;

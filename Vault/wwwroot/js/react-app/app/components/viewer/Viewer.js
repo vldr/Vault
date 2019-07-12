@@ -7,6 +7,7 @@ import { AudioView } from './AudioView';
 import { VideoView } from './VideoView';
 
 const PDFView = React.lazy(() => import('./PDFView'));
+const Comments = React.lazy(() => import('../comments/Comments'));
 
 class Viewer extends React.Component {
     constructor(props) {
@@ -16,12 +17,9 @@ class Viewer extends React.Component {
         this.state = {
             isOpen: false,
             isLoading: false,
+            fileId: null,
             response: null
         };
-    }
-
-    componentDidMount() {
-        if (this.props.shareId) this.onOpenWithShareId(this.props.shareId);
     }
 
     onClose(event) {
@@ -69,7 +67,7 @@ class Viewer extends React.Component {
                     }
                     // Set our response and turn off isLoading...
                     else
-                        this.setState({ response: result, isLoading: false });
+                        this.setState({ response: result, isLoading: false, fileId: fileId });
                 },
                 (error) => {
                     // Stop our loading state...
@@ -206,11 +204,22 @@ class Viewer extends React.Component {
         return (
             <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
                 {this.state.isLoading && loaderBar}
-                {viewerTopbar}
 
-                <React.Suspense fallback={loaderBar}>
-                    {hasLoaded && view}
-                </React.Suspense>
+                <div className={styles['overlay-inherit']}>
+                    {viewerTopbar}
+
+                    <React.Suspense fallback={loaderBar}>
+                        {hasLoaded && view}
+                    </React.Suspense>
+                </div>
+
+                {hasLoaded && this.state.response.isSharing && 
+                    <div className={styles['share-comments']}>
+                        <React.Suspense fallback={loaderBar}>
+                            <Comments local id={this.state.response.id} />
+                        </React.Suspense>
+                    </div>
+                }
             </div>
         );
     }

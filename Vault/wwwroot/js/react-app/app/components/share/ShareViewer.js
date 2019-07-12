@@ -22,7 +22,7 @@ class ShareViewer extends React.Component {
     }
 
     componentDidMount() {
-        if (this.props.shareId) this.onOpenWithShareId(this.props.shareId);
+        if (this.props.id) this.onOpenWithShareId(this.props.id);
     }
 
     onOpen(fileId) {
@@ -194,7 +194,7 @@ class ShareViewer extends React.Component {
 
                 <div className={styles['share-comments']}>
                     <React.Suspense fallback={loaderBar}>
-                        <Comments shareId={this.props.shareId} />
+                        <Comments id={this.props.id} /> 
                     </React.Suspense>
                 </div>
             </div>

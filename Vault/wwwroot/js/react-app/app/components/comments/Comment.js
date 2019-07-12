@@ -1,5 +1,9 @@
 ﻿import React from 'react';
 import styles from '../../app/App.css';
+
+import { DeleteComment } from '../action/DeleteComment';
+import { ActionAlert } from '../info/ActionAlert';
+
 const Buffer = require("buffer").Buffer;
 
 export class Comment extends React.Component
@@ -40,7 +44,7 @@ export class Comment extends React.Component
             buf = Buffer(buf);
         }
 
-        crc = previous != null ? ~~previous : 0xb704ce;
+        crc = previous !== null ? ~~previous : 0xb704ce;
         for (i = 0, len = buf.length; i < len; i++)
         {
             byte = buf[i];
@@ -50,6 +54,32 @@ export class Comment extends React.Component
         return crc.toString(16).padStart(6, '0');
     }
 
+    formatDate(unix) {
+        // Setup our current date...
+        const now = new Date();
+
+        // Set our file creation date...
+        let date = new Date(unix * 1000);
+
+        // Format our date...
+        let formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+
+        if (date.getDate() === now.getDate()
+            && date.getMonth() === now.getMonth()
+            && date.getFullYear() === now.getFullYear()) formattedDate = `Today`;
+        else if (date.getDate() === now.getDate() - 1
+            && date.getMonth() === now.getMonth()
+            && date.getFullYear() === now.getFullYear()) formattedDate = `Yesterday`;
+
+        // Return our final formatted date...
+        return `${formattedDate} at ${date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })}`;
+    }
+
+    deleteComment()
+    {
+        new ActionAlert(<DeleteComment removeComment={this.props.removeComment} comment={this.props.comment} />);
+    }
+
     render()
     {
         // Check if our comment was given...
@@ -57,6 +87,7 @@ export class Comment extends React.Component
 
         // Setup our comment...
         const comment = this.props.comment;
+        const isLocal = this.props.local;
 
         // Setup our circle colour...
         const circleStyle =
@@ -68,10 +99,15 @@ export class Comment extends React.Component
             <div className={styles['comment-box']}>
                 <div className={styles['comment-topbar']}>
                     <div className={styles['comment-avatar']} style={circleStyle}>{comment.author[0]}</div>
-                    <div className={styles['comment-author']}>{comment.author}</div>
+                    <div className={styles['comment-author']}>{comment.author} {comment.isOwner && <span className={styles['comment-owner']}>Author</span>}</div>
+                    <div className={styles['comment-date']}>{this.formatDate(comment.created)}</div>
                 </div>
 
-                <p>{comment.content}</p>
+                <p>
+                    {comment.content}
+                    {isLocal && <a onClick={this.deleteComment.bind(this)}>Delete</a>}
+                </p>
+                
             </div>
         );
     }

@@ -9,6 +9,8 @@ namespace Vault.Models
     {
         public bool Success { get; set; }
 
+        public int Id { get; set; }
+        public bool IsSharing { get; set; }
         public string Name { get; set; }
         public string Ext { get; set; }
         public long Size { get; set; }

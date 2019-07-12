@@ -158,11 +158,14 @@ input[type=text]:focus {
 }
 
 .sorting-arrow, .sorting-arrow-down {
-	height: 20px;
-	margin-bottom: -5px;
+	height: 17px;
 	cursor: pointer;
-	-webkit-filter: invert(.65);
-	filter: invert(.65)
+	margin-top: 7px;
+	-webkit-filter: invert(.2);
+	filter: invert(.2);
+	margin-right: 8px;
+	margin-left: 3px;
+	transition: all 0.3s;
 }
 
 .sorting-arrow-down {
@@ -170,8 +173,8 @@ input[type=text]:focus {
 }
 
 .sorting-arrow:hover {
-	-webkit-filter: invert(.25);
-	filter: invert(.25)
+	-webkit-filter: invert(0);
+	filter: invert(0)
 }
 
 .sorting-arrow-down:hover {
@@ -179,36 +182,29 @@ input[type=text]:focus {
 	filter: invert(.25)
 }
 
-.sorting-option-left {
-	margin-right: 11px
-}
-
-.sorting-option, .sorting-option-left {
+.sorting-option {
 	text-decoration: none;
 	color: #6d6d6d;
-	cursor: pointer
-}
-
-.sorting-option {
-	float: right;
+	cursor: pointer;
+	flex-grow: 0;
+	width: 39px;
+	font-size: 11px;
+	line-height: 30px;
+	text-align: center;
 	-webkit-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none
 }
 
-.option-1 {
-	margin-right: 10px
-}
-
-.option-2 {
-	margin-right: 36px
+.sorting-option:hover {
+	color: #ababab
 }
 
 .sort-box {
-	padding: 10px 10px 10px 15px;
-	border-bottom: 1px solid rgba(0,0,0,.1098);
-	margin-bottom: 5px
+	font-size: 12px;
+	margin: -145px;
+	display: inline
 }
 
 .error {
@@ -848,7 +844,7 @@ div .button {
 	cursor: pointer
 }
 
-.btnSort {
+.btnNewFolder {
 	position: absolute;
 	border: 2px solid #f5f5f5;
 	box-shadow: 0 1px 1px rgba(0,0,0,.15);
@@ -866,6 +862,31 @@ div .button {
 	background-repeat: no-repeat;
 	background-position: 50%;
 	background-color: #f5f5f5
+}
+
+.btnNewFolder:hover {
+	background-color: #eee;
+	cursor: pointer
+}
+
+.btnSort {
+	position: absolute;
+	border: 2px solid #f5f5f5;
+	box-shadow: 0 1px 1px rgba(0,0,0,.15);
+	margin-left: 10px;
+	height: 30px;
+	display: inline-flex;
+	width: 25px;
+	padding-left: 3px;
+	padding-right: 2px;
+	transform: translateX(0);
+	border-radius: 4px;
+	top: 14px;
+	overflow: hidden;
+	right: 209px;
+	z-index: 2;
+	transition: all .2s;
+	background-color: #f5f5f5;
 }
 
 .btnSort:hover {
@@ -1142,6 +1163,7 @@ progress::-moz-progress-bar {
 	z-index: 9;
 	overflow-y: scroll;
 	height: 100%;
+	display: flex;
 	width: 100%;
 	background-image: linear-gradient(rgba(0,0,0,.78039) 1%,rgba(30,30,30,.92941) 99%);
 	background-position: 50%;
@@ -1240,9 +1262,8 @@ progress::-moz-progress-bar {
 
 .overlay-preview {
 	outline: 0;
-	max-width: 80%;
-	max-height: 80%;
-	margin: 20px auto 0;
+	max-width: 90%;
+	margin: 20px auto;
 	display: inherit;
 	-webkit-filter: drop-shadow(2px 3px 8px rgba(0,0,0,.32157));
 	filter: drop-shadow(2px 3px 8px rgba(0,0,0,.32157));
@@ -1451,6 +1472,26 @@ input[type=submit]:hover {
 
 	td:before {
 		content: attr(data-title)
+	}
+
+	.overlay {
+		display: unset
+	}
+
+	.share-overlay {
+		display: unset !important
+	}
+
+	.share-overlay > .share-comments {
+		width: 100%;
+		margin-top: 50px;
+		height: auto
+	}
+
+	.overlay > .share-comments {
+		width: 100%;
+		margin-top: 50px;
+		height: auto
 	}
 }
 
@@ -2066,11 +2107,49 @@ p {
 	margin: 35vh auto 0
 }
 
+.overlay > .share-comments > .comment-editor textarea {
+	background: rgba(0,0,0,.43137);
+	border: 0;
+	color: #fff
+}
+
+.overlay > .share-comments > .comment-editor input[type=text] {
+	background: rgba(47,47,47,.43137);
+	border: 0;
+	color: #fff
+}
+
+.overlay > .share-comments h2 {
+	color: #ececec;
+	border-bottom: 2px solid grey
+}
+
+.overlay > .share-comments > .comment-section {
+	border-top: 1px solid rgba(90,90,90,.42)
+}
+
+.overlay > .share-comments > .comment-section > div > .comment-box {
+	border-bottom: 1px solid rgba(90,90,90,.42)
+}
+
+.overlay > .share-comments {
+	background: hsla(0,0%,6%,.44);
+	border: 0;
+	box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902)
+}
+
+.overlay > .share-comments::-webkit-scrollbar {
+	width: 0 !important
+}
+
 .share-comments {
 	width: 500px;
+	overflow: scroll;
+	padding: 0;
+	height: 100vh;
 	margin: 0;
 	min-height: 100vh;
-	background: #e5e5e5;
+	background: #fff;
 	border-left: 1px solid #dcd9d9
 }
 
@@ -2130,18 +2209,30 @@ p {
 }
 
 .comment-section {
-	border-top: 1px solid #d2d2d2
+	border-top: 1px solid #d2d2d2;
+	padding: 0
+}
+
+.overlay .comment-section > div > button {
+	background: #131313;
+	border: 0;
+	color: #fff
 }
 
 .comment-section > div > button {
 	margin: 15px;
 	padding: 5px 30px;
-	height: auto;
-	background: #d8d8d8
+	height: auto
 }
 
 .comment-section > .loader {
 	margin: 80px auto
+}
+
+.overlay .comment-error {
+	background: rgba(255,65,65,.48);
+	color: #ff8787;
+	border: 0
 }
 
 .comment-error {
@@ -2176,9 +2267,28 @@ p {
 	width: 100%
 }
 
+.comment-box a {
+	color: #ababab;
+	font-size: 11px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	border-radius: 9px;
+	width: -webkit-fit-content;
+	width: -moz-fit-content;
+	width: fit-content;
+	margin-top: 16px;
+	display: block
+}
+
 .comment-box p {
-	margin: 0 0 15px 8px;
+	margin: 0 0 11px 8px;
 	padding: 10px
+}
+
+.overlay .comment-author, .overlay .comment-section p {
+	color: #fff
 }
 
 .comment-author {
@@ -2186,8 +2296,35 @@ p {
 	color: #3e3e3e
 }
 
+.comment-date {
+	text-align: right;
+	flex: 1;
+	color: #9c9c9c;
+	padding-top: 23px;
+	padding-right: 16px;
+	font-size: 12px
+}
+
 .comment-topbar {
 	display: flex
+}
+
+.overlay-inherit {
+	width: inherit
+}
+
+.comment-owner {
+	background: rgba(0,0,0,.23137);
+	font-size: 10px;
+	padding: 5px 9px;
+	float: right;
+	margin-top: -2px;
+	margin-left: 8px;
+	border-radius: 15px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none
 }
 
 @media (max-width: 1125px) {

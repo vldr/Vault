@@ -21,7 +21,7 @@ export class Share extends React.Component
 
         // Return our visual rendering...
         return (<Suspense fallback={loader}>
-            {this.props.type === "FILE" && <ShareViewer shareId={this.props.id} />}
+                {this.props.type === "FILE" && <ShareViewer id={this.props.id} />}
             </Suspense>);
     }
 }

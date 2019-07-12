@@ -5,7 +5,6 @@ import { ActionAlert } from '../info/ActionAlert';
 import { Pathbar } from '../topbar/Pathbar';
 import { Folder } from './Folder';
 import { File } from './File';
-import { Sortbar } from './Sortbar';
 
 import styles from '../../app/App.css';
 
@@ -246,6 +245,13 @@ class List extends React.Component
                         shouldScroll: offset !== result.totalFiles
                     });
 
+                    // Set our internal sortbar...
+                    if (this.sortBar)
+                    {
+                        console.log(this.state.response.sort)
+                        this.sortBar.setInternalSort(this.state.response.sort);
+                    }
+
                     // Setup a timeout to update our finished state if it isn't set...
                     if (!this.state.finished) setTimeout(() => this.setState({ finished: true }), 300);
                 },
@@ -400,8 +406,6 @@ class List extends React.Component
             { id: response.previous, name: "...", icon: "images/file/folder-icon.svg", style: "", isRecycleBin: false, isSharing: false, isPrevious: true };
         
         // Setup our file listing...
-        //<Sortbar sort={response.sort} />
-        // className={styles["file-listing"]}
         const fileListing = response.files.length ? (<>
             {
                 response.files.map((file, i) =>

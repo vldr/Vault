@@ -85,6 +85,32 @@ namespace Vault.Models
             // Get our shared file...
             File file = GetSharedFile(shareId);
 
+            // Call our other method...
+            return GetComments(file, offset);
+        }
+
+        /// <summary>
+        /// Gets all the comments of a shared file...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <returns></returns>
+        public (IEnumerable<Comment> comments, int total) GetComments(int ownerId, int fileId, int offset = 0)
+        {
+            // Get our file...
+            File file = GetFile(ownerId, fileId);
+
+            // Call our other method...
+            return GetComments(file, offset);
+        }
+
+        /// <summary>
+        /// The internal method of getting comments...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        private (IEnumerable<Comment> comments, int total) GetComments(File file, int offset = 0)
+        {
             // Check if file exists...
             if (file == null) return (null, -1);
 
@@ -92,10 +118,18 @@ namespace Vault.Models
             int totalComments = _context.Comments.Count(b => b.FileId == file.Id);
 
             // Attempt to get all the comments...
-            return (_context.Comments.Where(b => b.FileId == file.Id)
-                .OrderByDescending(b => b.Created)
-                .Skip(offset)
-                .Take(3).ToList(), totalComments);
+            return (_context.Comments.Where(b => b.FileId == file.Id).OrderByDescending(b => b.Created).Skip(offset).Take(3).ToList(), totalComments);
+        }
+
+        /// <summary>
+        /// Gets a comment...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        private Comment GetComment(File file, int commentId)
+        {
+            return _context.Comments.FirstOrDefault(b => b.FileId == file.Id && b.Id == commentId);
         }
 
         /// <summary>
@@ -490,7 +524,38 @@ namespace Vault.Models
         }
 
         /// <summary>
-        /// Adds a comment to a given post...
+        /// Deletes a comment...
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="commentId"></param>
+        /// <returns></returns>
+        public bool DeleteComment(int ownerId, int fileId, int commentId)
+        {
+            // Attempt to find out shared file...
+            File file = GetFile(ownerId, fileId);
+
+            // Check if file exists...
+            if (file == null) return false;
+
+            // Attempt to find our comment...
+            Comment comment = GetComment(file, commentId);
+
+            // Check that it actually exists...
+            if (comment == null) return false;
+
+            // Remove our comment from the context...
+            _context.Comments.Remove(comment);
+
+            // Save our changes...
+            _context.SaveChanges();
+
+            // Return true...
+            return true;
+        }
+
+        /// <summary>
+        /// Our share id method for adding a comment...
         /// </summary>
         /// <param name="shareId"></param>
         /// <param name="name"></param>
@@ -502,11 +567,55 @@ namespace Vault.Models
             // Attempt to find out shared file...
             File file = GetSharedFile(shareId);
 
+            // Call our internal functino...
+            return AddComment(file, -1, name, content, ipAddress);
+        }
+
+        /// <summary>
+        /// Our share id method for adding a comment...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <param name="ipAddress"></param>
+        /// <returns></returns>
+        public Comment AddComment(int ownerId, int fileId, string content, string ipAddress)
+        {
+            // Attempt to find out shared file...
+            File file = GetFile(ownerId, fileId);
+
+            // Check if file exists...
+            if (file == null)
+            { 
+                return null;
+            }
+
+            // Get our owner...
+            User owner = GetUser(ownerId);
+
+            // Check if owner exists...
+            if (owner == null) return null;
+
+            // Call our internal functino...
+            return AddComment(file, ownerId, owner.Name, content, ipAddress);
+        }
+
+        /// <summary>
+        /// Adds a comment to a given post...
+        /// </summary>
+        /// <param name="shareId"></param>
+        /// <param name="name"></param>
+        /// <param name="content"></param>
+        /// <param name="ipAddress"></param>
+        /// <returns></returns>
+        private Comment AddComment(File file, int ownerId, string name, string content, string ipAddress)
+        {
             // Check if our file exists...
             if (file == null) return null;
 
             // Check that name and content are within our limits...
-            if (name.Length > 30 || content.Length > 120) return null;
+            if ((ownerId == -1 && name.Length > 30)
+                || content.Length > 120) return null;
 
             // Create a new comment...
             Comment comment = new Comment();
@@ -515,6 +624,7 @@ namespace Vault.Models
             comment.Content = content;
             comment.Created = DateTimeOffset.Now.ToUnixTimeSeconds();
             comment.IPAddress = ipAddress;
+            comment.IsOwner = (file.Owner == ownerId);
 
             // Add our comment to the file...
             _context.Comments.Add(comment);

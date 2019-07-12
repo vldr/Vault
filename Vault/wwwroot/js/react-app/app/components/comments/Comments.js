@@ -17,15 +17,12 @@ class Comments extends React.Component
         };
     }
 
-    componentDidMount()
-    {
-        this.getComments();
-    }
+    componentDidMount() { this.getComments(); }
 
     postComment()
     {
         // Check if we were given a share id...
-        if (!this.props.shareId) return;
+        if (!this.props.id) return;
 
         // Check if comments are loading...
         if (this.isCommentsLoading)
@@ -43,15 +40,15 @@ class Comments extends React.Component
         });
 
         // Fetch our delete file request...
-        fetch("postcomment",
+        fetch(!this.props.local ? "postcomment" : "process/postcomment",
             {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `shareId=${encodeURIComponent(this.props.shareId)}`
-                    + `&name=${encodeURIComponent(this.name.value)}`
+                }, 
+                body: `id=${encodeURIComponent(this.props.id)}`
+                    + (!this.props.local ? `&name=${encodeURIComponent(this.name.value)}` : '')
                     + `&content=${encodeURIComponent(this.content.value)}`
             })
             .then(res => res.json())
@@ -89,7 +86,8 @@ class Comments extends React.Component
                         }
 
                         // Empty our boxes...
-                        this.name.value = '';
+                        if (!this.props.local) this.name.value = '';
+
                         this.content.value = '';
 
                         // Set our loading to be false...
@@ -106,20 +104,20 @@ class Comments extends React.Component
     getComments()
     {
         // Check if we were given a share id...
-        if (!this.props.shareId || this.state.isFinished) return;
+        if (!this.props.id || this.state.isFinished) return;
 
         // Set our comments to be loading to true...
         this.setState({ isCommentsLoading: true });
 
         // Fetch our delete file request...
-        fetch("comments",
+        fetch(this.props.local ? "process/comments" : "comments",
             {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: `shareId=${encodeURIComponent(this.props.shareId)}&offset=${this.state.offset}`
+                body: `id=${encodeURIComponent(this.props.id)}&offset=${this.state.offset}`
             })
             .then(res => res.json())
             .then(
@@ -127,7 +125,7 @@ class Comments extends React.Component
                     // Check if we're not logged in or something...
                     if (!result.success)
                         // Stop our loading state...
-                        this.setState({ isCommentsLoading: false, error: result.reason, response: null });
+                        this.setState({ isCommentsLoading: false, error: result.reason });
                     // Set our response and turn off isLoading...
                     else
                     {
@@ -144,17 +142,38 @@ class Comments extends React.Component
                         else response = result;
 
                         // Set our state...
-                        this.setState({ isCommentsLoading: false, response: response, error: null, offset: response.comments.length });
+                        this.setState({ isCommentsLoading: false, response: response, offset: response.comments.length });
                     }
                 },
                 (error) => {
                     // Stop our loading state...
-                    this.setState({ isCommentsLoading: false, error: error.message, response: null });
+                    this.setState({ isCommentsLoading: false, error: error.message });
                 }
             );
     }
 
     onClick() { this.postComment(); }
+
+    removeComment(comment)
+    {
+        // Find our comment's index...
+        const commentIndex = this.state.response.comments.findIndex((x) => x.id === comment.id);
+
+        // Check that it exists...
+        if (commentIndex === -1) return;
+
+        // Remove our comment...
+        this.state.response.comments.splice(commentIndex, 1);
+
+        // Increase our total...
+        this.state.response.total -= 1;
+
+        // Update our offset...
+        this.state.offset = this.state.response.comments.length;
+
+        // Set our loading to be false...
+        this.setState({ response: this.state.response, offset: this.state.offset });  
+    }
 
     render()
     {
@@ -162,7 +181,8 @@ class Comments extends React.Component
         const error = this.state.error && (<div className={styles["comment-error"]}>{this.state.error}</div>);
 
         // Setup our comments
-        const comments = this.state.response && this.state.response.comments.map((comment, i) => <Comment key={comment.id} comment={comment} />);
+        const comments = this.state.response && this.state.response.comments.map((comment, i) => (<Comment key={comment.id} local={this.props.local}
+            removeComment={this.removeComment.bind(this)} comment={comment} />));
 
         // Setup our post box's style...
         const postBoxStyle = { display: this.state.isLoading ? "none" : "block" };
@@ -181,8 +201,11 @@ class Comments extends React.Component
 
                 <div style={postBoxStyle}>
                     <h2>Comments</h2>
-                    <input ref={(input) => { this.name = input; }} type="text" placeholder="Name" />
+
+                    {!this.props.local && <input ref={(input) => { this.name = input; }} type="text" placeholder="Name" />}
+
                     <textarea ref={(input) => { this.content = input; }} placeholder="Write a comment" />
+                    <br />
                     <button className={styles["button"]} onClick={this.onClick.bind(this)}>Post</button>
                 </div>
             </div> 
@@ -190,6 +213,7 @@ class Comments extends React.Component
             <div className={styles["comment-section"]}>
                 <div>
                     {comments}
+
                     {
                         this.state.response && this.state.response.comments.length !== this.state.response.total
                         && <button style={commentBoxStyle} className={styles["button"]} onClick={this.getComments.bind(this)}>Load more comments...</button>

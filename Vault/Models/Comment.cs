@@ -10,11 +10,13 @@ namespace Vault.Models
     {
         public int Id { get; set; }
         public int FileId { get; set; }
-        public int Parent { get; set; }
+
+        public long Created { get; set; }
 
         public string Author { get; set; }
         public string Content { get; set; }
-        public long Created { get; set; }
+        
+        public bool IsOwner { get; set; }
 
         [NotMapped]
         public string IPAddress { get; set; }
