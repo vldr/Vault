@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -834,8 +835,7 @@ namespace Vault.Models
         public async Task ZipFiles(int folderId, int userId, ZipOutputStream zip, CancellationToken cancellationToken, int limit = 0)
         {
             // Check if our task was cancelled before we even venture in...
-            if (cancellationToken.IsCancellationRequested)
-                return;
+            if (cancellationToken.IsCancellationRequested) return;
 
             // Get our folder!
             var folder = GetFolder(userId, folderId);
@@ -851,8 +851,10 @@ namespace Vault.Models
                     return;
 
                 // If the file doesn't exist, continue...
-                if (!System.IO.File.Exists(file.Path))
-                    continue;
+                if (!System.IO.File.Exists(file.Path)) continue;
+
+                // Skip all encrypted files due to the nature of having different passwords for each file...
+                if (file.IsEncrypted) continue;
 
                 // Setup our folder location.
                 string folderLocation = GetFolderLocation(folder, limit);
@@ -1017,7 +1019,8 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public (bool success, int fileId) AddNewFile(int userId, long size, string name, string ext, int folderId, string path)
+        public (bool success, int fileId) AddNewFile(int userId, long size, string name, string ext, int folderId, string path, 
+            bool encrypted = false, byte[] iv = null)
         {
             // Get our user following with that user id...
             User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
@@ -1027,7 +1030,7 @@ namespace Vault.Models
                 return (false, -1);
 
             // Call our generate thumbnail which will generate a thumbnails...
-            GenerateThumbnails(ext, path, size);
+            if (!encrypted) GenerateThumbnails(ext, path, size);
 
             // Generate a file object...
             File fileObj = new File
@@ -1038,7 +1041,9 @@ namespace Vault.Models
                 Ext = WebUtility.HtmlEncode(ext),
                 Created = DateTime.Now,
                 Folder = folderId,
-                Path = path
+                Path = path,
+                IsEncrypted = encrypted,
+                IV = iv
             };
 
             // Add the file object to the files context...
@@ -1052,6 +1057,39 @@ namespace Vault.Models
 
             // Return true that the operation was successful...
             return (true, fileObj.Id);
+        }
+
+        /// <summary>
+        /// Attempts to decrypt a file to a stream...
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="outputStream"></param>
+        /// <param name="file"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task DecryptFile(CancellationToken cancellationToken, Stream outputStream, File file, string password)
+        {
+            // Setup our aes object...
+            using (Rijndael aes = Rijndael.Create())
+            {
+                // Hash our passowrd and set it as our key...
+                aes.Key = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                // Setup our IV...
+                aes.IV = file.IV;
+
+                // Create a decryptor to perform the stream transform.
+                ICryptoTransform decryptor = aes.CreateDecryptor();
+
+                // Setup our cryptostream to output to our response body...
+                using (CryptoStream cryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
+                using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
+                {
+                    // Copy all our data to the zip stream...
+                    await stream.CopyToAsync(cryptoStream, cancellationToken);
+                }
+
+            }
         }
 
         /// <summary>
@@ -1997,8 +2035,18 @@ namespace Vault.Models
 
                 ///////////////////////////////////////////
 
+                // Find all our comments...
+                var comments = _context.Comments.Where(b => b.FileId == file.Id);
+
+                // Remove all our comments...
+                _context.Comments.RemoveRange(comments);
+
+                ///////////////////////////////////////////
+
                 // Remove our file...
                 _context.Files.Remove(file);
+
+                ///////////////////////////////////////////
 
                 // Save our changes.
                 _context.SaveChanges();
@@ -2381,9 +2429,10 @@ namespace Vault.Models
                 Id = file.Id,
                 Name = file.Name,
                 Folder = file.Folder,
-                Icon = GetFileAttribute(file.Id.ToString(), file.Ext, AttributeTypes.FileIcon),
+                Icon = GetFileAttribute(file.Id.ToString(), file.Ext, file.IsEncrypted ? AttributeTypes.FileIconNoPreview : AttributeTypes.FileIcon),
                 Date = ((DateTimeOffset)file.Created).ToUnixTimeSeconds(),
                 Size = GetBytesReadable(file.Size),
+                IsEncrypted = file.IsEncrypted,
                 IsSharing = file.IsSharing,
                 ShareId = file.ShareId
             };

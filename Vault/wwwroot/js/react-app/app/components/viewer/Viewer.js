@@ -5,6 +5,7 @@ import { ActionAlert } from '../info/ActionAlert';
 import { PhotoView } from './PhotoView';
 import { AudioView } from './AudioView';
 import { VideoView } from './VideoView';
+import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 
 const PDFView = React.lazy(() => import('./PDFView'));
 const Comments = React.lazy(() => import('../comments/Comments'));
@@ -141,6 +142,13 @@ class Viewer extends React.Component {
         document.body.removeChild(form);
     }
 
+
+    downloadEncryptedFile()
+    {
+        // Render an action alert...
+        new ActionAlert(<DownloadEncryptedFile action={this.state.response.relativeURL + this.state.response.url} />);
+    }
+
     close()
     {
         // Set our state to hide our search overlay...
@@ -169,7 +177,8 @@ class Viewer extends React.Component {
                 <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
                 <div className={styles['overlay-topbar-right']}>
-                    <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
+                    <div className={styles['btn-download-viewer']}
+                        onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />
                     <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
                 </div>
             </div>) : null;
@@ -178,7 +187,7 @@ class Viewer extends React.Component {
         let view = <div className={styles['overlay-message']}>No preview available</div>;
 
         // Check if our view has loaded...
-        if (hasLoaded)
+        if (hasLoaded && !this.state.response.isEncrypted)
             // Perform a switch to choose our...
             switch (this.state.response.action)
             {

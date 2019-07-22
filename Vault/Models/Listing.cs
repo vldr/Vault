@@ -35,6 +35,8 @@ namespace Vault.Models
         public string Size { get; set; }
         public int Folder { get; set; }
 
+        public bool IsEncrypted { get; set; }
+
         public bool IsSharing { get; set; }
         public string ShareId { get; set; }
     }

@@ -71,9 +71,10 @@ export class DeleteComment extends React.Component
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
+            <img src="images/comment.svg" style={{ height: "86px", opacity: "0.5" }} />
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>The comment by {this.props.comment.author} will be deleted!</p>
+                <p>You are about to delete a comment written by <b>{this.props.comment.author}</b>.</p>
             </div>
 
             <button className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</button>

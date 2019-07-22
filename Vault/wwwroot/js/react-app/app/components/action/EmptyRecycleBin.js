@@ -70,9 +70,13 @@ export class EmptyRecycleBin extends React.Component
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
+            <img src="images/shred.svg" style={{ height: "86px", opacity: "0.5" }} />
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>Emptying the recycling bin will result in all the files inside to be permanently deleted!</p>
+
+                <p>Performing this operation will have an irreversible outcome.
+                    <br />This will <b>permanently erase</b> all the files and folders inside...
+                </p>
             </div>
 
             <button className={styles["button"]} onClick={this.onClick.bind(this)}>Empty</button>

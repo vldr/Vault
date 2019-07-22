@@ -72,11 +72,7 @@ export class DeleteFolder extends React.Component
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>You will not be able to restore this folder:</p>
-                <div className={`${styles["gridItem-folder"]} ${styles[this.props.folder.style]}`} style={{ cursor: "unset", lineHeight: "16px"}}>
-                    <div className={styles["grid-icon"]} style={folderIconStyle} />
-                    <p className={styles["grid-text"]}>{this.props.folder.name}</p>
-                </div>
+                <p>You will not be able to recover the folder <b>{this.props.folder.name}</b> anymore...</p>
             </div>
 
             <button className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</button>

@@ -30,6 +30,8 @@ export class App extends React.Component
     updateSearch(object, type) { this.search.updateSearch(object, type); }
     closeSearch() { this.search.close(); }
 
+    setPassword(password) { return this.upload.setPassword(password); } 
+
     gotoFolder(folderId) { this.list.gotoFolder(folderId); }
     openFileLocation(fileId) { this.list.openFileLocation(fileId); }
 
@@ -45,7 +47,9 @@ export class App extends React.Component
                     <ContextMenu />
 
                     <div className={styles['content']}>
-                        <Topbar ref={(ref) => { this.topbar = ref; this.update(); }} openSearch={this.openSearch.bind(this)} />
+                        <Topbar ref={(ref) => { this.topbar = ref; this.update(); }}
+                            openSearch={this.openSearch.bind(this)}
+                            setPassword={this.setPassword.bind(this)}/>
 
                         <List ref={(ref) => { this.list = ref; }}
                             updateSearch={this.updateSearch.bind(this)}

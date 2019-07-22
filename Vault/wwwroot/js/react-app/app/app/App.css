@@ -165,7 +165,7 @@ input[type=text]:focus {
 	filter: invert(.2);
 	margin-right: 8px;
 	margin-left: 3px;
-	transition: all 0.3s;
+	transition: all .3s
 }
 
 .sorting-arrow-down {
@@ -886,7 +886,7 @@ div .button {
 	right: 209px;
 	z-index: 2;
 	transition: all .2s;
-	background-color: #f5f5f5;
+	background-color: #f5f5f5
 }
 
 .btnSort:hover {
@@ -1475,7 +1475,8 @@ input[type=submit]:hover {
 	}
 
 	.overlay {
-		display: unset
+		display: flex;
+		flex-direction: column
 	}
 
 	.share-overlay {
@@ -1491,7 +1492,8 @@ input[type=submit]:hover {
 	.overlay > .share-comments {
 		width: 100%;
 		margin-top: 50px;
-		height: auto
+		height: auto;
+		flex: 1
 	}
 }
 
@@ -2133,9 +2135,9 @@ p {
 }
 
 .overlay > .share-comments {
-	background: hsla(0,0%,6%,.44);
+	background: hsla(0, 0%, 6%, 0.24);
 	border: 0;
-	box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902)
+	box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902);
 }
 
 .overlay > .share-comments::-webkit-scrollbar {
@@ -2145,9 +2147,12 @@ p {
 .share-comments {
 	width: 500px;
 	overflow: scroll;
+	position: -webkit-sticky;
+	position: sticky;
 	padding: 0;
 	height: 100vh;
 	margin: 0;
+	top: 0;
 	min-height: 100vh;
 	background: #fff;
 	border-left: 1px solid #dcd9d9
@@ -2325,6 +2330,13 @@ p {
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none
+}
+
+.encrypted-padlock {
+	height: 25px;
+	right: 6px;
+	bottom: -3px;
+	position: absolute;
 }
 
 @media (max-width: 1125px) {

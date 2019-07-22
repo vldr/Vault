@@ -5,6 +5,7 @@ import swal from '@sweetalert/with-react';
 import { DragDropContainer } from '../dnd/DragDropContainer';
 import { DropTarget } from '../dnd/DropTarget';
 
+import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 import { DeleteFile } from '../action/DeleteFile';
 import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
@@ -66,8 +67,16 @@ export class File extends React.Component
             );
     }
 
+    downloadEncryptedFile() {
+        // Render an action alert...
+        new ActionAlert(<DownloadEncryptedFile action={`process/download/${this.props.file.id}`} />);
+    }
+
     downloadFile()
     {
+        // Check if our file is encrypted and open the encrypted dialog...
+        if (this.props.file.isEncrypted) return this.downloadEncryptedFile();
+
         // Setup a form...
         let form = document.createElement("form");
         form.method = "POST";
@@ -176,7 +185,9 @@ export class File extends React.Component
                         <div className={styles["gridItem-folder"]}
                             onClick={() => { if (this.props.openViewer) this.props.openViewer(file.id); }}>
 
-                            <div className={styles["grid-icon"]} style={fileIconStyle} />
+                            <div className={styles["grid-icon"]} style={fileIconStyle}>
+                                {file.isEncrypted && <img className={styles["encrypted-padlock"]} src="images/padlock.svg" />}
+                            </div>
 
                             <p className={styles["grid-text"]}>{file.name}</p>
                             <p className={styles["grid-subtext"]}>{date}</p>

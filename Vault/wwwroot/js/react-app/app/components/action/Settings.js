@@ -38,6 +38,12 @@ export class Settings extends React.Component {
         setTimeout(() => this.name.focus(), 100);
     }
 
+    onSetEncryption()
+    {
+        // Set our action accordingly...
+        this.setState({ action: 3 });
+    }
+
     onGoBack()
     {
         // Set our action back to normal...
@@ -242,6 +248,15 @@ export class Settings extends React.Component {
         );
     }
 
+    updateEncryptionPassword()
+    {
+        // Set our password...
+        if (this.props.setPassword) this.props.setPassword(this.encryptionPassword.value);
+
+        // Go back...
+        this.onGoBack();
+    }
+
     render()
     {
         const loader = !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
@@ -282,6 +297,21 @@ export class Settings extends React.Component {
             <button className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</button>
         </div>) : null;
 
+        const encryptionDialog = this.state.action === 3 && !this.state.error && this.state.finished ? (<div>
+            <div className={styles["warning-title"]}>Encryption Mode</div>
+            <div className={styles["warning-message"]}>
+                <p>Please specify an encryption password to enable encryption mode, leave blank to disable it:</p>
+
+                <input type="password" style={{fontSize: "48px"}}
+                    ref={(input) => { this.encryptionPassword = input; }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') this.updateEncryptionPassword(); }}
+                />
+            </div>
+
+            <button className={styles["button"]} onClick={this.updateEncryptionPassword.bind(this)}>Set</button>
+            <button className={styles["button"] + " " + styles["inverse"]} onClick={this.onGoBack.bind(this)}>Close</button>
+        </div>) : null;
+
         const dialog = this.state.action === 0 && !this.state.error && this.state.finished ?
             (<div>
                 <div className={styles["warning-title"]}>Settings</div>
@@ -294,6 +324,15 @@ export class Settings extends React.Component {
 
                     <h3>Storage: </h3>
                     <span>{this.state.response.storage}</span>
+
+                    <h3>Encryption Mode: </h3>
+                    <span>
+                        <p>
+                            Encryption mode is currently
+                            {this.props.setPassword && this.props.setPassword() ? <b> enabled</b> : <> disabled</>}
+                            , <a onClick={this.onSetEncryption.bind(this)}>click here</a> to configure encryption mode...
+                        </p>
+                    </span>
 
                     <h3>API: </h3>
                     <span>
@@ -309,6 +348,8 @@ export class Settings extends React.Component {
                                 <p>Your API is currently disabled, <a onClick={this.disableAPI.bind(this)}>click here</a> to enable API...</p>
                             </div>)}
                     </span>
+
+
                 </div>
             </div>) : null;
 
@@ -324,6 +365,7 @@ export class Settings extends React.Component {
                 {dialog}
                 {passwordDialog}
                 {nameDialog}
+                {encryptionDialog}
                 {error}
             </div>);
     }

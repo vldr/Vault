@@ -51,7 +51,7 @@ export class Sortbar extends React.Component {
         {
             buttons: false,
             closeOnClickOutside: false
-            });
+        });
 
         // Flip our symbol if it is the same value...
         if (Math.abs(sortBy) === Math.abs(sort)) sortBy *= Math.sign(-this.state.sort);
@@ -73,6 +73,9 @@ export class Sortbar extends React.Component {
                 {
                     // Close our modal...
                     swal.close();
+
+                    // Update our window variable...
+                    window.sort = sortBy;
 
                     // Update our sort visually...
                     this.setState({ sort: sortBy });

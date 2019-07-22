@@ -33,8 +33,8 @@ class Search extends React.Component
                 || document.querySelector(`.${styles['overlay']}`))
                 return;
 
-            // Check if SPACE was pressed...
-            if (event.keyCode === 32) return;
+            // Check if SPACE or ENTER was pressed...
+            if (event.keyCode === 32 || event.keyCode === 13) return;
 
             // Check if ESCAPE was pressed and we're currently searching...
             if (event.keyCode === 27 && this.state.isSearching)

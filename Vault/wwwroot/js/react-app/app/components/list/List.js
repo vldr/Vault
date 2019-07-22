@@ -246,11 +246,7 @@ class List extends React.Component
                     });
 
                     // Set our internal sortbar...
-                    if (this.sortBar)
-                    {
-                        console.log(this.state.response.sort)
-                        this.sortBar.setInternalSort(this.state.response.sort);
-                    }
+                    window.sort = this.state.response.sort;
 
                     // Setup a timeout to update our finished state if it isn't set...
                     if (!this.state.finished) setTimeout(() => this.setState({ finished: true }), 300);

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Cryptography;
 
 namespace Vault.Controllers
 {
@@ -999,7 +1000,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost("UploadFiles")]
         [Route("process/upload")]
-        public async Task<IActionResult> Upload(IFormFile file)
+        public async Task<IActionResult> Upload(IFormFile file, string password = null)
         {
             // Check if we're logged in...
             if (!IsLoggedIn())
@@ -1033,16 +1034,49 @@ namespace Vault.Controllers
             // Setup our file name...
             string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);
 
-            // Copy our file from buffer...
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            // Get the file's extension...
+            string fileExtension = Path.GetExtension(fileName).ToLower();
+
+            // Setup our IV...
+            byte[] IV = null;
+
+            // Check if we are trying to encrypt something...
+            if (password != null)
             {
-                await file.CopyToAsync(stream);
+                // Copy our file from buffer...
+                using (Rijndael aes = Rijndael.Create())
+                {
+                    // Hash our passowrd and set it as our key...
+                    aes.Key = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                    // Generate our IV...
+                    aes.GenerateIV();
+
+                    // Generate our IV...
+                    ICryptoTransform encryptor = aes.CreateEncryptor();
+
+                    // Setup our file stream and cryptostream...
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Write))
+                    {
+                        // Copy our file to the cryptostream...
+                        await file.CopyToAsync(cryptoStream);
+                    }
+
+                    // Update our IV...
+                    IV = aes.IV;
+                }
+            }
+            else
+            {
+                // Copy our file from buffer...
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
             }
 
             //////////////////////////////////////////////////////////////////
-
-            // Get the file's extension...
-            string fileExtension = Path.GetExtension(fileName).ToLower();
 
             // Get our result...
             var result = _processService.AddNewFile(
@@ -1051,7 +1085,7 @@ namespace Vault.Controllers
                 fileName,
                 fileExtension,
                 userSession.Folder,
-                filePath);
+                filePath, password != null, IV);
 
             // Add the new file...
             if (result.success)
@@ -1148,8 +1182,10 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null)
-                return StatusCode(500);
+            if (file == null) return StatusCode(500);
+
+            // We can't deliver a thumbnail for encrypted files...
+            if (file.IsEncrypted) return StatusCode(500);
 
             // Setup our thumbnails path!
             string thumbnailPath = file.Path + ".thumb";
@@ -1218,6 +1254,9 @@ namespace Vault.Controllers
             // Setup our url...
             viewer.URL = $"process/download/{file.Id}";
 
+            // Set our encrypted field...
+            viewer.IsEncrypted = file.IsEncrypted;
+
             // Setup our id...
             viewer.Id = file.Id;
 
@@ -1255,8 +1294,10 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null)
-                return StatusCode(500);
+            if (file == null) return StatusCode(500);
+
+            // We can't deliver a previews for encrypted files...
+            if (file.IsEncrypted) return StatusCode(500);
 
             // Setup our file path string...
             string filePath = file.Path;
@@ -1288,7 +1329,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("process/download/{id}")]
-        public IActionResult Download(int? id)
+        public async Task<IActionResult> Download(CancellationToken cancellationToken, int? id, string password = null)
         {
             // Check if we're logged in...
             if (!IsLoggedIn())
@@ -1308,15 +1349,39 @@ namespace Vault.Controllers
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
             // Check if the file exists....
-            if (file == null)
-                return StatusCode(500);
+            if (file == null) return StatusCode(500);
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path))
-                return StatusCode(500);
+            if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
 
-            // Return an empty result.
-            return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
+            // Perform decryption if our file is encrypted...
+            if (file.IsEncrypted)
+            {
+                // Check if our password is given...
+                if (password == null) return StatusCode(500);
+
+                // Setup our response...
+                Response.StatusCode = 200;
+                Response.ContentType = "application/octet-stream";
+                Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(file.Name)}");
+
+                try
+                {
+                    // Await our decryption...
+                    await _processService.DecryptFile(cancellationToken, Response.Body, file, password);
+                }
+                catch {
+                    HttpContext.Abort();
+                }
+
+                // Return an empty result.
+                return new EmptyResult();
+            }
+            else
+            {
+                // Return our physical file...
+                return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
+            }
         }
 
         /// <summary>

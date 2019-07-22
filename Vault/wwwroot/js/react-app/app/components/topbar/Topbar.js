@@ -17,11 +17,22 @@ class Topbar extends React.Component
         };
     }
 
-    openSettings() { new ActionAlert(<Settings />); }
+    openSettings() {
+        new ActionAlert(<Settings setPassword={this.props.setPassword} />);
+    }
+
     openNewFolder() { new ActionAlert(<NewFolder />); }
     openLogout() { new ActionAlert(<Logout />); }
 
-    openSort() { this.setState({ isSortOpen: true }); }
+    openSort()
+    {
+        // Set our state to make our sortbar visible...
+        this.setState({ isSortOpen: true });
+
+        // Set our visual sort upon opening...
+        this.sortBar.setVisualSort(window.sort);
+    }
+
     closeSort() { this.setState({ isSortOpen: false }); }
 
     openSearch() { this.props.openSearch(); }

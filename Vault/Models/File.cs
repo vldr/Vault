@@ -21,6 +21,9 @@ namespace Vault.Models
         public int Folder { get; set; }
         public int Hits { get; set; }
 
+        public bool IsEncrypted { get; set; }
+        public byte[] IV { get; set; }
+
         public bool IsSharing { get; set; }
         public string ShareId { get; set; }
         public string ShareKey { get; set; }

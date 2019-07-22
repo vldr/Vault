@@ -12,6 +12,8 @@ using System.Threading;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Vault.Controllers
 {
@@ -121,6 +123,9 @@ namespace Vault.Controllers
                 file.Id.ToString(),
                 file.Ext,
                 ProcessService.AttributeTypes.FileAction);
+
+            // Setup our encrypted field...
+            viewer.IsEncrypted = file.IsEncrypted;
 
             // Setup our url...
             viewer.URL = $"i/{shareId}";
@@ -245,6 +250,9 @@ namespace Vault.Controllers
             // Check if the file even exists on the disk...
             if (!System.IO.File.Exists(filePath)) return StatusCode(500);
 
+            // Check if the file even exists on the disk...
+            if (file.IsEncrypted) return StatusCode(500);
+
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
 
@@ -269,7 +277,7 @@ namespace Vault.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("i/{shareId}")]
-        public IActionResult SharedFileDownload(string shareId, string prefix)
+        public async Task<IActionResult> SharedFileDownload(CancellationToken cancellationToken, string shareId, string prefix, string password = null)
         {
             // Check if our share id given is null!
             if (shareId == null) return StatusCode(500);
@@ -295,8 +303,28 @@ namespace Vault.Controllers
             // Check if our mime type is null or not...
             if (mimeType == null) mimeType = "application/octet-stream";
 
-            // Return an empty result.
-            return PhysicalFile(filePath, mimeType, file.Name, true);
+            // Perform decryption if our file is encrypted...
+            if (file.IsEncrypted)
+            {
+                // Check if our password is given...
+                if (password == null) return StatusCode(500);
+
+                // Setup our response...
+                Response.StatusCode = 200;
+                Response.ContentType = mimeType;
+                Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(file.Name)}");
+
+                // Await our decryption...
+                await _processService.DecryptFile(cancellationToken, Response.Body, file, password);
+
+                // Return an empty result.
+                return new EmptyResult();
+            }
+            else
+            {
+                // Return an empty result.
+                return PhysicalFile(filePath, mimeType, file.Name, true);
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////

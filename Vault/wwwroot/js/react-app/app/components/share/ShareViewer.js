@@ -2,6 +2,7 @@
 import styles from '../../app/App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
+import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 import { PhotoView } from '../viewer/PhotoView';
 import { AudioView } from '../viewer/AudioView';
 import { VideoView } from '../viewer/VideoView';
@@ -118,6 +119,11 @@ class ShareViewer extends React.Component {
             );
     }
 
+    downloadEncryptedFile() {
+        // Render an action alert...
+        new ActionAlert(<DownloadEncryptedFile action={this.state.response.relativeURL + this.state.response.url} />);
+    }
+
     downloadFile() {
         // Setup a form...
         let form = document.createElement("form");
@@ -152,7 +158,8 @@ class ShareViewer extends React.Component {
                 <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
                 <div className={styles['overlay-topbar-right']}>
-                    <div className={styles['btn-download-viewer']} onClick={this.downloadFile.bind(this)} />
+                    <div className={styles['btn-download-viewer']}
+                        onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />
                 </div>
             </div>) : null;
 
@@ -160,7 +167,7 @@ class ShareViewer extends React.Component {
         let view = <div className={styles['overlay-message']}>No preview available</div>;
 
         // Check if our view has loaded...
-        if (hasLoaded)
+        if (hasLoaded && !this.state.response.isEncrypted)
             // Perform a switch to choose our...
             switch (this.state.response.action) {
                 // PhotoView

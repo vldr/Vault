@@ -24,7 +24,13 @@ class Upload extends React.Component
         this.componentConfig = { postUrl: 'process/upload' };
 
         // Setup our Dropzone.JS config...
-        this.djsConfig = { autoProcessQueue: true, clickable: `.${styles['btnUpload']}`, parallelUploads: 1, previewsContainer: false };
+        this.djsConfig = {
+            autoProcessQueue: true,
+            clickable: `.${styles['btnUpload']}`,
+            parallelUploads: 1,
+            previewsContainer: false,
+            params: {}
+        };
 
         // Setup our handlers...
         this.eventHandlers = {
@@ -96,6 +102,18 @@ class Upload extends React.Component
         document.documentElement.ondragover = undefined;
         document.documentElement.ondragenter = undefined;
         document.documentElement.ondrop = undefined;
+    }
+
+    setPassword(password = null)
+    {
+        if (password === null)
+        {
+            return this.djsConfig.params.password;
+        }
+
+        this.djsConfig.params.password = password;
+
+        return this.djsConfig.params.password;
     }
 
     start() {

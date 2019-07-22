@@ -15,6 +15,8 @@ namespace Vault.Models
         public string Ext { get; set; }
         public long Size { get; set; }
 
+        public bool IsEncrypted { get; set; }
+
         public string Icon { get; set; }
         public string Action { get; set; }
         public string URL { get; set; }
