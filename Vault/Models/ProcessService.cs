@@ -30,6 +30,9 @@ namespace Vault.Models
         // Save our little session tag...
         private readonly string _sessionName;
 
+        // Our key derived salt...
+        private readonly byte[] salt = { 0x45, 0xf2, 0x31, 0x9d, 0x02, 0xfd, 0x23, 0x4a };
+
         // Instance of our configuration...
         private IConfiguration _configuration;
 
@@ -1070,10 +1073,13 @@ namespace Vault.Models
         public async Task DecryptFile(CancellationToken cancellationToken, Stream outputStream, File file, string password)
         {
             // Setup our aes object...
-            using (Rijndael aes = Rijndael.Create())
+            using (Aes aes = Aes.Create())
             {
+                // Setup our derived bytes...
+                Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt);
+
                 // Hash our passowrd and set it as our key...
-                aes.Key = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
+                aes.Key = rfc.GetBytes(32);
 
                 // Setup our IV...
                 aes.IV = file.IV;
@@ -1088,8 +1094,37 @@ namespace Vault.Models
                     // Copy all our data to the zip stream...
                     await stream.CopyToAsync(cryptoStream, cancellationToken);
                 }
-
             }
+        } 
+
+        public async Task<byte[]> EncryptFile(IFormFile file, string filePath, string password)
+        {
+            // Copy our file from buffer...
+            using (Aes aes = Aes.Create())
+            {
+                // Setup our derived bytes...
+                Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt);
+
+                // Hash our passowrd and set it as our key...
+                aes.Key = rfc.GetBytes(32);
+
+                // Generate our IV...
+                aes.GenerateIV();
+
+                // Generate our IV...
+                ICryptoTransform encryptor = aes.CreateEncryptor();
+
+                // Setup our file stream and cryptostream...
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Write))
+                {
+                    // Copy our file to the cryptostream...
+                    await file.CopyToAsync(cryptoStream);
+                }
+
+                // Update our IV...
+                return aes.IV;
+            } 
         }
 
         /// <summary>

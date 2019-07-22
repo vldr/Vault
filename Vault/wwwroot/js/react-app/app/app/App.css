@@ -1210,9 +1210,12 @@ progress::-moz-progress-bar {
 	height: 21px;
 	width: 45%;
 	overflow: hidden;
+	background: -webkit-linear-gradient(0deg, rgb(255, 255, 255) 67%, rgba(0,212,255,0) 92%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
 	white-space: nowrap;
 	margin: 0;
-	font-size: 19px
+	font-size: 19px;
 }
 
 .share-overlay-topbar * {
@@ -2135,9 +2138,9 @@ p {
 }
 
 .overlay > .share-comments {
-	background: hsla(0, 0%, 6%, 0.24);
+	background: hsla(0,0%,6%,.24);
 	border: 0;
-	box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902);
+	box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902)
 }
 
 .overlay > .share-comments::-webkit-scrollbar {
@@ -2336,7 +2339,33 @@ p {
 	height: 25px;
 	right: 6px;
 	bottom: -3px;
+	position: absolute
+}
+
+.file-locked {
+	-webkit-filter: invert(1);
+	filter: invert(1);
 	position: absolute;
+	height: 20px;
+	width: 20px;
+	margin-top: 10px;
+	margin-left: -20px;
+	background: url(../../../images/padlock.svg);
+	background-repeat: no-repeat;
+}
+
+.share-overlay-topbar > .file-locked {
+	-webkit-filter: invert(0);
+	filter: invert(0);
+	opacity: 1
+}
+
+.unlock-file-icon {
+	height: 66px;
+	width: 66px;
+	margin: 0 auto 17px;
+	opacity: .5;
+	background: url(../../../images/padlock-open.svg)
 }
 
 @media (max-width: 1125px) {

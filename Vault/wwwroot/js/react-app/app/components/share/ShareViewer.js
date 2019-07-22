@@ -2,10 +2,10 @@
 import styles from '../../app/App.css';
 
 import { ActionAlert } from '../info/ActionAlert';
-import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 import { PhotoView } from '../viewer/PhotoView';
 import { AudioView } from '../viewer/AudioView';
 import { VideoView } from '../viewer/VideoView';
+import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 
 const PDFView = React.lazy(() => import('../viewer/PDFView'));
 const Comments = React.lazy(() => import('../comments/Comments'));
@@ -157,6 +157,7 @@ class ShareViewer extends React.Component {
             (<div className={styles['share-overlay-topbar']} >
                 <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
+                {this.state.response.isEncrypted && <div className={styles['file-locked']} />}
                 <div className={styles['overlay-topbar-right']}>
                     <div className={styles['btn-download-viewer']}
                         onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />

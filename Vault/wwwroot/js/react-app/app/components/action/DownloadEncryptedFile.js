@@ -55,7 +55,7 @@ export class DownloadEncryptedFile extends React.Component
     render()
     {
         const dialog = (<div>
-            <img src="images/padlock-open.svg" style={{ height: "66px", opacity: "0.5" }} />
+            <div className={styles["unlock-file-icon"]} />
             <div className={styles["warning-title"]}>Unlock File</div>
             <div className={styles["warning-message"]}>
                 <p>Please enter the password of this file to download it:</p>

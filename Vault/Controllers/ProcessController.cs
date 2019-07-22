@@ -1037,36 +1037,11 @@ namespace Vault.Controllers
             // Get the file's extension...
             string fileExtension = Path.GetExtension(fileName).ToLower();
 
-            // Setup our IV...
-            byte[] IV = null;
+            // Setup a blank IV variable...
+            byte[] iv = null;
 
-            // Check if we are trying to encrypt something...
-            if (password != null)
-            {
-                // Copy our file from buffer...
-                using (Rijndael aes = Rijndael.Create())
-                {
-                    // Hash our passowrd and set it as our key...
-                    aes.Key = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
-
-                    // Generate our IV...
-                    aes.GenerateIV();
-
-                    // Generate our IV...
-                    ICryptoTransform encryptor = aes.CreateEncryptor();
-
-                    // Setup our file stream and cryptostream...
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Write))
-                    {
-                        // Copy our file to the cryptostream...
-                        await file.CopyToAsync(cryptoStream);
-                    }
-
-                    // Update our IV...
-                    IV = aes.IV;
-                }
-            }
+            // Check if we are trying to encrypt a file, if so, encrypt it!
+            if (password != null) iv = await _processService.EncryptFile(file, filePath, password);
             else
             {
                 // Copy our file from buffer...
@@ -1085,7 +1060,7 @@ namespace Vault.Controllers
                 fileName,
                 fileExtension,
                 userSession.Folder,
-                filePath, password != null, IV);
+                filePath, password != null, iv);
 
             // Add the new file...
             if (result.success)

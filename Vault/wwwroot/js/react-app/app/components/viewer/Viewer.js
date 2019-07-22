@@ -176,6 +176,7 @@ class Viewer extends React.Component {
             (<div className={styles['overlay-topbar']} >
                 <img src={this.state.response.relativeURL + this.state.response.icon} />
                 <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
+                {this.state.response.isEncrypted && <div className={styles['file-locked']} />}
                 <div className={styles['overlay-topbar-right']}>
                     <div className={styles['btn-download-viewer']}
                         onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />

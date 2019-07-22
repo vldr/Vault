@@ -314,8 +314,15 @@ namespace Vault.Controllers
                 Response.ContentType = mimeType;
                 Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(file.Name)}");
 
-                // Await our decryption...
-                await _processService.DecryptFile(cancellationToken, Response.Body, file, password);
+                try
+                {
+                    // Await our decryption...
+                    await _processService.DecryptFile(cancellationToken, Response.Body, file, password);
+                }
+                catch
+                {
+                    HttpContext.Abort();
+                }
 
                 // Return an empty result.
                 return new EmptyResult();
