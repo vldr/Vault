@@ -18,7 +18,7 @@ class Topbar extends React.Component
     }
 
     openSettings() {
-        new ActionAlert(<Settings setPassword={this.props.setPassword} />);
+        new ActionAlert(<Settings />);
     }
 
     openNewFolder() { new ActionAlert(<NewFolder />); }

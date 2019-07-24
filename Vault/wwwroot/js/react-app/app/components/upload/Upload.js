@@ -2,6 +2,9 @@
 import DropzoneComponent from 'react-dropzone-component';
 import styles from '../../app/App.css';
 
+import { ActionAlert } from '../info/ActionAlert';
+import { UploadDialog } from '../action/UploadDialog';
+
 class Upload extends React.Component
 {
     constructor(props)
@@ -25,7 +28,7 @@ class Upload extends React.Component
 
         // Setup our Dropzone.JS config...
         this.djsConfig = {
-            autoProcessQueue: true,
+            autoProcessQueue: false,
             clickable: `.${styles['btnUpload']}`,
             parallelUploads: 1,
             previewsContainer: false,
@@ -34,6 +37,12 @@ class Upload extends React.Component
 
         // Setup our handlers...
         this.eventHandlers = {
+            // Set our init to save our zone object...
+            init: (zone) => this.zone = zone,
+
+            // Process add files...
+            addedfile: this.processFile.bind(this),
+
             // Set our state according to if we're processing a file...
             processing: (file) => this.setState({ uploading: true, finished: false, success: false, progress: 0, status: `Uploading ${file.name}` }),
 
@@ -104,16 +113,13 @@ class Upload extends React.Component
         document.documentElement.ondrop = undefined;
     }
 
-    setPassword(password = null)
+    /**
+     * Processes our file...
+     * @param {any} file File
+     */
+    processFile(file)
     {
-        if (password === null)
-        {
-            return this.djsConfig.params.password;
-        }
-
-        this.djsConfig.params.password = password;
-
-        return this.djsConfig.params.password;
+        new ActionAlert(<UploadQuestion params={this.djsConfig.params} zone={this.zone} />);
     }
 
     start() {
@@ -173,7 +179,10 @@ class Upload extends React.Component
             <React.Fragment>
                 {
                     this.state.initialized
-                    && <DropzoneComponent className="dropzone" config={this.componentConfig} eventHandlers={this.eventHandlers} djsConfig={this.djsConfig} />
+                    && <DropzoneComponent className="dropzone"
+                        config={this.componentConfig}
+                        eventHandlers={this.eventHandlers}
+                        djsConfig={this.djsConfig} />
                 }
                 {snackBar}
             </React.Fragment>

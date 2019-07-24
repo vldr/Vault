@@ -1210,12 +1210,12 @@ progress::-moz-progress-bar {
 	height: 21px;
 	width: 45%;
 	overflow: hidden;
-	background: -webkit-linear-gradient(0deg, rgb(255, 255, 255) 67%, rgba(0,212,255,0) 92%);
+	background: -webkit-linear-gradient(0deg,#fff 67%,rgba(0,212,255,0) 92%);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 	white-space: nowrap;
 	margin: 0;
-	font-size: 19px;
+	font-size: 19px
 }
 
 .share-overlay-topbar * {
@@ -2351,7 +2351,7 @@ p {
 	margin-top: 10px;
 	margin-left: -20px;
 	background: url(../../../images/padlock.svg);
-	background-repeat: no-repeat;
+	background-repeat: no-repeat
 }
 
 .share-overlay-topbar > .file-locked {
@@ -2361,11 +2361,53 @@ p {
 }
 
 .unlock-file-icon {
+	background: url(../../../images/padlock-open.svg)
+}
+
+.lock-file-icon {
+	background: url(../../../images/padlock.svg)
+}
+
+.lock-file-icon, .unlock-file-icon, .upload-file-icon {
 	height: 66px;
 	width: 66px;
 	margin: 0 auto 17px;
-	opacity: .5;
-	background: url(../../../images/padlock-open.svg)
+	opacity: .5
+}
+
+.upload-file-icon {
+	background: url(../../../images/ui/upload.svg)
+}
+
+.upload-selection-button {
+	width: 198px;
+	height: 230px;
+	transition: all .05s;
+	padding: 19px;
+	border-radius: 10px;
+	margin: 12px;
+	border: 2px solid #eaeaea;
+	font-family: Arial,sans-serif;
+	text-decoration: none;
+	-moz-user-select: -moz-none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: pointer
+}
+
+.upload-selection-button:hover {
+	background-color: #f1f1f1
+}
+
+.upload-selection-button h3 {
+	margin: 0;
+	color: #4c4c4c;
+}
+
+.upload-selection-button p {
+	font-size: 13px;
+	color: gray;
 }
 
 @media (max-width: 1125px) {

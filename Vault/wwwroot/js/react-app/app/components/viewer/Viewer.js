@@ -169,7 +169,7 @@ class Viewer extends React.Component {
         const hasLoaded = !this.state.isLoading && this.state.response;
 
         // Setup our loader bar...
-        const loaderBar = <center><div className={styles['loader']} /></center>;
+        const loaderBar = <div className={styles['loader']} />;
 
         // Setup our viewer content...
         const viewerTopbar = hasLoaded ?
