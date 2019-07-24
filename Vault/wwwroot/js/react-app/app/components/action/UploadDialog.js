@@ -15,7 +15,7 @@ export class UploadDialog extends React.Component
 
     /**
      * Close our dialog when close is needed...
-     */ 
+     */
     close()
     {
         swal.close();
@@ -94,7 +94,7 @@ export class UploadDialog extends React.Component
                     <i>(note: if you're uploading multiple files this password will apply to all of them)</i>
                 </p>
 
-                <input type="password" style={{ fontSize: "28px" }}
+                <input type="password" style={{ fontSize: "20px", width: "150px" }}
                     ref={(input) => { this.password = input; }}
                     onKeyDown={(e) => { if (e.key === 'Enter') this.uploadAndEncrypt(); }}
                 />

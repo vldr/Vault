@@ -2275,6 +2275,9 @@ namespace Vault.Models
                 // Check if our file even exists...
                 if (file == null) return (false, -1);
 
+                // Check if our file is encrypted...
+                if (file.IsEncrypted) return (false, -1);
+
                 // Check if we can "upload" this file, or in other words "do we have enough storage for this file"...
                 if (!CanUpload(ownerId, file.Size)) return (false, -1);
 

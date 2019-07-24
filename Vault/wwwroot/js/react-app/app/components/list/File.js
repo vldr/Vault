@@ -103,7 +103,7 @@ export class File extends React.Component
                 {this.props.openFileLocation && <li className={styles["menu-option"]} onClick={this.openFileLocation.bind(this)}>Open File Location</li>}
 
                 <li className={styles["menu-option"]} onClick={this.downloadFile.bind(this)}>Download</li>
-                <li className={styles["menu-option"]} onClick={this.duplicateFile.bind(this)}>Make a Copy</li>
+                {!this.props.file.isEncrypted && <li className={styles["menu-option"]} onClick={this.duplicateFile.bind(this)}>Make a Copy</li>}
                 <li className={styles["menu-option"]} onClick={this.renameFile.bind(this)}>Rename</li>
                 <li className={styles["menu-option"]} onClick={this.shareFile.bind(this)}>Share</li>
                 <li className={styles["menu-option"]} onClick={this.deleteFile.bind(this)}>Delete</li>

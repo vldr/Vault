@@ -2381,7 +2381,7 @@ p {
 
 .upload-selection-button {
 	width: 198px;
-	height: 230px;
+	height: 218px;
 	transition: all .05s;
 	padding: 19px;
 	border-radius: 10px;
@@ -2393,7 +2393,7 @@ p {
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	cursor: pointer
+	cursor: pointer;
 }
 
 .upload-selection-button:hover {
@@ -2402,12 +2402,12 @@ p {
 
 .upload-selection-button h3 {
 	margin: 0;
-	color: #4c4c4c;
+	color: #4c4c4c
 }
 
 .upload-selection-button p {
 	font-size: 13px;
-	color: gray;
+	color: grey
 }
 
 @media (max-width: 1125px) {

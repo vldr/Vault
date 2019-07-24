@@ -119,7 +119,10 @@ class Upload extends React.Component
      */
     processFile(file)
     {
-        new ActionAlert(<UploadQuestion params={this.djsConfig.params} zone={this.zone} />);
+        // Check if we already initialized our dialog...
+        // Once our Promise finishes clear our all the files...
+        new ActionAlert(<UploadDialog zone={this.zone} />)
+            .then(() => this.zone.files = []);
     }
 
     start() {
