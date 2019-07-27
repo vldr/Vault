@@ -115,9 +115,8 @@ class Upload extends React.Component
 
     /**
      * Processes our file...
-     * @param {any} file File
      */
-    processFile(file)
+    processFile()
     {
         // Check if we already initialized our dialog...
         // Once our Promise finishes clear our all the files...

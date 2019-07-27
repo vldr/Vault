@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vault.Models;
 
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    partial class VaultContextModelSnapshot : ModelSnapshot
+    [Migration("20190725092907_salted")]
+    partial class salted
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,8 +45,6 @@ namespace Vault.Migrations
 
                     b.Property<DateTime>("Created");
 
-                    b.Property<int>("EncryptionVersion");
-
                     b.Property<string>("Ext");
 
                     b.Property<int>("Folder");
@@ -52,6 +52,8 @@ namespace Vault.Migrations
                     b.Property<string>("Hash");
 
                     b.Property<int>("Hits");
+
+                    b.Property<byte[]>("IV");
 
                     b.Property<bool>("IsEncrypted");
 
@@ -61,13 +63,11 @@ namespace Vault.Migrations
 
                     b.Property<string>("Name");
 
-                    b.Property<byte[]>("Nonce");
-
                     b.Property<int>("Owner");
 
                     b.Property<string>("Path");
 
-                    b.Property<byte[]>("Salt");
+                    b.Property<string>("Salt");
 
                     b.Property<string>("ShareId");
 

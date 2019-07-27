@@ -1003,13 +1003,12 @@ namespace Vault.Controllers
         public async Task<IActionResult> Upload(IFormFile file, string password = null)
         {
             // Check if we're logged in...
-            if (!IsLoggedIn())
-                return StatusCode(500);
+            if (!IsLoggedIn()) return StatusCode(500);
 
             // Store our file size...
             long size = file.Length;
 
-            // File too big!
+            // Check the file size to the configuration...
             if (size > long.Parse(_configuration["MaxVaultFileSize"])) return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
@@ -1018,8 +1017,7 @@ namespace Vault.Controllers
             //////////////////////////////////////////////////////////////////
 
             // Check if the user has enough storage to upload the file...
-            if (!_processService.CanUpload(userSession.Id, size))
-                return StatusCode(500);
+            if (!_processService.CanUpload(userSession.Id, size)) return StatusCode(500);
 
             //////////////////////////////////////////////////////////////////
 
@@ -1027,26 +1025,41 @@ namespace Vault.Controllers
             string filePath = _storageLocation + _processService.RandomString(30);
 
             // Check if our file already exists with that name!
-            if (System.IO.File.Exists(filePath))
-                // Respond with zero since something bad happened...
-                return StatusCode(500);
+            if (System.IO.File.Exists(filePath)) return StatusCode(500);
 
             // Setup our file name...
-            string fileName = (file.FileName == null ? "Unknown.bin" : file.FileName);
+            string fileName = (file.FileName == null ? "<unnamed>" : file.FileName);
 
             // Get the file's extension...
             string fileExtension = Path.GetExtension(fileName).ToLower();
 
+            //////////////////////////////////////////////////////////////////
+
             // Setup a blank IV variable...
+            bool isEncrypting = password != null;
+
+            // Setup our encryption parameters...
             byte[] iv = null;
+            byte[] salt = null;
 
             // Check if we are trying to encrypt a file, if so, encrypt it!
-            if (password != null) iv = await _processService.EncryptFile(file, filePath, password);
+            if (isEncrypting)
+            {
+                // Encrypt our file...
+                var encryptedObject = await _processService.EncryptFile(file, filePath, password);
+
+                // Setup our IV...
+                iv = encryptedObject.iv;
+
+                // Setup our salt...
+                salt = encryptedObject.salt;
+            }
             else
             {
                 // Copy our file from buffer...
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
+                    // Copy our file to the file stream...
                     await file.CopyToAsync(stream);
                 }
             }
@@ -1060,17 +1073,15 @@ namespace Vault.Controllers
                 fileName,
                 fileExtension,
                 userSession.Folder,
-                filePath, password != null, iv);
+                filePath,
 
-            // Add the new file...
-            if (result.success)
-            {
-                // Respond with a successful message...
-                return Ok();
-            }
-            else
-                // Otherwise return a 500 error...
-                return StatusCode(500);
+                // Encryption parameters...
+                isEncrypting, 
+                iv, 
+                salt);
+
+            // Check if the result was successful...
+            return result.success ? Ok() : StatusCode(500);
         }
 
         /// <summary>

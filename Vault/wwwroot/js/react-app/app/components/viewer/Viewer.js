@@ -213,9 +213,8 @@ class Viewer extends React.Component {
         // Render our entire search system...
         return (
             <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
-                {this.state.isLoading && loaderBar}
-
                 <div className={styles['overlay-inherit']}>
+                    {this.state.isLoading && loaderBar}
                     {viewerTopbar}
 
                     <React.Suspense fallback={loaderBar}>

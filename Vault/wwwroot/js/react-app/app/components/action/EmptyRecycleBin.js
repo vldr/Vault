@@ -70,7 +70,7 @@ export class EmptyRecycleBin extends React.Component
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
-            <img src="images/shred.svg" style={{ height: "86px", opacity: "0.5" }} />
+            <img src="images/flush.svg" style={{ height: "86px", opacity: "0.3" }} />
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
 

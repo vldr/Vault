@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vault.Models;
 
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    partial class VaultContextModelSnapshot : ModelSnapshot
+    [Migration("20190726011813_okok")]
+    partial class okok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,6 +55,8 @@ namespace Vault.Migrations
 
                     b.Property<int>("Hits");
 
+                    b.Property<byte[]>("IV");
+
                     b.Property<bool>("IsEncrypted");
 
                     b.Property<bool>("IsReady");
@@ -60,8 +64,6 @@ namespace Vault.Migrations
                     b.Property<bool>("IsSharing");
 
                     b.Property<string>("Name");
-
-                    b.Property<byte[]>("Nonce");
 
                     b.Property<int>("Owner");
 
@@ -74,6 +76,8 @@ namespace Vault.Migrations
                     b.Property<string>("ShareKey");
 
                     b.Property<long>("Size");
+
+                    b.Property<byte[]>("Tag");
 
                     b.HasKey("Id");
 

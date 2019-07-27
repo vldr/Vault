@@ -9,7 +9,7 @@ export class UploadDialog extends React.Component
         super(props);
 
         this.state = {
-            view: 0
+            view: 0 
         };
     }
 

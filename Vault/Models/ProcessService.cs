@@ -3,6 +3,12 @@ using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.IO;
+using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 using Syncfusion.DocIO.DLS;
 using Syncfusion.DocIORenderer;
 using Syncfusion.Pdf;
@@ -31,7 +37,8 @@ namespace Vault.Models
         private readonly string _sessionName;
 
         // Our key derived salt...
-        private readonly byte[] salt = { 0x45, 0xf2, 0x31, 0x9d, 0x02, 0xfd, 0x23, 0x4a };
+        private readonly int _iterations = 100_000;
+        private readonly int _mac_size = 128;
 
         // Instance of our configuration...
         private IConfiguration _configuration;
@@ -391,6 +398,7 @@ namespace Vault.Models
                     else
                         return defaultAction;
                 case ".pptx":
+                case ".ppt":
                 case ".pps":
                     if (type == AttributeTypes.FileIcon
                         || type == AttributeTypes.FileIconNoPreview
@@ -419,6 +427,13 @@ namespace Vault.Models
                         || type == AttributeTypes.FileIconNoPreview
                         || type == AttributeTypes.FileShareIcon)
                         return "images/file/shell-icon.svg";
+                    else
+                        return defaultAction;
+                case ".txt":
+                    if (type == AttributeTypes.FileIcon
+                        || type == AttributeTypes.FileIconNoPreview
+                        || type == AttributeTypes.FileShareIcon)
+                        return "images/file/text-icon.svg";
                     else
                         return defaultAction;
                 case ".dll":
@@ -1023,7 +1038,7 @@ namespace Vault.Models
         /// <param name="path"></param>
         /// <returns></returns>
         public (bool success, int fileId) AddNewFile(int userId, long size, string name, string ext, int folderId, string path, 
-            bool encrypted = false, byte[] iv = null)
+            bool encrypted = false, byte[] nonce = null, byte[] salt = null)
         {
             // Get our user following with that user id...
             User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
@@ -1046,7 +1061,9 @@ namespace Vault.Models
                 Folder = folderId,
                 Path = path,
                 IsEncrypted = encrypted,
-                IV = iv
+                Nonce = nonce,
+                Salt = salt,
+                EncryptionVersion = 1
             };
 
             // Add the file object to the files context...
@@ -1072,59 +1089,104 @@ namespace Vault.Models
         /// <returns></returns>
         public async Task DecryptFile(CancellationToken cancellationToken, Stream outputStream, File file, string password)
         {
-            // Setup our aes object...
-            using (Aes aes = Aes.Create())
+            // Setup our derived bytes...
+            Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, file.Salt, _iterations);
+
+            // Get our derived key...
+            var key = rfc.GetBytes(32);
+
+            //////////////////////////////////////////////////////
+
+            // Setup our GCM block cipher using AES engine...
+            var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
+
+            // Generate our key and set it up as a parameter....
+            var keyParameter = new KeyParameter(key);
+
+            // Setup our parameters for the 
+            var aeadParameters = new AeadParameters(keyParameter, _mac_size, file.Nonce);
+
+            // Initialize our GCM blockcipher...
+            cipher.Init(false, aeadParameters);
+
+            //////////////////////////////////////////////////////
+
+            // Setup a cipher stream to write into our output stream (Response.Body)....
+            using (var cipherStream = new CipherStream(outputStream, null, cipher))
+            // Setup our file stream to open the file and read it...
+            using (var fileStream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
             {
-                // Setup our derived bytes...
-                Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt);
-
-                // Hash our passowrd and set it as our key...
-                aes.Key = rfc.GetBytes(32);
-
-                // Setup our IV...
-                aes.IV = file.IV;
-
-                // Create a decryptor to perform the stream transform.
-                ICryptoTransform decryptor = aes.CreateDecryptor();
-
-                // Setup our cryptostream to output to our response body...
-                using (CryptoStream cryptoStream = new CryptoStream(outputStream, decryptor, CryptoStreamMode.Write))
-                using (var stream = new FileStream(file.Path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true))
-                {
-                    // Copy all our data to the zip stream...
-                    await stream.CopyToAsync(cryptoStream, cancellationToken);
-                }
+                // Copy our file's contents into the cipher stream which 
+                // in turn will copy it's own contents to the output stream...
+                await fileStream.CopyToAsync(cipherStream, cancellationToken);
             }
         } 
 
-        public async Task<byte[]> EncryptFile(IFormFile file, string filePath, string password)
-        {
+        /// <summary>
+        /// Encrypts a file...
+        /// 
+        /// I've settled with AES GCM since it offers privacy and authentication.
+        /// 
+        /// The MAC size is set to 128 bits...
+        /// The NOnce size is set to 96 bits...
+        /// The Salt for key deriving of the password is set to 256 bit...
+        /// </summary>
+        /// <param name="file"></param>
+        /// <param name="filePath"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public async Task<(byte[] iv, byte[] salt)> EncryptFile(IFormFile file, string filePath, string password)
+        { 
             // Copy our file from buffer...
-            using (Aes aes = Aes.Create())
+            using (var random = new RNGCryptoServiceProvider())
             {
+                // Setup our salt byte array...
+                var salt = new byte[32];
+                var nonce = new byte[12];
+
+                // Generate a random salt...
+                random.GetNonZeroBytes(salt);
+
+                // Generate a random nonce...
+                random.GetNonZeroBytes(nonce);
+
+                //////////////////////////////////////////////////////
+
                 // Setup our derived bytes...
-                Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt);
+                Rfc2898DeriveBytes rfc = new Rfc2898DeriveBytes(password, salt, _iterations);
 
-                // Hash our passowrd and set it as our key...
-                aes.Key = rfc.GetBytes(32);
+                // Get our derived key...
+                var key = rfc.GetBytes(32);
 
-                // Generate our IV...
-                aes.GenerateIV();
+                //////////////////////////////////////////////////////
 
-                // Generate our IV...
-                ICryptoTransform encryptor = aes.CreateEncryptor();
+                // Setup our GCM block cipher using AES engine...
+                var cipher = CipherUtilities.GetCipher("AES/GCM/NoPadding");
+
+                // Generate our key and set it up as a parameter....
+                var keyParameter = new KeyParameter(key);
+
+                // Setup our parameters for the 
+                var aeadParameters = new AeadParameters(keyParameter, _mac_size, nonce);
+
+                // Initialize our GCM blockcipher...
+                cipher.Init(true, aeadParameters);
+
+                //////////////////////////////////////////////////////
 
                 // Setup our file stream and cryptostream...
                 using (var stream = new FileStream(filePath, FileMode.Create))
-                using (var cryptoStream = new CryptoStream(stream, encryptor, CryptoStreamMode.Write))
+                // Setup a cipher stream....
+                using (var cipherStream = new CipherStream(stream, null, cipher))
                 {
                     // Copy our file to the cryptostream...
-                    await file.CopyToAsync(cryptoStream);
+                    await file.CopyToAsync(cipherStream);
                 }
 
-                // Update our IV...
-                return aes.IV;
-            } 
+                // Return our nonce (iv), salt, 
+                return (nonce, salt);
+            }
+
         }
 
         /// <summary>
@@ -2141,16 +2203,6 @@ namespace Vault.Models
                 // Update our moved folder...
                 UpdateFolderListing(ownerId, folder);
 
-                // Check if our new folder is a recycle bin...
-                //if (newFolder.IsRecycleBin)
-                    // Update our folder that we placed the original folder inside of...
-                    //UpdateFolderListing(ownerId, newFolder);
-
-                // Check if our parent folder is a recycle bin...
-                //if (parentFolder.IsRecycleBin)
-                    // Update our folder that we placed the original folder inside of...
-                    //UpdateFolderListing(ownerId, parentFolder);
-
                 ///////////////////////////////////////////////////
 
                 // Respond with a true...
@@ -2351,27 +2403,14 @@ namespace Vault.Models
         /// <returns></returns>
         public bool CanUpload(int userId, long size)
         {
-            try
-            {
-                // Setup our user...
-                User user = GetUser(userId);
+            // Setup our user...
+            User user = GetUser(userId);
 
-                // Check if our user exists...
-                if (user == null) return false;
+            // Check if our user exists...
+            if (user == null) return false;
 
-                // Setup our max bytes variable...
-                var max = user.MaxBytes;
-
-                // Setup our total bytes variable...
-                var total = _context.Files.Where(b => b.Owner == userId).Sum(b => b.Size);
-
-                // Setup a boolean condition to check if we're beyond our limit...
-                return !(total + size > max);
-            }
-            catch
-            {
-                return false;
-            }
+            // Call our other function....
+            return CanUpload(user, size);
         }
 
         /// <summary>
@@ -2431,15 +2470,19 @@ namespace Vault.Models
         /// <returns></returns>
         public string RandomString(int count)
         {
+            // Our characters that will be inside our random string...
             string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            // Generate our string chars...
             var stringChars = new char[count];
+
+            // Setup our random variable...
             var random = new Random();
 
-            for (int i = 0; i < stringChars.Length; i++)
-            {
-                stringChars[i] = chars[random.Next(chars.Length)];
-            }
+            // Iterate and generate a random character...
+            for (int i = 0; i < stringChars.Length; i++) stringChars[i] = chars[random.Next(chars.Length)];
 
+            // Setup our new string...
             return new string(stringChars);
         }
 
