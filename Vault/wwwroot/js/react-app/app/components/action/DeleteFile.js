@@ -68,14 +68,18 @@ export class DeleteFile extends React.Component
     {
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
+		const iconStyle = { backgroundImage: `url(${this.props.file.icon})`, backgroundSize: "55px" };
+
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>You will not be able to restore this file:</p>
-                <div className={styles["file-descriptor"]}>
-                    <img src={this.props.file.icon} />
-                    <div>{this.props.file.name}</div>
-                    <div>{this.props.file.size}</div>
+                <p>You are about to delete this file, are you sure?</p>
+
+				<div className={styles["gridItem-folder"]}>
+                    <div className={styles["grid-icon"]} style={iconStyle} />
+                    <p className={styles["grid-text"]}>
+                        {this.props.file.name}
+                    </p>
                 </div>
             </div>
 

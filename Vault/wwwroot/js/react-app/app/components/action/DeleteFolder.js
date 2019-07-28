@@ -61,18 +61,22 @@ export class DeleteFolder extends React.Component
 
     render()
     {
-        const folderIconStyle =
-        {
-            backgroundImage: `url(${this.props.folder.icon})`,
-            backgroundSize: `24px`
-        };
+		const folderClassName = styles[this.props.folder.style];
 
         const loader = this.state.started && !this.state.finished ? (<center><div className={styles["loader"]} /></center>) : null;
 
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>Are you certain that you want to delete this folder? Upon deletion this folder and its contents will be unrecoverable...</p>
+                <p>You are about to delete this folder:</p>
+
+				<div className={styles["gridItem-folder"]}>
+                    <div className={styles["grid-icon"]} />
+                    <p className={styles["grid-text"]}>
+                        <div className={folderClassName} />
+                        {this.props.folder.name}
+                    </p>
+                </div>
             </div>
 
             <button className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</button>

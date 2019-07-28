@@ -40,13 +40,7 @@ class Topbar extends React.Component
     render()
     {
         
-        const sortStyle = this.state.isSortOpen ?
-            {
-                paddingLeft: "11px",
-                display: "inline-flex",
-                width: "165px",
-                background: "#f5f5f5"
-            } : {};
+        const sortStyle = this.state.isSortOpen ? styles['btnSortOpen'] : ``;
 
         const sortButtonStyle = this.state.isSortOpen ?
             {
@@ -66,7 +60,7 @@ class Topbar extends React.Component
                 <div className={styles['btnHelp']} onClick={this.openSearch.bind(this)} />
                 <div className={styles['btnNewFolder']} onClick={this.openNewFolder.bind(this)} />
 
-                <div className={styles['btnSort']} style={sortStyle}
+                <div className={`${styles['btnSort']} ${sortStyle}`}
                     onTouchStart={this.openSort.bind(this)}
                     onMouseEnter={this.openSort.bind(this)}
                     onMouseLeave={this.closeSort.bind(this)}>

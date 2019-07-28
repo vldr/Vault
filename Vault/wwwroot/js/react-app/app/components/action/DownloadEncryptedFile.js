@@ -60,7 +60,7 @@ export class DownloadEncryptedFile extends React.Component
             <div className={styles["warning-message"]}>
                 <p>Please enter the password of this file to download it:</p>
 
-                <input type="password" style={{ fontSize: "20px", width: "150px" }}
+                <input type="password" style={{ fontSize: "20px" }}
                     ref={(input) => { this.password = input; }}
                     onKeyDown={(e) => { if (e.key === 'Enter') this.onClick(); }}
                 />
