@@ -68,7 +68,7 @@ class List extends React.Component
         {
             const scrollOffset = window.innerHeight + window.pageYOffset;
 
-            if (this.state.shouldScroll && scrollOffset >= document.body.offsetHeight * 0.8)
+            if (this.state.shouldScroll && scrollOffset >= document.querySelector("#app").offsetHeight * 0.8)
                 this.requestList();
         };
     }

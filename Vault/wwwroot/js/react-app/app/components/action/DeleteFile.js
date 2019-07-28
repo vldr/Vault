@@ -73,7 +73,7 @@ export class DeleteFile extends React.Component
         const dialog = !this.state.started && !this.state.finished ? (<div>
             <div className={styles["warning-title"]}>Are you sure?</div>
             <div className={styles["warning-message"]}>
-                <p>You are about to delete this file, are you sure?</p>
+                <p>You are about to delete this file:</p>
 
 				<div className={styles["gridItem-folder"]}>
                     <div className={styles["grid-icon"]} style={iconStyle} />
