@@ -31,8 +31,8 @@ export class Sortbar extends React.Component {
             fontWeight: "600",
             paddingLeft: "10px",
             marginLeft: "3px",
-            background: sort > 0 ? "url(../../../images/ui/arrow-up.svg) 0px center / 11px no-repeat"
-                : "url(../../../images/ui/arrow.svg) 0px center / 11px no-repeat",
+            background: sort > 0 ? "url(images/ui/arrow-up.svg) 0px center / 11px no-repeat"
+                : "url(images/ui/arrow.svg) 0px center / 11px no-repeat",
         } : {});
     }
 

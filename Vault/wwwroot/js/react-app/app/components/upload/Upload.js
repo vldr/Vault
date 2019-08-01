@@ -32,6 +32,8 @@ class Upload extends React.Component
             clickable: `.${styles['btnUpload']}`,
             parallelUploads: 1,
             previewsContainer: false,
+			/*chunking: true,
+			chunkSize: 262144,*/
             params: {}
         };
 

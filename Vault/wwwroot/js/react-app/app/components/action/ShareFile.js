@@ -71,6 +71,19 @@ export class ShareFile extends React.Component
             );
     }
 
+	copy() 
+	{
+		let range = document.createRange();
+        range.selectNode(this.urlBox);
+
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+
+		document.execCommand("copy");
+
+		this.copyButton.innerText = `Copy to Clipboard (copied)`;
+	}
+
     render()
     {
         const path = window.location.href.substr(0, window.location.href.lastIndexOf('/') + 1);
@@ -83,12 +96,18 @@ export class ShareFile extends React.Component
                     <span className={styles["checkmark"]} />
                 </label>
                 <div className={styles["share-box"]}
+					ref={(ref) => { this.urlBox = ref; }}
                     onClick={(e) => {
-                        var range = document.createRange();
+                        let range = document.createRange();
                         range.selectNode(e.target);
                         window.getSelection().removeAllRanges();
                         window.getSelection().addRange(range);
-                    }}>{path}share/{this.props.file.shareId}</div>
+                    }}>{path}share/{this.props.file.shareId}
+				</div>
+
+				<button className={`${styles["button"]} ${styles["copyToClipboardButton"]}`} 
+				onClick={this.copy.bind(this)} 
+				ref={(ref) => { this.copyButton = ref; }}>Copy to Clipboard</button>
             </div>)
             :
             (<label className={styles["share-checkbox"]}>Enable

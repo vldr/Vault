@@ -14,11 +14,21 @@ module.exports = {
         login: "./app/login/login.js",
         share: "./app/share/share.js"
     },
+
     mode: "development",
+
+	// PROD
+	//mode: "production",
+	// ENDPROD
+
     output: {
         path: __dirname + "/dist", 
         filename: "[name].js",
+
+		// PROD
         //chunkFilename: '[chunkhash].js',
+		// ENDPROD
+
         publicPath: './js/react-app/dist/'
     },
     watch: true,
@@ -34,7 +44,10 @@ module.exports = {
                             modules: {//-[hash:base64:6]
                                 
                                 localIdentName: '[local]',
+
+								// PROD
                                 //localIdentName: '[hash:base64:6]',
+								// ENDPROD
                             },
                             url: false,
                             importLoaders: 2

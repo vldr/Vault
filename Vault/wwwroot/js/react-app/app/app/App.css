@@ -2444,11 +2444,17 @@ p {
     color: grey
 }
 
+.copyToClipboardButton {
+    float: left;
+    margin-top: 22px!important;
+    margin-bottom: 52px!important;
+}
+
 @media (max-width: 490px) {
     .btnSortOpen {
-        position: fixed;
+        position:fixed;
         right: 10px;
-        top: 60px;
+        top: 60px
     }
 }
 

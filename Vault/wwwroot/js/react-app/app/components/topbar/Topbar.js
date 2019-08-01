@@ -64,7 +64,7 @@ class Topbar extends React.Component
                     onTouchStart={this.openSort.bind(this)}
                     onMouseEnter={this.openSort.bind(this)}
                     onMouseLeave={this.closeSort.bind(this)}>
-                    <img className={styles['sorting-arrow']} style={sortButtonStyle} src="../../../images/ui/sort.svg" />
+                    <img className={styles['sorting-arrow']} style={sortButtonStyle} src="images/ui/sort.svg" />
                     <Sortbar ref={(ref) => this.sortBar = ref} />
                 </div>
 

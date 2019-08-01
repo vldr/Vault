@@ -171,11 +171,6 @@ export class Folder extends React.Component {
 
     showContextMenu(event)
     {
-        /*
-         * Use this when implementing share folder...
-        <li className={styles["menu-option"]} onClick={this.shareFolder.bind(this)}>Share</li>
-        */
-
         // Setup our contextmenu options depending if it is a recycle bin or a folder...
         const options = !this.props.folder.isRecycleBin ? (<>
             <li className={styles["menu-option"]} onClick={this.props.gotoFolder.bind(this, this.props.folder.id)}>Open</li>
@@ -191,7 +186,6 @@ export class Folder extends React.Component {
                 <div className={`${styles["color-circle"]} ${styles["orange"]}`} onClick={this.changeFolderColour.bind(this, 5)} />
             </li>
         </>) : (<>
-                <li className={styles["menu-option"]}>Select</li>
                 <li className={styles["menu-option"]} onClick={this.emptyRecycleBin.bind(this)}>Empty Recycle Bin</li>
             </>);
 
@@ -207,13 +201,13 @@ export class Folder extends React.Component {
         const folder = this.props.folder;
 
         // Setup our folder icon...
-        let icon = "url(../../../images/folder.svg)";
+        let icon = "url(images/folder.svg)";
 
         // If our folder is the recycle bin...
         if (folder.isRecycleBin)
-            icon = "url(../../../images/trash-folder.svg)";
+            icon = "url(images/trash-folder.svg)";
         else if (this.props.isPrevious)
-            icon = "url(../../../images/back-folder.svg)";
+            icon = "url(images/back-folder.svg)";
 
         // Setup our folder icon style (for lis...
         const folderIconStyle =

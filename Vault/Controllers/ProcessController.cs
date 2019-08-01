@@ -12,7 +12,8 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Security.Cryptography;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Vault.Controllers
 {
@@ -1076,8 +1077,8 @@ namespace Vault.Controllers
                 filePath,
 
                 // Encryption parameters...
-                isEncrypting, 
-                iv, 
+                isEncrypting,
+                iv,
                 salt);
 
             // Check if the result was successful...
