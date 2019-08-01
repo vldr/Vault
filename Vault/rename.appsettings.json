@@ -1,0 +1,22 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=app.db"
+  },
+  "SessionTagId": "vault",
+  "SyncCookieName": ".vault.sync",
+  "VaultSortByCookie": ".vault.sortby",
+  "VaultInviteKey": "2",
+  "SessionTagKey": "vault-key",
+  "SessionExpiry": 30,
+  "VaultMaxBytes": 1073741824,
+  "RelativeDirectory": "/",
+  "ShareUploadLocation": "http://upx.me/share/dl/",
+  "VaultStorageLocation": "C:\\Users\\vlad\\Documents\\po\\",
+  "MaxVaultFileSize": 20000000000,
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
