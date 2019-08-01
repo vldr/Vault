@@ -18,5 +18,25 @@
       "Default": "Warning"
     }
   },
+
+  "ReplicationServers": [
+    {
+      "Name": "us-east",
+      "IP": "127.0.0.1",
+      "Username": "root",
+      "Password": "",
+      "Path": ""
+    },
+
+    {
+      "Name": "italy",
+      "IP": "127.0.0.1",
+      "Username": "root",
+      "Password": "",
+      "Path": ""
+    }
+
+  ],
+
   "AllowedHosts": "*"
 }
