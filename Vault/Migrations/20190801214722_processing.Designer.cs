@@ -9,14 +9,34 @@ using Vault.Models;
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    [Migration("20190223011140_recyclebin")]
-    partial class recyclebin
+    [Migration("20190801214722_processing")]
+    partial class processing
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.1-servicing-10028");
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062");
+
+            modelBuilder.Entity("Vault.Models.Comment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Author");
+
+                    b.Property<string>("Content");
+
+                    b.Property<long>("Created");
+
+                    b.Property<int>("FileId");
+
+                    b.Property<bool>("IsOwner");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Comments");
+                });
 
             modelBuilder.Entity("Vault.Models.File", b =>
                 {
@@ -24,6 +44,8 @@ namespace Vault.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("Created");
+
+                    b.Property<int>("EncryptionVersion");
 
                     b.Property<string>("Ext");
 
@@ -33,15 +55,25 @@ namespace Vault.Migrations
 
                     b.Property<int>("Hits");
 
+                    b.Property<bool>("IsEncrypted");
+
+                    b.Property<bool>("IsProcessing");
+
                     b.Property<bool>("IsReady");
+
+                    b.Property<bool>("IsReplicated");
 
                     b.Property<bool>("IsSharing");
 
                     b.Property<string>("Name");
 
+                    b.Property<byte[]>("Nonce");
+
                     b.Property<int>("Owner");
 
                     b.Property<string>("Path");
+
+                    b.Property<byte[]>("Salt");
 
                     b.Property<string>("ShareId");
 
@@ -102,6 +134,8 @@ namespace Vault.Migrations
                     b.Property<string>("Name");
 
                     b.Property<string>("Password");
+
+                    b.Property<long>("ReplicationMaxBytes");
 
                     b.Property<int>("SortBy");
 

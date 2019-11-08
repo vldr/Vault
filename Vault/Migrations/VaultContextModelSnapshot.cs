@@ -55,7 +55,11 @@ namespace Vault.Migrations
 
                     b.Property<bool>("IsEncrypted");
 
+                    b.Property<bool>("IsProcessing");
+
                     b.Property<bool>("IsReady");
+
+                    b.Property<bool>("IsReplicated");
 
                     b.Property<bool>("IsSharing");
 
@@ -128,6 +132,8 @@ namespace Vault.Migrations
                     b.Property<string>("Name");
 
                     b.Property<string>("Password");
+
+                    b.Property<long>("ReplicationMaxBytes");
 
                     b.Property<int>("SortBy");
 

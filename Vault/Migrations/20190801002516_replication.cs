@@ -2,31 +2,32 @@
 
 namespace Vault.Migrations
 {
-    public partial class FolderSharing : Migration
+    public partial class replication : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<long>(
+                name: "ReplicationMaxBytes",
+                table: "Users",
+                nullable: false,
+                defaultValue: 0L);
+
             migrationBuilder.AddColumn<bool>(
-                name: "IsSharing",
-                table: "Folders",
+                name: "IsReplicated",
+                table: "Files",
                 nullable: false,
                 defaultValue: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ShareId",
-                table: "Folders",
-                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsSharing",
-                table: "Folders");
+                name: "ReplicationMaxBytes",
+                table: "Users");
 
             migrationBuilder.DropColumn(
-                name: "ShareId",
-                table: "Folders");
+                name: "IsReplicated",
+                table: "Files");
         }
     }
 }

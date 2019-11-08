@@ -1,4 +1,4 @@
-﻿body,html {
+﻿body, html {
     height: 100%;
     margin: 0
 }
@@ -157,7 +157,7 @@ input[type=text]:focus {
     background: rgba(0,0,0,.78039)
 }
 
-.sorting-arrow,.sorting-arrow-down {
+.sorting-arrow, .sorting-arrow-down {
     height: 17px;
     cursor: pointer;
     margin-top: 7px;
@@ -231,20 +231,20 @@ input[type=text]:focus {
     color: #656565
 }
 
-.warning-message>.gridItem-folder {
+.warning-message > .gridItem-folder {
     padding: 10px;
     display: inline-block;
     cursor: unset;
     height: 0
 }
 
-.warning-message>.gridItem-folder>.grid-text {
+.warning-message > .gridItem-folder > .grid-text {
     margin-top: 15px;
     margin-bottom: -4px;
     line-height: 16px
 }
 
-.warning-message>.gridItem-folder>.grid-text>div {
+.warning-message > .gridItem-folder > .grid-text > div {
     display: inline-block
 }
 
@@ -311,7 +311,7 @@ div .button {
     padding: 10px 40px 10px 20px
 }
 
-.menu-option,.menu-option-color-picker {
+.menu-option, .menu-option-color-picker {
     font-weight: 500;
     font-size: 14px;
     cursor: pointer
@@ -342,7 +342,7 @@ div .button {
     background-color: #ffac00
 }
 
-.orange,.purple {
+.orange, .purple {
     box-shadow: unset
 }
 
@@ -354,7 +354,7 @@ div .button {
     background-color: #06b73b
 }
 
-.green,.red {
+.green, .red {
     box-shadow: unset
 }
 
@@ -367,7 +367,7 @@ div .button {
     box-shadow: unset
 }
 
-.recycle-bin,.recycle-bin-empty {
+.recycle-bin, .recycle-bin-empty {
     background-color: #fff
 }
 
@@ -386,7 +386,7 @@ div .button {
     box-sizing: border-box
 }
 
-#circler,.topbar {
+#circler, .topbar {
     position: relative
 }
 
@@ -417,7 +417,7 @@ div .button {
     margin: 50px auto
 }
 
-#captionTag,.myImg-modal-content {
+#captionTag, .myImg-modal-content {
     display: block;
     width: 80%;
     max-width: 700px
@@ -465,7 +465,7 @@ div .button {
     transition: .3s
 }
 
-.closeThis:focus,.closeThis:hover {
+.closeThis:focus, .closeThis:hover {
     color: #bbb;
     text-decoration: none;
     cursor: pointer
@@ -473,7 +473,7 @@ div .button {
 
 @media only screen and (max-width: 700px) {
     .myImg-modal-content {
-        width:100%
+        width: 100%
     }
 }
 
@@ -481,7 +481,7 @@ div .button {
     margin-top: 300px
 }
 
-.overlay-inherit>.loader {
+.overlay-inherit > .loader {
     margin: 35vh auto 0
 }
 
@@ -606,7 +606,7 @@ div .button {
     list-style: none
 }
 
-#file-list>li {
+#file-list > li {
     padding: 10px;
     background-color: #fff;
     border-radius: 5px;
@@ -667,6 +667,7 @@ div .button {
     border-radius: 2px;
     cursor: default;
     font-size: 11px;
+    border: 1px solid #f3f3f3;
     font-weight: 700;
     text-align: center;
     height: 30px;
@@ -678,13 +679,13 @@ div .button {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none
+    user-select: none;
 }
 
 .button:hover {
     background-color: #d6d6d6;
     background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
-    border: 1px solid #c6c6c6;
+    border: 1px solid #eaeaea;
     color: #333;
     box-shadow: 0 1px 1px rgba(0,0,0,.1)
 }
@@ -699,11 +700,11 @@ div .button {
 }
 
 .button.blue:focus {
-    outline: 0!important
+    outline: 0 !important
 }
 
 .button.default:focus {
-    outline: 0!important
+    outline: 0 !important
 }
 
 .button.inverse {
@@ -778,16 +779,16 @@ div .button {
 .search-box {
     margin: 0 auto;
     display: inherit;
-    width: 100%!important;
-    text-align: unset!important;
+    width: 100% !important;
+    text-align: unset !important;
     box-sizing: border-box;
     max-width: 1020px;
-    padding-top: 30px!important;
-    background: transparent!important;
-    color: #fff!important;
+    padding-top: 30px !important;
+    background: transparent !important;
+    color: #fff !important;
     font-size: 3em;
-    border: 0!important;
-    border-bottom: 3px solid rgba(70,70,70,.7098)!important
+    border: 0 !important;
+    border-bottom: 3px solid rgba(70,70,70,.7098) !important
 }
 
 .search-close {
@@ -997,7 +998,7 @@ div .button {
 .gridItem-folder {
     width: 93px;
     height: 142px;
-    background: unset!important;
+    background: unset !important;
     transition: all .05s;
     word-break: break-all;
     padding: 17px;
@@ -1011,12 +1012,12 @@ div .button {
 }
 
 .gridItem-folder:hover {
-    background: hsla(0,0%,100%,.38824)!important;
+    background: hsla(0,0%,100%,.38824) !important;
     border-radius: 5px;
     border: 2px solid #fff
 }
 
-.gridItem,.gridItem-folder {
+.gridItem, .gridItem-folder {
     cursor: pointer
 }
 
@@ -1073,11 +1074,11 @@ div .button {
     background-color: #eee
 }
 
-.share-checkbox:hover input~.checkmark {
+.share-checkbox:hover input ~ .checkmark {
     background-color: #ccc
 }
 
-.share-checkbox input:checked~.checkmark {
+.share-checkbox input:checked ~ .checkmark {
     background-color: grey
 }
 
@@ -1087,7 +1088,7 @@ div .button {
     display: none
 }
 
-.share-checkbox input:checked~.checkmark:after {
+.share-checkbox input:checked ~ .checkmark:after {
     display: block
 }
 
@@ -1138,7 +1139,7 @@ progress::-moz-progress-bar {
     -webkit-user-drag: none
 }
 
-.grid-file-icon,.gridItem img {
+.grid-file-icon, .gridItem img {
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -1150,7 +1151,7 @@ progress::-moz-progress-bar {
     -khtml-user-select: none
 }
 
-.grid-file-icon,.grid-icon {
+.grid-file-icon, .grid-icon {
     height: 68px;
     width: 88px;
     outline: none;
@@ -1218,7 +1219,7 @@ progress::-moz-progress-bar {
     color: #fff
 }
 
-.overlay-topbar img,.share-overlay-topbar img {
+.overlay-topbar img, .share-overlay-topbar img {
     margin-right: 16px;
     margin-left: 9px;
     margin-bottom: -12px;
@@ -1239,7 +1240,7 @@ progress::-moz-progress-bar {
     font-size: 19px
 }
 
-.share-overlay-topbar>.overlay-topbar-text {
+.share-overlay-topbar > .overlay-topbar-text {
     background: -webkit-linear-gradient(0deg,#000 67%,hsla(0,0%,100%,0) 92%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent
@@ -1249,7 +1250,7 @@ progress::-moz-progress-bar {
     color: #5a5a5a
 }
 
-.overlay-topbar *,.overlay-topbar-text {
+.overlay-topbar *, .overlay-topbar-text {
     user-select: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -1257,11 +1258,11 @@ progress::-moz-progress-bar {
     -ms-user-select: none
 }
 
-.overlay-topbar *,.share-overlay-topbar * {
+.overlay-topbar *, .share-overlay-topbar * {
     display: inline-block
 }
 
-.share-overlay-topbar>.overlay-topbar-right {
+.share-overlay-topbar > .overlay-topbar-right {
     -webkit-filter: invert(1);
     filter: invert(1)
 }
@@ -1376,7 +1377,7 @@ input[type=submit]:hover {
     height: 16px
 }
 
-.grid-file-text,.search-content .grid-text-right {
+.grid-file-text, .search-content .grid-text-right {
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
@@ -1404,7 +1405,7 @@ input[type=submit]:hover {
 .search-content .grid-file-text {
     color: #c5c5c5;
     user-select: none;
-    -webkit-user-select: none!important;
+    -webkit-user-select: none !important;
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none
@@ -1418,7 +1419,7 @@ input[type=submit]:hover {
     max-height: 32px
 }
 
-.grid-subtext,.grid-text {
+.grid-subtext, .grid-text {
     overflow: hidden;
     text-align: center
 }
@@ -1430,7 +1431,7 @@ input[type=submit]:hover {
     color: #a0a0a0
 }
 
-.grid-text,.grid-text-right {
+.grid-text, .grid-text-right {
     pointer-events: none
 }
 
@@ -1454,7 +1455,7 @@ input[type=submit]:hover {
 
 @media (max-width: 800px) {
     #uploadForm input[type=file] {
-        width:80px
+        width: 80px
     }
 
     table {
@@ -1462,7 +1463,7 @@ input[type=submit]:hover {
         margin-top: 50px
     }
 
-    table,tbody,td,th,thead,tr {
+    table, tbody, td, th, thead, tr {
         display: block
     }
 
@@ -1510,16 +1511,16 @@ input[type=submit]:hover {
     }
 
     .share-overlay {
-        display: unset!important
+        display: unset !important
     }
 
-    .share-overlay>.share-comments {
+    .share-overlay > .share-comments {
         width: 100%;
         margin-top: 50px;
         height: auto
     }
 
-    .overlay>.share-comments {
+    .overlay > .share-comments {
         width: 100%;
         margin-top: 50px;
         height: auto;
@@ -1652,7 +1653,7 @@ p {
     word-wrap: break-word
 }
 
-.modal-footer,.modal-header {
+.modal-footer, .modal-header {
     padding: 10px 20px
 }
 
@@ -1677,7 +1678,7 @@ p {
     background: #19f522
 }
 
-.green-icon,.purple-icon {
+.green-icon, .purple-icon {
     width: 10px;
     height: 10px;
     margin-right: 7px;
@@ -1693,7 +1694,7 @@ p {
     background: #ffbe00
 }
 
-.blue-icon,.orange-icon {
+.blue-icon, .orange-icon {
     width: 10px;
     height: 10px;
     margin-right: 7px;
@@ -1793,7 +1794,7 @@ p {
     animation: fill .4s ease-in-out .4s forwards,scale .3s ease-in-out .9s both
 }
 
-.snack-bar-checkmark,.snack-bar-x {
+.snack-bar-checkmark, .snack-bar-x {
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -1962,8 +1963,7 @@ p {
 }
 
 .items {
-    -webkit-animation: fadein .2s;
-    animation: fadein .2s
+    transition: opacity .2s
 }
 
 .intro-box img {
@@ -2130,48 +2130,48 @@ p {
     background: #eee
 }
 
-.share-view>.overlay-message {
+.share-view > .overlay-message {
     background: #e5e5e5;
     color: #565656
 }
 
-.share-view>.loader {
+.share-view > .loader {
     margin: 35vh auto 0
 }
 
-.overlay>.share-comments>.comment-editor textarea {
+.overlay > .share-comments > .comment-editor textarea {
     background: rgba(0,0,0,.43137);
     border: 0;
     color: #fff
 }
 
-.overlay>.share-comments>.comment-editor input[type=text] {
+.overlay > .share-comments > .comment-editor input[type=text] {
     background: rgba(47,47,47,.43137);
     border: 0;
     color: #fff
 }
 
-.overlay>.share-comments h2 {
+.overlay > .share-comments h2 {
     color: #ececec;
     border-bottom: 2px solid grey
 }
 
-.overlay>.share-comments>.comment-section {
+.overlay > .share-comments > .comment-section {
     border-top: 1px solid rgba(90,90,90,.42)
 }
 
-.overlay>.share-comments>.comment-section>div>.comment-box {
+.overlay > .share-comments > .comment-section > div > .comment-box {
     border-bottom: 1px solid rgba(90,90,90,.42)
 }
 
-.overlay>.share-comments {
+.overlay > .share-comments {
     background: hsla(0,0%,6%,.24);
     border: 0;
     box-shadow: -3px 0 14px 1px rgba(0,0,0,.14902)
 }
 
-.overlay>.share-comments::-webkit-scrollbar {
-    width: 0!important
+.overlay > .share-comments::-webkit-scrollbar {
+    width: 0 !important
 }
 
 .share-comments {
@@ -2188,7 +2188,7 @@ p {
     border-left: 1px solid #dcd9d9
 }
 
-.share-comments>.loader {
+.share-comments > .loader {
     margin: 35vh auto 0
 }
 
@@ -2223,7 +2223,7 @@ p {
     margin: 10px
 }
 
-.comment-editor>.loader {
+.comment-editor > .loader {
     margin: 80px auto
 }
 
@@ -2248,19 +2248,19 @@ p {
     padding: 0
 }
 
-.overlay .comment-section>div>button {
+.overlay .comment-section > div > button {
     background: #131313;
     border: 0;
     color: #fff
 }
 
-.comment-section>div>button {
+.comment-section > div > button {
     margin: 15px;
     padding: 5px 30px;
     height: auto
 }
 
-.comment-section>.loader {
+.comment-section > .loader {
     margin: 80px auto
 }
 
@@ -2322,7 +2322,7 @@ p {
     padding: 10px
 }
 
-.overlay .comment-author,.overlay .comment-section p {
+.overlay .comment-author, .overlay .comment-section p {
     color: #fff
 }
 
@@ -2381,21 +2381,52 @@ p {
     background-repeat: no-repeat
 }
 
-.share-overlay-topbar>.file-locked {
+.share-overlay-topbar > .file-locked {
     -webkit-filter: invert(0);
     filter: invert(0);
     opacity: 1
+}
+
+.server-listing {
+    display: flex;
+    margin-bottom: 14px
+}
+
+.server-on {
+    background: #04cc04
+}
+
+.server-off, .server-on {
+    height: 16px;
+    width: 16px;
+    margin: 3px 12px 3px 3px;
+    border-radius: 50%
+}
+
+.server-off {
+    background: #ee0808
+}
+
+.servers-container {
+    border-top: 1px solid #d6d6d6;
+    padding-top: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d6d6d6
 }
 
 .unlock-file-icon {
     background: url(../../../images/padlock-open.svg)
 }
 
+.clock-icon {
+    background: url(../../../images/clock.svg)
+}
+
 .lock-file-icon {
     background: url(../../../images/padlock.svg)
 }
 
-.lock-file-icon,.unlock-file-icon,.upload-file-icon {
+.lock-file-icon, .unlock-file-icon, .upload-file-icon {
     height: 66px;
     width: 66px;
     margin: 0 auto 17px;
@@ -2446,13 +2477,13 @@ p {
 
 .copyToClipboardButton {
     float: left;
-    margin-top: 22px!important;
-    margin-bottom: 52px!important;
+    margin-top: 22px !important;
+    margin-bottom: 52px !important;
 }
 
 @media (max-width: 490px) {
     .btnSortOpen {
-        position:fixed;
+        position: fixed;
         right: 10px;
         top: 60px
     }
@@ -2460,7 +2491,7 @@ p {
 
 @media (max-width: 1125px) {
     #close-button {
-        display:block
+        display: block
     }
 
     .intro-box img {

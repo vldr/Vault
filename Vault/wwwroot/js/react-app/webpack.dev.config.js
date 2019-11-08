@@ -14,13 +14,15 @@ module.exports = {
         login: "./app/login/login.js",
         share: "./app/share/share.js"
     },
-	mode: "production",
+
+    mode: "development",
+
     output: {
         path: __dirname + "/dist", 
         filename: "[name].js",
-		chunkFilename: '[chunkhash].js',
         publicPath: './js/react-app/dist/'
     },
+    watch: true,
     module: {
         rules: [
             {
@@ -31,7 +33,7 @@ module.exports = {
                         loader: "css-loader",
                         options: {
                             modules: {
-                                localIdentName: '[hash:base64:6]',
+                                localIdentName: '[local]',
                             },
                             url: false,
                             importLoaders: 2
@@ -54,9 +56,10 @@ module.exports = {
         ]
     },
     plugins: [
+        /*new BundleAnalyzerPlugin(),*/
         new webpack.DefinePlugin({
             'process.env': {
-                'NODE_ENV': JSON.stringify('production')
+                'NODE_ENV': JSON.stringify('development')
             }
         }),
         extractCSS

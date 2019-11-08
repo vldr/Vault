@@ -163,67 +163,6 @@ namespace Vault.Controllers
             // Return our view!
             return View("Share");
         }
-
-        /// <summary>
-        /// Returns the comments of a shared file...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/comments")]
-        public IActionResult Comments(string id, int? offset)
-        {
-            // Check if our share id given is null!
-            if (id == null || offset == null) return MissingParameters();
-
-            // Get our comment....
-            var comments = _processService.GetComments(id, offset.GetValueOrDefault());
-
-            // Check we were successful in adding a new file...
-            if (comments.Item1 != null)
-            {
-                // Respond with a successful message...
-                return Json(new { Success = true, comments.comments, comments.total });
-            }
-            else
-                // Respond that something bad happened...
-                return Json(new { Success = false, Reason = "Failed to retrieve the comments for the given shared file..." });
-        }
-
-        /// <summary>
-        /// Posts a comment...
-        /// </summary>
-        /// <param name="shareId"></param>
-        /// <param name="name"></param>
-        /// <param name="content"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("share/postcomment")]
-        public IActionResult PostComment(string id, string name, string content)
-        {
-            // Check if our share id given is null!
-            if (id == null || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(content))
-                return MissingParameters();
-
-            // Check if name is too long...
-            if (name.Length > 30) return Json(new { Success = false, Reason = "Your name must be within 30 characters..." });
-
-            // Check if name is too long...
-            if (content.Length > 120) return Json(new { Success = false, Reason = "Your comment must be within 120 characters..." });
-
-            // Attempt to add a comment...
-            var comment = _processService.AddComment(id, name, content, HttpContext.Connection.RemoteIpAddress.ToString());
-
-            // Check we were successful in adding a new file...
-            if (comment != null)
-            {
-                // Respond with a successful message...
-                return Json(new { Success = true, comment });
-            }
-            else
-                // Respond that something bad happened...
-                return Json(new { Success = false, Reason = "Failed to add a comment to the given shared file..." });
-        }
         
         /// <summary>
         /// Gets the file...

@@ -1,22 +1,22 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Vault.Migrations
 {
-    public partial class okok : Migration
+    public partial class processing : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<byte[]>(
-                name: "Tag",
+            migrationBuilder.AddColumn<bool>(
+                name: "IsProcessing",
                 table: "Files",
-                nullable: true);
+                nullable: false,
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Tag",
+                name: "IsProcessing",
                 table: "Files");
         }
     }

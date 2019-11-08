@@ -1,8 +1,11 @@
 ﻿using ImageMagick;
 using Ionic.Zip;
+using Microsoft.AspNetCore.Hosting.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.IO;
@@ -43,6 +46,10 @@ namespace Vault.Models
         // Instance of our configuration...
         private IConfiguration _configuration;
 
+        // Instance of our logger...
+        private readonly ILogger _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+
         /// <summary>
         /// Sets up a simple enum to represent attribute types....
         /// </summary>
@@ -63,10 +70,16 @@ namespace Vault.Models
         /// <param name="context"></param>
         /// <param name="configuration"></param>
         /// <param name="hubContext"></param>
-        public ProcessService(VaultContext context, IConfiguration configuration, IHubContext<VaultHub> hubContext) {
+        public ProcessService(VaultContext context, 
+            IConfiguration configuration,
+            ILoggerFactory loggerFactory,
+            IServiceScopeFactory serviceScopeFactory,
+            IHubContext<VaultHub> hubContext) {
             _context = context;
             _hubContext = hubContext;
             _configuration = configuration;
+            _serviceScopeFactory = serviceScopeFactory;
+            _logger = loggerFactory.CreateLogger("ProcessService");
             _sessionName = configuration["SessionTagId"];
         }
 
@@ -2110,8 +2123,7 @@ namespace Vault.Models
                 File file = GetFile(ownerId, fileId);
 
                 // Check if the file even exists...
-                if (file == null)
-                    return false;
+                if (file == null) return false;
 
                 // Attempt to recycle the file...
                 // Otherwise, delete the file...
@@ -2462,7 +2474,7 @@ namespace Vault.Models
             }
         }
 
-
+      
         /// <summary>
         /// Generates a random string given the count...
         /// </summary>

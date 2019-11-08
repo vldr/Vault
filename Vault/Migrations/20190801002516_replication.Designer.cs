@@ -9,8 +9,8 @@ using Vault.Models;
 namespace Vault.Migrations
 {
     [DbContext(typeof(VaultContext))]
-    [Migration("20190725092907_salted")]
-    partial class salted
+    [Migration("20190801002516_replication")]
+    partial class replication
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -45,6 +45,8 @@ namespace Vault.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<int>("EncryptionVersion");
+
                     b.Property<string>("Ext");
 
                     b.Property<int>("Folder");
@@ -53,21 +55,23 @@ namespace Vault.Migrations
 
                     b.Property<int>("Hits");
 
-                    b.Property<byte[]>("IV");
-
                     b.Property<bool>("IsEncrypted");
 
                     b.Property<bool>("IsReady");
+
+                    b.Property<bool>("IsReplicated");
 
                     b.Property<bool>("IsSharing");
 
                     b.Property<string>("Name");
 
+                    b.Property<byte[]>("Nonce");
+
                     b.Property<int>("Owner");
 
                     b.Property<string>("Path");
 
-                    b.Property<string>("Salt");
+                    b.Property<byte[]>("Salt");
 
                     b.Property<string>("ShareId");
 
@@ -128,6 +132,8 @@ namespace Vault.Migrations
                     b.Property<string>("Name");
 
                     b.Property<string>("Password");
+
+                    b.Property<long>("ReplicationMaxBytes");
 
                     b.Property<int>("SortBy");
 

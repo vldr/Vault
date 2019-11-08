@@ -20,6 +20,7 @@ class List extends React.Component
         this.state = {
             error: null,
             finished: false,
+            isLoading: false,
             response: null,
             shouldScroll: false,
             offset: 0
@@ -173,7 +174,7 @@ class List extends React.Component
             console.error(err.toString());
 
             // Recall our method in 3 seconds...
-            setTimeout(this.reconnectToSignalR(), 3000);
+            setTimeout(this.reconnectToSignalR.bind(), 3000);
         });
     }
 
@@ -267,6 +268,9 @@ class List extends React.Component
      */
     gotoFolder(folderId)
     {
+        // Set our state to be loading...
+        this.setState({ isLoading: true });
+
         // Fetch our new result...
         fetch("process/goto",
             {
@@ -283,7 +287,7 @@ class List extends React.Component
                     // Check if we're logged out...
                     if (!result.success) {
                         // Set our state accordingly...
-                        this.setState({ response: null, error: result.reason, finished: true });
+                        this.setState({ isLoading: false, response: null, error: result.reason, finished: true });
 
                         // Return here...
                         return;
@@ -294,6 +298,7 @@ class List extends React.Component
 
                     // Set state accordingly...
                     this.setState({
+                        isLoading: false,
                         response: result,
                         offset: result.files.length,
                         shouldScroll: result.files.length !== result.totalFiles
@@ -301,6 +306,7 @@ class List extends React.Component
                 },
                 (error) => {
                     this.setState({
+                        isLoading: false,
                         error: error.message
                     });
                 }

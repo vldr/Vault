@@ -9,6 +9,7 @@ import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 import { DeleteFile } from '../action/DeleteFile';
 import { ShareFile } from '../action/ShareFile';
 import { RenameFile } from '../action/RenameFile';
+import { ReplicateFile } from '../action/ReplicateFile';
 import { ActionAlert } from '../info/ActionAlert';
 
 import styles from '../../app/App.css';
@@ -28,6 +29,11 @@ export class File extends React.Component
     renameFile()
     {
         new ActionAlert(<RenameFile file={this.props.file} />);
+    }
+
+    replicateFile()
+    {
+        new ActionAlert(<ReplicateFile file={this.props.file} />);
     }
 
     duplicateFile()

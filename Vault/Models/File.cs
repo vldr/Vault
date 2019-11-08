@@ -29,7 +29,5 @@ namespace Vault.Models
         public bool IsSharing { get; set; }
         public string ShareId { get; set; }
         public string ShareKey { get; set; }
-
-        public bool IsReplicated { get; set; }
     }
 }

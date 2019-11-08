@@ -8,7 +8,6 @@ import { VideoView } from '../viewer/VideoView';
 import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 
 const PDFView = React.lazy(() => import('../viewer/PDFView'));
-const Comments = React.lazy(() => import('../comments/Comments'));
 
 class ShareViewer extends React.Component {
     constructor(props) {
@@ -197,12 +196,6 @@ class ShareViewer extends React.Component {
                     <React.Suspense fallback={loaderBar}>
                         {topbar}
                         {hasLoaded && view}
-                    </React.Suspense>
-                </div>
-
-                <div className={styles['share-comments']}>
-                    <React.Suspense fallback={loaderBar}>
-                        <Comments id={this.props.id} /> 
                     </React.Suspense>
                 </div>
             </div>
