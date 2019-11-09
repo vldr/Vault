@@ -660,10 +660,9 @@ div .button {
 .button {
     outline: 0;
     display: inline-block;
-    background-color: #fff;
-    background-image: -webkit-linear-gradient(top,#f5f5f5,#f1f1f1);
+    background-color: #e8e6e6;
+    background-image: -webkit-linear-gradient(top,#e4e4e4,#e8e6e6);
     color: #444;
-    border: 0;
     border-radius: 2px;
     cursor: default;
     font-size: 11px;
@@ -679,7 +678,7 @@ div .button {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none;
+    user-select: none
 }
 
 .button:hover {
@@ -2427,10 +2426,10 @@ p {
 }
 
 .lock-file-icon, .unlock-file-icon, .upload-file-icon {
-    height: 66px;
-    width: 66px;
+    height: 85px;
+    width: 85px;
     margin: 0 auto 17px;
-    opacity: .5
+    opacity: 0.8;
 }
 
 .upload-file-icon {
@@ -2446,7 +2445,7 @@ p {
 
 .upload-selection-button {
     width: 198px;
-    height: 211px;
+    height: 235px;
     transition: all .05s;
     padding: 26px 13px;
     border-radius: 10px;
@@ -2458,7 +2457,7 @@ p {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: pointer
+    cursor: pointer;
 }
 
 .upload-selection-button:hover {
@@ -2477,8 +2476,8 @@ p {
 
 .copyToClipboardButton {
     float: left;
-    margin-top: 22px !important;
-    margin-bottom: 52px !important;
+    margin-top: 15px !important;
+    margin-bottom: 47px !important
 }
 
 @media (max-width: 490px) {

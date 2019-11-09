@@ -1255,7 +1255,7 @@ namespace Vault.Controllers
                 // Setup our response...
                 Response.StatusCode = 200;
                 Response.ContentType = "application/octet-stream";
-                Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(file.Name)}");
+                Response.Headers.Add("Content-Disposition", $"attachment; filename={file.Name}");
 
                 try
                 {

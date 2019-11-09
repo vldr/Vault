@@ -17,8 +17,6 @@ namespace Vault.Models
         public int Folder { get; set; }
 
         public long MaxBytes { get; set; }
-        public long ReplicationMaxBytes { get; set; }
-
 
         public bool APIEnabled { get; set; }
         public string APIKey { get; set; }

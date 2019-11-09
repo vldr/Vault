@@ -1506,7 +1506,7 @@ namespace Vault.Models
                 if (file == null) return false;
 
                 // Update our users name!
-                file.Name = WebUtility.HtmlEncode(newName);
+                file.Name = newName;
 
                 // Save our changes!
                 _context.SaveChanges();
