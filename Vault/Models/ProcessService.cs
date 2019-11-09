@@ -185,7 +185,7 @@ namespace Vault.Models
             {
                 // Attempt to add our folder to the database...
                 // Return our newly created folder object...
-                return AddNewFolder(owner.Id, folderName, owner.Folder).folder;
+                return AddNewFolder(owner.Id, folderName, owner.Folder).Get();
             }
             else
                 // Otherwise, return the folder that is already there...
@@ -1235,26 +1235,27 @@ namespace Vault.Models
         /// <param name="name"></param>
         /// <param name="ext"></param>
         /// <param name="path"></param>
+        /// (string shareId, int fileId)
         /// <returns>Tuple, (success and the shareId filled if it was successful...)</returns>
-        public (bool success, string shareId, int fileId) AddNewFileAPI(User user, long size, string name, string ext, string path)
+        public Result<string, int> AddNewFileAPI(User user, long size, string name, string ext, string path)
         {
             // Add new folder or use folder if it already exists...
             Folder folder = FolderCreateOrExists(user, "API");
 
             // Check if the folder was able to be used or created...
-            if (folder == null) return (false, string.Empty, -1);
+            if (folder == null) return Result<string, int>.New(ResultStatus.InvalidFolderHandle, string.Empty, -1);
 
             // Call our original add new file...
             var result = AddNewFile(user.Id, size, name, ext, folder.Id, path);
 
             // Make sure adding our file was successful, if not, return false...
-            if (!result.success) return (false, string.Empty, -1);
+            if (!result.success) return Result<string, int>.New(ResultStatus.FailedToAddFile, string.Empty, -1);
 
             // Get our share result...
-            var shareResult = ToggleShareFile(user.Id, result.fileId);
+            var shareIdResult = ToggleShareFile(user.Id, result.fileId);
 
             // Respond with a tuple...
-            return (shareResult.success, shareResult.shareId, result.fileId);
+            return Result<string, int>.New(shareIdResult.Get(), result.fileId);
         }
 
         /// <summary>
@@ -1264,39 +1265,32 @@ namespace Vault.Models
         /// <param name="folderName"></param>
         /// <param name="rootFolder"></param>
         /// <returns></returns>
-        public (bool success, Folder folder) AddNewFolder(int ownerId, string folderName, int rootFolder, bool isRecycleBin = false)
+        public Result<Folder> AddNewFolder(int ownerId, string folderName, int rootFolder, bool isRecycleBin = false)
         {
             // Catch any exceptions...
             try
             {
-                // Filter out our folder name...
-                if (string.IsNullOrWhiteSpace(folderName)) return (false, null);
+                if (string.IsNullOrWhiteSpace(folderName))
+                    return Result<Folder>.New(ResultStatus.InvalidFolderName, null);
 
-                // Create a new folder object...
                 Folder folder = new Folder
                 {
                     Owner = ownerId,
-                    Name = WebUtility.HtmlEncode(folderName),
+                    Name = folderName,
                     FolderId = rootFolder,
                     IsRecycleBin = isRecycleBin
                 };
 
-                // Add our folder to the context...
                 _context.Folders.Add(folder);
-
-                // Save our changes!
                 _context.SaveChanges();
 
-                // Send out an listing update...
                 UpdateFolderListing(ownerId, folder);
 
-                // Return the folder object...
-                return (true, folder);
+                return Result<Folder>.New(folder);
             }
             catch
             {
-                // Exception, false...
-                return (false, null);
+                return Result<Folder>.New(ResultStatus.Exception, null);
             }
         }
 
@@ -1306,7 +1300,7 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public (bool success, string shareId) ToggleShareFile(int ownerId, int fileId)
+        public Result<string> ToggleShareFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
             try
@@ -1315,7 +1309,7 @@ namespace Vault.Models
                 File file = GetFile(ownerId, fileId);
 
                 // Check if our user is null!
-                if (file == null) return (false, string.Empty);
+                if (file == null) return Result<string>.New(ResultStatus.InvalidFileHandle, string.Empty);
 
                 // If we want to toggle off our share, then it is simple!
                 if (file.IsSharing)
@@ -1334,8 +1328,10 @@ namespace Vault.Models
 
                     // Check if our share id is taken!
                     if (CheckShareId(shareId))
+                    {
                         // Return false if it is taken!
-                        return (false, string.Empty);
+                        return Result<string>.New(ResultStatus.ShareIDTaken, string.Empty);
+                    }
 
                     // Set our is sharing accordingly!
                     file.IsSharing = true;
@@ -1351,12 +1347,11 @@ namespace Vault.Models
                 UpdateFileListing(ownerId, file);
 
                 // Return true as it was successful...
-                return (true, file.ShareId);
+                return Result<string>.New(file.ShareId);
             }
             catch
             {
-                // Exception, false...
-                return (false, string.Empty);
+                return Result<string>.New(ResultStatus.Exception, string.Empty);
             }
         }
 
@@ -1366,7 +1361,7 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public (bool success, string shareId) ToggleShareFolder(int ownerId, int folderId)
+        public Result<string> ToggleShareFolder(int ownerId, int folderId)
         {
             // Catch any exceptions...
             try
@@ -1375,16 +1370,20 @@ namespace Vault.Models
                 Folder folder = GetFolder(ownerId, folderId);
 
                 // Check if our user is null!
-                if (folder == null) return (false, string.Empty);
+                if (folder == null) return Result<string>.New(ResultStatus.InvalidFolderHandle, string.Empty);
+
+                ///////////////////////////////////////
 
                 // Get our user...
                 User user = GetUser(ownerId);
 
                 // Check if our user exists...
-                if (user == null) return (false, string.Empty);
+                if (user == null) return Result<string>.New(ResultStatus.InvalidUserHandle, string.Empty);
+
+                ///////////////////////////////////////
 
                 // Check if we aren't about to start sharing our home folder...
-                if (user.Folder == folder.Id) return (false, string.Empty);
+                if (user.Folder == folder.Id) return Result<string>.New(ResultStatus.ModifyingHomeFolder, string.Empty);
 
                 // If we want to toggle off our share, then it is simple!
                 if (folder.IsSharing)
@@ -1404,7 +1403,7 @@ namespace Vault.Models
                     // Check if our share id is taken!
                     if (CheckFolderShareId(shareId))
                         // Return false if it is taken!
-                        return (false, string.Empty);
+                        return Result<string>.New(ResultStatus.FolderShareIDTaken, string.Empty);
 
                     // Set our is sharing accordingly!
                     folder.IsSharing = true;
@@ -1413,19 +1412,15 @@ namespace Vault.Models
                     folder.ShareId = shareId;
                 }
 
-                // Save our changes!
                 _context.SaveChanges();
 
-                // Update our listing...
                 UpdateFolderListing(ownerId, folder);
 
-                // Return true as it was successful...
-                return (true, folder.ShareId);
+                return Result<string>.New(folder.ShareId);
             }
             catch
             {
-                // Exception, false...
-                return (false, string.Empty);
+                return Result<string>.New(ResultStatus.Exception, string.Empty);
             }
         }
 
@@ -1434,7 +1429,7 @@ namespace Vault.Models
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public bool ToggleAPI(int userId, out string apiKey)
+        public Result ToggleAPI(int userId, out string apiKey)
         {
             // Setup a dumby api key value...
             apiKey = string.Empty;
@@ -1446,8 +1441,7 @@ namespace Vault.Models
                 User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
 
                 // Check if our user is null!
-                if (user == null)
-                    return false;
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
 
                 // If our api is already enabled, then disable it...
                 if (user.APIEnabled)
@@ -1474,13 +1468,12 @@ namespace Vault.Models
                 // Pop out our api key...
                 apiKey = user.APIKey;
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
                 // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1491,19 +1484,19 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool UpdateFileName(int ownerId, int fileId, string newName)
+        public Result UpdateFileName(int ownerId, int fileId, string newName)
         {
             // Catch any exceptions...
             try
             {
                 // Double check if we aren't getting null or whitespace...
-                if (string.IsNullOrWhiteSpace(newName)) return false;
+                if (string.IsNullOrWhiteSpace(newName)) return Result.New(ResultStatus.InvalidFileName);
 
                 // Get the correct file...
                 File file = GetFile(ownerId, fileId);
 
                 // Check if the file is valid...
-                if (file == null) return false;
+                if (file == null) return Result.New(ResultStatus.InvalidFileHandle);
 
                 // Update our users name!
                 file.Name = newName;
@@ -1515,12 +1508,11 @@ namespace Vault.Models
                 UpdateFileListing(ownerId, file);
 
                 // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1531,42 +1523,36 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="newName"></param>
         /// <returns></returns>
-        public bool UpdateFolderName(int ownerId, int folderId, string newName)
+        public Result UpdateFolderName(int ownerId, int folderId, string newName)
         {
             // Catch any exceptions...
             try
             {
                 // Double check if we aren't getting null or whitespace...
-                if (string.IsNullOrWhiteSpace(newName)) return false;
+                if (string.IsNullOrWhiteSpace(newName)) return Result.New(ResultStatus.InvalidFolderName);
 
                 // Get the correct file...
                 Folder folder = GetFolder(ownerId, folderId);
 
                 // Check if our user is null!
-                if (folder == null) return false;
+                if (folder == null) return Result.New(ResultStatus.InvalidFolderHandle);
 
                 // Get our home folder...
                 int homeFolder = GetUser(ownerId).Folder;
 
                 // Make sure you don't rename the home folder...
-                if (folderId == homeFolder) return false;
+                if (folderId == homeFolder) return Result.New(ResultStatus.ModifyingHomeFolder);
 
-                // Update our users name!
-                folder.Name = WebUtility.HtmlEncode(newName);
-
-                // Save our changes!
+                folder.Name = newName;
                 _context.SaveChanges();
 
-                // Update our listing...
                 UpdateFolderListing(ownerId, folder);
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1577,7 +1563,7 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="newColour"></param>
         /// <returns></returns>
-        public bool UpdateFolderColour(int ownerId, int folderId, int newColour)
+        public Result UpdateFolderColour(int ownerId, int folderId, int newColour)
         {
             // Catch any exceptions...
             try
@@ -1586,24 +1572,18 @@ namespace Vault.Models
                 Folder folder = GetFolder(ownerId, folderId);
 
                 // Check if our user is null!
-                if (folder == null) return false;
-
-                // Update our users name!
+                if (folder == null) return Result.New(ResultStatus.InvalidFolderHandle);
+ 
                 folder.Colour = newColour;
-
-                // Save our changes!
                 _context.SaveChanges();
 
-                // Update our listing...
                 UpdateFolderListing(ownerId, folder);
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1634,22 +1614,22 @@ namespace Vault.Models
             return GetFolderLocation(GetFolder(folder.Owner, folder.FolderId), limit, location);
         }
 
-        public List<RelativePath> GetPath(int ownerId, int folderId, int limit = 0)
+        public Result<List<RelativePath>> GetPath(int ownerId, int folderId, int limit = 0)
         {
             // Get the folder
             User user = GetUser(ownerId);
 
             // Return null if the user doesn't exist...
-            if (user == null) return null;
+            if (user == null) return Result<List<RelativePath>>.New(ResultStatus.InvalidUserHandle, null);
 
             // Get the folder
             Folder folder = GetFolder(ownerId, folderId);
 
             // Return null if the folder doesn't exist...
-            if (folder == null) return null;
+            if (folder == null) return Result<List<RelativePath>>.New(ResultStatus.InvalidFolderHandle, null);
 
             // Call other function...
-            return GetPath(folder, user.Folder);
+            return Result<List<RelativePath>>.New(GetPath(folder, user.Folder));
         }
 
         /// <summary>
@@ -1790,7 +1770,7 @@ namespace Vault.Models
         /// <param name="id"></param>
         /// <param name="newSortBy"></param>
         /// <returns></returns>
-        public bool UpdateSortBy(int id, int newSortBy, HttpContext httpContext, UserSession userSession)
+        public Result UpdateSortBy(int id, int newSortBy, HttpContext httpContext, UserSession userSession)
         {
             // Catch any exceptions...
             try
@@ -1799,7 +1779,7 @@ namespace Vault.Models
                 User user = GetUser(id);
 
                 // Check if our user is null!
-                if (user == null) return false;
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
 
                 // Update our users name!
                 user.SortBy = newSortBy;
@@ -1817,16 +1797,13 @@ namespace Vault.Models
 
                 ////////////////////////////////////////////
 
-                // Update our entire listing for that specific folder...
                 UpdateAllListings(user.Id, userSession.Folder);
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1837,17 +1814,18 @@ namespace Vault.Models
         /// <param name="currentPassword"></param>
         /// <param name="newPassword"></param>
         /// <returns></returns>
-        public bool UpdatePassword(int id, string currentPassword, string newPassword)
+        public Result UpdatePassword(int id, string currentPassword, string newPassword)
         {
             // Catch any exceptions...
             try
             {
                 // Get our actual user...
-                User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
+                User user = GetUser(id);
 
                 // Check if our user is null!
-                if (user == null)
-                    return false;
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+                ////////////////////////////////////////////
 
                 // If our user's password matches then proceed!
                 if (BCrypt.BCryptHelper.CheckPassword(currentPassword, user.Password))
@@ -1857,18 +1835,22 @@ namespace Vault.Models
 
                     // Save our changes!
                     _context.SaveChanges();
-                    
+
                     // Return true as it was successful...
-                    return true;
+                    return Result.New();
+                }
+                else
+                {
+                    var error = Result.New(ResultStatus.PasswordDoesNotMatch);
+                    error.CustomErrorMessage = "Your password does match your current password...";
+
+                    return error;
                 }
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
-
-            return false;
         }
 
         /// <summary>
@@ -1878,7 +1860,7 @@ namespace Vault.Models
         /// <param name="currentPassword"></param>
         /// <param name="newPassword"></param>
         /// <returns></returns>
-        public bool UpdateName(int id, string name)
+        public Result UpdateName(int id, string name)
         {
             // Catch any exceptions...
             try
@@ -1887,24 +1869,22 @@ namespace Vault.Models
                 User user = _context.Users.Where(b => b.Id == id).FirstOrDefault();
 
                 // Check if our user is null!
-                if (user == null) return false;
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle); 
 
                 // Make sure our name isn't just white space or null
-                if (string.IsNullOrWhiteSpace(name)) return false;
+                if (string.IsNullOrWhiteSpace(name)) return Result.New(ResultStatus.InvalidName);
 
                 // Okay, set up the new name...
-                user.Name = WebUtility.HtmlEncode(name);
+                user.Name = name;
 
                 // Save our changes!
                 _context.SaveChanges();
 
-                // If everything went smooth then return true.
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -1924,15 +1904,13 @@ namespace Vault.Models
             if (recycleBin == null)
             {
                 // Attempt to add our folder to the database...
-                var response = AddNewFolder(owner.Id, "Recycle Bin", owner.Folder, true);
+                var result = AddNewFolder(owner.Id, "Recycle Bin", owner.Folder, true);
 
                 // Check if we got a successful response...
-                if (!response.success)
-                    // If we got a bad response throw an exception...
-                    throw new InvalidDataException();
+                if (!result.IsOK()) return null;
 
                 // If everything checks out, then goahead and setup the folder's reference...
-                recycleBin = response.folder;
+                recycleBin = result.Get();
             }
 
             // Return the instance of the recycle bin...
@@ -1945,19 +1923,23 @@ namespace Vault.Models
         /// <param name="ownerId"></param>
         /// <param name="folder"></param>
         /// <returns></returns>
-        public bool RecycleFolder(int ownerId, Folder folder)
+        public Result RecycleFolder(int ownerId, Folder folder)
         {
             // Attempt to find the user...
             User user = GetUser(ownerId);
 
             // Check if we were able to find the user...
-            if (user == null) return false;
+            if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+            ////////////////////////////////////////
 
             // Attempt to get the recycle bin instance...
             var recycleBin = GetRecycleBin(user);
 
             // Check if we actually we're given one...
-            if (recycleBin == null) return false;
+            if (recycleBin == null) return Result.New(ResultStatus.NoRecycleBinGiven);
+
+            ////////////////////////////////////////
 
             // Check if the recycling bin is inside of the folder we want to delete...
             if (!folder.IsRecycleBin && IsFolderInsideFolder(ownerId, recycleBin.Id, folder.Id))
@@ -1966,14 +1948,14 @@ namespace Vault.Models
 
             // Check if our file is already inside our recycle bin...
             // If so, return true saying that we can proceed to destroy the file...
-            if (IsFolderInsideFolder(ownerId, folder.Id, recycleBin.Id)) return true;
+            if (IsFolderInsideFolder(ownerId, folder.Id, recycleBin.Id)) return Result.New(ResultStatus.DestroyFolder);
 
             // Now move our file to the recycle bin...
             MoveFolder(user.Id, folder.Id, recycleBin.Id);
 
             // Then finally return false indicating 
             // that we do not want to destroy our file...
-            return false;
+            return Result.New(ResultStatus.DoNotDestroyFolder);
         }
 
         /// <summary>
@@ -1982,20 +1964,58 @@ namespace Vault.Models
         /// <param name="ownerId"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public bool DeleteFolder(int ownerId, int folderId, bool doNotRecycle = false)
+        public Result DeleteFolder(int ownerId, int folderId, bool doNotRecycle = false)
         {
             // Catch any exceptions...
             try
             {
+                /*
+                 * 
+                 *  ///////////////////////////////////////////////////
+
+                // Get our user...
+                User user = GetUser(ownerId);
+
+                // Check if we found a user.
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+                ///////////////////////////////////////////////////
+
+                // Get our home folder id.
+                int homeFolder = user.Folder;
+
+                // Make sure you can't delete the home folder...
+                if (folderId == homeFolder) return Result.New(ResultStatus.ModifyingHomeFolder);*/
+
                 // Get our selected folder that we are going to delete...
                 Folder selectedFolder = GetFolder(ownerId, folderId);
 
                 // Check if our selected folder even exists...
-                if (selectedFolder == null) return false;
+                if (selectedFolder == null) return Result.New(ResultStatus.InvalidFolderHandle);
+
+                ///////////////////////////////////////////////////
+
+                // Get our parent folder...
+                var parentFolder = GetFolder(ownerId, selectedFolder.FolderId);
+
+                // Check if our folder even exists...
+                if (parentFolder == null) return Result.New(ResultStatus.NoParentFolder);
+
+                ///////////////////////////////////////////////////
 
                 // Attempt to recycle our folder...
-                if (!doNotRecycle && !RecycleFolder(ownerId, selectedFolder)) return true;
-                
+                if (!doNotRecycle)
+                {
+                    // Attempt to recycle our folder...
+                    var result = RecycleFolder(ownerId, selectedFolder);
+
+                    // If we were given a command to not recycle then return a successful result.
+                    if (result.Status == ResultStatus.DoNotDestroyFolder) return Result.New();
+
+                    // If we we'rent told to destroy file then something is wrong!
+                    else if (result.Status != ResultStatus.DestroyFolder) return result;
+                }
+
                 /////////////////////////////////////////////
 
                 // Get our file...
@@ -2039,13 +2059,11 @@ namespace Vault.Models
 
                 /////////////////////////////////////////////
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -2053,7 +2071,7 @@ namespace Vault.Models
         /// Disposes all the files related to the file path!
         /// </summary>
         /// <param name="filePath"></param>
-        public void DisposeFileOnDisk(string filePath)
+        public Result DisposeFileOnDisk(string filePath)
         {
             try
             {
@@ -2069,9 +2087,10 @@ namespace Vault.Models
                         // Delete it!
                         System.IO.File.Delete(file);
                 }
-                
+
+                return Result.New();
             }
-            catch { }
+            catch { return Result.New(ResultStatus.Exception); }
         }
 
         /// <summary>
@@ -2079,33 +2098,37 @@ namespace Vault.Models
         /// </summary>
         /// <param name="ownerId"></param>
         /// <param name="file"></param>
-        public bool RecycleFile(int ownerId, File file)
+        public Result RecycleFile(int ownerId, File file)
         {
             // Attempt to find the user...
             User user = GetUser(ownerId);
 
             // Check if we were able to find the user...
-            if (user == null) return false;
+            if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+            /////////////////////////////////////////////////
 
             // Check if the file even exists and the owner of it is the correct one...
-            if (file == null || file.Owner != user.Id) return false;
+            if (file == null || file.Owner != user.Id) return Result.New(ResultStatus.InvalidFileHandle);
 
             // Attempt to get the recycle bin instance...
             var recycleBin = GetRecycleBin(user);
 
             // Check if we actually we're given one...
-            if (recycleBin == null) return false;
+            if (recycleBin == null) return Result.New(ResultStatus.NoRecycleBinGiven);
+
+            /////////////////////////////////////////////////
 
             // Check if our file is already inside our recycle bin...
             // If so, return true saying that we can proceed to destroy the file...
-            if (IsFileInsideFolder(ownerId, file.Id, recycleBin.Id)) return true;
+            if (IsFileInsideFolder(ownerId, file.Id, recycleBin.Id)) return Result.New(ResultStatus.DestroyFile);
 
             // Now move our file to the recycle bin...
             MoveFile(user.Id, file.Id, recycleBin.Id);
 
             // Then finally return false indicating 
             // that we do not want to destroy our file...
-            return false;
+            return Result.New(ResultStatus.DoNotDestroyFile); 
         }
 
         /// <summary>
@@ -2114,7 +2137,7 @@ namespace Vault.Models
         /// <param name="ownerId"></param>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public bool DeleteFile(int ownerId, int fileId)
+        public Result DeleteFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
             try
@@ -2123,16 +2146,23 @@ namespace Vault.Models
                 File file = GetFile(ownerId, fileId);
 
                 // Check if the file even exists...
-                if (file == null) return false;
+                if (file == null) return Result.New(ResultStatus.InvalidFileHandle);
 
-                // Attempt to recycle the file...
-                // Otherwise, delete the file...
-                if (!RecycleFile(ownerId, file)) return true;
+                ///////////////////////////////////////////
+
+                // Attempt to recycle our folder...
+                var result = RecycleFile(ownerId, file);
+
+                // If we were given a command to not recycle then return a successful result.
+                if (result.Status == ResultStatus.DoNotDestroyFile) return Result.New();
+
+                // If we we'rent told to destroy file then something is wrong!
+                else if (result.Status != ResultStatus.DestroyFile) return result;
 
                 ///////////////////////////////////////////
 
                 // Dispose all our related files off of the disk!
-                DisposeFileOnDisk(file.Path);
+                if (!DisposeFileOnDisk(file.Path).IsOK()) return Result.New(ResultStatus.FailedToDeleteFileOnDisk);
 
                 ///////////////////////////////////////////
 
@@ -2160,13 +2190,11 @@ namespace Vault.Models
                 // Save our changes.
                 _context.SaveChanges();
 
-                // Return true as it was successful...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -2178,26 +2206,44 @@ namespace Vault.Models
         /// <param name="folderId"></param>
         /// <param name="newFolderId"></param>
         /// <returns></returns>
-        public bool MoveFolder(int ownerId, int folderId, int newFolderId)
+        public Result MoveFolder(int ownerId, int folderId, int newFolderId)
         {
             // Catch any exceptions...
             try
             {
+                // Get our user...
+                User user = GetUser(ownerId);
+
+                // Check if we found a user.
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+                // Get our home folder id.
+                int homeFolder = user.Folder;
+
+                // Don't move the same folder inside of itself.
+                if (folderId == newFolderId)
+                    return Result.New(ResultStatus.FolderInsideItself);
+
+                // Make sure you can't move the home folder anywhere.
+                if (folderId == homeFolder) return Result.New(ResultStatus.ModifyingHomeFolder);
+
+                ///////////////////////////////////////////////////
+
                 // Get our folders as objects...
                 Folder folder = GetFolder(ownerId, folderId);
                 Folder newFolder = GetFolder(ownerId, newFolderId);
 
                 // Check if our folders exist...
-                if (folder == null || newFolder == null) return false;
+                if (folder == null || newFolder == null) return Result.New(ResultStatus.InvalidFolderHandle);
 
                 // Check if our new folder is already inside the moving folder...
-                if (IsFolderInsideFolder(ownerId, newFolderId, folderId)) return false;
+                if (IsFolderInsideFolder(ownerId, newFolderId, folderId)) return Result.New(ResultStatus.FolderInsideFolder);
 
                 // Get our parent folder object...
                 Folder parentFolder = GetFolder(ownerId, folder.FolderId);
 
                 // Check if our parent folder exists...
-                if (parentFolder == null) return false;
+                if (parentFolder == null) return Result.New(ResultStatus.NoParentFolder);
 
                 ///////////////////////////////////////////////////
 
@@ -2217,54 +2263,11 @@ namespace Vault.Models
 
                 ///////////////////////////////////////////////////
 
-                // Respond with a true...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
-            }
-        }
-
-        public bool MoveFolders(int ownerId, int[] folders, int destination)
-        {
-            // Catch any exceptions...
-            try
-            {
-                // Setup our destination folder...
-                Folder destinationFolder = _context.Folders
-                    .Where(b => b.Id == destination && b.Owner == ownerId)
-                    .FirstOrDefault();
-
-                // Check if our destination folder isn't null...
-                if (destinationFolder == null) return false;
-
-                // Iterate throughout all our folders...
-                foreach (var folderId in folders)
-                {
-                    // Setup our folder for this iteration...
-                    Folder folder = _context.Folders
-                        .Where(b => b.Id == folderId && b.Owner == ownerId)
-                        .FirstOrDefault();
-
-                    // Check if we even found a folder...
-                    if (folder == null) continue;
-
-                    // Modify location of each folder...
-                    folder.FolderId = destinationFolder.Id;
-                }
-
-                // Save our changes...
-                _context.SaveChanges();
-
-                // Respond with a true...
-                return true;
-            }
-            catch
-            {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -2275,7 +2278,7 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="folderId"></param>
         /// <returns></returns>
-        public bool MoveFile(int ownerId, int fileId, int folderId)
+        public Result MoveFile(int ownerId, int fileId, int folderId)
         {
             // Catch any exceptions...
             try
@@ -2285,13 +2288,13 @@ namespace Vault.Models
                 Folder newFolder = GetFolder(ownerId, folderId);
 
                 // Check if our objects exist...
-                if (file == null || newFolder == null) return false;
+                if (file == null || newFolder == null) return Result.New(ResultStatus.InvalidFolderHandle);
 
                 // Attempt to get our parent folder...
                 Folder parentFolder = GetFolder(ownerId, file.Folder);
 
                 // Check if our parent folder exists...
-                if (parentFolder == null) return false;
+                if (parentFolder == null) return Result.New(ResultStatus.NoParentFolder);
 
                 // Modify our parent folder of our file...
                 file.Folder = newFolder.Id;
@@ -2312,13 +2315,11 @@ namespace Vault.Models
 
                 ////////////////////////////////////////////////
 
-                // Respond with a true...
-                return true;
+                return Result.New();
             }
             catch
             {
-                // Exception, false...
-                return false;
+                return Result.New(ResultStatus.Exception);
             }
         }
 
@@ -2328,7 +2329,7 @@ namespace Vault.Models
         /// <param name="ownerId">The owning user of the file.</param>
         /// <param name="fileId">The file's id.</param>
         /// <returns></returns>
-        public (bool success, int fileId) DuplicateFile(int ownerId, int fileId)
+        public Result<int> DuplicateFile(int ownerId, int fileId)
         {
             // Catch any exceptions...
             try
@@ -2337,73 +2338,34 @@ namespace Vault.Models
                 File file = GetFile(ownerId, fileId);
 
                 // Check if our file even exists...
-                if (file == null) return (false, -1);
+                if (file == null) return Result<int>.New(ResultStatus.InvalidFileHandle, -1);
+
+                /////////////////////////////////////
 
                 // Check if our file is encrypted...
-                if (file.IsEncrypted) return (false, -1);
+                if (file.IsEncrypted) return Result<int>.New(ResultStatus.FileIsEncrypted, -1);
 
                 // Check if we can "upload" this file, or in other words "do we have enough storage for this file"...
-                if (!CanUpload(ownerId, file.Size)) return (false, -1);
+                if (!CanUpload(ownerId, file.Size)) return Result<int>.New(ResultStatus.NotEnoughStorage, -1);
 
                 // Generate a brand new file name for our duplicate file...
                 string filePath = _configuration["VaultStorageLocation"] + RandomString(30);
 
                 // Check if our file already exists with that name!
-                if (System.IO.File.Exists(filePath)) return (false, -1);
+                if (System.IO.File.Exists(filePath)) return Result<int>.New(ResultStatus.InternalFileNameTaken, -1);
 
                 // Now actually create a copy of the file on the file system...
                 System.IO.File.Copy(file.Path, filePath);
 
-                // Pass the response to the add new file api...
-                return AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath);
+                var result = AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath);
+
+                if (!result.success) return Result<int>.New(ResultStatus.UnableToDuplicate, -1);
+
+                return Result<int>.New(result.fileId);
             }
             catch
             {
-                // Exception, false...
-                return (false, -1);
-            }
-        }
-
-        /// <summary>
-        /// Move an array of files!
-        /// </summary>
-        /// <param name="ownerId"></param>
-        /// <param name="files"></param>
-        /// <param name="folderId"></param>
-        /// <returns></returns>
-        public bool MoveFiles(int ownerId, int[] files, int folderId)
-        {
-            // Catch any exceptions...
-            try
-            {
-                Folder newFolder = _context.Folders.Where(b => b.Id == folderId && b.Owner == ownerId).FirstOrDefault();
-
-                // Check if our folder isn't null...
-                if (newFolder == null) return false;
-
-                // Iterate throughout each file id...
-                foreach (var fileId in files)
-                {
-                    // Get our folders as objects...
-                    File file = _context.Files.Where(b => b.Id == fileId && b.Owner == ownerId).FirstOrDefault();
-
-                    // Check if we even found a file...
-                    if (file == null) continue;
-
-                    // Modify our folder...
-                    file.Folder = newFolder.Id;
-                }
-
-                // Save our changes...
-                _context.SaveChanges();
-
-                // Respond with a true...
-                return true;
-            }
-            catch
-            {
-                // Exception, false...
-                return false;
+                return Result<int>.New(ResultStatus.Exception, -1);
             }
         }
 

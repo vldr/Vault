@@ -77,7 +77,7 @@ namespace Vault.Controllers
                 // Attempt to convert our cookie value to an int...
                 int.TryParse(value, out sortBy);
 
-                // Check if our sort by value is within limits... (HARD CODING)
+                // Check if our sort by value is within limits... 
                 // Reset if it is...
                 if (sortBy < -4 || sortBy > 4) sortBy = 0;
             }
@@ -175,7 +175,7 @@ namespace Vault.Controllers
         public IActionResult SharedFileDirectDownload(string shareId, string prefix)
         {
             // Check if our share id given is null!
-            if (shareId == null) return StatusCode(500);
+            if (shareId == null) return StatusCode(400);
 
             // Get the file...
             Models.File file = _processService.GetSharedFile(shareId);
@@ -192,19 +192,15 @@ namespace Vault.Controllers
             // Check if the file even exists on the disk...
             if (file.IsEncrypted) return StatusCode(500);
 
-            // Setup our mime type string...
             string mimeType = "application/octet-stream";
 
-            // Attempt to get the content type...
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
-            // Check if our mime type is null or not...
+            // We have to check the mimetype since TryGetContentType might set it back to null..
             if (mimeType == null) mimeType = "application/octet-stream";
 
-            // Setup our preview info...
             _processService.SetupPreview(ref mimeType, ref filePath);
 
-            // Return an empty result.
             return PhysicalFile(filePath, mimeType, true);
         }
 
@@ -219,19 +215,19 @@ namespace Vault.Controllers
         public async Task<IActionResult> SharedFileDownload(CancellationToken cancellationToken, string shareId, string prefix, string password = null)
         {
             // Check if our share id given is null!
-            if (shareId == null) return StatusCode(500);
+            if (shareId == null) return StatusCode(400);
 
             // Get the file...
             Models.File file = _processService.GetSharedFile(shareId);
 
             // Check if the file exists or is valid!
-            if (file == null) return StatusCode(500);
+            if (file == null) return StatusCode(400);
 
             // Setup our file path...
             string filePath = file.Path;
 
             // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(filePath)) return StatusCode(500);
+            if (!System.IO.File.Exists(filePath)) return StatusCode(400);
 
             // Setup our mime type string...
             string mimeType = "application/octet-stream";
@@ -333,10 +329,10 @@ namespace Vault.Controllers
                 var result = _processService.AddNewFileAPI(user, size, fileName, fileExtension, filePath);
 
                 // Check we were successful in adding a new file...
-                if (result.success)
+                if (result.IsOK())
                 {
                     // Setup a path for our uploaders to know where this is located...
-                    var path = $"{_configuration["ShareUploadLocation"]}{result.shareId}{fileExtension}";
+                    var path = $"{_configuration["ShareUploadLocation"]}{result.Get().Item1}{fileExtension}";
 
                     // Respond with a successful message...
                     return Json(new { Success = true, Path = path });

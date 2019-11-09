@@ -60,7 +60,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// A function which will return a not logged in json response...
+        /// A function which will return a not logged in json response.
         /// </summary>
         /// <returns>Json response...</returns>
         private JsonResult NotLoggedIn()
@@ -70,7 +70,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// A function which will return a missing parameters json response...
+        /// A function which will return a missing parameters json response.
         /// </summary>
         /// <returns>Json response...</returns>
         private JsonResult MissingParameters()
@@ -245,15 +245,11 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Call our add new folder to add a brand new folder...
-            if (_processService.AddNewFolder(userSession.Id, folderName, userSession.Folder).success)
-            {
-                // Return a sucessful response...
-                return Json(new { Success = true });
-            }
-            else
-                // Return an error stating there was a problem with this transaction...
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.AddNewFolder(userSession.Id, folderName, userSession.Folder);
+
+            // Check if the result was OK...
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -277,15 +273,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // If our update colour by was sucessful, then we're all good!
-            if (_processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), newName))
-            {
-                // Return that our operation was sucessful!
-                return Json(new { Success = true });
-            }
-            else
-                // Otherwise, return stating the operation failed!
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), newName);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -309,13 +300,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // If our update colour by was sucessful, then we're all good!
-            if (_processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName))
-                // Return that our operation was sucessful!
-                return Json(new { Success = true });
-            else
-                // Otherwise, return stating the operation failed!
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -339,15 +327,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // If our update colour by was sucessful, then we're all good!
-            if (_processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault()))
-            {
-                // Return that our operation was sucessful!
-                return Json(new { Success = true });
-            }
-            else
-                // Otherwise, return stating the operation failed!
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault());
+            
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -370,15 +353,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // If our update sort by was sucessful, then go ahead update our session!
-            if (_processService.UpdateSortBy(userSession.Id, sortBy.GetValueOrDefault(), HttpContext, userSession))
-            {
-                // Return that our operation was sucessful!
-                return Json(new { Success = true });
-            }
-            else
-                // Return that we failed to perform the operation!
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdateSortBy(userSession.Id, sortBy.GetValueOrDefault(), HttpContext, userSession);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -405,79 +383,14 @@ namespace Vault.Controllers
             // Get our user id...
             int id = userSession.Id;
 
-            // Get our user's current folder id!
-            int currentFolder = userSession.Folder;
+            var result = _processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault());
 
-            // Save our home folder id...
-            int homeFolder = _loginService.GetUser(id).Folder;
-
-            // Don't move the same folder inside of itself...
-            if (from == to)
-                return Json(new { Success = false, Reason = "You cannot move the same folder inside of itself..." });
-
-            // Make sure you can't move the home folder anywhere...
-            if (from == homeFolder)
-                return Json(new { Success = false, Reason = "You can't move the home folder anywhere..." });
-
-            // Move the actual folder...
-            if (_processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault()))
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Move a collection of folders...
-        /// </summary>
-        /// <param name="folders"></param>
-        /// <param name="to"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("process/movefolders")]
-        public IActionResult MoveFolders(int[] folders, int? to)
-        {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
-
-            // Check for nulls...
-            if (folders == null || to == null)
-                return MissingParameters();
-
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Setup our destination...
-            int destination = to.GetValueOrDefault();
-
-            // Get our user's current folder id!
-            int currentFolder = userSession.Folder;
-
-            // Save our home folder id...
-            int homeFolder = _loginService.GetUser(userSession.Id).Folder;
-
-            // Don't move the same folder inside of itself...
-            if (System.Array.IndexOf(folders, destination) != -1)
-                return Json(new { Success = false, Reason = "You cannot move the same folder inside of itself..." });
-
-            // Make sure you can't move the home folder anywhere...
-            if (System.Array.IndexOf(folders, homeFolder) != -1)
-                return Json(new { Success = false, Reason = "You can't move the home folder anywhere..." });
-
-            // Move the actual folder...
-            if (_processService.MoveFolders(userSession.Id, folders, destination))
-            {
-                // Tell our users to update their listings...
-                //_processService.UpdateListings(userSession.Id, Request);
-
-                return Json(new { Success = true });
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
-        }
-
-        /// <summary>
-        /// Delete a folder...
+        /// Deletes a folder
         /// </summary>
         /// <param name="folder"></param>
         /// <returns></returns>
@@ -499,24 +412,10 @@ namespace Vault.Controllers
             // Get our user id...
             int id = userSession.Id;
 
-            // Get our home folder...
-            int homeFolder = _loginService.GetUser(id).Folder;
+            var result = _processService.DeleteFolder(id, folder.GetValueOrDefault());
 
-            // Make sure you don't delete the home folder...
-            if (folder == homeFolder)
-                return Json(new { Success = false, Reason = "You cannot delete the home folder..." });
-
-            // Get our parent folder...
-            int? parentFolder = _processService.GetFolder(id, folder.GetValueOrDefault())?.FolderId;
-
-            // Check if our folder even exists...
-            if (parentFolder == null) return Json(new { Success = false, Reason = "Could not find the specified folder..." });
-
-            // Delete the actual folder...
-            if (_processService.DeleteFolder(id, folder.GetValueOrDefault()))
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -539,11 +438,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Move the actual folder...
-            if (_processService.DeleteFile(userSession.Id, file.GetValueOrDefault()))
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.DeleteFile(userSession.Id, file.GetValueOrDefault());
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -567,15 +465,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Update our user's password!
-            if (_processService.UpdateName(userSession.Id, name))
-            {
-                // Return a successful response...
-                return Json(new { Success = true });
-            }
-            else
-                // Return an error response...
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdateName(userSession.Id, name);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -602,13 +495,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Update our user's password!
-            if (_processService.UpdatePassword(userSession.Id, currentPassword, newPassword))
-            {
-                return Json(new { Success = true });
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.UpdatePassword(userSession.Id, currentPassword, newPassword);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -631,13 +521,10 @@ namespace Vault.Controllers
             // Setup an empty api key to be filled in later...
             string apiKey = string.Empty;
 
-            // Update our user's api ability!   
-            if (_processService.ToggleAPI(userSession.Id, out apiKey))
-            {
-                return Json(new { Success = true, Response = apiKey});
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.ToggleAPI(userSession.Id, out apiKey);
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -661,17 +548,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our toggle share response...
-            var response = _processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault());
+            var result = _processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault());
 
-            // Update our file's shareablity!
-            if (response.success)
-            {
-                // Return the result...
-                return Json(new { Success = true, response.shareId });
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true, ShareId = result.Get() });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -698,16 +578,10 @@ namespace Vault.Controllers
             int id = userSession.Id;
 
             // Process our request...
-            var response = _processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault());
+            var result = _processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault());
 
-            // Update our file's shareablity!
-            if (response.success)
-            {
-                // Return the result...
-                return Json(new { Success = true, response.shareId });
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true, ShareId = result.Get() });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -725,17 +599,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our path!
-            var path = _processService.GetPath(userSession.Id, userSession.Folder);
+            var result = _processService.GetPath(userSession.Id, userSession.Folder);
 
-            // Update our file's shareablity!
-            if (path != null)
-            {
-                // Return the result...
-                return Json(new { Success = true, path });
-            }
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true, Path = result.Get() });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -759,43 +626,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Move the actual folder...
-            if (_processService.MoveFile(userSession.Id, file.GetValueOrDefault(), folder.GetValueOrDefault()))
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
-        }
+            var result = _processService.MoveFile(userSession.Id, file.GetValueOrDefault(), folder.GetValueOrDefault());
 
-        /// <summary>
-        /// Move an array of files...
-        /// </summary>
-        /// <param name="file"></param>
-        /// <param name="folder"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("process/movefiles")]
-        public IActionResult MoveFiles(int[] files, int? folder)
-        {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
-
-            // Check for nulls...
-            if (files == null || folder == null)
-                return MissingParameters();
-
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
-            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
-
-            // Move the actual folder...
-            if (_processService.MoveFiles(userSession.Id, files, folder.GetValueOrDefault()))
-            {
-                // Tell our users to update their listings...
-                //_processService.UpdateListings(userSession.Id, Request);
-
-                return Json(new { Success = true });
-            }
-            else return Json(new { Success = false, Reason = "Transaction error..." });
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
@@ -892,11 +726,10 @@ namespace Vault.Controllers
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Move the actual folder...
-            if (_processService.DuplicateFile(userSession.Id, fileId.GetValueOrDefault()).success)
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "Transaction error..." });
+            var result = _processService.DuplicateFile(userSession.Id, fileId.GetValueOrDefault());
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>
