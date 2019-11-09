@@ -167,10 +167,10 @@ class Upload extends React.Component
         let snackBarLoader = this.state.uploading && !this.state.finished ? <div className={styles['snack-bar-loader']} /> : null;
 
         // Setup our snackbar to fade out after two seconds upon transfer completion or failure...
-        let snackBarFadeOutStyle = this.state.finished ? { animation: "fadeout 0.6s ease-out 2s 1 normal forwards running" } : {};
-
+        let snackBarFadeOutStyle = this.state.finished ? styles['fade-out-please'] : "";
+       
         // The entire snackbar...
-        let snackBar = this.state.uploading ? (<div className={styles['snack-bar-upload']} style={snackBarFadeOutStyle}>  
+        let snackBar = this.state.uploading ? (<div className={`${styles['snack-bar-upload']} ${snackBarFadeOutStyle}`}>  
             {snackBarLoader}
             {snackBarFailure}
             {snackBarSuccess}

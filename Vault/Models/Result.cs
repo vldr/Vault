@@ -37,6 +37,7 @@ namespace Vault.Models
         NotEnoughStorage,
         InternalFileNameTaken,
         UnableToDuplicate,
+        EmailTaken,
     }
 
     /// <summary>

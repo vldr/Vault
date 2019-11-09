@@ -148,10 +148,10 @@ namespace Vault.Controllers
                 return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
 
             // Return the response from our login service...
-            if (_loginService.Register(email, name, password, HttpContext.Connection.RemoteIpAddress.ToString()))
-                return Json(new { Success = true });
-            else
-                return Json(new { Success = false, Reason = "An error occurred processing your request. (Usually the email might already be taken...)" });
+            var result = _loginService.Register(email, name, password, HttpContext.Connection.RemoteIpAddress.ToString());
+
+            if (result.IsOK()) return Json(new { Success = true });
+            else return Json(result.FormatError());
         }
 
         /// <summary>

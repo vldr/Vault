@@ -247,7 +247,6 @@ namespace Vault.Controllers
 
             var result = _processService.AddNewFolder(userSession.Id, folderName, userSession.Folder);
 
-            // Check if the result was OK...
             if (result.IsOK()) return Json(new { Success = true });
             else return Json(result.FormatError());
         }
@@ -702,8 +701,7 @@ namespace Vault.Controllers
                 // Return a successful response...
                 return List(0, file.Id);
             }
-            else
-                return Json(new { Success = false, Reason = "Invalid file given..." });
+            else return Json(new { Success = false, Reason = "Unable to open file location on the file specified..." });
         }
 
         /// <summary>
@@ -767,7 +765,7 @@ namespace Vault.Controllers
             if (System.IO.File.Exists(filePath)) return StatusCode(500);
 
             // Setup our file name...
-            string fileName = (file.FileName == null ? "<unnamed>" : file.FileName);
+            string fileName = file.FileName == null ? "<unnamed>" : file.FileName;
 
             // Get the file's extension...
             string fileExtension = Path.GetExtension(fileName).ToLower();
@@ -820,7 +818,7 @@ namespace Vault.Controllers
                 salt);
 
             // Check if the result was successful...
-            return result.success ? Ok() : StatusCode(500);
+            return result.IsOK() ? Ok() : StatusCode(500);
         }
 
         /// <summary>
@@ -867,7 +865,7 @@ namespace Vault.Controllers
             // Setup our response...
             Response.StatusCode = 200;
             Response.ContentType = "application/octet-stream";
-            Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(folder.Name)}.zip");
+            Response.Headers.Add("Content-Disposition", $"attachment; filename={folder.Name}.zip");
 
             // Setup our zip stream to point to our response body!
             using (var zip = new ZipOutputStream(Response.Body))

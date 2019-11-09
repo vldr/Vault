@@ -600,6 +600,10 @@ div .button {
     margin: 0 auto
 }
 
+.fade-out-please {
+    animation: fadeout 0.6s ease-out 2s 1 normal forwards running !important;
+}
+
 #file-list {
     margin: 0;
     padding: 0;

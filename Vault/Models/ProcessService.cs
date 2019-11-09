@@ -819,23 +819,6 @@ namespace Vault.Models
 
             ///////////////////////////////////////////////
 
-            //// Full path to the file image thumbnail...
-            //string filePathPreview = $"{path}.preview";
-
-            //// Strip all the metadata...
-            //magickImage.Strip();
-
-            //// Set to the medium quality...
-            //magickImage.Quality = 50;
-
-            //// Set our format to be a webp for that amazing compression...
-            //magickImage.Format = MagickFormat.Jpg;
-
-            //// Write the file!
-            //magickImage.Write(filePathPreview);
-
-            ///////////////////////////////////////////////
-
             // Full path to the file image thumbnail...
             string filePathThumbnail = $"{path}.thumb";
 
@@ -1050,46 +1033,52 @@ namespace Vault.Models
         /// <param name="fileId"></param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public (bool success, int fileId) AddNewFile(int userId, long size, string name, string ext, int folderId, string path, 
+        public Result<int> AddNewFile(int userId, long size, string name, string ext, int folderId, string path, 
             bool encrypted = false, byte[] nonce = null, byte[] salt = null)
         {
-            // Get our user following with that user id...
-            User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
-
-            // Check if the user exists...
-            if (user == null)
-                return (false, -1);
-
-            // Call our generate thumbnail which will generate a thumbnails...
-            if (!encrypted) GenerateThumbnails(ext, path, size);
-
-            // Generate a file object...
-            File fileObj = new File
+            try
             {
-                Owner = userId,
-                Size = size,
-                Name = WebUtility.HtmlEncode(name),
-                Ext = WebUtility.HtmlEncode(ext),
-                Created = DateTime.Now,
-                Folder = folderId,
-                Path = path,
-                IsEncrypted = encrypted,
-                Nonce = nonce,
-                Salt = salt,
-                EncryptionVersion = 1
-            };
+                // Get our user following with that user id...
+                User user = _context.Users.Where(b => b.Id == userId).FirstOrDefault();
 
-            // Add the file object to the files context...
-            _context.Files.Add(fileObj);
+                // Check if the user exists...
+                if (user == null) return Result<int>.New(ResultStatus.InvalidUserHandle, -1);
 
-            // Save all our changes...
-            _context.SaveChanges();
+                // Call our generate thumbnail which will generate a thumbnails...
+                if (!encrypted) GenerateThumbnails(ext, path, size);
 
-            // Send out an update...
-            UpdateFileListing(userId, fileObj);
+                // Generate a file object...
+                File fileObj = new File
+                {
+                    Owner = userId,
+                    Size = size,
+                    Name = WebUtility.HtmlEncode(name),
+                    Ext = WebUtility.HtmlEncode(ext),
+                    Created = DateTime.Now,
+                    Folder = folderId,
+                    Path = path,
+                    IsEncrypted = encrypted,
+                    Nonce = nonce,
+                    Salt = salt,
+                    EncryptionVersion = 1
+                };
 
-            // Return true that the operation was successful...
-            return (true, fileObj.Id);
+                // Add the file object to the files context...
+                _context.Files.Add(fileObj);
+
+                // Save all our changes...
+                _context.SaveChanges();
+
+                // Send out an update...
+                UpdateFileListing(userId, fileObj);
+
+                // Return true that the operation was successful...
+                return Result<int>.New(fileObj.Id);
+            }
+            catch
+            {
+                return Result<int>.New(ResultStatus.Exception, -1);
+            }
         }
 
         /// <summary>
@@ -1246,16 +1235,16 @@ namespace Vault.Models
             if (folder == null) return Result<string, int>.New(ResultStatus.InvalidFolderHandle, string.Empty, -1);
 
             // Call our original add new file...
-            var result = AddNewFile(user.Id, size, name, ext, folder.Id, path);
+            var fileIdResult = AddNewFile(user.Id, size, name, ext, folder.Id, path);
 
             // Make sure adding our file was successful, if not, return false...
-            if (!result.success) return Result<string, int>.New(ResultStatus.FailedToAddFile, string.Empty, -1);
+            if (!fileIdResult.IsOK()) return Result<string, int>.New(ResultStatus.FailedToAddFile, string.Empty, -1);
 
             // Get our share result...
-            var shareIdResult = ToggleShareFile(user.Id, result.fileId);
+            var shareIdResult = ToggleShareFile(user.Id, fileIdResult.Get());
 
             // Respond with a tuple...
-            return Result<string, int>.New(shareIdResult.Get(), result.fileId);
+            return Result<string, int>.New(shareIdResult.Get(), fileIdResult.Get());
         }
 
         /// <summary>
@@ -1969,24 +1958,6 @@ namespace Vault.Models
             // Catch any exceptions...
             try
             {
-                /*
-                 * 
-                 *  ///////////////////////////////////////////////////
-
-                // Get our user...
-                User user = GetUser(ownerId);
-
-                // Check if we found a user.
-                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
-
-                ///////////////////////////////////////////////////
-
-                // Get our home folder id.
-                int homeFolder = user.Folder;
-
-                // Make sure you can't delete the home folder...
-                if (folderId == homeFolder) return Result.New(ResultStatus.ModifyingHomeFolder);*/
-
                 // Get our selected folder that we are going to delete...
                 Folder selectedFolder = GetFolder(ownerId, folderId);
 
@@ -2357,11 +2328,12 @@ namespace Vault.Models
                 // Now actually create a copy of the file on the file system...
                 System.IO.File.Copy(file.Path, filePath);
 
+
                 var result = AddNewFile(ownerId, file.Size, file.Name, file.Ext, file.Folder, filePath);
 
-                if (!result.success) return Result<int>.New(ResultStatus.UnableToDuplicate, -1);
+                if (!result.IsOK()) return Result<int>.New(ResultStatus.UnableToDuplicate, -1);
 
-                return Result<int>.New(result.fileId);
+                return Result<int>.New(result.Get());
             }
             catch
             {

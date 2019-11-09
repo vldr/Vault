@@ -113,64 +113,72 @@ namespace Vault.Models
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public bool Register(string email, string name, string password, string ipAddress)
+        public Result Register(string email, string name, string password, string ipAddress)
         {
-            // Check if our email already exists in the database...
-            bool exists = _context.Users.Any(b => b.Email == email);
+            try
+            {
+                // Check if our email already exists in the database...
+                bool exists = _context.Users.Any(b => b.Email == email);
 
-            // If it does, quit here...
-            if (exists) return false;
+                // If it does, quit here...
+                if (exists)
+                {
+                    var error = Result.New(ResultStatus.EmailTaken);
+                    error.CustomErrorMessage = "This email address cannot be used.";
 
-            // Setup our user...
-            User user = new User();
+                    return error;
+                }
 
-            // Setup our user's email address...
-            user.Email = WebUtility.HtmlEncode(email);
+                // Setup our user...
+                User user = new User();
 
-            // Setup the user's name...
-            user.Name = WebUtility.HtmlEncode(name);
+                // Setup our user's email address...
+                user.Email = WebUtility.HtmlEncode(email);
 
-            // Setup the max bytes of the user...
-            user.MaxBytes = long.Parse(_configuration["VaultMaxBytes"]);
+                // Setup the user's name...
+                user.Name = WebUtility.HtmlEncode(name);
 
-            // Setup our user's ip address...
-            user.IPAddresses = ipAddress;
+                // Setup the max bytes of the user...
+                user.MaxBytes = long.Parse(_configuration["VaultMaxBytes"]);
 
-            // Reset our api enabled and api key...
-            user.APIEnabled = false;
+                // Setup our user's ip address...
+                user.IPAddresses = ipAddress;
 
-            // Set our api key to be empty...
-            user.APIKey = string.Empty;
+                // Reset our api enabled and api key...
+                user.APIEnabled = false;
 
-            // Hash our user's password using BCrypt...
-            user.Password = BCrypt.BCryptHelper.HashPassword(password, BCrypt.BCryptHelper.GenerateSalt());
+                // Set our api key to be empty...
+                user.APIKey = string.Empty;
 
-            // Set our created atribute to now...
-            user.Created = DateTime.Now;
+                // Hash our user's password using BCrypt...
+                user.Password = BCrypt.BCryptHelper.HashPassword(password, BCrypt.BCryptHelper.GenerateSalt());
 
-            // Add our user to the users dataset...
-            _context.Users.Add(user);
+                // Set our created atribute to now...
+                user.Created = DateTime.Now;
 
-            // Set our changes...
-            _context.SaveChanges();
+                // Add our user to the users dataset...
+                _context.Users.Add(user);
 
-            // Create our folder object...
-            Folder folder = new Folder() { Owner = user.Id };
+                // Set our changes...
+                _context.SaveChanges();
 
-            // Add our folder to the dataset...
-            _context.Folders.Add(folder);
+                ///////////////////////////////////////
 
-            // Set our changes...
-            _context.SaveChanges();
+                Folder folder = new Folder() { Owner = user.Id };
+                _context.Folders.Add(folder);
+                _context.SaveChanges();
 
-            // Setup a new folder...
-            user.Folder = folder.Id;
+                ///////////////////////////////////////
 
-            // Save our changes...
-            _context.SaveChanges();
+                user.Folder = folder.Id;
+                _context.SaveChanges();
 
-            // Otherwise, return OK...
-            return true;
+                return Result.New();
+            }
+            catch
+            {
+                return Result.New(ResultStatus.Exception);
+            }
         }
     }
 }

@@ -247,7 +247,7 @@ namespace Vault.Controllers
                 // Setup our response...
                 Response.StatusCode = 200;
                 Response.ContentType = mimeType;
-                Response.Headers.Add("Content-Disposition", $"attachment; filename={System.Net.WebUtility.UrlEncode(file.Name)}");
+                Response.Headers.Add("Content-Disposition", $"attachment; filename={file.Name}");
 
                 try
                 {
@@ -264,7 +264,6 @@ namespace Vault.Controllers
             }
             else
             {
-                // Return an empty result.
                 return PhysicalFile(filePath, mimeType, file.Name, true);
             }
         }
@@ -286,20 +285,18 @@ namespace Vault.Controllers
                 User user = _processService.GetUserAPI(apiKey);
 
                 // If our user is null, then return an invalid message...
-                if (user == null) return Json(new { Success = false, Reason = "Invalid api key..." });
+                if (user == null) return Json(new { Success = false, Reason = "Unable to find the API user..." });
 
                 // Store our file size...
                 long size = file.Length;
 
                 // Check if the file is too big to upload...
-                if (size > long.Parse(_configuration["MaxVaultFileSize"]))
-                    return Json(new { Success = false, Reason = "The file size is too large..." });
+                if (size > long.Parse(_configuration["MaxVaultFileSize"])) return Json(new { Success = false, Reason = "The file size is too large..." });
 
                 //////////////////////////////////////////////////////////////////
 
                 // Check if the user has enough storage to upload the file...
-                if (!_processService.CanUpload(user, size))
-                    return Json(new { Success = false, Reason = "Not enough storage to upload file..." });
+                if (!_processService.CanUpload(user, size)) return Json(new { Success = false, Reason = "Not enough storage to upload file..." });
 
                 //////////////////////////////////////////////////////////////////
 
@@ -343,7 +340,6 @@ namespace Vault.Controllers
             }
             catch
             {
-                // Respond with zero since something bad happened...
                 return Json(new { Success = false, Reason = "Transaction error..." });
             }
         }
