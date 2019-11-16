@@ -601,7 +601,8 @@ div .button {
 }
 
 .fade-out-please {
-    animation: fadeout 0.6s ease-out 2s 1 normal forwards running !important;
+    -webkit-animation: fadeout .6s ease-out 2s 1 normal forwards running !important;
+    animation: fadeout .6s ease-out 2s 1 normal forwards running !important
 }
 
 #file-list {
@@ -2433,7 +2434,7 @@ p {
     height: 85px;
     width: 85px;
     margin: 0 auto 17px;
-    opacity: 0.8;
+    opacity: .8
 }
 
 .upload-file-icon {
@@ -2461,7 +2462,7 @@ p {
     -webkit-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: pointer;
+    cursor: pointer
 }
 
 .upload-selection-button:hover {
@@ -2489,6 +2490,12 @@ p {
         position: fixed;
         right: 10px;
         top: 60px
+    }
+}
+
+@media (min-width: 1325px) {
+    .overlay-preview {
+        max-width: 1155px;
     }
 }
 

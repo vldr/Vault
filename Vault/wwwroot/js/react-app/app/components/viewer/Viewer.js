@@ -17,14 +17,16 @@ class Viewer extends React.Component {
         this.state = {
             isOpen: false,
             isLoading: false,
-            fileId: null,
+            fileId: null, 
             response: null
         };
     }
 
     onClose(event) {
+        console.log(event.target);
+
         // Make sure the target was the overlay...
-        if (event.target.className !== styles['overlay']) return;
+        if (event.target.className !== styles['overlay-inherit']) return;
 
         // Close our overlay...
         this.close();
