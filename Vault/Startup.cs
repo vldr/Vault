@@ -79,7 +79,7 @@ namespace Vault2
             {
                 OnPrepareResponse = ctx =>
                 {
-                   // ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,must-revalidate";
+                    ctx.Context.Response.Headers[HeaderNames.CacheControl] = "public,must-revalidate";
                 }
             }); 
 

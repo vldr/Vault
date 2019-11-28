@@ -23,8 +23,6 @@ class Viewer extends React.Component {
     }
 
     onClose(event) {
-        console.log(event.target);
-
         // Make sure the target was the overlay...
         if (event.target.className !== styles['overlay-inherit']) return;
 

@@ -39,7 +39,7 @@ export class File extends React.Component
     duplicateFile()
     {
         // Setup a loading dialog...
-        new ActionAlert(<center><div className="loader" /></center>);
+        new ActionAlert(<center><div className={styles["loader"]} /></center>);
 
         // Attempt to update the sorting...
         fetch("process/duplicatefile",
