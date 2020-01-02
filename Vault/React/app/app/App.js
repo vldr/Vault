@@ -8,8 +8,6 @@ const Upload = React.lazy(() => import('../components/upload/Upload'));
 const Search = React.lazy(() => import('../components/search/Search'));
 const Viewer = React.lazy(() => import('../components/viewer/Viewer'));
 
-
-
 import { ErrorBoundary } from '../components/info/ErrorBoundary';
 
 import styles from './App.css';
@@ -42,7 +40,7 @@ export class App extends React.Component
         </div>);
 
         return (
-            <>
+            <ErrorBoundary>
                 <Suspense fallback={loader}>
                     <ContextMenu />
 
@@ -67,7 +65,7 @@ export class App extends React.Component
                      
                     <Viewer ref={(ref) => { this.viewer = ref; }} closeSearch={this.closeSearch.bind(this)} />
                 </Suspense>
-            </>
+            </ErrorBoundary>
         );
     }
 }
