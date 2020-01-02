@@ -169,7 +169,7 @@ class Viewer extends React.Component {
 
         // Setup our loader bar...
         const loaderBar = <div className={styles['loader']} />;
-
+         
         // Setup our viewer content...
         const viewerTopbar = hasLoaded ?
             (<div className={styles['overlay-topbar']} >
@@ -183,8 +183,10 @@ class Viewer extends React.Component {
                 </div>
             </div>) : null;
 
-        // Setup our view...
-        let view = <div className={styles['overlay-message']}>No preview available</div>;
+        // Setup our view... 
+        let view = hasLoaded ? (<div className={styles['overlay-message']}>No preview available 
+            {this.state.response.isEncrypted && <span> - due to encryption</span>}
+        </div>) : null;
 
         // Check if our view has loaded...
         if (hasLoaded && !this.state.response.isEncrypted)

@@ -1300,8 +1300,8 @@ progress::-moz-progress-bar {
     max-width: 90%;
     margin: 20px auto;
     display: inherit;
-    -webkit-filter: drop-shadow(2px 3px 8px rgba(0,0,0,.32157));
-    filter: drop-shadow(2px 3px 8px rgba(0,0,0,.32157));
+    -webkit-filter: drop-shadow(2px 3px 3px rgba(0,0,0,.32157));
+    filter: drop-shadow(2px 3px 3px rgba(0,0,0,.32157));
     -webkit-animation: fadein .8s;
     animation: fadein .8s;
     transform-origin: center center;

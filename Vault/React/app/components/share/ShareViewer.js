@@ -164,7 +164,9 @@ class ShareViewer extends React.Component {
             </div>) : null;
 
         // Setup our view...
-        let view = <div className={styles['overlay-message']}>No preview available</div>;
+        let view = hasLoaded ? (<div className={styles['overlay-message']}>No preview available
+            {this.state.response.isEncrypted && <span> - due to encryption</span>}
+        </div>) : null;
 
         // Check if our view has loaded...
         if (hasLoaded && !this.state.response.isEncrypted)
