@@ -26,6 +26,7 @@ namespace Vault2
 
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.Configure<GzipCompressionProviderOptions>(options => options.Level = CompressionLevel.Fastest);
             services.AddResponseCompression(options =>
             {

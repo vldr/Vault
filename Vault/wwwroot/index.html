@@ -10,10 +10,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0267eb">
 
-    <link rel="stylesheet" type="text/css" href="js/react-app/dist/login.css">
+    <link rel="stylesheet" type="text/css" href="css/login.css">
 </head>
 <body>
-    <div class="intro-header"></div>
+    <!--<div class="intro-header"></div>-->
     <div class="header-nav">
         <a href="/"><img class="logo-header" src="images/ui/logo-big.png" /></a>
         <ul class="navbar">
@@ -37,65 +37,7 @@
         <h2 class="hero-title">The file storage experience crafted to suit you and your needs.</h2>
         <div id="login"></div>
     </div>
-    <div class="info-box">
-        <video src="videos/1.mp4" class="info-left-video" loop muted></video>
-        <div class="info-right">Simple drag and drop, complex menus gone.</div>
-    </div>
 
-    <div class="info-box">
-        <video src="videos/2.mp4" class="info-right-video" loop muted></video>
-        <div class="info-left">Uploading has never been easier, total control.</div>
-    </div>
-
-    <div class="info-box">
-        <video src="videos/3.mp4" class="info-left-video" loop muted></video>
-        <div class="info-right">Navigation is fast and concise, no more waiting.</div>
-    </div>
-
-    <div class="info-box">
-        <video src="videos/4.mp4" class="info-right-video" loop muted></video>
-        <div class="info-left">Viewing your favourite files is now a breeze.</div>
-    </div>
-
-    <div class="info-box">
-        <video src="videos/5.mp4" class="info-left-video" loop muted></video>
-        <div class="info-right">Don't forget about contextual menus, they're here too!</div>
-    </div>
-
-    <div class="footer">
-        What are you waiting for? 
-        <br />
-        <a class="footer-button" href="#register">Get Started</a>
-    </div>
-
-    <script type="text/javascript" src="js/react-app/dist/login.js"></script>
-    <script>
-        var videos = document.getElementsByTagName("video");
-
-        function checkScroll() {
-            for (var i = 0; i < videos.length; i++) {
-                var video = videos[i];
-                var x = video.offsetLeft,
-                    y = video.offsetTop,
-                    w = video.offsetWidth,
-                    h = video.offsetHeight,
-                    r = x + w,
-                    b = y + h,
-                    visibleX,
-                    visibleY,
-                    visible;
-
-                visibleX = Math.max(0, Math.min(w, window.pageXOffset + window.innerWidth - x, r - window.pageXOffset));
-                visibleY = Math.max(0, Math.min(h, window.pageYOffset + window.innerHeight - y, b - window.pageYOffset));
-
-                visible = visibleX * visibleY / (w * h);
-
-                if (visible === 1) video.play(); else video.pause();
-            }
-        }
-
-        window.addEventListener('scroll', checkScroll, false);
-        window.addEventListener('resize', checkScroll, false);
-    </script>
+	<script type="text/javascript" src="js/login.js"></script>
 </body>
 </html>

@@ -18,25 +18,13 @@ namespace Vault.Controllers
 {
     public class LoginController : Controller
     {
-        // Save our little session tag...
         private readonly string _sessionName;
         private readonly string _relativeDirectory;
 
-        // Instance of our login service...
         private readonly LoginService _loginService;
-
-        // Instance of our process service...
         private readonly ProcessService _processService;
-
-        // Instance of our configuration...
         private readonly IConfiguration _configuration;
 
-        /// <summary>
-        /// Contructor
-        /// </summary>
-        /// <param name="loginService"></param>
-        /// <param name="processService"></param>
-        /// <param name="configuration"></param>
         public LoginController(LoginService loginService, ProcessService processService, IConfiguration configuration)
         {
             _loginService = loginService;
@@ -46,58 +34,57 @@ namespace Vault.Controllers
             _sessionName = configuration["SessionTagId"];
             _relativeDirectory = configuration["RelativeDirectory"];
         }
-        /// Called when someone logs in to the website...
+
+        /// <summary>
+        /// The controller for the login.
         /// </summary>
         /// <param name="Email"></param>
         /// <param name="Password"></param>
+        /// <param name="RememberMe"></param>
         /// <returns></returns>
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> LoginPost(string Email, string Password, bool? RememberMe)
         {
-            // Check if all the parameters were given...
             if (Email == null || Password == null || RememberMe == null)
                 return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
-            // Check if already logged in...
-            if (IsLoggedIn())
-                return Json(new { Success = true });
+            /////////////////////////////////
 
-            // Encode our email as a html encoded string...
+            if (IsLoggedIn()) return Json(new { Success = true });
+
+            /////////////////////////////////
+
             Email = WebUtility.HtmlEncode(Email);
 
-            // Attempt to find the user and login...
+            /////////////////////////////////
+
             User user = _loginService.Login(Email, Password);
 
-            // Check if we logged in sucessfully...
+            /////////////////////////////////
+
             if (user != null)
             {
-                // Append our logged in user's ip address...
                 _loginService.AppendIPAddress(user.Id, HttpContext.Connection.RemoteIpAddress.ToString());
 
                 //////////////////////////
                 // Setup our session... //
                 //////////////////////////
 
-                // Setup our user's session!
                 UserSession userSession = _loginService.SetupSession(user);
-
-                // Set our user session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                ////////////////////////////////////////////////////////////
+                /////////////////////////////////
 
                 //////////////////////////////
                 // Setup our cookie auth... //
                 //////////////////////////////
 
-                // Setup our claims...
                 var claims = new [] { new Claim("id", user.Id.ToString()) };
-
-                // Setup our claims identity...
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-                // Setup our authentication properties...
+                /////////////////////////////////
+
                 var authProperties = new AuthenticationProperties
                 {
                     AllowRefresh = true,
@@ -105,10 +92,12 @@ namespace Vault.Controllers
                     ExpiresUtc = RememberMe.GetValueOrDefault() ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddMinutes(30),
                 };
 
-                // Sign our user in...
+                /////////////////////////////////
+
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
-                // Return a successful response...
+                /////////////////////////////////
+
                 return Json(new { Success = true });
             }
             else
@@ -117,7 +106,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Called when someone registers on the website...
+        /// Called when someone registers on the website.
         /// </summary>
         /// <param name="email"></param>
         /// <param name="password"></param>
@@ -128,55 +117,60 @@ namespace Vault.Controllers
         [Route("register")]
         public IActionResult RegisterPost(string email, string password, string name, string invite)
         {
-            // Check if our input is null...
             if (string.IsNullOrWhiteSpace(email)
                 || string.IsNullOrWhiteSpace(password) 
                 || string.IsNullOrWhiteSpace(name) 
                 || string.IsNullOrWhiteSpace(invite))
                 return Json(new { Success = false, Reason = "You must supply all required parameters..." });
 
-            // Check if the password is greater than 4 characters...
+            /////////////////////////////////
+
             if (password.Length < 6)
                 return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
 
-            // Check if our name is too long...
+            /////////////////////////////////
+
             if (name.Length > 24)
                 return Json(new { Success = false, Reason = "The name is too long..." });
 
-            // Check that if our invite key matches...
+            /////////////////////////////////
+
             if (invite != _configuration["VaultInviteKey"])
                 return Json(new { Success = false, Reason = "The given invitation key is invalid..." });
 
-            // Return the response from our login service...
+            /////////////////////////////////
+
             var result = _loginService.Register(email, name, password, HttpContext.Connection.RemoteIpAddress.ToString());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Our main page...
+        /// Displays the dashboard view.
         /// </summary>
         /// <returns></returns>
         [Route("dashboard")]
         public IActionResult Dashboard()
         {
-            // Check if not logged in!
             if (!IsLoggedIn()) return Redirect(_relativeDirectory);
 
-            // Setup a user session!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Save our user to the view bag...
+            /////////////////////////////////
+
             ViewBag.User = _loginService.GetUser(userSession.Id);
-
-            // Setup our boolean for if nightmode is enabled or not...
             ViewBag.NightMode = Request.Cookies.ContainsKey(".vault.nightmode");
-
-            // Setup our upload size view bag variable...
             ViewBag.MaxUploadSize = _configuration["MaxVaultFileSize"];
 
-            // Return our control view...
+            /////////////////////////////////
+
             return View();
         }
 

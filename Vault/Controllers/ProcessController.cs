@@ -20,30 +20,24 @@ namespace Vault.Controllers
 {
     public class ProcessController : Controller
     {
-        // Save our little session tag...
+        // Save our little session tag.
         private readonly string _sessionName;
         private readonly string _storageLocation;
         private readonly string _relativeDirectory;
 
-        // Instance of our process service...
+        // Instance of our process service.
         private readonly ProcessService _processService;
 
-        // Instance of our login service...
+        // Instance of our login service.
         private readonly LoginService _loginService;
 
-        // Instance of our configuration...
+        // Instance of our configuration.
         private readonly IConfiguration _configuration;
 
-        // Instance of our logger...
+        // Instance of our logger.
         private readonly ILogger _logger;
 
-        /// <summary>
-        /// Contructor
-        /// </summary>
-        /// <param name="processService"></param>
-        /// <param name="loginService"></param>
-        /// <param name="configuration"></param>
-        /// <param name="hubContext"></param>
+
         public ProcessController(ProcessService processService, 
             LoginService loginService,
             ILoggerFactory loggerFactory,
@@ -62,90 +56,88 @@ namespace Vault.Controllers
         /// <summary>
         /// A function which will return a not logged in json response.
         /// </summary>
-        /// <returns>Json response...</returns>
+        /// <returns>Json response.</returns>
         private JsonResult NotLoggedIn()
         {
-            // Return a simple not logged in json response...
-            return Json(new { Success = false, Reason = "You must be logged in to perform this operation..." });
+            // Return a not logged in json response.
+            return Json(new { Success = false, Reason = "You must be logged in to perform this operation." });
         }
 
         /// <summary>
         /// A function which will return a missing parameters json response.
         /// </summary>
-        /// <returns>Json response...</returns>
+        /// <returns>Json response.</returns>
         private JsonResult MissingParameters()
         {
-            // Return a simple missing parameters json response...
-            return Json(new { Success = false, Reason = "You must supply all required parameters..." });
+            // Return a missing parameters json response.
+            return Json(new { Success = false, Reason = "You must supply all required parameters." });
         }
 
         /// <summary>
-        /// Handles when a user wants to log out...
+        /// Handles when a user wants to log out.
         /// </summary>
         /// <returns></returns>
         [HttpGet]
         [Route("process/logout")]
         public IActionResult Logout()
         {
-            if (!IsLoggedIn())
-                return Redirect(_relativeDirectory);
+            if (!IsLoggedIn()) return Redirect(_relativeDirectory);
 
-            // Sign out of the account...
+            /////////////////////////////////
+            
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Redirect out of there...
+            /////////////////////////////////
+            
             return Redirect(_relativeDirectory);
         }
 
         /// <summary>
-        /// Gets the homepage list of items...
+        /// 
         /// </summary>
         /// <param name="offset"></param>
-        /// <returns>Json formatted response...</returns>
+        /// <returns>Json formatted response.</returns>
         [HttpPost]
         [Route("process/list")]
         public IActionResult List(int? offset, int specificFile = -1)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check if our folder name is null...
+            /////////////////////////////////
+
             if (offset == null || (offset != null && offset.GetValueOrDefault() < 0))
                 return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get the id from the user's session...
             int id = userSession.Id;
-
-            // Get our folder!
-            User user = _loginService.GetUser(id);
-
-            // Get the folder id from the user's session!
             int folderId = userSession.Folder;
 
-            // Get our folder!
+            User user = _loginService.GetUser(id);
             Folder folder = _processService.GetFolder(id, folderId);
 
-            // Check if the folder even exists...
+            /////////////////////////////////
+
+            // Check if the folder even exists.
             if (folder == null)
             {
-                // Reset the folder id...
+                // Reset the folder id.
                 folderId = user.Folder;
 
-                // Reset our users position back to the homepage...
+                // Reset our users position back to the homepage.
                 userSession.Folder = folderId;
 
                 // Setup our new session!
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                // Begin to render the correct folder...
+                // Begin to render the correct folder.
                 folder = _processService.GetFolder(id, folderId);
             }
 
-            // Setup a new listing...
+            /////////////////////////////////
+
             Listing listing = new Listing()
             {
                 Success = true,
@@ -166,23 +158,26 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Our settings page...
+        /// Provides all the information to 
+        /// display the settings page.
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [Route("process/settings")]
         public IActionResult Settings()
         {
-            // Check if not logged in!
             if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Setup a user session!
+            /////////////////////////////////
+            
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Save our user to the view bag...
+            /////////////////////////////////
+
             var user = _loginService.GetUser(userSession.Id);
 
-            // Return our control view...
+            /////////////////////////////////
+
             return Json(new Settings()
             {
                 Success = true,
@@ -195,7 +190,8 @@ namespace Vault.Controllers
 
 
         /// <summary>
-        /// The search mechanism for finding folders and files...
+        /// Processes a term as a search query and 
+        /// provides a listing of all relevant folders and files.
         /// </summary>
         /// <param name="term"></param>
         /// <returns></returns>
@@ -203,19 +199,22 @@ namespace Vault.Controllers
         [Route("process/search")]
         public IActionResult Search(string term)
         {
-            // If we're not logged in, redirect...
             if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check if our folder name is null...
+            /////////////////////////////////
+
             if (string.IsNullOrWhiteSpace(term)) return MissingParameters();
 
-            // Set our term to be lowercase...
+            /////////////////////////////////
+
             term = term.ToLower();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Setup a new listing...
+            /////////////////////////////////
+
             Listing listing = new Listing()
             {
                 Success = true,
@@ -227,7 +226,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Creates a new folder...
+        /// Creates a new folder in the current directory.
         /// </summary>
         /// <param name="folderName"></param>
         /// <returns></returns>
@@ -235,24 +234,30 @@ namespace Vault.Controllers
         [Route("process/newfolder")]
         public IActionResult NewFolder(string folderName)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check if our folder name is null...
+            /////////////////////////////////
+
             if (string.IsNullOrWhiteSpace(folderName)) return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.AddNewFolder(userSession.Id, folderName, userSession.Folder);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Set the name of our file!
+        /// Renames a file to a given name.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="newName"></param>
@@ -261,25 +266,31 @@ namespace Vault.Controllers
         [Route("process/renamefile")]
         public IActionResult RenameFile(int? fileId, string newName)
         {
-            // Check if we're logged in!
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls and limits!
+            /////////////////////////////////
+
             if (fileId == null || newName == null || newName.Length == 0)
                 return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+            
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.UpdateFileName(userSession.Id, fileId.GetValueOrDefault(), newName);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Set the name of our folder!
+        /// Renames a folder to a given name.
         /// </summary>
         /// <param name="folderId"></param>
         /// <param name="newName"></param>
@@ -288,25 +299,33 @@ namespace Vault.Controllers
         [Route("process/renamefolder")]
         public IActionResult RenameFolder(int? folderId, string newName)
         {
-            // Check if we're logged in!
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls and limits!
+            /////////////////////////////////
+
             if (folderId == null || string.IsNullOrWhiteSpace(newName))
                 return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.UpdateFolderName(userSession.Id, folderId.GetValueOrDefault(), newName);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Set the colour of our folder!
+        /// Sets the colour of a folder.
+        /// 
+        /// Used to organise folders.
         /// </summary>
         /// <param name="folderId"></param>
         /// <param name="colour"></param>
@@ -315,25 +334,31 @@ namespace Vault.Controllers
         [Route("process/setcolour")]
         public IActionResult SetFolderColour(int? folderId, int? colour)
         {
-            // Check if we're logged in!
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls and limits!
+            /////////////////////////////////
+
             if (folderId == null || colour == null || colour < 0 || colour > 10)
                 return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
+            /////////////////////////////////
+
             var result = _processService.UpdateFolderColour(userSession.Id, folderId.GetValueOrDefault(), colour.GetValueOrDefault());
-            
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Sort our file listings!
+        /// Sets the arrangement of files displayed.
         /// </summary>
         /// <param name="sortBy"></param>
         /// <returns></returns>
@@ -341,25 +366,32 @@ namespace Vault.Controllers
         [Route("process/sortby")]
         public IActionResult SortBy(int? sortBy)
         {
-            // Check if we're logged in!
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls and limits!
-            if (sortBy == null || sortBy < -4 || sortBy > 4)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (sortBy == null || sortBy < -4 || sortBy > 4) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.UpdateSortBy(userSession.Id, sortBy.GetValueOrDefault(), HttpContext, userSession);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Move a folder...
+        /// Moves a folder to a given folder.
+        /// 
+        /// Folders cannot be placed inside themselves.
         /// </summary>
         /// <param name="from"></param>
         /// <param name="to"></param>
@@ -368,28 +400,40 @@ namespace Vault.Controllers
         [Route("process/movefolder")]
         public IActionResult MoveFolder(int? from, int? to)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (from == null || to == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (from == null || to == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user id...
+            /////////////////////////////////
+
             int id = userSession.Id;
+
+            /////////////////////////////////
 
             var result = _processService.MoveFolder(id, from.GetValueOrDefault(), to.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Deletes a folder
+        /// Deletes or places a folder into the user's designated recycle bin.
+        /// 
+        /// If the folder is already located in the user's recycle
+        /// then this action will delete the folder permanently
+        /// 
+        /// If the folder is NOT in the recycle bin then this folder 
+        /// will move it to the recycle bin.
         /// </summary>
         /// <param name="folder"></param>
         /// <returns></returns>
@@ -397,28 +441,40 @@ namespace Vault.Controllers
         [Route("process/deletefolder")]
         public IActionResult DeleteFolder(int? folder)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (folder == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (folder == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user id...
+            /////////////////////////////////
+
             int id = userSession.Id;
+
+            /////////////////////////////////
 
             var result = _processService.DeleteFolder(id, folder.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Delete a file...
+        /// Deletes or places a file into the user's designated recycle bin.
+        /// 
+        /// If the file is already located in the user's recycle
+        /// then this action will delete the file permanently
+        /// 
+        /// If the file is NOT in the recycle bin then this file 
+        /// will move it to the recycle bin.
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
@@ -426,25 +482,34 @@ namespace Vault.Controllers
         [Route("process/deletefile")]
         public IActionResult DeleteFile(int? file)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (file == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (file == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.DeleteFile(userSession.Id, file.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Change name!
+        /// Changes the user's real name.
+        /// 
+        /// The name is limited to 24 characters and 
+        /// is used to display the user's name in the intro-box 
+        /// (already logged in screen)
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
@@ -452,26 +517,37 @@ namespace Vault.Controllers
         [Route("process/changename")]
         public IActionResult ChangeName(string name)
         {
-            // If we're not logged in...
             if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
+            /////////////////////////////////
+            
             if (string.IsNullOrWhiteSpace(name)) return MissingParameters();
 
-            // Check if our name is too long...
-            if (name.Length > 24) return Json(new { Success = false, Reason = "The name is too long..." });
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (name.Length > 24) return Json(new { Success = false, Reason = "The name is too long, sorry." });
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.UpdateName(userSession.Id, name);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Change password!
+        /// Changes the user's password.
+        /// 
+        /// Requires atleast 6 characters, 
+        /// not limit on what type of characters.
         /// </summary>
         /// <param name="currentPassword"></param>
         /// <param name="newPassword"></param>
@@ -480,28 +556,41 @@ namespace Vault.Controllers
         [Route("process/changepassword")]
         public IActionResult ChangePassword(string currentPassword, string newPassword)
         {
-            // Check if we're even logged in...
             if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
+            /////////////////////////////////
+
             if (string.IsNullOrWhiteSpace(currentPassword) || string.IsNullOrWhiteSpace(newPassword))
                 return MissingParameters();
 
-            // Check if our new password is too short...
-            if (newPassword.Length < 6)
-                return Json(new { Success = false, Reason = "The password must be at least 6 characters long..." });
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (newPassword.Length < 6)
+                return Json(new { Success = false, Reason = "The password must be at least 6 characters long." });
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.UpdatePassword(userSession.Id, currentPassword, newPassword);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Toggle the api system of a user!
+        /// Toggles the availability of the users API system.
+        /// 
+        /// On: The user has an API key attached to his account 
+        /// and can use it to upload files through a third-party application (ex, ShareX).
+        /// 
+        /// Off: The user has no API key.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="option"></param>
@@ -510,24 +599,33 @@ namespace Vault.Controllers
         [Route("process/toggleapi")]
         public IActionResult ToggleAPI()
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Setup an empty api key to be filled in later...
+            /////////////////////////////////
+            
             string apiKey = string.Empty;
+
+            /////////////////////////////////
 
             var result = _processService.ToggleAPI(userSession.Id, out apiKey);
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Toggle the sharing of a file!
+        /// Enables or disables the share functionality of a file.
+        /// 
+        /// If a file is being shared then the file has an associated URL 
+        /// to it where non-registered user's may download the file.
         /// </summary>
         /// <param name="fileId"></param>
         /// <param name="option"></param>
@@ -536,25 +634,33 @@ namespace Vault.Controllers
         [Route("process/toggleshare")]
         public IActionResult ToggleShare(int? fileId)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (fileId == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (fileId == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.ToggleShareFile(userSession.Id, fileId.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true, ShareId = result.Get() });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true, ShareId = result.Get() });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Enables or disable the share functionality of a folder in the controller...
+        /// Enables or disable the share functionality of a folder.
+        /// 
+        /// If a folder is being shared then the folder has an associated URL 
+        /// to it where non-registered user's may download the folder.
         /// </summary>
         /// <param name="folderId"></param>
         /// <returns></returns>
@@ -562,50 +668,67 @@ namespace Vault.Controllers
         [Route("process/togglefoldershare")]
         public IActionResult ToggleFolderShare(int? folderId)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (folderId == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (folderId == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user id...
+            /////////////////////////////////
+            
             int id = userSession.Id;
 
-            // Process our request...
+            /////////////////////////////////
+
             var result = _processService.ToggleShareFolder(userSession.Id, folderId.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true, ShareId = result.Get() });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true, ShareId = result.Get() });
+            else
+                return Json(result.FormatError());
         }
 
+
         /// <summary>
-        /// Gets the pathbar of the current folder...
+        /// Provides the path of a file in an ordered scheme.
+        /// 
+        /// Example: ~ / Documents / Other /
+        ///          ^       ^         ^
+        ///     Home Dir.    |         |
+        ///               Sub Dir.     |
+        ///                     Current Directory
         /// </summary>
         /// <returns></returns>
         [HttpPost]
         [Route("process/getpathbar")]
         public IActionResult GetPathBar()
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.GetPath(userSession.Id, userSession.Folder);
 
-            if (result.IsOK()) return Json(new { Success = true, Path = result.Get() });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true, Path = result.Get() });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Move a file...
+        /// Moves a file to a disclosed folder.
         /// </summary>
         /// <param name="file"></param>
         /// <param name="folder"></param>
@@ -614,25 +737,31 @@ namespace Vault.Controllers
         [Route("process/movefile")]
         public IActionResult MoveFile(int? file, int? folder)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (file == null || folder == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (file == null || folder == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.MoveFile(userSession.Id, file.GetValueOrDefault(), folder.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
-        /// Goes to a folder, doesn't matter if it's visible or not...
+        /// Enters a directory (folder).
+        /// 
+        /// This is the function that is called when the 
+        /// user navigates throughout their folders.
         /// </summary>
         /// <param name="folderId"></param>
         /// <returns></returns>
@@ -640,36 +769,53 @@ namespace Vault.Controllers
         [Route("process/goto")]
         public IActionResult GotoFolder(int? folderId)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check if our input is null...
-            if (folderId == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (folderId == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our user id...
+            /////////////////////////////////
+
             int id = userSession.Id;
 
-            // Check if the folder is even valid...
-            if (!_processService.IsFolderValid(id, folderId.GetValueOrDefault()))
-                return Json(new { Success = false, Reason = "Invalid folder..." });
+            /////////////////////////////////
 
-            // Set our new folder up!
+            if (!_processService.DoesFolderExist(id, folderId.GetValueOrDefault()))
+                return Json(new { Success = false, Reason = "Invalid folder." });
+
+            /////////////////////////////////
+
+            // Update the sessions current directory. 
+            // We store the current folder 
+            // in the user's session object rather 
+            // than the database.
             userSession.Folder = folderId.GetValueOrDefault();
 
-            // Setup our new session!
+            /////////////////////////////////
+
             SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-            // Return a successful response...
+            /////////////////////////////////
+
+            // We call our listing method rather 
+            // since we don't want reduce the number of 
+            // requests needed to navigate.
             return List(0);
         }
 
         /// <summary>
-        /// Redirects user to the location of the file...
+        /// Redirects user to the location of a file.
+        /// 
+        /// This is used in the search interface where a user 
+        /// would rather to go directly to a files location.
+        /// 
+        /// TODO: This method performs everything in the controller, 
+        /// should be moved to the process class.
         /// </summary>
         /// <param name="fileId"></param>
         /// <returns></returns>
@@ -677,35 +823,40 @@ namespace Vault.Controllers
         [Route("process/openfilelocation")]
         public IActionResult OpenFileLocation(int? fileId)
         {
-            // If we're not logged in, redirect...
             if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check if our input is null...
+            /////////////////////////////////
+
             if (fileId == null) return MissingParameters();
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Attempt to get the file...
+            /////////////////////////////////
+
             var file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
-            // Check if the file even exists...
+            /////////////////////////////////
+
             if (file != null)
             {
-                // Redirect our user to the correct folder...
                 userSession.Folder = file.Folder;
 
-                // Setup our new session!
+                /////////////////////////////////
+                
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
 
-                // Return a successful response...
+                /////////////////////////////////
+
                 return List(0, file.Id);
             }
-            else return Json(new { Success = false, Reason = "Unable to open file location on the file specified..." });
+            else
+                return Json(new { Success = false, Reason = "Unable to open file location on the file specified." });
         }
 
         /// <summary>
-        /// Duplicates a file...
+        /// Duplicates a file. 
         /// </summary>
         /// <param name="fileId"></param>
         /// <returns></returns>
@@ -713,21 +864,26 @@ namespace Vault.Controllers
         [Route("process/duplicatefile")]
         public IActionResult DuplicateFile(int? fileId)
         {
-            // If we're not logged in, redirect...
-            if (!IsLoggedIn())
-                return NotLoggedIn();
+            if (!IsLoggedIn()) return NotLoggedIn();
 
-            // Check for nulls...
-            if (fileId == null)
-                return MissingParameters();
+            /////////////////////////////////
 
-            // Get our user's session, it is safe to do so because we've checked if we're logged in!
+            if (fileId == null) return MissingParameters();
+
+            /////////////////////////////////
+
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
 
             var result = _processService.DuplicateFile(userSession.Id, fileId.GetValueOrDefault());
 
-            if (result.IsOK()) return Json(new { Success = true });
-            else return Json(result.FormatError());
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
         }
 
         /// <summary>
@@ -739,13 +895,13 @@ namespace Vault.Controllers
         [Route("process/upload")]
         public async Task<IActionResult> Upload(IFormFile file, string password = null)
         {
-            // Check if we're logged in...
+            // Check if we're logged in.
             if (!IsLoggedIn()) return StatusCode(500);
 
-            // Store our file size...
+            // Store our file size.
             long size = file.Length;
 
-            // Check the file size to the configuration...
+            // Check the file size to the configuration.
             if (size > long.Parse(_configuration["MaxVaultFileSize"])) return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
@@ -753,7 +909,7 @@ namespace Vault.Controllers
 
             //////////////////////////////////////////////////////////////////
 
-            // Check if the user has enough storage to upload the file...
+            // Check if the user has enough storage to upload the file.
             if (!_processService.CanUpload(userSession.Id, size)) return StatusCode(500);
 
             //////////////////////////////////////////////////////////////////
@@ -764,46 +920,46 @@ namespace Vault.Controllers
             // Check if our file already exists with that name!
             if (System.IO.File.Exists(filePath)) return StatusCode(500);
 
-            // Setup our file name...
+            // Setup our file name.
             string fileName = file.FileName == null ? "<unnamed>" : file.FileName;
 
-            // Get the file's extension...
+            // Get the file's extension.
             string fileExtension = Path.GetExtension(fileName).ToLower();
 
             //////////////////////////////////////////////////////////////////
 
-            // Setup a blank IV variable...
+            // Setup a blank IV variable.
             bool isEncrypting = password != null;
 
-            // Setup our encryption parameters...
+            // Setup our encryption parameters.
             byte[] iv = null;
             byte[] salt = null;
 
             // Check if we are trying to encrypt a file, if so, encrypt it!
             if (isEncrypting)
             {
-                // Encrypt our file...
+                // Encrypt our file.
                 var encryptedObject = await _processService.EncryptFile(file, filePath, password);
 
-                // Setup our IV...
+                // Setup our IV.
                 iv = encryptedObject.iv;
 
-                // Setup our salt...
+                // Setup our salt.
                 salt = encryptedObject.salt;
             }
             else
             {
-                // Copy our file from buffer...
+                // Copy our file from buffer.
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
-                    // Copy our file to the file stream...
+                    // Copy our file to the file stream.
                     await file.CopyToAsync(stream);
                 }
             }
 
             //////////////////////////////////////////////////////////////////
 
-            // Get our result...
+            // Get our result.
             var result = _processService.AddNewFile(
                 userSession.Id,
                 size,
@@ -812,17 +968,17 @@ namespace Vault.Controllers
                 userSession.Folder,
                 filePath,
 
-                // Encryption parameters...
+                // Encryption parameters.
                 isEncrypting,
                 iv,
                 salt);
 
-            // Check if the result was successful...
+            // Check if the result was successful.
             return result.IsOK() ? Ok() : StatusCode(500);
         }
 
         /// <summary>
-        /// Downloads a folder given an id...
+        /// Downloads a folder given an id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -830,39 +986,39 @@ namespace Vault.Controllers
         [Route("process/download/folder/{id}")]
         public async Task<IActionResult> DownloadFolder(CancellationToken cancellationToken, int? id)
         {
-            // Check if we're logged in...
+            // Check if we're logged in.
             if (!IsLoggedIn())
                 return StatusCode(500);
 
-            // Check if the file id is not null...
+            // Check if the file id is not null.
             if (id == null) return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our current user id...
+            // Get our current user id.
             int userId = userSession.Id;
 
-            // Get the folder...
+            // Get the folder.
             Folder folder = _processService.GetFolder(userId, id.GetValueOrDefault());
 
-            // Check if the folder exists....
+            // Check if the folder exists..
             if (folder == null) return StatusCode(500);
 
-            // Check if the folder is a recycling bin...
+            // Check if the folder is a recycling bin.
             if (folder.IsRecycleBin) return StatusCode(500);
 
             // Get the folder id!
             int folderId = id.GetValueOrDefault();
 
-            // Make sure you don't download the home folder (maybe soon I'll add this feature in properly)...
+            // Make sure you don't download the home folder (maybe soon I'll add this feature in properly).
             if (folder.FolderId == 0)
                 return Content("0");
 
-            // Register our encoding provider...
+            // Register our encoding provider.
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-            // Setup our response...
+            // Setup our response.
             Response.StatusCode = 200;
             Response.ContentType = "application/octet-stream";
             Response.Headers.Add("Content-Disposition", $"attachment; filename={folder.Name}.zip");
@@ -870,7 +1026,7 @@ namespace Vault.Controllers
             // Setup our zip stream to point to our response body!
             using (var zip = new ZipOutputStream(Response.Body))
             {
-                // Await our zip files method...
+                // Await our zip files method.
                 await _processService.ZipFiles(folderId, userId, zip, cancellationToken, folder.FolderId);
             }
 
@@ -887,27 +1043,27 @@ namespace Vault.Controllers
         [Route("process/thumbnail/{id}")]
         public IActionResult Thumbnail(int? id)
         {
-            // Check if we're logged in...
+            // Check if we're logged in.
             if (!IsLoggedIn())
                 return StatusCode(500);
 
-            // Check if the file id is not null...
+            // Check if the file id is not null.
             if (id == null)
                 return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our current user id...
+            // Get our current user id.
             int userId = userSession.Id;
 
-            // Get the file...
+            // Get the file.
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
-            // Check if the file exists....
+            // Check if the file exists..
             if (file == null) return StatusCode(500);
 
-            // We can't deliver a thumbnail for encrypted files...
+            // We can't deliver a thumbnail for encrypted files.
             if (file.IsEncrypted) return StatusCode(500);
 
             // Setup our thumbnails path!
@@ -916,16 +1072,16 @@ namespace Vault.Controllers
             // Setup some simple client side caching for the thumbnails!
             HttpContext.Response.Headers.Add("Cache-Control", "public,max-age=86400");
 
-            // Check if the file even exists on the disk...
+            // Check if the file even exists on the disk.
             if (!System.IO.File.Exists(thumbnailPath))
                 return Redirect(_relativeDirectory + _processService.GetFileAttribute());
 
-            // Return the file...
+            // Return the file.
             return PhysicalFile(thumbnailPath, "image/*", file.Name, true);
         }
 
         /// <summary>
-        /// Returns the view for our file viewer...
+        /// Returns the view for our file viewer.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -933,65 +1089,65 @@ namespace Vault.Controllers
         [Route("process/viewer")]
         public IActionResult Viewer(int? fileId)
         {
-            // If we're not logged in, redirect...
+            // If we're not logged in, redirect.
             if (!IsLoggedIn())
                 return NotLoggedIn();
 
-            // Check for nulls...
+            // Check for nulls.
             if (fileId == null)
                 return MissingParameters();
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get the file...
+            // Get the file.
             Models.File file = _processService.GetFile(userSession.Id, fileId.GetValueOrDefault());
 
-            // Check if the file exists....
-            if (file == null) return Json(new { Success = false, Reason = "Cannot view the file specified..." });
+            // Check if the file exists..
+            if (file == null) return Json(new { Success = false, Reason = "Cannot view the file specified." });
 
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return Json(new { Success = false, Reason = "The file physically does not exist..." });
+            // Check if the file even exists on the disk.
+            if (!System.IO.File.Exists(file.Path)) return Json(new { Success = false, Reason = "The file physically does not exist." });
 
-            // Setup a new viewer...
+            // Setup a new viewer.
             Viewer viewer = new Viewer() { Success = true };
 
-            // Setup our file attributes...
+            // Setup our file attributes.
             viewer.Name = file.Name;
             viewer.Ext = file.Ext;
             viewer.Size = file.Size;
             viewer.IsSharing = file.IsSharing;
 
-            // Setup our icon to not display a preview icon...
+            // Setup our icon to not display a preview icon.
             viewer.Icon = _processService.GetFileAttribute(
                 file.Id.ToString(), 
                 file.Ext, 
                 ProcessService.AttributeTypes.FileIconNoPreview);
 
-            // Setup our view bag action as a preview variable...
+            // Setup our view bag action as a preview variable.
             viewer.Action = _processService.GetFileAttribute(
                 file.Id.ToString(),
                 file.Ext,
                 ProcessService.AttributeTypes.FileAction);
 
-            // Setup our url...
+            // Setup our url.
             viewer.URL = $"process/download/{file.Id}";
 
-            // Set our encrypted field...
+            // Set our encrypted field.
             viewer.IsEncrypted = file.IsEncrypted;
 
-            // Setup our id...
+            // Setup our id.
             viewer.Id = file.Id;
 
-            // Setup our relative part...
+            // Setup our relative part.
             viewer.RelativeURL = string.Empty;
 
-            // Return the partial view...
+            // Return the partial view.
             return Json(viewer);
         }
 
         /// <summary>
-        /// Downloads a file given an id...
+        /// Downloads a file given an id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -999,46 +1155,46 @@ namespace Vault.Controllers
         [Route("process/download/{id}")]
         public IActionResult Preview(int? id)
         {
-            // Check if we're logged in...
+            // Check if we're logged in.
             if (!IsLoggedIn())
                 return StatusCode(500);
 
-            // Check if the file id is not null...
+            // Check if the file id is not null.
             if (id == null)
                 return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our current user id...
+            // Get our current user id.
             int userId = userSession.Id;
 
-            // Get the file...
+            // Get the file.
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
-            // Check if the file exists....
+            // Check if the file exists..
             if (file == null) return StatusCode(500);
 
-            // We can't deliver a previews for encrypted files...
+            // We can't deliver a previews for encrypted files.
             if (file.IsEncrypted) return StatusCode(500);
 
-            // Setup our file path string...
+            // Setup our file path string.
             string filePath = file.Path;
 
-            // Check if the file even exists on the disk...
+            // Check if the file even exists on the disk.
             if (!System.IO.File.Exists(filePath))
                 return StatusCode(500);
 
-            // Setup our mime type string...
+            // Setup our mime type string.
             string mimeType = "application/octet-stream";
 
-            // Attempt to get the content type...
+            // Attempt to get the content type.
             new FileExtensionContentTypeProvider().TryGetContentType(file.Name, out mimeType);
 
-            // Check if our mime type is null or not...
+            // Check if our mime type is null or not.
             if (mimeType == null) mimeType = "application/octet-stream";
 
-            // Setup our preview info...
+            // Setup our preview info.
             _processService.SetupPreview(ref mimeType, ref filePath);
 
             // Return an empty result.
@@ -1046,7 +1202,7 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Downloads a file given an id...
+        /// Downloads a file given an id.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -1054,43 +1210,43 @@ namespace Vault.Controllers
         [Route("process/download/{id}")]
         public async Task<IActionResult> Download(CancellationToken cancellationToken, int? id, string password = null)
         {
-            // Check if we're logged in...
+            // Check if we're logged in.
             if (!IsLoggedIn())
                 return StatusCode(500);
 
-            // Check if the file id is not null...
+            // Check if the file id is not null.
             if (id == null)
                 return StatusCode(500);
 
             // Get our user's session, it is safe to do so because we've checked if we're logged in!
             UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
 
-            // Get our current user id...
+            // Get our current user id.
             int userId = userSession.Id;
 
-            // Get the file...
+            // Get the file.
             Models.File file = _processService.GetFile(userId, id.GetValueOrDefault());
 
-            // Check if the file exists....
+            // Check if the file exists..
             if (file == null) return StatusCode(500);
 
-            // Check if the file even exists on the disk...
+            // Check if the file even exists on the disk.
             if (!System.IO.File.Exists(file.Path)) return StatusCode(500);
 
-            // Perform decryption if our file is encrypted...
+            // Perform decryption if our file is encrypted.
             if (file.IsEncrypted)
             {
-                // Check if our password is given...
+                // Check if our password is given.
                 if (password == null) return StatusCode(500);
 
-                // Setup our response...
+                // Setup our response.
                 Response.StatusCode = 200;
                 Response.ContentType = "application/octet-stream";
                 Response.Headers.Add("Content-Disposition", $"attachment; filename={file.Name}");
 
                 try
                 {
-                    // Await our decryption...
+                    // Await our decryption.
                     await _processService.DecryptFile(cancellationToken, Response.Body, file, password);
                 }
                 catch {
@@ -1102,44 +1258,44 @@ namespace Vault.Controllers
             }
             else
             {
-                // Return our physical file...
+                // Return our physical file.
                 return PhysicalFile(file.Path, "application/octet-stream", file.Name, true);
             }
         }
 
         /// <summary>
-        /// Check if we're logged in...
+        /// Check if we're logged in.
         /// </summary>
         /// <returns></returns>
         public bool IsLoggedIn()
         {
-            // Check if our user is authenticated...
+            // Check if our user is authenticated.
             if (!HttpContext.User.Identity.IsAuthenticated) return false;
 
-            // Attempt to find the session object...
+            // Attempt to find the session object.
             var idObject = HttpContext.User.Claims.FirstOrDefault(b => b.Type == "id")?.Value;
 
-            // If we couldn't find our id object then logout and return false...
+            // If we couldn't find our id object then logout and return false.
             if (idObject == null) goto logout_and_false;
 
-            // Setup our id value...
+            // Setup our id value.
             int id = -1;
 
-            // If we weren't able to convert our string to an int then logout and return false...
+            // If we weren't able to convert our string to an int then logout and return false.
             if (!int.TryParse(idObject, out id)) goto logout_and_false;
 
-            // Get our user...
+            // Get our user.
             var user = _loginService.GetUser(id);
 
             // If our user does not exist, then logout and return false.
             if (user == null) goto logout_and_false;
 
-            // Check if the user session isn't set...
-            // If it isn't set, then set one up...
+            // Check if the user session isn't set.
+            // If it isn't set, then set one up.
             if (SessionExtension.Get(HttpContext.Session, _sessionName) == null)
             {
                 //////////////////////////
-                // Setup our session... //
+                // Setup our session.   //
                 //////////////////////////
 
                 // Setup our user's session!
@@ -1149,15 +1305,15 @@ namespace Vault.Controllers
                 SessionExtension.Set(HttpContext.Session, _sessionName, userSession);
             }
 
-            // Return true and the object itself...
+            // Return true and the object itself.
             return true;
 
         logout_and_false:
 
-            // Sign out of the account...
+            // Sign out of the account.
             HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Return false...
+            // Return false.
             return false;
         }
     }

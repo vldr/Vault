@@ -43,6 +43,7 @@ TestResult.xml
 dlldata.c
 
 # DNX
+!package.json
 project.lock.json
 project.fragment.lock.json
 artifacts/

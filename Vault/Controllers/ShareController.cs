@@ -19,20 +19,21 @@ namespace Vault.Controllers
 {
     public class ShareController : Controller
     {
-        // Instance of our process service...
         private readonly ProcessService _processService;
-
-        // Instance of our configuration...
         private readonly IConfiguration _configuration;
-
-        // Instance of our relative directory...
         private readonly string _relativeDirectory;
-        
-        // Instance of our sort by cookie...
         private readonly string _sortByCookie;
-
-        // Save our little session tag...
         private readonly string _sessionName;
+
+        public ShareController(ProcessService processService, IConfiguration configuration)
+        {
+            _processService = processService;
+            _configuration = configuration;
+
+            _sessionName = configuration["SessionTagId"];
+            _relativeDirectory = configuration["RelativeDirectory"];
+            _sortByCookie = configuration["VaultSortByCookie"];
+        }
 
         /// <summary>
         /// A function which will return a missing parameters json response...
@@ -45,100 +46,60 @@ namespace Vault.Controllers
         }
 
         /// <summary>
-        /// Constructor...
+        /// Renders the viewer (PDF viewer, image viewer, etc)
+        /// part of the share page.
         /// </summary>
-        /// <param name="processService"></param>
-        /// <param name="configuration"></param>
-        public ShareController(ProcessService processService, IConfiguration configuration)
-        {
-            _processService = processService;
-            _configuration = configuration;
-
-            _sessionName = configuration["SessionTagId"];
-            _relativeDirectory = configuration["RelativeDirectory"];
-            _sortByCookie = configuration["VaultSortByCookie"];
-        }
-
-        /// <summary>
-        /// Initializes our sort by value...
-        /// </summary>
+        /// <param name="shareId"></param>
         /// <returns></returns>
-        private int InitializeSortBy()
-        {
-            // Setup our sort by prototype here...
-            int sortBy = 0;
-
-            // Check if our cookie exists, if so, continue...
-            if (Request.Cookies.ContainsKey(_sortByCookie))
-            {
-                // Get the value of the cookie if it exists...
-                string value = Request.Cookies[_sortByCookie];
-
-                // Attempt to convert our cookie value to an int...
-                int.TryParse(value, out sortBy);
-
-                // Check if our sort by value is within limits... 
-                // Reset if it is...
-                if (sortBy < -4 || sortBy > 4) sortBy = 0;
-            }
-
-            // Return our sort by in the end...
-            return sortBy;
-        }
-       
-        ////////////////////////////////////////////////////////////////////////////////////////////////
-
         [HttpPost]
         [Route("share/viewer")]
         public IActionResult Viewer(string shareId)
         {
-            // Check if our share id given is null!
             if (shareId == null) return MissingParameters();
 
-            // Get the file...
+            /////////////////////////////////
+
             Models.File file = _processService.GetSharedFile(shareId);
 
-            // Check if the file exists or is valid!
-            if (file == null) return Json(new { Success = false, Reason = "We could not find a the file specified..." });
+            /////////////////////////////////
 
-            // Check if the file even exists on the disk...
-            if (!System.IO.File.Exists(file.Path)) return Json(new { Success = false, Reason = "The file physically does not exist..." });
+            if (file == null)
+                return Json(new { Success = false, Reason = "We could not find a the file specified..." });
 
-            // Setup a new viewer...
+            /////////////////////////////////
+
+            if (!System.IO.File.Exists(file.Path))
+                return Json(new { Success = false, Reason = "The file physically does not exist..." });
+
+            /////////////////////////////////
+
             Viewer viewer = new Viewer() { Success = true };
 
-            // Setup our file attributes...
             viewer.Name = file.Name;
             viewer.Ext = file.Ext;
             viewer.Size = file.Size;
 
-            // Setup our icon to not display a preview icon...
             viewer.Icon = _processService.GetFileAttribute(
                 file.Id.ToString(),
                 file.Ext,
                 ProcessService.AttributeTypes.FileIconNoPreview);
 
-            // Setup our view bag action as a preview variable...
             viewer.Action = _processService.GetFileAttribute(
                 file.Id.ToString(),
                 file.Ext,
                 ProcessService.AttributeTypes.FileAction);
 
-            // Setup our encrypted field...
             viewer.IsEncrypted = file.IsEncrypted;
-
-            // Setup our url...
             viewer.URL = $"i/{shareId}";
-
-            // Setup our relative part...
             viewer.RelativeURL = "../";
 
-            // Return the partial view...
+            /////////////////////////////////
+
             return Json(viewer);
         }
 
         /// <summary>
-        /// Displays the share page for a shared file...
+        /// Displays the share page for a shared file.
         /// </summary>
         /// <param name="shareId"></param>
         /// <returns></returns>
@@ -281,62 +242,68 @@ namespace Vault.Controllers
         {
             try
             {
-                // Get our user by their api key...
                 User user = _processService.GetUserAPI(apiKey);
 
-                // If our user is null, then return an invalid message...
+                /////////////////////////////////
+
                 if (user == null) return Json(new { Success = false, Reason = "Unable to find the API user..." });
 
-                // Store our file size...
+                /////////////////////////////////
+
                 long size = file.Length;
 
-                // Check if the file is too big to upload...
-                if (size > long.Parse(_configuration["MaxVaultFileSize"])) return Json(new { Success = false, Reason = "The file size is too large..." });
+                /////////////////////////////////
+
+                if (size > long.Parse(_configuration["MaxVaultFileSize"]))
+                    return Json(new { Success = false, Reason = "The file size is too large..." });
 
                 //////////////////////////////////////////////////////////////////
 
-                // Check if the user has enough storage to upload the file...
-                if (!_processService.CanUpload(user, size)) return Json(new { Success = false, Reason = "Not enough storage to upload file..." });
+                if (!_processService.CanUpload(user, size))
+                    return Json(new { Success = false, Reason = "Not enough storage to upload file..." });
 
                 //////////////////////////////////////////////////////////////////
 
-                // Full path to file in temp location
                 string filePath = _configuration["VaultStorageLocation"] + _processService.RandomString(30);
 
-                // Check if our file already exists with that name!
+                /////////////////////////////////
+
                 if (System.IO.File.Exists(filePath))
-                    // Respond with zero since something bad happened...
                     return Json(new { Success = false, Reason = "Internal server error! (file path taken)" });
 
-                // Setup our file name while also checking if our given file name isn't null...
+                /////////////////////////////////
+
                 string fileName = file.FileName == null ? "Unknown.bin" : file.FileName;
 
-                // Get the file's extension...
+                /////////////////////////////////
+
                 string fileExtension = Path.GetExtension(fileName).ToLower();
 
-                // Copy our file from buffer...
+                /////////////////////////////////
+
                 using (var stream = new FileStream(filePath, FileMode.Create))
-                {
                     await file.CopyToAsync(stream);
-                }
 
                 //////////////////////////////////////////////////////////////////
 
-                // Add the new file...
                 var result = _processService.AddNewFileAPI(user, size, fileName, fileExtension, filePath);
 
-                // Check we were successful in adding a new file...
+                /////////////////////////////////
+
                 if (result.IsOK())
                 {
-                    // Setup a path for our uploaders to know where this is located...
                     var path = $"{_configuration["ShareUploadLocation"]}{result.Get().Item1}{fileExtension}";
 
-                    // Respond with a successful message...
+                    /////////////////////////////////
+
                     return Json(new { Success = true, Path = path });
                 }
-                else
-                    // Respond that something bad happened...
-                    return Json(new { Success = false, Reason = "Transaction error..." });
+
+                /////////////////////////////////
+
+                return Json(
+                    result.FormatError()
+                );
             }
             catch
             {
