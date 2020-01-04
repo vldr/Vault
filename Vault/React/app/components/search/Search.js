@@ -11,7 +11,8 @@ class Search extends React.Component
     {
         super(props);
 
-        // Setup our states...
+        this.initialKey = null;
+
         this.state =
         {
             isSearching: false,
@@ -46,9 +47,38 @@ class Search extends React.Component
                 return;
             }
 
+            ///////////////////////////////////////
+            
+            if (this.state.isSearching) return;
+
+            ///////////////////////////////////////
+
+            this.initialKey = event.key;
+
+            ///////////////////////////////////////
+
             // Set our state to display if we're searching...
             this.setState({ isSearching: true });
         };
+    }
+
+    componentDidUpdate()
+    {
+        if (this.state.isSearching)
+        {
+            this.searchBox.focus();
+
+            if (!window.chrome && this.initialKey)
+            {
+                this.searchBox.value = this.insert(this.searchBox.value, 0, this.initialKey);
+                this.initialKey = null;
+            }
+        }
+    }
+
+    insert(str, index, value)
+    {
+        return str.substr(0, index) + value + str.substr(index);
     }
 
     onClose(event)
@@ -192,7 +222,7 @@ class Search extends React.Component
                     ref={(input) => { this.searchBox = input; }}
                     onChange={this.onSearch.bind(this)}
                     onKeyPress={this.submit.bind(this)}
-                    autoFocus placeholder="Search" />
+                    placeholder="Search" />
 
                 <div className={styles['search-content']}>
                     <div className={styles['search-close']} onClick={this.close.bind(this)} />

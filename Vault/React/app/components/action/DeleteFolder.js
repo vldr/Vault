@@ -16,6 +16,11 @@ export class DeleteFolder extends React.Component
         };
     }
 
+    componentDidMount()
+    {
+        setTimeout(() => this.deleteButton.focus(), 100);
+    }
+
     // Close our dialog when close is needed...
     close()
     {
@@ -79,7 +84,7 @@ export class DeleteFolder extends React.Component
                 </div>
             </div>
 
-            <button className={styles["button"]} onClick={this.onClick.bind(this)}>Delete</button>
+            <button className={styles["button"]} ref={(input) => { this.deleteButton = input; }} onClick={this.onClick.bind(this)}>Delete</button>
             <button className={styles["button"] + " " + styles["inverse"]} onClick={this.close.bind(this)}>Close</button>
         </div>) : null;
 

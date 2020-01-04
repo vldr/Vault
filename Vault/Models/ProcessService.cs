@@ -306,6 +306,13 @@ namespace Vault.Models
 
             switch (ext)
             {
+                case ".flash":
+                    if (type == AttributeTypes.FileIcon
+                       || type == AttributeTypes.FileIconNoPreview
+                       || type == AttributeTypes.FileShareIcon)
+                        return "images/file/flashcard-icon.svg";
+                    else
+                        return "5";
                 case ".zip":
                 case ".rar":
                 case ".tar":
@@ -2118,6 +2125,57 @@ namespace Vault.Models
             catch
             {
                 return Result.New(ResultStatus.Exception);
+            }
+        }
+
+        /// <summary>
+        /// Writes the contents to a text file.
+        /// </summary>
+        /// <param name="ownerId"></param>
+        /// <param name="fileId"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public Result EditTextFile(int ownerId, int fileId, string contents)
+        {
+            // Catch any exceptions.
+            try
+            {
+                // Attempt to find our file.
+                File file = GetFile(ownerId, fileId);
+
+                // Check if our file even exists.
+                if (file == null)
+                    return Result.New(ResultStatus.InvalidFileHandle);
+
+                /////////////////////////////////////
+
+                if (file.IsEncrypted)
+                    return Result.New(ResultStatus.FileIsEncrypted);
+
+                /////////////////////////////////////
+
+                if (!CanUpload(ownerId, contents.Length))
+                    return Result.New(ResultStatus.NotEnoughStorage);
+
+                /////////////////////////////////////
+
+                if (!System.IO.File.Exists(file.Path))
+                    return Result.New(ResultStatus.FileDoesNotExistOnDisk);
+
+                /////////////////////////////////////
+
+                System.IO.File.WriteAllText(file.Path, contents);
+
+                /////////////////////////////////////
+
+                return Result.New();
+            }
+            catch (Exception ex)
+            {
+                var result = Result.New(ResultStatus.Exception);
+                result.CustomErrorMessage = ex.Message;
+
+                return result;
             }
         }
 

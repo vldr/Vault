@@ -21,26 +21,27 @@ export class Settings extends React.Component {
         this.onLoad();
     }
 
-    onUpdatePassword()
+    componentDidUpdate()
     {
-        // Set our action accordingly...
-        this.setState({ action: 1 });
+        if (this.state.action === 1)
+            this.currentPassword.focus();
 
-        // Janky solution to focus on the input box due to animations...
-        setTimeout(() => this.currentPassword.focus(), 100);
+        if (this.state.action === 2)
+            this.name.focus();
     }
 
-    onUpdateName() {
-        // Set our action accordingly...
-        this.setState({ action: 2 });
+    onUpdatePassword()
+    {
+        this.setState({ action: 1 });
+    }
 
-        // Janky solution to focus on the input box due to animations...
-        setTimeout(() => this.name.focus(), 100);
+    onUpdateName()
+    {
+        this.setState({ action: 2 });
     }
 
     onGoBack()
     {
-        // Set our action back to normal...
         this.setState({ action: 0 });
     }
 

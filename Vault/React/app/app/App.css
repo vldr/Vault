@@ -94,6 +94,102 @@ input[type=text]:focus {
     opacity: .5
 }
 
+.flashcard {
+    background: #fff;
+    max-width: 1024px;
+    margin: 20px auto 0;
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137)
+}
+
+.flashcard-add-button {
+    background: #00b8d6;
+    max-width: 1024px;
+    margin: 20px auto 30px;
+    -webkit-transition: background .3s;
+    -webkit-transition: all .3s;
+    transition: all .3s;
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.06667)
+}
+
+.flashcard-add-button:hover {
+    background: #3ae2fd
+}
+
+.flashcard-add-button-title {
+    font-weight: 700;
+    font-size: 19px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    color: #fff;
+    padding: 19px
+}
+
+.flashcard-add-button-text {
+    border-bottom: 3px solid rgba(0,0,0,.16863);
+    padding-bottom: 3px
+}
+
+.flashcard-add-button-plus {
+    font-size: 29px;
+    color: hsla(0,0%,100%,.72157);
+    float: left;
+    margin: -5px 2px
+}
+
+.flashcard-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    grid-gap: 10px;
+    padding: 13px;
+}
+
+.flashcard-title {
+    font-size: 24px;
+    text-align: left;
+    padding-top: 14px;
+    padding-left: 16px;
+    padding-bottom: 12px;
+    color: grey;
+    border-bottom: 1px dashed hsla(0,0%,50.2%,.45882);
+    margin: 0
+}
+
+.flashcard-input {
+    margin: 10px 10px 0;
+    padding: 7px;
+    text-align: left;
+    white-space: pre-wrap;
+    outline: 0;
+    border-bottom: 2px solid hsla(0,0%,50.2%,.63137);
+    -webkit-transition: border .1s linear;
+    transition: border .1s linear;
+}
+
+.flashcard-input:focus {
+    border-color: #00b8d6
+}
+
+.flashcard-subtitle {
+    float: left;
+    padding: 7px 11px 11px 13px;
+    font-size: 14px;
+    font-weight: 700;
+    color: grey
+}
+
+.flashcard-indicator-text {
+    max-width: 1024px;
+    color: hsla(0,0%,100%,.6);
+    padding: 10px;
+    text-align: left;
+    margin: 0 auto -10px;
+    font-weight: 700;
+    font-size: 15px
+}
+
 .text-overlay {
     position: absolute;
     left: 0;
@@ -111,6 +207,7 @@ input[type=text]:focus {
     position: absolute;
     white-space: pre;
     cursor: text;
+    -webkit-transform-origin: 0 0;
     transform-origin: 0 0;
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -124,6 +221,7 @@ input[type=text]:focus {
     left: 50%;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    -webkit-transform: translate(-50%) scale(1.1);
     transform: translate(-50%) scale(1.1)
 }
 
@@ -165,10 +263,12 @@ input[type=text]:focus {
     filter: invert(.2);
     margin-right: 8px;
     margin-left: 3px;
+    -webkit-transition: all .3s;
     transition: all .3s
 }
 
 .sorting-arrow-down {
+    -webkit-transform: rotate(180deg);
     transform: rotate(180deg)
 }
 
@@ -186,6 +286,7 @@ input[type=text]:focus {
     text-decoration: none;
     color: #6d6d6d;
     cursor: pointer;
+    -webkit-box-flex: 0;
     flex-grow: 0;
     width: 39px;
     font-size: 11px;
@@ -235,7 +336,10 @@ input[type=text]:focus {
     padding: 10px;
     display: inline-block;
     cursor: unset;
-    height: 0
+    pointer-events: none;
+    height: 0;
+    -webkit-filter: drop-shadow(0 0 15px rgba(0,0,0,.2));
+    filter: drop-shadow(0 0 15px rgba(0,0,0,.2))
 }
 
 .warning-message > .gridItem-folder > .grid-text {
@@ -319,6 +423,7 @@ div .button {
 
 .menu-option-color-picker {
     padding: 10px 15px 10px 20px;
+    display: -webkit-inline-box;
     display: inline-flex
 }
 
@@ -372,7 +477,7 @@ div .button {
 }
 
 .recycle-bin-empty .grid-icon {
-    background-image: url(../../../images/recycle-empty.svg);
+    background-image: url(../images/recycle-empty.svg);
     background-size: 22px;
     background-position: 3px 2px
 }
@@ -433,11 +538,13 @@ div .button {
 
 @-webkit-keyframes zoom {
     0% {
+        -webkit-transform: translateX(-175px) translateY(-500px);
         transform: translateX(-175px) translateY(-500px);
         opacity: 0
     }
 
     to {
+        -webkit-transform: translateX(0) translateY(0);
         transform: translateX(0) translateY(0);
         opacity: 1
     }
@@ -445,6 +552,7 @@ div .button {
 
 @keyframes zoom {
     0% {
+        -webkit-transform: scale(1.25) rotate(0deg) translateX(0) translateY(0) skewX(0deg) skewY(0deg);
         transform: scale(1.25) rotate(0deg) translateX(0) translateY(0) skewX(0deg) skewY(0deg);
         opacity: 0
     }
@@ -462,6 +570,7 @@ div .button {
     text-shadow: 2px 2px 6px rgba(27,27,27,.48);
     font-size: 40px;
     font-weight: 700;
+    -webkit-transition: .3s;
     transition: .3s
 }
 
@@ -492,6 +601,7 @@ div .button {
     width: 120px;
     height: 120px;
     margin: 85px;
+    -webkit-transform: translateZ(0);
     transform: translateZ(0);
     will-change: transform;
     -webkit-animation: spin .3s linear infinite;
@@ -510,86 +620,106 @@ div .button {
 
 @keyframes spin {
     0% {
+        -webkit-transform: rotate(0deg);
         transform: rotate(0deg)
     }
 
     to {
+        -webkit-transform: rotate(1turn);
         transform: rotate(1turn)
     }
 }
 
 @-webkit-keyframes jello {
     11.1% {
+        -webkit-transform: none;
         transform: none
     }
 
     22.2% {
+        -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);
         transform: skewX(-12.5deg) skewY(-12.5deg)
     }
 
     33.3% {
+        -webkit-transform: skewX(6.25deg) skewY(6.25deg);
         transform: skewX(6.25deg) skewY(6.25deg)
     }
 
     44.4% {
+        -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);
         transform: skewX(-3.125deg) skewY(-3.125deg)
     }
 
     55.5% {
+        -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);
         transform: skewX(1.5625deg) skewY(1.5625deg)
     }
 
     66.6% {
+        -webkit-transform: skewX(-.78125deg) skewY(-.78125deg);
         transform: skewX(-.78125deg) skewY(-.78125deg)
     }
 
     77.7% {
+        -webkit-transform: skewX(.390625deg) skewY(.390625deg);
         transform: skewX(.390625deg) skewY(.390625deg)
     }
 
     88.8% {
+        -webkit-transform: skewX(-.1953125deg) skewY(-.1953125deg);
         transform: skewX(-.1953125deg) skewY(-.1953125deg)
     }
 
     to {
+        -webkit-transform: none;
         transform: none
     }
 }
 
 @keyframes jello {
     11.1% {
+        -webkit-transform: none;
         transform: none
     }
 
     22.2% {
+        -webkit-transform: skewX(-12.5deg) skewY(-12.5deg);
         transform: skewX(-12.5deg) skewY(-12.5deg)
     }
 
     33.3% {
+        -webkit-transform: skewX(6.25deg) skewY(6.25deg);
         transform: skewX(6.25deg) skewY(6.25deg)
     }
 
     44.4% {
+        -webkit-transform: skewX(-3.125deg) skewY(-3.125deg);
         transform: skewX(-3.125deg) skewY(-3.125deg)
     }
 
     55.5% {
+        -webkit-transform: skewX(1.5625deg) skewY(1.5625deg);
         transform: skewX(1.5625deg) skewY(1.5625deg)
     }
 
     66.6% {
+        -webkit-transform: skewX(-.78125deg) skewY(-.78125deg);
         transform: skewX(-.78125deg) skewY(-.78125deg)
     }
 
     77.7% {
+        -webkit-transform: skewX(.390625deg) skewY(.390625deg);
         transform: skewX(.390625deg) skewY(.390625deg)
     }
 
     88.8% {
+        -webkit-transform: skewX(-.1953125deg) skewY(-.1953125deg);
         transform: skewX(-.1953125deg) skewY(-.1953125deg)
     }
 
     to {
+        -webkit-transform: none;
         transform: none
     }
 }
@@ -688,6 +818,7 @@ div .button {
 
 .button:hover {
     background-color: #d6d6d6;
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#f8f8f8),to(#f1f1f1));
     background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
     border: 1px solid #eaeaea;
     color: #333;
@@ -703,11 +834,7 @@ div .button {
     box-shadow: inset 0 1px 2px rgba(0,0,0,.3)
 }
 
-.button.blue:focus {
-    outline: 0 !important
-}
-
-.button.default:focus {
+.button.blue:focus, .button.default:focus {
     outline: 0 !important
 }
 
@@ -744,7 +871,7 @@ div .button {
     top: 14px;
     z-index: 2;
     right: 48px;
-    background: url(../../../images/ui/settings.svg);
+    background: url(../images/ui/settings.svg);
     background-size: 17px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -768,7 +895,7 @@ div .button {
     top: 14px;
     right: 10px;
     z-index: 2;
-    background: url(../../../images/ui/logout.svg);
+    background: url(../images/ui/logout.svg);
     background-size: 15px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -796,7 +923,7 @@ div .button {
 }
 
 .search-close {
-    background: url(../../../images/x.svg);
+    background: url(../images/x.svg);
     background-size: 29px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -833,7 +960,7 @@ div .button {
     top: 14px;
     right: 86px;
     z-index: 2;
-    background: url(../../../images/ui/search.svg);
+    background: url(../images/ui/search.svg);
     background-size: 17px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -858,7 +985,7 @@ div .button {
     border-bottom-right-radius: 4px;
     top: 14px;
     right: 130px;
-    background: url(../../../images/ui/upload.svg);
+    background: url(../images/ui/upload.svg);
     background-size: 18px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -883,7 +1010,7 @@ div .button {
     top: 14px;
     right: 165px;
     z-index: 2;
-    background: url(../../../images/ui/newfolder.svg);
+    background: url(../images/ui/newfolder.svg);
     background-size: 19px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -901,16 +1028,19 @@ div .button {
     box-shadow: 0 1px 1px rgba(0,0,0,.15);
     margin-left: 10px;
     height: 30px;
+    display: -webkit-inline-box;
     display: inline-flex;
     width: 25px;
     padding-left: 3px;
     padding-right: 2px;
+    -webkit-transform: translateX(0);
     transform: translateX(0);
     border-radius: 4px;
     top: 14px;
     overflow: hidden;
     right: 209px;
     z-index: 2;
+    -webkit-transition: all .2s;
     transition: all .2s;
     background-color: #f5f5f5
 }
@@ -932,7 +1062,7 @@ div .button {
     border-radius: 4px;
     top: 14px;
     right: 48px;
-    background: url(../../../images/ui/home.png) 7px 7px no-repeat;
+    background: url(../images/ui/home.png) 7px 7px no-repeat;
     background-color: #f5f5f5
 }
 
@@ -948,7 +1078,7 @@ div .button {
     height: 30px;
     width: 30px;
     border-radius: 4px;
-    background: url(../../../images/ui/cross.png) 7px 7px no-repeat;
+    background: url(../images/ui/cross.png) 7px 7px no-repeat;
     background-color: #f5f5f5
 }
 
@@ -965,7 +1095,7 @@ div .button {
     width: 30px;
     padding: 0;
     border-radius: 4px;
-    background: url(../../../images/ui/download.png) 7px 7px no-repeat;
+    background: url(../images/ui/download.png) 7px 7px no-repeat;
     background-color: #f5f5f5
 }
 
@@ -1003,6 +1133,7 @@ div .button {
     width: 93px;
     height: 142px;
     background: unset !important;
+    -webkit-transition: all .05s;
     transition: all .05s;
     word-break: break-all;
     padding: 17px;
@@ -1103,6 +1234,7 @@ div .button {
     height: 10px;
     border: solid #fff;
     border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
     transform: rotate(45deg)
 }
 
@@ -1163,7 +1295,7 @@ progress::-moz-progress-bar {
     background-repeat: no-repeat;
     background-position: 50%;
     pointer-events: none;
-    background-image: url(../../../images/folder.svg);
+    background-image: url(../images/folder.svg);
     background-size: 75px;
     -webkit-filter: drop-shadow(0 1px 2px rgba(0,0,0,.13333));
     filter: drop-shadow(0 1px 2px rgba(0,0,0,.13333))
@@ -1189,8 +1321,10 @@ progress::-moz-progress-bar {
     z-index: 9;
     overflow-y: scroll;
     height: 100%;
+    display: -webkit-box;
     display: flex;
     width: 100%;
+    background-image: -webkit-gradient(linear,left top,left bottom,color-stop(1%,rgba(0,0,0,.78039)),color-stop(99%,rgba(30,30,30,.92941)));
     background-image: linear-gradient(rgba(0,0,0,.78039) 1%,rgba(30,30,30,.92941) 99%);
     background-position: 50%;
     background-repeat: no-repeat;
@@ -1302,8 +1436,8 @@ progress::-moz-progress-bar {
     display: inherit;
     -webkit-filter: drop-shadow(2px 3px 3px rgba(0,0,0,.32157));
     filter: drop-shadow(2px 3px 3px rgba(0,0,0,.32157));
-    -webkit-animation: fadein .8s;
-    animation: fadein .8s;
+    -webkit-animation: fadein .5s;
+    animation: fadein .5s;
     transform-origin: center center;
     -webkit-transform-origin: center center;
     -ms-transform-origin: center center
@@ -1313,6 +1447,14 @@ progress::-moz-progress-bar {
     margin-bottom: 30px
 }
 
+.goto-input {
+    background: transparent;
+    color: #fff !important;
+    width: 58px !important;
+    margin: -2px;
+    padding: 0 !important
+}
+
 .btn-download-viewer {
     margin-left: 10px;
     height: 43px;
@@ -1320,7 +1462,7 @@ progress::-moz-progress-bar {
     padding: 0;
     border-radius: 4px;
     cursor: pointer;
-    background: url(../../../images/ui/download.svg);
+    background: url(../images/ui/download.svg);
     background-size: 58%;
     background-repeat: no-repeat;
     background-position: 50%
@@ -1330,6 +1472,27 @@ progress::-moz-progress-bar {
     background-color: rgba(0,0,0,.92941)
 }
 
+.btn-edit-viewer {
+    margin-left: 10px;
+    height: 43px;
+    width: 43px;
+    padding: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    background: url(../images/pencil-white.svg);
+    background-size: 58%;
+    background-repeat: no-repeat;
+    background-position: 50%
+}
+
+.btn-edit-viewer:hover {
+    background-color: rgba(0,0,0,.92941)
+}
+
+.btn-edit-viewer-selected {
+    background-color: rgba(0,0,0,.4)
+}
+
 .btn-close-viewer {
     margin-left: 15px;
     height: 43px;
@@ -1337,7 +1500,7 @@ progress::-moz-progress-bar {
     padding: 0;
     border-radius: 4px;
     cursor: pointer;
-    background: url(../../../images/x.svg);
+    background: url(../images/x.svg);
     background-size: 58%;
     background-repeat: no-repeat;
     background-position: 50%
@@ -1485,7 +1648,7 @@ input[type=submit]:hover {
 
     .btnDownload {
         width: 98%;
-        background: url(../../../images/ui/download.png) 50% 7px no-repeat;
+        background: url(../images/ui/download.png) 50% 7px no-repeat;
         background-color: #f5f5f5;
         margin: 0 0 25px
     }
@@ -1493,7 +1656,7 @@ input[type=submit]:hover {
     .btnDelete {
         margin: 0;
         width: 98%;
-        background: url(../../../images/ui/cross.png) 50% 7px no-repeat;
+        background: url(../images/ui/cross.png) 50% 7px no-repeat;
         background-color: #f5f5f5
     }
 
@@ -1502,15 +1665,15 @@ input[type=submit]:hover {
         width: 45%;
         white-space: nowrap;
         text-align: center;
-        font-weight: 700
-    }
-
-    td:before {
+        font-weight: 700;
         content: attr(data-title)
     }
 
     .overlay {
+        display: -webkit-box;
         display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
         flex-direction: column
     }
 
@@ -1518,16 +1681,14 @@ input[type=submit]:hover {
         display: unset !important
     }
 
-    .share-overlay > .share-comments {
+    .overlay > .share-comments, .share-overlay > .share-comments {
         width: 100%;
         margin-top: 50px;
         height: auto
     }
 
     .overlay > .share-comments {
-        width: 100%;
-        margin-top: 50px;
-        height: auto;
+        -webkit-box-flex: 1;
         flex: 1
     }
 }
@@ -1566,6 +1727,7 @@ p {
     text-align: center;
     min-width: 60px;
     position: relative;
+    -webkit-transition: color .1s ease;
     transition: color .1s ease
 }
 
@@ -1585,6 +1747,7 @@ p {
     text-align: center;
     min-width: 60px;
     position: relative;
+    -webkit-transition: all .2s ease;
     transition: all .2s ease;
     cursor: pointer;
     -webkit-user-select: none;
@@ -1634,6 +1797,7 @@ p {
 }
 
 .modal:target .modal-dialog {
+    -webkit-transform: translate(0);
     transform: translate(0);
     display: block
 }
@@ -1648,8 +1812,12 @@ p {
     left: 10%;
     z-index: 11;
     width: 75%;
+    -webkit-transform: translateY(-500%);
     transform: translateY(-500%);
-    transition: transform .3s ease-out
+    -webkit-transition: -webkit-transform .3s ease-out;
+    transition: -webkit-transform .3s ease-out;
+    transition: transform .3s ease-out;
+    transition: transform .3s ease-out,-webkit-transform .3s ease-out
 }
 
 .modal-body {
@@ -1827,6 +1995,7 @@ p {
 }
 
 .snack-bar-checkmark-check {
+    -webkit-transform-origin: 50% 50%;
     transform-origin: 50% 50%;
     stroke-dasharray: 48;
     stroke-dashoffset: 48;
@@ -1867,20 +2036,24 @@ p {
 
 @-webkit-keyframes scale {
     0%,to {
+        -webkit-transform: none;
         transform: none
     }
 
     50% {
+        -webkit-transform: scaleX(1);
         transform: scaleX(1)
     }
 }
 
 @keyframes scale {
     0%,to {
+        -webkit-transform: none;
         transform: none
     }
 
     50% {
+        -webkit-transform: scaleX(1);
         transform: scaleX(1)
     }
 }
@@ -1956,8 +2129,11 @@ p {
     z-index: 2;
     top: 0;
     left: 0;
+    display: -webkit-box;
     display: flex;
+    -webkit-box-pack: center;
     justify-content: center;
+    -webkit-box-align: center;
     align-items: center;
     width: 100%;
     height: 100%;
@@ -1967,6 +2143,7 @@ p {
 }
 
 .items {
+    -webkit-transition: opacity .2s;
     transition: opacity .2s
 }
 
@@ -2001,11 +2178,13 @@ p {
 
 @-webkit-keyframes intro-in {
     0% {
+        -webkit-transform: scale(.9);
         transform: scale(.9);
         opacity: 0
     }
 
     20% {
+        -webkit-transform: scale(1);
         transform: scale(1);
         opacity: 1
     }
@@ -2021,11 +2200,13 @@ p {
 
 @keyframes intro-in {
     0% {
+        -webkit-transform: scale(.9);
         transform: scale(.9);
         opacity: 0
     }
 
     20% {
+        -webkit-transform: scale(1);
         transform: scale(1);
         opacity: 1
     }
@@ -2060,7 +2241,7 @@ p {
     right: 20px;
     cursor: pointer;
     z-index: 2;
-    background: url(../../../images/x.svg);
+    background: url(../images/x.svg);
     background-size: 28px;
     background-repeat: no-repeat;
     background-position: 50%;
@@ -2092,6 +2273,7 @@ p {
     box-shadow: 0 1px 1px 1px rgba(0,0,0,.16078);
     padding: 2px 26px;
     border-radius: 3px;
+    display: -webkit-inline-box;
     display: inline-flex
 }
 
@@ -2124,6 +2306,7 @@ p {
 }
 
 .share-overlay {
+    display: -webkit-inline-box;
     display: inline-flex;
     width: 100%;
     height: 100%
@@ -2206,25 +2389,24 @@ p {
 }
 
 .comment-editor input[type=text] {
+    padding: 14px;
+    text-align: left
+}
+
+.comment-editor input[type=text], .comment-editor textarea {
     background: #fff;
     border: 1px solid #d6d6d6;
     margin: 10px;
-    padding: 14px;
-    border-radius: 4px;
-    text-align: left
+    border-radius: 4px
 }
 
 .comment-editor textarea {
     height: 32px;
     width: 76%;
-    border-radius: 4px;
     resize: none;
     outline: 0;
     font-family: unset;
-    padding: 17px;
-    background: #fff;
-    border: 1px solid #d6d6d6;
-    margin: 10px
+    padding: 17px
 }
 
 .comment-editor > .loader {
@@ -2337,6 +2519,7 @@ p {
 
 .comment-date {
     text-align: right;
+    -webkit-box-flex: 1;
     flex: 1;
     color: #9c9c9c;
     padding-top: 23px;
@@ -2345,6 +2528,7 @@ p {
 }
 
 .comment-topbar {
+    display: -webkit-box;
     display: flex
 }
 
@@ -2381,7 +2565,7 @@ p {
     width: 20px;
     margin-top: 10px;
     margin-left: -20px;
-    background: url(../../../images/padlock.svg);
+    background: url(../images/padlock.svg);
     background-repeat: no-repeat
 }
 
@@ -2392,6 +2576,7 @@ p {
 }
 
 .server-listing {
+    display: -webkit-box;
     display: flex;
     margin-bottom: 14px
 }
@@ -2419,15 +2604,15 @@ p {
 }
 
 .unlock-file-icon {
-    background: url(../../../images/padlock-open.svg)
+    background: url(../images/padlock-open.svg)
 }
 
 .clock-icon {
-    background: url(../../../images/clock.svg)
+    background: url(../images/clock.svg)
 }
 
 .lock-file-icon {
-    background: url(../../../images/padlock.svg)
+    background: url(../images/padlock.svg)
 }
 
 .lock-file-icon, .unlock-file-icon, .upload-file-icon {
@@ -2438,11 +2623,12 @@ p {
 }
 
 .upload-file-icon {
-    background: url(../../../images/ui/upload.svg)
+    background: url(../images/ui/upload.svg)
 }
 
 .btnSortOpen {
     padding-left: 11px;
+    display: -webkit-inline-box;
     display: inline-flex;
     width: 165px;
     background: #f5f5f5
@@ -2451,6 +2637,7 @@ p {
 .upload-selection-button {
     width: 198px;
     height: 235px;
+    -webkit-transition: all .05s;
     transition: all .05s;
     padding: 26px 13px;
     border-radius: 10px;
@@ -2495,7 +2682,7 @@ p {
 
 @media (min-width: 1325px) {
     .overlay-preview {
-        max-width: 1155px;
+        max-width: 1155px
     }
 }
 
@@ -2508,6 +2695,13 @@ p {
         height: 64px
     }
 }
+
+@media (max-width: 1000px) {
+    .flashcard-wrapper {
+        grid-template-columns: repeat(1,1fr);
+    }
+}
+
 
 @-webkit-keyframes loading {
     0% {

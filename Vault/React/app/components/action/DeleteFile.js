@@ -16,8 +16,8 @@ export class DeleteFile extends React.Component
         };
     }
 
-    componentDidMount() {
-        // Janky solution because browser restrictions of animations...
+    componentDidMount()
+    {
         setTimeout(() => this.deleteButton.focus(), 100);
     }
 

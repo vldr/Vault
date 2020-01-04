@@ -856,6 +856,42 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Overwrites a file with the given contents.
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="contents"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/edittextfile")]
+        public IActionResult EditTextFile(int? fileId, string contents)
+        {
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            /////////////////////////////////
+
+            if (fileId == null || contents == null) return MissingParameters();
+
+            /////////////////////////////////
+
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
+
+            var result = _processService.EditTextFile(
+                userSession.Id, 
+                fileId.GetValueOrDefault(), 
+                contents
+            );
+
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
+        }
+
+        /// <summary>
         /// Duplicates a file. 
         /// </summary>
         /// <param name="fileId"></param>

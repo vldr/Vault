@@ -30,9 +30,14 @@ class ContextMenu extends React.Component {
         // Prevent the context menu from opening...
         document.documentElement.oncontextmenu = (e) =>
         {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
+            if (e.target.className === styles['menu'])
+            {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+            else
+                this.setState({ isOpen: false });
         };
 
         // Set our state with our reference...

@@ -8,6 +8,7 @@ import { VideoView } from './VideoView';
 import { DownloadEncryptedFile } from '../action/DownloadEncryptedFile';
 
 const PDFView = React.lazy(() => import('./PDFView'));
+const FlashcardEdit = React.lazy(() => import('../editor/FlashcardEdit'));
 
 class Viewer extends React.Component {
     constructor(props) {
@@ -17,6 +18,7 @@ class Viewer extends React.Component {
         this.state = {
             isOpen: false,
             isLoading: false,
+            isEditing: false,
             fileId: null, 
             response: null
         };
@@ -38,6 +40,7 @@ class Viewer extends React.Component {
         // Set our state to be started...
         this.setState({
             isOpen: true,
+            isEditing: false,
             isLoading: true
         });
 
@@ -67,7 +70,9 @@ class Viewer extends React.Component {
                     }
                     // Set our response and turn off isLoading...
                     else
+                    {
                         this.setState({ response: result, isLoading: false, fileId: fileId });
+                    }
                 },
                 (error) => {
                     // Stop our loading state...
@@ -156,11 +161,16 @@ class Viewer extends React.Component {
 
     open()
     {
-        // Set our state to display our search overlay...
         this.setState({ isOpen: true });
     }
 
-    render() {
+    toggleEditor()
+    {
+        this.setState({ isEditing: !this.state.isEditing });
+    }
+
+    render()
+    {
         // Don't display anything if we're not open...
         if (!this.state.isOpen) return null;
 
@@ -169,30 +179,20 @@ class Viewer extends React.Component {
 
         // Setup our loader bar...
         const loaderBar = <div className={styles['loader']} />;
-         
-        // Setup our viewer content...
-        const viewerTopbar = hasLoaded ?
-            (<div className={styles['overlay-topbar']} >
-                <img src={this.state.response.relativeURL + this.state.response.icon} />
-                <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
-                {this.state.response.isEncrypted && <div className={styles['file-locked']} />}
-                <div className={styles['overlay-topbar-right']}>
-                    <div className={styles['btn-download-viewer']}
-                        onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />
-                    <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
-                </div>
-            </div>) : null;
 
         // Setup our view... 
         let view = hasLoaded ? (<div className={styles['overlay-message']}>No preview available 
             {this.state.response.isEncrypted && <span> - due to encryption</span>}
         </div>) : null;
 
-        // Check if our view has loaded...
+        // Rendered view of the editor.
+        let editView = null;
+
+        //////////////////////////////////////////
+
         if (hasLoaded && !this.state.response.isEncrypted)
-            // Perform a switch to choose our...
-            switch (this.state.response.action)
-            {
+        {
+            switch (this.state.response.action) {
                 // PhotoView
                 case "1":
                     view = <PhotoView view={this.state.response} />;
@@ -209,9 +209,39 @@ class Viewer extends React.Component {
                 case "4":
                     view = <AudioView view={this.state.response} />;
                     break;
+                // FlashcardView
+                case "5": {
+                    editView = <FlashcardEdit view={this.state.response} />;
+                    break;
+                }
             }
+        }
 
-        // Render our entire search system...
+        //////////////////////////////////////////
+
+        const viewerTopbar = hasLoaded ?
+            (<div className={styles['overlay-topbar']} >
+                <img src={this.state.response.relativeURL + this.state.response.icon} />
+                <div className={styles['overlay-topbar-text']}>{this.state.response.name}</div>
+                {this.state.response.isEncrypted && <div className={styles['file-locked']} />}
+                <div className={styles['overlay-topbar-right']}>
+                    {
+                        editView &&
+                        <div
+                            className={`${styles['btn-edit-viewer']} ${this.state.isEditing && styles['btn-edit-viewer-selected']}`}
+                            onClick={this.toggleEditor.bind(this)}
+                        />
+                    }
+
+                    <div className={styles['btn-download-viewer']}
+                        onClick={this.state.response.isEncrypted ? this.downloadEncryptedFile.bind(this) : this.downloadFile.bind(this)} />
+
+                    <div className={styles['btn-close-viewer']} onClick={this.close.bind(this)} />
+                </div>
+            </div>) : null;
+
+        //////////////////////////////////////////
+
         return (
             <div className={styles['overlay']} onClick={this.onClose.bind(this)}>
                 <div className={styles['overlay-inherit']}>
@@ -219,7 +249,8 @@ class Viewer extends React.Component {
                     {viewerTopbar}
 
                     <React.Suspense fallback={loaderBar}>
-                        {hasLoaded && view}
+                        {hasLoaded && !this.state.isEditing && view}
+                        {hasLoaded && this.state.isEditing && editView}
                     </React.Suspense>
                 </div>
             </div>

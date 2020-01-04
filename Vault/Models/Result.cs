@@ -38,6 +38,7 @@ namespace Vault.Models
         InternalFileNameTaken,
         UnableToDuplicate,
         EmailTaken,
+        FileDoesNotExistOnDisk,
     }
 
     /// <summary>
