@@ -11,8 +11,6 @@ class Search extends React.Component
     {
         super(props);
 
-        this.initialKey = null;
-
         this.state =
         {
             isSearching: false,
@@ -53,10 +51,6 @@ class Search extends React.Component
 
             ///////////////////////////////////////
 
-            this.initialKey = event.key;
-
-            ///////////////////////////////////////
-
             // Set our state to display if we're searching...
             this.setState({ isSearching: true });
         };
@@ -67,12 +61,6 @@ class Search extends React.Component
         if (this.state.isSearching)
         {
             this.searchBox.focus();
-
-            if (!window.chrome && this.initialKey)
-            {
-                this.searchBox.value = this.insert(this.searchBox.value, 0, this.initialKey);
-                this.initialKey = null;
-            }
         }
     }
 

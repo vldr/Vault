@@ -97,6 +97,7 @@ input[type=text]:focus {
 .flashcard {
     background: #fff;
     max-width: 1024px;
+    animation: fadein 0.5s;
     margin: 20px auto 0;
     box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137)
 }
@@ -104,6 +105,7 @@ input[type=text]:focus {
 .flashcard-add-button {
     background: #00b8d6;
     max-width: 1024px;
+    animation: fadein 0.5s;
     margin: 20px auto 30px;
     -webkit-transition: background .3s;
     -webkit-transition: all .3s;
@@ -186,6 +188,7 @@ input[type=text]:focus {
     padding: 10px;
     text-align: left;
     margin: 0 auto -10px;
+    animation: fadein 0.5s;
     font-weight: 700;
     font-size: 15px
 }

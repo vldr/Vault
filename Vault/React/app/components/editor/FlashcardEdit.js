@@ -1,4 +1,5 @@
 ﻿import React from 'react';
+import PQueue from 'p-queue';
 import styles from '../../app/App.css';
 import { ActionAlert } from '../info/ActionAlert';
 
@@ -8,6 +9,7 @@ class FlashcardEdit extends React.Component {
 
         this.timeout = null;
         this.terms = null;
+        this.queue = new PQueue({ concurrency: 1 });
 
         this.state = {
             isLoading: true,
@@ -62,41 +64,43 @@ class FlashcardEdit extends React.Component {
     saveData()
     {
         /////////////////////////////////
-
-        fetch("process/edittextfile",
-        {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: `fileid=${encodeURIComponent(this.props.view.id)}`
-                + `&contents=${encodeURIComponent(
-                    JSON.stringify(this.state.deck)
-                )}`
-        })
-        .then(res => res.json())
-        .then(
-            (result) => {
-                if (result.success)
-                {
-                    this.setState({
-                        indicator: `Saved ${this.state.deck.cards.length} terms successfully (${new Date().toLocaleString()}).`,
+         
+        this.queue.add(() => 
+            fetch("process/edittextfile",
+            {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `fileid=${encodeURIComponent(this.props.view.id)}`
+                    + `&contents=${encodeURIComponent(
+                        JSON.stringify(this.state.deck)
+                    )}`
+            })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    if (result.success)
+                    {
+                        this.setState({
+                            indicator: `Saved ${this.state.deck.cards.length} terms successfully (${new Date().toLocaleString()}).`,
+                            isLoading: false,
+                            deck: this.state.deck
+                        });
+                    }
+                    else this.setState({
+                        indicator: `Failed to save ${this.state.deck.cards.length} terms.`,
                         isLoading: false,
                         deck: this.state.deck
                     });
-                }
-                else this.setState({
-                    indicator: `Failed to save ${this.state.deck.cards.length} terms.`,
+                },
+                (error) => this.setState({
+                    indicator: `Failed to save ${this.state.deck.cards.length} terms (connection issue), the flashcards were saved locally.`,
                     isLoading: false,
                     deck: this.state.deck
-                });
-            },
-            (error) => this.setState({
-                indicator: `Failed to save ${this.state.deck.cards.length} terms (connection issue), the flashcards were saved locally.`,
-                isLoading: false,
-                deck: this.state.deck
-            })
+                })
+            )
         ); 
     }
 
