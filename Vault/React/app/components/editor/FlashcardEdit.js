@@ -12,6 +12,7 @@ class FlashcardEdit extends React.Component {
 
         this.timeout = null;
         this.terms = null;
+        this.termsRendered = [];
         this.queue = new PQueue({ concurrency: 1 });
 
         this.previousDeck = null;
@@ -20,6 +21,7 @@ class FlashcardEdit extends React.Component {
             isLoading: true,
             indicator: "",
             deck: null, 
+            deckStyles: [],
             error: null
         };
     }
@@ -206,19 +208,22 @@ class FlashcardEdit extends React.Component {
                             this.setState({
                                 indicator: `Saved ${this.state.deck.cards.length} terms successfully (${new Date().toLocaleString()}).`,
                                 isLoading: false,
-                                deck: this.state.deck
+                                deck: this.state.deck,
+                                deckStyles: this.state.deckStyles 
                             });
                         }
                         else this.setState({
                             indicator: `Failed to save ${this.state.deck.cards.length} terms.`,
                             isLoading: false,
-                            deck: this.state.deck
+                            deck: this.state.deck,
+                            deckStyles: this.state.deckStyles
                         });
                     },
                     (error) => this.setState({
                         indicator: `Failed to save ${this.state.deck.cards.length} terms (connection issue), the flashcards were saved locally.`,
                         isLoading: false,
-                        deck: this.state.deck
+                        deck: this.state.deck,
+                        deckStyles: this.state.deckStyles 
                     })
                 )
             );
@@ -266,6 +271,62 @@ class FlashcardEdit extends React.Component {
         this.saveData();
     }
 
+    moveCard(start, end, elem)
+    {
+        const spacing = 20;
+        const endHeight = this.termsRendered[end].offsetHeight + spacing;
+        const startHeight = this.termsRendered[start].offsetHeight + spacing;
+
+        ////////////////////////////////////////
+
+        const distance = Math.abs(start - end);
+
+        ////////////////////////////////////////
+
+        if (distance > 1)
+        {
+            this.state.deckStyles[end] = { opacity: "0" };
+            this.state.deckStyles[start] = { opacity: "0" };
+        }
+        else
+        {
+            this.state.deckStyles[end] = { position: "relative", top: `${end < start ? startHeight : -startHeight}px` };
+            this.state.deckStyles[start] = { position: "relative", top: `${end < start ? -endHeight : endHeight}px` };
+        }
+
+        ////////////////////////////////////////
+
+        this.terms = null;
+        this.setState({ deckStyles: this.state.deckStyles });
+
+        setTimeout(() => {
+            ////////////////////////////////////////
+
+            const cache = this.state.deck.cards[start];
+
+            this.state.deck.cards[start] = this.state.deck.cards[end];
+            this.state.deck.cards[end] = cache;
+
+            ////////////////////////////////////////
+
+            window.localStorage.setItem(`deck-${this.props.view.id}`,
+                JSON.stringify(
+                    this.state.deck
+                )
+            );
+
+            ////////////////////////////////////////
+
+            this.terms = null;
+
+            ////////////////////////////////////////
+
+            this.state.deckStyles[end] = { };
+            this.state.deckStyles[start] = { };
+            this.saveData();
+        }, 200);
+    }
+
     render()
     {
         if (!this.props.view) return null;
@@ -292,11 +353,24 @@ class FlashcardEdit extends React.Component {
 
         if (!this.state.isLoading && !this.terms && this.state.deck)
         {
+            this.termsRendered = [];
             this.terms = this.state.deck.cards.map((card, index) => (
-                <div className={styles['flashcard']} key={index}>
+                <div className={styles['flashcard']} key={index}
+                    style={this.state.deckStyles[index]}
+                    ref={(ref) => { this.termsRendered[index] = ref; }}>
                     <div className={styles['flashcard-delete-button']}
                         onClick={() => new ActionAlert(<DeleteFlashcard deleteCard={this.deleteCard.bind(this)} index={index} />)}
                     />
+                    <div className={styles['flashcard-up-button']}
+                        style={index === 0 ? { opacity: "0.2", pointerEvents: "none"} : {}}
+                        onClick={this.moveCard.bind(this, index, index - 1)} 
+                    />
+
+                    <div className={styles['flashcard-down-button']}
+                        style={index + 1 === this.state.deck.cards.length ? { opacity: "0.2", pointerEvents: "none"} : {}}
+                        onClick={this.moveCard.bind(this, index, index + 1)} 
+                    />
+
                     <h5 className={styles['flashcard-title']}>{index + 1}</h5>
                     <div className={styles['flashcard-wrapper']}>
                         <div>

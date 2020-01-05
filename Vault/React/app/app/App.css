@@ -95,9 +95,13 @@ input[type=text]:focus {
 }
 
 .flashcard {
+    top: 0;
+    opacity: 1;
     background: #fff;
     margin: 20px auto 0;
-    box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137)
+    -webkit-transition: all .2s ease 0s;
+    transition: all .2s ease 0s;
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137);
 }
 
 .flashcard, .flashcard-add-button {
@@ -179,17 +183,36 @@ input[type=text]:focus {
 .flashcard-delete-button {
     background-image: url(../images/rubbish-bin.svg);
     float: right;
-    opacity: 0.4;
+    opacity: .4;
     height: 54px;
     cursor: pointer;
     background-size: 38%;
     background-repeat: no-repeat;
     background-position: 50%;
-    width: 53px;
+    width: 53px
 }
 
-.flashcard-delete-button:hover {
-    opacity: 0.7;
+.flashcard-down-button {
+    background-image: url(../images/ui/arrow.svg)
+}
+
+.flashcard-down-button, .flashcard-up-button {
+    float: right;
+    opacity: .5;
+    height: 54px;
+    cursor: pointer;
+    background-size: 52%;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    width: 38px
+}
+
+.flashcard-up-button {
+    background-image: url(../images/ui/arrow-up.svg)
+}
+
+.flashcard-delete-button:hover, .flashcard-down-button:hover, .flashcard-up-button:hover {
+    opacity: .7
 }
 
 .flashcard-subtitle {
@@ -2721,6 +2744,28 @@ p {
 @media (max-width: 1000px) {
     .flashcard-wrapper {
         grid-template-columns: repeat(1,1fr)
+    }
+}
+
+@-webkit-keyframes move-up {
+    0% {
+        position: relative;
+        margin-top: 20px
+    }
+
+    to {
+        margin-top: -340px;
+        margin-bottom: 200px
+    }
+}
+
+@-webkit-keyframes move-down {
+    0% {
+        margin-top: 20px
+    }
+
+    to {
+        margin-top: 200px
     }
 }
 
