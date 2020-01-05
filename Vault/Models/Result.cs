@@ -39,6 +39,7 @@ namespace Vault.Models
         UnableToDuplicate,
         EmailTaken,
         FileDoesNotExistOnDisk,
+        FileTooLargeToEdit,
     }
 
     /// <summary>

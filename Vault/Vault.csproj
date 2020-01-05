@@ -18,6 +18,7 @@
   <ItemGroup>
     <PackageReference Include="BCrypt-Core" Version="2.0.0" />
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.5" />
+    <PackageReference Include="FossilDelta" Version="0.1.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="DotNetZip" Version="1.13.0" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.10.1" />

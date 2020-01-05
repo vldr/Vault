@@ -1,7 +1,10 @@
 ﻿import React from 'react';
+import fossilDelta from 'fossil-delta';
 import PQueue from 'p-queue';
 import styles from '../../app/App.css';
 import { ActionAlert } from '../info/ActionAlert';
+import { DeleteFlashcard } from '../action/DeleteFlashcard';
+import { StringDecoder } from 'string_decoder';
 
 class FlashcardEdit extends React.Component {
     constructor(props) {
@@ -10,6 +13,8 @@ class FlashcardEdit extends React.Component {
         this.timeout = null;
         this.terms = null;
         this.queue = new PQueue({ concurrency: 1 });
+
+        this.previousDeck = null;
 
         this.state = {
             isLoading: true,
@@ -24,8 +29,6 @@ class FlashcardEdit extends React.Component {
         this.getDeck();   
 
         document.documentElement.onkeydown = (event) => {
-            //if (event.key === 'ArrowRight') this.nextPage();
-            //if (event.key === 'ArrowLeft') this.previousPage();
         }; 
     }
 
@@ -57,51 +60,8 @@ class FlashcardEdit extends React.Component {
         .then(res => res.json())
         .then(
             (deck) => this.parseData(deck),
-            (error) => this.setState({ error: error.message, flashcardRendered: null, isLoading: false })
+            (error) => this.setState({ error: error.message, deck: null, isLoading: false })
         );
-    }
-
-    saveData()
-    {
-        /////////////////////////////////
-         
-        this.queue.add(() => 
-            fetch("process/edittextfile",
-            {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `fileid=${encodeURIComponent(this.props.view.id)}`
-                    + `&contents=${encodeURIComponent(
-                        JSON.stringify(this.state.deck)
-                    )}`
-            })
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    if (result.success)
-                    {
-                        this.setState({
-                            indicator: `Saved ${this.state.deck.cards.length} terms successfully (${new Date().toLocaleString()}).`,
-                            isLoading: false,
-                            deck: this.state.deck
-                        });
-                    }
-                    else this.setState({
-                        indicator: `Failed to save ${this.state.deck.cards.length} terms.`,
-                        isLoading: false,
-                        deck: this.state.deck
-                    });
-                },
-                (error) => this.setState({
-                    indicator: `Failed to save ${this.state.deck.cards.length} terms (connection issue), the flashcards were saved locally.`,
-                    isLoading: false,
-                    deck: this.state.deck
-                })
-            )
-        ); 
     }
 
     parseData(deck)
@@ -115,6 +75,14 @@ class FlashcardEdit extends React.Component {
             deck.cards = [];
             deck.cards.push({ term: "", definition: "" });
         }
+
+        ////////////////////////////////////////
+
+        this.previousDeck = JSON.parse(
+            JSON.stringify(
+                deck
+            )
+        );
 
         ////////////////////////////////////////
 
@@ -150,10 +118,11 @@ class FlashcardEdit extends React.Component {
 
         ////////////////////////////////////////
 
-        this.timeout = setTimeout(() => this.saveData(), 700);
+        this.timeout = setTimeout(() => this.saveData(), 500);
     }
 
-    updateDefinition(event, index) {
+    updateDefinition(event, index)
+    {
         if (this.timeout) clearTimeout(this.timeout);
 
         ////////////////////////////////////////
@@ -170,10 +139,94 @@ class FlashcardEdit extends React.Component {
 
         ////////////////////////////////////////
 
-        this.timeout = setTimeout(() => this.saveData(), 700);
+        this.timeout = setTimeout(() => this.saveData(), 500);
     }
 
-    addNewTerm() {
+    saveData()
+    {
+        this.queue.add(() =>
+        {
+            const decodeUTF8 = (s) => {
+                var i, d = unescape(encodeURIComponent(s)), b = new Array(d.length);
+                for (i = 0; i < d.length; i++) b[i] = d.charCodeAt(i);
+                return b;
+            };
+
+            const encodeUTF8 = (arr) => {
+                var i, s = [];
+                for (i = 0; i < arr.length; i++) s.push(String.fromCharCode(arr[i]));
+                return decodeURIComponent(escape(s.join('')));
+            };
+
+            ////////////////////////////////////////
+
+            const target = decodeUTF8(
+                JSON.stringify(
+                    this.state.deck
+                )
+            );
+            const origin = decodeUTF8(
+                JSON.stringify(
+                    this.previousDeck
+                )
+            );
+
+            const delta = fossilDelta.create(origin, target);
+
+            ////////////////////////////////////////
+
+            return Promise.resolve(
+                fetch("process/edittextfile",
+                {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `fileid=${encodeURIComponent(this.props.view.id)}`
+                        + `&contents=${encodeURIComponent(
+                            encodeUTF8(delta)
+                        )}`
+                })
+                .then(res => res.json())
+                .then(
+                    (result) => {
+                        if (result.success) {
+                            this.previousDeck = JSON.parse(
+                                encodeUTF8(
+                                    fossilDelta.apply(
+                                        origin,
+                                        delta
+                                    )
+                                )
+                            );
+
+                            ////////////////////////////////////
+
+                            this.setState({
+                                indicator: `Saved ${this.state.deck.cards.length} terms successfully (${new Date().toLocaleString()}).`,
+                                isLoading: false,
+                                deck: this.state.deck
+                            });
+                        }
+                        else this.setState({
+                            indicator: `Failed to save ${this.state.deck.cards.length} terms.`,
+                            isLoading: false,
+                            deck: this.state.deck
+                        });
+                    },
+                    (error) => this.setState({
+                        indicator: `Failed to save ${this.state.deck.cards.length} terms (connection issue), the flashcards were saved locally.`,
+                        isLoading: false,
+                        deck: this.state.deck
+                    })
+                )
+            );
+        });
+    }
+
+    addCard()
+    {
         this.state.deck.cards = this.state.deck
             .cards.filter(a => a.term.length !== 0 || a.definition.length !== 0);
 
@@ -192,17 +245,35 @@ class FlashcardEdit extends React.Component {
         });
     }
 
-    render() {
+    deleteCard(index)
+    {
+        this.state.deck.cards.splice(index, 1);
+
+        ////////////////////////////////////////
+
+        window.localStorage.setItem(`deck-${this.props.view.id}`,
+            JSON.stringify(
+                this.state.deck
+            )
+        );
+
+        ////////////////////////////////////////
+
+        this.terms = null;
+
+        ////////////////////////////////////////
+  
+        this.saveData();
+    }
+
+    render()
+    {
         if (!this.props.view) return null;
 
         ////////////////////////////////////////
 
         if (this.state.error)
             return <div className={styles['overlay-message']}>Unable to edit flashcards: {this.state.error}.</div>;
-
-        ////////////////////////////////////////
-
-        const view = this.props.view;
 
         ////////////////////////////////////////
 
@@ -223,6 +294,9 @@ class FlashcardEdit extends React.Component {
         {
             this.terms = this.state.deck.cards.map((card, index) => (
                 <div className={styles['flashcard']} key={index}>
+                    <div className={styles['flashcard-delete-button']}
+                        onClick={() => new ActionAlert(<DeleteFlashcard deleteCard={this.deleteCard.bind(this)} index={index} />)}
+                    />
                     <h5 className={styles['flashcard-title']}>{index + 1}</h5>
                     <div className={styles['flashcard-wrapper']}>
                         <div>
@@ -248,7 +322,7 @@ class FlashcardEdit extends React.Component {
         ////////////////////////////////////////
 
         const addNewTermButton = !this.state.isLoading && this.state.deck ?
-            (<div className={styles['flashcard-add-button']} onClick={this.addNewTerm.bind(this)}>
+            (<div className={styles['flashcard-add-button']} onClick={this.addCard.bind(this)}>
                 <div className={styles['flashcard-add-button-title']}>
                     <span className={styles['flashcard-add-button-plus']}>{this.state.deck.cards.length + 1}</span>
                     <span className={styles['flashcard-add-button-text']}>ADD CARD</span>                   

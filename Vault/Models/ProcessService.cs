@@ -2154,8 +2154,8 @@ namespace Vault.Models
 
                 /////////////////////////////////////
 
-                if (!CanUpload(ownerId, contents.Length))
-                    return Result.New(ResultStatus.NotEnoughStorage);
+                if (file.Size > 5000000)
+                    return Result.New(ResultStatus.FileTooLargeToEdit);
 
                 /////////////////////////////////////
 
@@ -2164,7 +2164,21 @@ namespace Vault.Models
 
                 /////////////////////////////////////
 
-                System.IO.File.WriteAllText(file.Path, contents);
+                var delta = Encoding.UTF8.GetBytes(contents);
+                var origin = System.IO.File.ReadAllBytes(file.Path);
+
+                /////////////////////////////////////
+
+                var target = Fossil.Delta.Apply(origin, delta);
+
+                /////////////////////////////////////
+
+                if (!CanUpload(ownerId, target.Length))
+                    return Result.New(ResultStatus.NotEnoughStorage);
+
+                /////////////////////////////////////
+
+                System.IO.File.WriteAllBytes(file.Path, target);
 
                 /////////////////////////////////////
 
