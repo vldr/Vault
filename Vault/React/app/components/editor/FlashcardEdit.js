@@ -22,6 +22,7 @@ class FlashcardEdit extends React.Component {
             indicator: "",
             deck: null, 
             deckStyles: [],
+            isEditing: [],
             error: null
         };
     }
@@ -271,7 +272,7 @@ class FlashcardEdit extends React.Component {
         this.saveData();
     }
 
-    moveCard(start, end, elem)
+    moveCard(start, end)
     {
         const spacing = 20;
         const endHeight = this.termsRendered[end].offsetHeight + spacing;
@@ -327,6 +328,45 @@ class FlashcardEdit extends React.Component {
         }, 200);
     }
 
+    setCardIndex(event, index) {
+        if (event.key !== 'Enter') return;
+
+        /////////////////////////////////////
+
+        if (event.target.innerText.length === 0) {
+            event.target.blur();
+            event.target.innerText = index + 1;
+            return;
+        }
+
+        /////////////////////////////////////
+
+        const end = Number(event.target.innerText) - 1;
+
+        /////////////////////////////////////
+
+        if (isNaN(end)) {
+            event.target.blur();
+            event.target.innerText = index + 1;
+            return;
+        }
+
+        /////////////////////////////////////
+
+        if (end > this.state.deck.cards.length || end < 0 || end === index) {
+            event.target.blur();
+            event.target.innerText = index + 1;
+            return;
+        }
+
+        /////////////////////////////////////
+
+        event.target.innerText = index + 1;
+        event.target.blur();
+
+        this.moveCard(index, end);
+    }
+
     render()
     {
         if (!this.props.view) return null;
@@ -358,6 +398,7 @@ class FlashcardEdit extends React.Component {
                 <div className={styles['flashcard']} key={index}
                     style={this.state.deckStyles[index]}
                     ref={(ref) => { this.termsRendered[index] = ref; }}>
+
                     <div className={styles['flashcard-delete-button']}
                         onClick={() => new ActionAlert(<DeleteFlashcard deleteCard={this.deleteCard.bind(this)} index={index} />)}
                     />
@@ -365,13 +406,16 @@ class FlashcardEdit extends React.Component {
                         style={index === 0 ? { opacity: "0.2", pointerEvents: "none"} : {}}
                         onClick={this.moveCard.bind(this, index, index - 1)} 
                     />
-
                     <div className={styles['flashcard-down-button']}
                         style={index + 1 === this.state.deck.cards.length ? { opacity: "0.2", pointerEvents: "none"} : {}}
                         onClick={this.moveCard.bind(this, index, index + 1)} 
                     />
 
-                    <h5 className={styles['flashcard-title']}>{index + 1}</h5>
+                    <h5 className={styles['flashcard-title']} contentEditable suppressContentEditableWarning
+                        onBlur={(e) => e.currentTarget.innerText = index + 1}
+                        onKeyDown={(e) => this.setCardIndex(e, index)}>
+                        {index + 1}
+                    </h5>
                     <div className={styles['flashcard-wrapper']}>
                         <div>
                             <div className={styles['flashcard-input']} contentEditable suppressContentEditableWarning

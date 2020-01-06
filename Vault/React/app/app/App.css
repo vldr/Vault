@@ -101,7 +101,7 @@ input[type=text]:focus {
     margin: 20px auto 0;
     -webkit-transition: all .2s ease 0s;
     transition: all .2s ease 0s;
-    box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137);
+    box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137)
 }
 
 .flashcard, .flashcard-add-button {
@@ -158,11 +158,12 @@ input[type=text]:focus {
     font-size: 24px;
     text-align: left;
     padding-top: 14px;
+    outline: 0;
     padding-left: 16px;
     padding-bottom: 12px;
     color: grey;
     border-bottom: 1px dashed hsla(0,0%,50.2%,.45882);
-    margin: 0
+    margin: 0;
 }
 
 .flashcard-input {
