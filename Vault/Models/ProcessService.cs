@@ -2129,6 +2129,66 @@ namespace Vault.Models
         }
 
         /// <summary>
+        /// Adds an empty ".flash" file to the user's current directory,
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="_storageLocation"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public Result NewFlashcardSet(int userId, int folderId, string _storageLocation, string name)
+        {
+            try
+            {
+                // Attempt to find our file.
+                User user = GetUser(userId);
+
+                // Check if our file even exists.
+                if (user == null) return Result.New(ResultStatus.InvalidUserHandle);
+
+                /////////////////////////////////////
+
+                // Attempt to find our file.
+                Folder folder = GetFolder(userId, folderId);
+
+                // Check if our file even exists.
+                if (folder == null) return Result.New(ResultStatus.InvalidFolderHandle);
+
+                /////////////////////////////////////
+
+                string contents = "{}";
+
+                ////////////////////////////////////////////////
+
+                if (!CanUpload(user.Id, contents.Length))
+                    return Result.New(ResultStatus.NotEnoughStorage);
+
+                ////////////////////////////////////////////////
+
+                string filePath = _storageLocation + RandomString(30);
+
+                ////////////////////////////////////////////////
+
+                if (System.IO.File.Exists(filePath))
+                    return Result.New(ResultStatus.FilePathTaken);
+
+                ////////////////////////////////////////////////
+
+                System.IO.File.WriteAllText(filePath, contents);
+
+                ////////////////////////////////////////////////
+
+                return (Result)(ResultBase)AddNewFile(user.Id, contents.Length, name, ".flash", user.Folder, filePath);
+            }
+            catch (Exception ex)
+            {
+                var result = Result.New(ResultStatus.Exception);
+                result.CustomErrorMessage = ex.Message;
+
+                return result;
+            }
+        }
+
+        /// <summary>
         /// Writes the contents to a text file.
         /// </summary>
         /// <param name="ownerId"></param>

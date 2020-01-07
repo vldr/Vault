@@ -98,21 +98,19 @@ input[type=text]:focus {
     top: 0;
     opacity: 1;
     background: #fff;
-    margin: 20px auto 0;
+    margin: 0 auto;
     -webkit-transition: all .2s ease 0s;
     transition: all .2s ease 0s;
     box-shadow: 0 6px 10px 0 rgba(0,0,0,.43137)
 }
 
 .flashcard, .flashcard-add-button {
-    max-width: 1024px;
-    -webkit-animation: fadein .5s;
-    animation: fadein .5s
+    max-width: 1024px
 }
 
 .flashcard-add-button {
     background: #00b8d6;
-    margin: 20px auto 30px;
+    margin: 0 auto 35px;
     -webkit-transition: background .3s;
     -webkit-transition: all .3s;
     transition: all .3s;
@@ -123,9 +121,37 @@ input[type=text]:focus {
     background: #3ae2fd
 }
 
+.flashcard-seperator-add {
+    border-radius: 50%;
+    height: 0;
+    width: 0;
+    position: relative;
+    background-color: #00b1ff;
+    background-image: url(../images/add.svg);
+    -webkit-transition: all .2s;
+    transition: all .2s;
+    cursor: pointer;
+    margin: -9px auto 0;
+    background-size: 38%;
+    background-repeat: no-repeat;
+    background-position: 50%
+}
+
+.flashcard-seperator-add:hover {
+    background-color: #fbc206
+}
+
+.flashcard-seperator {
+    height: 34px;
+    margin: 0 auto;
+    max-width: 250px;
+    background: transparent
+}
+
 .flashcard-add-button-title {
     font-weight: 700;
     font-size: 19px;
+    margin-top: 24px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -163,7 +189,7 @@ input[type=text]:focus {
     padding-bottom: 12px;
     color: grey;
     border-bottom: 1px dashed hsla(0,0%,50.2%,.45882);
-    margin: 0;
+    margin: 0
 }
 
 .flashcard-input {
@@ -1056,11 +1082,11 @@ div .button {
     top: 14px;
     right: 165px;
     z-index: 2;
-    background: url(../images/ui/newfolder.svg);
-    background-size: 19px;
+    background: url(../images/add.svg);
+    background-size: 17px;
     background-repeat: no-repeat;
     background-position: 50%;
-    background-color: #f5f5f5
+    background-color: #f5f5f5;
 }
 
 .btnNewFolder:hover {
@@ -2745,28 +2771,6 @@ p {
 @media (max-width: 1000px) {
     .flashcard-wrapper {
         grid-template-columns: repeat(1,1fr)
-    }
-}
-
-@-webkit-keyframes move-up {
-    0% {
-        position: relative;
-        margin-top: 20px
-    }
-
-    to {
-        margin-top: -340px;
-        margin-bottom: 200px
-    }
-}
-
-@-webkit-keyframes move-down {
-    0% {
-        margin-top: 20px
-    }
-
-    to {
-        margin-top: 200px
     }
 }
 

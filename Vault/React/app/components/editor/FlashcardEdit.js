@@ -20,9 +20,14 @@ class FlashcardEdit extends React.Component {
         this.state = {
             isLoading: true,
             indicator: "",
+
             deck: null, 
             deckStyles: [],
-            isEditing: [],
+            hoverIndex: -1, 
+
+            definitionSuggestions: [],
+            termSuggestions: [],
+
             error: null
         };
     }
@@ -69,6 +74,14 @@ class FlashcardEdit extends React.Component {
 
     parseData(deck)
     {
+        this.previousDeck = JSON.parse(
+            JSON.stringify(
+                deck
+            )
+        );
+
+        ////////////////////////////////////////
+
         const hasCards = "cards" in deck;
 
         ////////////////////////////////////////
@@ -78,14 +91,6 @@ class FlashcardEdit extends React.Component {
             deck.cards = [];
             deck.cards.push({ term: "", definition: "" });
         }
-
-        ////////////////////////////////////////
-
-        this.previousDeck = JSON.parse(
-            JSON.stringify(
-                deck
-            )
-        );
 
         ////////////////////////////////////////
 
@@ -101,48 +106,6 @@ class FlashcardEdit extends React.Component {
             error: null,
             isLoading: false
         });
-    }
-
-    updateTerm(event, index)
-    {
-        if (this.timeout) clearTimeout(this.timeout);
-
-        ////////////////////////////////////////
-
-        this.state.deck.cards[index].term = event.currentTarget.innerText;
-
-        ////////////////////////////////////////
-
-        window.localStorage.setItem(`deck-${this.props.view.id}`,
-            JSON.stringify(
-                this.state.deck
-            )
-        );
-
-        ////////////////////////////////////////
-
-        this.timeout = setTimeout(() => this.saveData(), 500);
-    }
-
-    updateDefinition(event, index)
-    {
-        if (this.timeout) clearTimeout(this.timeout);
-
-        ////////////////////////////////////////
-
-        this.state.deck.cards[index].definition = event.currentTarget.innerText;
-
-        ////////////////////////////////////////
-
-        window.localStorage.setItem(`deck-${this.props.view.id}`,
-            JSON.stringify(
-                this.state.deck
-            )
-        );
-
-        ////////////////////////////////////////
-
-        this.timeout = setTimeout(() => this.saveData(), 500);
     }
 
     saveData()
@@ -168,6 +131,7 @@ class FlashcardEdit extends React.Component {
                     this.state.deck
                 )
             );
+
             const origin = decodeUTF8(
                 JSON.stringify(
                     this.previousDeck
@@ -231,50 +195,81 @@ class FlashcardEdit extends React.Component {
         });
     }
 
-    addCard()
+    addCard(index)
     {
-        this.state.deck.cards = this.state.deck
-            .cards.filter(a => a.term.length !== 0 || a.definition.length !== 0);
+        ////////////////////////////////////////
+
+        this.terms = null; 
 
         ////////////////////////////////////////
 
-        this.terms = null;
+        console.log(index);
+
+        if (index !== null)
+            this.state.deck.cards.splice(index, 0, { term: "", definition: "" });
+        else
+            index = this.state.deck.cards.push({ term: "", definition: "" }) - 1;
 
         ////////////////////////////////////////
 
-        this.state.deck.cards.push({ term: "", definition: "" });
-
-        ////////////////////////////////////////
+        this.state.deckStyles[index] = { animation: "fadein 0.4s ease-out forwards" };
 
         this.setState({
-            deck: this.state.deck
+            deck: this.state.deck,
+            deckStyles: this.state.deckStyles,
         });
+
+        ////////////////////////////////////////
+
+        this.timeout = setTimeout(() => {
+            this.terms = null;
+            this.state.deckStyles[index] = { };
+            this.setState({
+                deckStyles: this.state.deckStyles
+            });
+        }, 700);
     }
 
     deleteCard(index)
     {
-        this.state.deck.cards.splice(index, 1);
-
-        ////////////////////////////////////////
-
-        window.localStorage.setItem(`deck-${this.props.view.id}`,
-            JSON.stringify(
-                this.state.deck
-            )
-        );
-
         ////////////////////////////////////////
 
         this.terms = null;
 
+        this.state.deckStyles[index] = { opacity: "0" };
+
+        this.setState({
+            deckStyles: this.state.deckStyles,
+        });
+
         ////////////////////////////////////////
-  
-        this.saveData();
+
+        this.timeout = setTimeout(() =>
+        {
+            this.state.deck.cards.splice(index, 1);
+
+            ////////////////////////////////////////
+
+            window.localStorage.setItem(`deck-${this.props.view.id}`,
+                JSON.stringify(
+                    this.state.deck
+                )
+            );
+
+            ////////////////////////////////////////
+
+            this.terms = null;
+            this.state.deckStyles[index] = {};
+
+            ////////////////////////////////////////
+
+            this.saveData();
+        }, 200);        
     }
 
     moveCard(start, end)
     {
-        const spacing = 20;
+        const spacing = 25;
         const endHeight = this.termsRendered[end].offsetHeight + spacing;
         const startHeight = this.termsRendered[start].offsetHeight + spacing;
 
@@ -328,7 +323,8 @@ class FlashcardEdit extends React.Component {
         }, 200);
     }
 
-    setCardIndex(event, index) {
+    setCardIndex(event, index)
+    {
         if (event.key !== 'Enter') return;
 
         /////////////////////////////////////
@@ -361,10 +357,70 @@ class FlashcardEdit extends React.Component {
 
         /////////////////////////////////////
 
-        event.target.innerText = index + 1;
-        event.target.blur();
+        event.target.blur(); 
 
         this.moveCard(index, end);
+    }
+
+    updateTerm(event, index)
+    {
+        if (this.timeout) clearTimeout(this.timeout);
+
+        ////////////////////////////////////////
+
+        this.state.deck.cards[index].term = event.currentTarget.innerText;
+
+        ////////////////////////////////////////
+
+        window.localStorage.setItem(`deck-${this.props.view.id}`,
+            JSON.stringify(
+                this.state.deck
+            )
+        );
+
+        ////////////////////////////////////////
+    
+        this.timeout = setTimeout(() =>
+        {
+            this.getSuggestions(this.state.deck.cards[index].term);
+            this.saveData();
+        }, 500);
+    }
+
+    updateDefinition(event, index)
+    {
+        if (this.timeout) clearTimeout(this.timeout);
+
+        ////////////////////////////////////////
+
+        this.state.deck.cards[index].definition = event.currentTarget.innerText;
+
+        ////////////////////////////////////////
+
+        window.localStorage.setItem(`deck-${this.props.view.id}`,
+            JSON.stringify(
+                this.state.deck
+            )
+        );
+
+        ////////////////////////////////////////
+
+        this.timeout = setTimeout(() => this.saveData(), 500);
+    }
+
+    toggleHover(index)
+    {
+        this.terms = null;
+        this.setState({ hoverIndex: index });
+    }
+
+    getTermSuggestions(term)
+    {
+        fetch(`https://cors-anywhere.herokuapp.com/`
+            + `https://quizlet.com/webapi/3.2/suggestions/definition?clientId=&limit=3`
+            + `&word=${encodeURIComponent(term)}&defLang=en&localTermId=-1&prefix=&wordLang=en`)
+            .then((result) => result.json())
+            .then((result) => console.log(result));
     }
 
     render()
@@ -394,8 +450,15 @@ class FlashcardEdit extends React.Component {
         if (!this.state.isLoading && !this.terms && this.state.deck)
         {
             this.termsRendered = [];
-            this.terms = this.state.deck.cards.map((card, index) => (
-                <div className={styles['flashcard']} key={index}
+            this.terms = this.state.deck.cards.map((card, index) => (<div key={index}>
+                <div className={styles['flashcard-seperator']}
+                    onMouseEnter={this.toggleHover.bind(this, index)}
+                    onMouseLeave={this.toggleHover.bind(this, -1)}>
+                    <div className={styles['flashcard-seperator-add']}
+                        onClick={this.addCard.bind(this, index)}
+                        style={this.state.hoverIndex === index ? { height: "48px", width: "48px" } : {}} />
+                </div>
+                <div className={styles['flashcard']}
                     style={this.state.deckStyles[index]}
                     ref={(ref) => { this.termsRendered[index] = ref; }}>
 
@@ -410,7 +473,6 @@ class FlashcardEdit extends React.Component {
                         style={index + 1 === this.state.deck.cards.length ? { opacity: "0.2", pointerEvents: "none"} : {}}
                         onClick={this.moveCard.bind(this, index, index + 1)} 
                     />
-
                     <h5 className={styles['flashcard-title']} contentEditable suppressContentEditableWarning
                         onBlur={(e) => e.currentTarget.innerText = index + 1}
                         onKeyDown={(e) => this.setCardIndex(e, index)}>
@@ -433,14 +495,14 @@ class FlashcardEdit extends React.Component {
                         </div>
                     </div>
                 </div>
-                )
+            </div>)
             );
         }
 
         ////////////////////////////////////////
 
         const addNewTermButton = !this.state.isLoading && this.state.deck ?
-            (<div className={styles['flashcard-add-button']} onClick={this.addCard.bind(this)}>
+            (<div className={styles['flashcard-add-button']} onClick={this.addCard.bind(this, null)}>
                 <div className={styles['flashcard-add-button-title']}>
                     <span className={styles['flashcard-add-button-plus']}>{this.state.deck.cards.length + 1}</span>
                     <span className={styles['flashcard-add-button-text']}>ADD CARD</span>                   

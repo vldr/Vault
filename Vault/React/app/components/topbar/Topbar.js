@@ -1,10 +1,12 @@
 ﻿import React from 'react';
+import ContextMenu from '../contextmenu/ContextMenu';
 import styles from '../../app/App.css';
 
 import { Sortbar } from '../list/Sortbar';
 import { ActionAlert } from '../info/ActionAlert';
 import { Settings } from '../action/Settings';
 import { NewFolder } from '../action/NewFolder';
+import { NewFlashcardSet } from '../action/NewFlashcardSet';
 import { Logout } from '../action/Logout';
 
 class Topbar extends React.Component
@@ -21,7 +23,6 @@ class Topbar extends React.Component
         new ActionAlert(<Settings />);
     }
 
-    openNewFolder() { new ActionAlert(<NewFolder />); }
     openLogout() { new ActionAlert(<Logout />); }
 
     openSort()
@@ -37,6 +38,17 @@ class Topbar extends React.Component
 
     openSearch() { this.props.openSearch(); }
 
+    showContextMenu(event) {
+        const options = (
+            <>
+                <li className={styles["menu-option"]} onClick={() => new ActionAlert(<NewFolder />)}>New Folder</li>
+                <li className={styles["menu-option"]} onClick={() => new ActionAlert(<NewFlashcardSet />)}>New Flashcard Set</li>
+            </>
+        );
+
+        this.contextMenu.toggleMenu(event, options);
+    }
+
     render()
     {
         
@@ -51,6 +63,7 @@ class Topbar extends React.Component
 
         return (
             <div className={styles['topbar']}>
+                <ContextMenu ref={(ref) => { this.contextMenu = ref; }} disabled />
                 <span className={styles['logo']}>
                     <img src="images/ui/logo.svg" />
                 </span>
@@ -58,7 +71,7 @@ class Topbar extends React.Component
                 <div className={styles['btnSettings']} onClick={this.openSettings.bind(this)} />
                 <div className={styles['btnLogout']} onClick={this.openLogout.bind(this)} />
                 <div className={styles['btnHelp']} onClick={this.openSearch.bind(this)} />
-                <div className={styles['btnNewFolder']} onClick={this.openNewFolder.bind(this)} />
+                <div className={styles['btnNewFolder']} onClick={this.showContextMenu.bind(this)} />
 
                 <div className={`${styles['btnSort']} ${sortStyle}`}
                     onTouchStart={this.openSort.bind(this)}

@@ -40,6 +40,7 @@ namespace Vault.Models
         EmailTaken,
         FileDoesNotExistOnDisk,
         FileTooLargeToEdit,
+        FilePathTaken,
     }
 
     /// <summary>

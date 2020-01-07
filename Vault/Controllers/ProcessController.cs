@@ -892,6 +892,43 @@ namespace Vault.Controllers
         }
 
         /// <summary>
+        /// Overwrites a file with the given contents.
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <param name="contents"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("process/newflashcardset")]
+        public IActionResult NewFlashcardSet(string name)
+        {
+            if (!IsLoggedIn()) return NotLoggedIn();
+
+            /////////////////////////////////
+
+            if (name == null) return MissingParameters();
+
+            /////////////////////////////////
+
+            UserSession userSession = SessionExtension.Get(HttpContext.Session, _sessionName);
+
+            /////////////////////////////////
+
+            var result = _processService.NewFlashcardSet(
+                userSession.Id,
+                userSession.Folder,
+                _storageLocation,
+                name
+            );
+
+            /////////////////////////////////
+
+            if (result.IsOK())
+                return Json(new { Success = true });
+            else
+                return Json(result.FormatError());
+        }
+
+        /// <summary>
         /// Duplicates a file. 
         /// </summary>
         /// <param name="fileId"></param>
