@@ -5,7 +5,7 @@ Vault is a simple file storage system created in ASP.Net Core. It aims to be sim
 ### Example
 Here's a little video showing how some things look and feel:
 
-[![Example Video](https://i.imgur.com/IGeF9J1.png)](http://upx.me/i/iU0WdqW.mp4 "Example Video")
+[![Example Video](https://i.imgur.com/IGeF9J1.png)](http://i.vldr.org/iU0WdqW.mp4 "Example Video")
 
 ### Technology and features
 It utilizes Entity Framework, and SQLite; but can be quickly adjusted to any database. It is mainly designed to be ran on Windows machines but since it is .Net Core it can be modified to work on other platforms.
